@@ -12,12 +12,21 @@
 	let elapsed = $state(0);
 	let copiedRaw = $state(false);
 	let copiedCorrected = $state(false);
+	let correctedExpanded = $state(false);
 	let quality = $state<'light' | 'medium'>('light');
 	let lang = $state<'auto' | 'nl' | 'li' | 'en'>('li');
 	let mode = $state<'local' | 'api'>('local');
+	let reportLength = $state<'kort' | 'middellang' | 'lang'>('middellang');
+	let transcribeMode = $state<'local' | 'api'>('local');
 	let temperature = $state(0.5);
 	let mistralAvailable = $state(false);
+	let assemblyAvailable = $state(false);
 	let privacyOpen = $state(false);
+	let rawExpanded = $state(false);
+
+	let partialText = $state('');
+	let liveInterval: ReturnType<typeof setInterval> | undefined;
+	let liveWorking = $state(false);
 
 	let mediaRecorder: MediaRecorder | undefined;
 	let chunks: Blob[] = [];
@@ -31,10 +40,53 @@
 	let waveformBars = $state<number[]>(new Array(40).fill(3));
 	let animationFrameId: number | undefined;
 
+	let processingElapsed = $state(0);
+	let processingTimerInterval: ReturnType<typeof setInterval> | undefined;
+	let recordingDuration = $state(0);
+
 	const formattedTime = $derived.by(() => {
 		const mins = Math.floor(elapsed / 60);
 		const secs = elapsed % 60;
 		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+	});
+
+	const formattedProcessingTime = $derived.by(() => {
+		const mins = Math.floor(processingElapsed / 60);
+		const secs = processingElapsed % 60;
+		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+	});
+
+	// mlx-whisper on Apple Silicon ≈ faster than real-time
+	const estimatedProcessingTime = $derived(Math.max(5, Math.ceil(recordingDuration * 0.5)));
+	const processingProgress = $derived(
+		Math.min(95, Math.round((processingElapsed / estimatedProcessingTime) * 100))
+	);
+
+	// AssemblyAI cost: $0.17/hour (Universal-2 $0.15 + speaker diarization $0.02)
+	const ASSEMBLYAI_COST_PER_SECOND = 0.17 / 3600;
+	const estimatedTranscribeCost = $derived.by(() => {
+		const seconds = status === 'recording' ? elapsed : recordingDuration;
+		return (seconds * ASSEMBLYAI_COST_PER_SECOND).toFixed(4);
+	});
+
+	// Mistral cost per 1M tokens (input/output):
+	// mistral-small-latest: $0.06 / $0.18
+	// mistral-large-latest: $2.00 / $6.00
+	// Estimate: ~1.3 tokens per word, output ≈ same length as input
+	const MISTRAL_COST_PER_WORD: Record<string, number> = {
+		light: ((0.06 + 0.18) * 1.3) / 1_000_000, // ~$0.000000312/word
+		medium: ((2.0 + 6.0) * 1.3) / 1_000_000 // ~$0.0000104/word
+	};
+	const REPORT_LENGTH_FACTOR: Record<string, number> = {
+		kort: 0.3,
+		middellang: 1,
+		lang: 1.5
+	};
+	const estimatedCorrectionCost = $derived.by(() => {
+		const wordCount = raw ? raw.split(/\s+/).length : 0;
+		const costPerWord = MISTRAL_COST_PER_WORD[quality] ?? MISTRAL_COST_PER_WORD['light'];
+		const lengthFactor = REPORT_LENGTH_FACTOR[reportLength] ?? 1;
+		return (wordCount * costPerWord * lengthFactor).toFixed(4);
 	});
 
 	$effect(() => {
@@ -49,6 +101,21 @@
 		}
 		return () => {
 			if (timerInterval) clearInterval(timerInterval);
+		};
+	});
+
+	$effect(() => {
+		if (status === 'processing') {
+			processingElapsed = 0;
+			processingTimerInterval = setInterval(() => {
+				processingElapsed += 1;
+			}, 1000);
+		} else if (processingTimerInterval) {
+			clearInterval(processingTimerInterval);
+			processingTimerInterval = undefined;
+		}
+		return () => {
+			if (processingTimerInterval) clearInterval(processingTimerInterval);
 		};
 	});
 
@@ -70,9 +137,11 @@
 			.then((r) => r.json())
 			.then((data) => {
 				mistralAvailable = data.mistral_available ?? false;
+				assemblyAvailable = data.assemblyai_available ?? false;
 			})
 			.catch(() => {
 				mistralAvailable = false;
+				assemblyAvailable = false;
 			});
 	});
 
@@ -177,6 +246,47 @@
 		waveformBars = new Array(40).fill(3);
 	}
 
+	async function sendLiveChunk() {
+		if (chunks.length === 0 || !mediaRecorder) return;
+		try {
+			const mimeType = mediaRecorder.mimeType;
+			const blob = new Blob(chunks, { type: mimeType });
+			const wav = await downsampleToWav(blob);
+			const formData = new FormData();
+			formData.append('file', wav, 'live.wav');
+			formData.append('lang', lang);
+			const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+				method: 'POST',
+				body: formData
+			});
+			if (resp.ok) {
+				const data = await resp.json();
+				if (data.text) {
+					partialText = data.text;
+					liveWorking = true;
+					if (data.language) language = data.language;
+				}
+			}
+		} catch {
+			// Live is optional — silent fallback
+		}
+	}
+
+	function startLiveTranscription() {
+		partialText = '';
+		liveWorking = false;
+		liveInterval = setInterval(() => {
+			sendLiveChunk();
+		}, 5000);
+	}
+
+	function stopLiveTranscription() {
+		if (liveInterval) {
+			clearInterval(liveInterval);
+			liveInterval = undefined;
+		}
+	}
+
 	async function startRecording() {
 		error = '';
 		try {
@@ -208,12 +318,43 @@
 			mediaRecorder.onstop = async () => {
 				stream.getTracks().forEach((t) => t.stop());
 				stopWaveform();
+				stopLiveTranscription();
+				recordingDuration = elapsed;
 				if (chunks.length === 0) {
 					error = 'Geen audio opgenomen. Probeer langer op te nemen.';
 					status = 'idle';
 					return;
 				}
 				const blob = new Blob(chunks, { type: mimeType });
+
+				// Try final live transcription for instant result
+				if (transcribeMode === 'local') {
+					status = 'processing';
+					try {
+						const wav = await downsampleToWav(blob);
+						const formData = new FormData();
+						formData.append('file', wav, 'final.wav');
+						formData.append('lang', lang);
+						const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+							method: 'POST',
+							body: formData
+						});
+						if (resp.ok) {
+							const data = await resp.json();
+							if (data.text) {
+								raw = data.text;
+								if (data.language) language = data.language;
+								partialText = '';
+								status = 'idle';
+								return;
+							}
+						}
+					} catch {
+						// Fall through to SSE transcription
+					}
+				}
+
+				// Fallback: full SSE transcription
 				try {
 					const wav = await downsampleToWav(blob);
 					console.log(
@@ -225,10 +366,14 @@
 					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
 					await sendAudio(blob, `recording.${ext}`);
 				}
+				partialText = '';
 			};
 
 			mediaRecorder.start(500);
 			status = 'recording';
+			if (transcribeMode === 'local') {
+				startLiveTranscription();
+			}
 		} catch {
 			error = 'Microfoon niet beschikbaar. Controleer je browserpermissies.';
 		}
@@ -284,15 +429,15 @@
 
 		const formData = new FormData();
 		formData.append('file', blob, filename);
-		formData.append('quality', quality);
 		formData.append('lang', lang);
 
+		const endpoint = transcribeMode === 'api' ? '/transcribe-api' : '/transcribe';
+
 		try {
-			// Step 1: Whisper transcription — show raw immediately
 			const controller = new AbortController();
 			const fetchTimeout = setTimeout(() => controller.abort(), 30 * 60 * 1000);
 
-			const resp = await fetch(`${BACKEND_URL}/transcribe`, {
+			const resp = await fetch(`${BACKEND_URL}${endpoint}`, {
 				method: 'POST',
 				body: formData,
 				signal: controller.signal
@@ -305,9 +450,39 @@
 				throw new Error(detail || `Server error ${resp.status}`);
 			}
 
-			const data = await resp.json();
-			raw = data.raw;
-			language = data.language || '';
+			// Read SSE stream — segments arrive one by one
+			const reader = resp.body!.getReader();
+			const decoder = new TextDecoder();
+			let buffer = '';
+			let hasSpeakers = false;
+
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || '';
+
+				for (const line of lines) {
+					if (!line.startsWith('data: ')) continue;
+					const event = JSON.parse(line.slice(6));
+
+					if (event.type === 'info') {
+						language = event.language || '';
+					} else if (event.type === 'segment') {
+						let segmentText = event.text;
+						if (event.speaker) {
+							hasSpeakers = true;
+							segmentText = `Spreker ${event.speaker}: ${event.text}`;
+						}
+						raw = raw ? `${raw}\n${segmentText}` : segmentText;
+					} else if (event.type === 'error') {
+						throw new Error(event.message);
+					}
+				}
+			}
+
 			status = 'idle';
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'AbortError') {
@@ -324,28 +499,44 @@
 	function startCorrection() {
 		if (!raw) return;
 		corrected = '';
+		correctedExpanded = false;
 		status = 'correcting';
 		fetchCorrection(raw, language, quality);
 	}
 
 	async function fetchCorrection(text: string, lang: string, qual: string) {
+		const body = {
+			text,
+			language: lang,
+			quality: qual,
+			mode,
+			temperature,
+			report_length: reportLength
+		};
+		console.log('Correction request:', {
+			report_length: body.report_length,
+			mode: body.mode,
+			quality: body.quality
+		});
 		try {
 			const resp = await fetch(`${BACKEND_URL}/correct`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text, language: lang, quality: qual, mode, temperature })
+				body: JSON.stringify(body)
 			});
 
 			if (!resp.ok) {
 				console.error('Correction failed:', resp.status);
-				corrected = text; // fallback to raw
+				error = 'Verslaglegging mislukt (rate limit of serverfout). Probeer het opnieuw.';
+				corrected = '';
 			} else {
 				const data = await resp.json();
 				corrected = data.corrected || text;
 			}
 		} catch (e) {
 			console.error('Correction error:', e);
-			corrected = text; // fallback to raw
+			error = 'Verslaglegging mislukt. Controleer of de backend draait.';
+			corrected = '';
 		} finally {
 			status = 'idle';
 		}
@@ -419,6 +610,34 @@
 					</button>
 				{/each}
 			</div>
+		</div>
+
+		<!-- Transcribe mode toggle -->
+		<div class="mb-4 flex flex-col items-center gap-2 animate-fade-in">
+			<div class="glass inline-flex rounded-full p-1">
+				<button
+					onclick={() => (transcribeMode = 'local')}
+					class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+					'local'
+						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+						: 'text-white/50 hover:text-white/80 scale-100'}"
+				>
+					Lokaal
+				</button>
+				<button
+					onclick={() => (transcribeMode = 'api')}
+					disabled={!assemblyAvailable}
+					class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+					'api'
+						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+				>
+					API
+				</button>
+			</div>
+			{#if transcribeMode === 'api'}
+				<p class="text-xs text-white/40">AssemblyAI — inclusief sprekerdetectie</p>
+			{/if}
 		</div>
 
 		<!-- Record button -->
@@ -509,6 +728,19 @@
 						<div class="waveform-bar" style="height: {height}px"></div>
 					{/each}
 				</div>
+
+				<!-- Live transcription preview -->
+				{#if partialText}
+					<div class="glass rounded-2xl p-4 w-full max-w-xl animate-fade-in">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
+							<span class="text-xs font-medium text-white/50">Live transcriptie</span>
+						</div>
+						<p class="text-sm text-white/70 leading-relaxed max-h-32 overflow-y-auto">
+							{partialText}
+						</p>
+					</div>
+				{/if}
 			{/if}
 
 			<!-- Status text under button -->
@@ -521,24 +753,45 @@
 				<div class="flex items-center gap-2 text-red-400 font-medium animate-fade-in">
 					<span class="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
 					Opname bezig — {formattedTime}
+					{#if transcribeMode === 'api'}
+						<span class="text-xs text-white/30 font-mono">${estimatedTranscribeCost}</span>
+					{/if}
 				</div>
 			{:else if status === 'processing'}
-				<div class="flex items-center gap-3 animate-fade-in">
-					<div class="flex gap-1">
-						<span
-							class="inline-block h-2 w-2 rounded-full bg-neon"
-							style="animation: dot-bounce 1.4s ease-in-out infinite;"
-						></span>
-						<span
-							class="inline-block h-2 w-2 rounded-full bg-neon"
-							style="animation: dot-bounce 1.4s ease-in-out 0.2s infinite;"
-						></span>
-						<span
-							class="inline-block h-2 w-2 rounded-full bg-neon"
-							style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
-						></span>
+				<div class="flex flex-col items-center gap-3 animate-fade-in">
+					<div class="flex items-center gap-3">
+						<div class="flex gap-1">
+							<span
+								class="inline-block h-2 w-2 rounded-full bg-neon"
+								style="animation: dot-bounce 1.4s ease-in-out infinite;"
+							></span>
+							<span
+								class="inline-block h-2 w-2 rounded-full bg-neon"
+								style="animation: dot-bounce 1.4s ease-in-out 0.2s infinite;"
+							></span>
+							<span
+								class="inline-block h-2 w-2 rounded-full bg-neon"
+								style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
+							></span>
+						</div>
+						<span class="shimmer-text font-medium">Transcriberen...</span>
+						<span class="text-sm text-white/30 font-mono">{formattedProcessingTime}</span>
 					</div>
-					<span class="shimmer-text font-medium">Transcriberen...</span>
+					<!-- Progress bar -->
+					<div class="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden">
+						<div
+							class="h-full rounded-full bg-gradient-to-r from-neon to-accent-start transition-all duration-1000 ease-out"
+							style="width: {processingProgress}%"
+						></div>
+					</div>
+					<p class="text-xs text-white/20">
+						{transcribeMode === 'api'
+							? 'AssemblyAI transcribeert je audio'
+							: 'Whisper large-v3 MLX analyseert je audio'}
+						{#if transcribeMode === 'api'}
+							<span class="font-mono text-amber-400/60">— ${estimatedTranscribeCost}</span>
+						{/if}
+					</p>
 				</div>
 			{:else}
 				<div class="flex flex-col items-center gap-2">
@@ -639,7 +892,25 @@
 							{/if}
 						</button>
 					</div>
-					<p class="whitespace-pre-wrap text-white/90 leading-relaxed">{raw}</p>
+					<div class="relative">
+						<div
+							class="whitespace-pre-wrap text-white/90 leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
+							style="max-height: {rawExpanded ? 'none' : '12rem'}"
+						>
+							{raw}
+						</div>
+						{#if !rawExpanded}
+							<div
+								class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none"
+							></div>
+						{/if}
+					</div>
+					<button
+						onclick={() => (rawExpanded = !rawExpanded)}
+						class="mt-2 w-full text-center text-xs text-white/40 hover:text-white/70 transition-colors duration-200"
+					>
+						{rawExpanded ? 'Inklappen' : 'Lees meer...'}
+					</button>
 				</div>
 
 				<!-- Step 2: Correction controls -->
@@ -649,54 +920,79 @@
 
 						<div class="flex flex-wrap items-center gap-4 mb-4">
 							<!-- Mode toggle -->
-							<div class="glass inline-flex rounded-full p-1">
-								<button
-									onclick={() => (mode = 'local')}
-									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
-									'local'
-										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-										: 'text-white/50 hover:text-white/80 scale-100'}"
-								>
-									Lokaal
-								</button>
-								<button
-									onclick={() => (mode = 'api')}
-									disabled={!mistralAvailable}
-									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
-									'api'
-										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-										: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
-								>
-									API
-								</button>
+							<div class="flex flex-col gap-1">
+								<span class="text-[10px] uppercase tracking-wider text-white/30">Model</span>
+								<div class="glass inline-flex rounded-full p-1">
+									<button
+										onclick={() => (mode = 'local')}
+										class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+										'local'
+											? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+											: 'text-white/50 hover:text-white/80 scale-100'}"
+									>
+										Lokaal
+									</button>
+									<button
+										onclick={() => (mode = 'api')}
+										disabled={!mistralAvailable}
+										class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+										'api'
+											? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+											: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+									>
+										API
+									</button>
+								</div>
 							</div>
 
 							<!-- Quality toggle -->
-							<div class="glass inline-flex rounded-full p-1">
-								<button
-									onclick={() => (quality = 'light')}
-									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
-									'light'
-										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-										: 'text-white/50 hover:text-white/80 scale-100'}"
-								>
-									Light
-								</button>
-								<button
-									onclick={() => (quality = 'medium')}
-									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
-									'medium'
-										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-										: 'text-white/50 hover:text-white/80 scale-100'}"
-								>
-									Medium
-								</button>
+							<div class="flex flex-col gap-1">
+								<span class="text-[10px] uppercase tracking-wider text-white/30">Kwaliteit</span>
+								<div class="glass inline-flex rounded-full p-1">
+									<button
+										onclick={() => (quality = 'light')}
+										class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+										'light'
+											? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+											: 'text-white/50 hover:text-white/80 scale-100'}"
+									>
+										Light
+									</button>
+									<button
+										onclick={() => (quality = 'medium')}
+										class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+										'medium'
+											? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+											: 'text-white/50 hover:text-white/80 scale-100'}"
+									>
+										Medium
+									</button>
+								</div>
+							</div>
+
+							<!-- Report length toggle -->
+							<div class="flex flex-col gap-1">
+								<span class="text-[10px] uppercase tracking-wider text-white/30">Omvang</span>
+								<div class="glass inline-flex rounded-full p-1">
+									{#each [{ value: 'kort', label: 'Kort' }, { value: 'middellang', label: 'Middellang' }, { value: 'lang', label: 'Lang' }] as opt}
+										<button
+											onclick={() => (reportLength = opt.value as typeof reportLength)}
+											class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
+											opt.value
+												? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+												: 'text-white/50 hover:text-white/80 scale-100'}"
+										>
+											{opt.label}
+										</button>
+									{/each}
+								</div>
 							</div>
 						</div>
 
 						{#if mode === 'api'}
 							<p class="mb-3 text-xs text-amber-400/70">
 								Tekst wordt verwerkt via Mistral (Europese servers)
+								<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 							</p>
 						{/if}
 
@@ -798,7 +1094,25 @@
 								{/if}
 							</button>
 						</div>
-						<p class="whitespace-pre-wrap text-white/90 leading-relaxed">{corrected}</p>
+						<div class="relative">
+							<div
+								class="whitespace-pre-wrap text-white/90 leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
+								style="max-height: {correctedExpanded ? 'none' : '12rem'}"
+							>
+								{corrected}
+							</div>
+							{#if !correctedExpanded}
+								<div
+									class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none"
+								></div>
+							{/if}
+						</div>
+						<button
+							onclick={() => (correctedExpanded = !correctedExpanded)}
+							class="mt-2 w-full text-center text-xs text-white/40 hover:text-white/70 transition-colors duration-200"
+						>
+							{correctedExpanded ? 'Inklappen' : 'Lees meer...'}
+						</button>
 					</div>
 				{/if}
 			</div>
@@ -830,9 +1144,7 @@
 							</svg>
 						</div>
 						<div>
-							<span class="text-sm font-medium text-white/70"
-								>{mode === 'local' ? '100% lokale verwerking' : 'Privacy-bewuste verwerking'}</span
-							>
+							<span class="text-sm font-medium text-white/70">Privacy-bewuste verwerking</span>
 							<span class="ml-2 text-xs text-white/30">AVG & EU AI Act compliant</span>
 						</div>
 					</div>
@@ -854,15 +1166,11 @@
 				<div>
 					<div class="glass-strong mt-2 rounded-2xl p-6 text-sm text-white/50">
 						<p class="mb-4 text-white/60">
-							{#if mode === 'local'}
-								Alle spraakherkenning en tekstcorrectie gebeuren volledig op jouw eigen apparaat. Er
-								worden geen audio-opnames, transcripties of andere gegevens naar externe servers
-								verstuurd.
-							{:else}
-								Spraakherkenning gebeurt lokaal. Tekstcorrectie verloopt via Mistral AI op Europese
-								servers (EU-regio). Alleen de getranscribeerde tekst wordt verwerkt via de API —
-								geen audio wordt verstuurd.
-							{/if}
+							Spraakherkenning gebeurt via Whisper (lokaal) of AssemblyAI (EU-datacenter Dublin,
+							Ierland). Tekstcorrectie verloopt via Ollama/Gemma (lokaal) of Mistral AI (Europese
+							servers). Je kiest zelf per stap of verwerking lokaal of via API plaatsvindt.
+							AssemblyAI is SOC 2 Type 2 gecertificeerd met EU Data Residency. Mistral AI verwerkt
+							uitsluitend op EU-servers.
 						</p>
 						<div class="grid gap-6 md:grid-cols-2">
 							<div>
@@ -884,9 +1192,8 @@
 									</li>
 									<li class="flex items-start gap-2">
 										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-										{mode === 'local'
-											? 'Geen gegevensoverdracht naar derden'
-											: 'API-modus: alleen tekst naar Mistral EU-servers'}
+										Lokale modus: geen gegevensoverdracht. API-modus: audio naar AssemblyAI (Dublin),
+										tekst naar Mistral (EU)
 									</li>
 								</ul>
 							</div>
@@ -905,9 +1212,7 @@
 									</li>
 									<li class="flex items-start gap-2">
 										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-										{mode === 'local'
-											? 'Modellen: open-source (Whisper + Gemma), lokaal gedraaid'
-											: 'Modellen: Whisper (lokaal) + Mistral (EU-servers)'}
+										Modellen: Whisper + Ollama/Gemma (lokaal), AssemblyAI + Mistral (EU-servers, SOC 2)
 									</li>
 									<li class="flex items-start gap-2">
 										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>

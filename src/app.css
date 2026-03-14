@@ -306,7 +306,6 @@ body {
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
 	border-radius: 1rem;
-	overflow: hidden;
 }
 
 .gradient-border-card::before {

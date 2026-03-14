@@ -1,7 +1,8 @@
 fastapi
 uvicorn
 python-multipart
-faster-whisper
+mlx-whisper
 httpx
 mistralai
+assemblyai
 python-dotenv
