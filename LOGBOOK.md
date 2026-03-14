@@ -1,4 +1,5 @@
 # Urenregistratie
 
-| Datum | Starttijd | Eindtijd | Duur (uren) | Commit Hash | Omschrijving |
-|-------|-----------|----------|-------------|-------------|--------------|
+| Datum      | Starttijd | Eindtijd | Duur (uren) | Commit Hash | Omschrijving                                                             |
+| ---------- | --------- | -------- | ----------- | ----------- | ------------------------------------------------------------------------ |
+| 2026-03-03 | 15:35     | 15:35    | 0           | `beff59d`   | Add time tracking system: LOGBOOK.md, post-commit hook, start-day script |

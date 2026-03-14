@@ -1,0 +1,924 @@
+<script lang="ts">
+	const BACKEND_URL = 'http://localhost:8000';
+
+	type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correcting';
+
+	let status = $state<Status>('idle');
+	let countdown = $state(0);
+	let raw = $state('');
+	let corrected = $state('');
+	let language = $state('');
+	let error = $state('');
+	let elapsed = $state(0);
+	let copiedRaw = $state(false);
+	let copiedCorrected = $state(false);
+	let quality = $state<'light' | 'medium'>('light');
+	let lang = $state<'auto' | 'nl' | 'li' | 'en'>('li');
+	let mode = $state<'local' | 'api'>('local');
+	let temperature = $state(0.5);
+	let mistralAvailable = $state(false);
+	let privacyOpen = $state(false);
+
+	let mediaRecorder: MediaRecorder | undefined;
+	let chunks: Blob[] = [];
+	let timerInterval: ReturnType<typeof setInterval> | undefined;
+
+	let fileInput: HTMLInputElement;
+
+	// Audio visualizer state
+	let audioContext: AudioContext | undefined;
+	let analyser: AnalyserNode | undefined;
+	let waveformBars = $state<number[]>(new Array(40).fill(3));
+	let animationFrameId: number | undefined;
+
+	const formattedTime = $derived.by(() => {
+		const mins = Math.floor(elapsed / 60);
+		const secs = elapsed % 60;
+		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+	});
+
+	$effect(() => {
+		if (status === 'recording') {
+			elapsed = 0;
+			timerInterval = setInterval(() => {
+				elapsed += 1;
+			}, 1000);
+		} else if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = undefined;
+		}
+		return () => {
+			if (timerInterval) clearInterval(timerInterval);
+		};
+	});
+
+	// Keyboard shortcut: spacebar to toggle recording
+	$effect(() => {
+		function handleKeydown(e: KeyboardEvent) {
+			if (e.code === 'Space' && e.target === document.body) {
+				e.preventDefault();
+				toggleRecording();
+			}
+		}
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
+	// Health check: detect Mistral availability
+	$effect(() => {
+		fetch(`${BACKEND_URL}/health`)
+			.then((r) => r.json())
+			.then((data) => {
+				mistralAvailable = data.mistral_available ?? false;
+			})
+			.catch(() => {
+				mistralAvailable = false;
+			});
+	});
+
+	function getSupportedMimeType(): string {
+		for (const type of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', 'audio/mp4']) {
+			if (MediaRecorder.isTypeSupported(type)) return type;
+		}
+		return '';
+	}
+
+	/** Downsample audio blob to 16kHz mono WAV — Whisper doesn't need more. */
+	async function downsampleToWav(blob: Blob): Promise<Blob> {
+		const TARGET_RATE = 16000;
+		const ctx = new OfflineAudioContext(1, 1, TARGET_RATE);
+		const arrayBuffer = await blob.arrayBuffer();
+		const decoded = await ctx.decodeAudioData(arrayBuffer);
+
+		// Render to 16kHz mono
+		const offline = new OfflineAudioContext(
+			1,
+			Math.ceil(decoded.duration * TARGET_RATE),
+			TARGET_RATE
+		);
+		const source = offline.createBufferSource();
+		source.buffer = decoded;
+		source.connect(offline.destination);
+		source.start();
+		const rendered = await offline.startRendering();
+
+		// Encode as WAV
+		const pcm = rendered.getChannelData(0);
+		const wavBuffer = encodeWav(pcm, TARGET_RATE);
+		return new Blob([wavBuffer], { type: 'audio/wav' });
+	}
+
+	function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
+		const len = samples.length;
+		const buffer = new ArrayBuffer(44 + len * 2);
+		const view = new DataView(buffer);
+
+		function writeString(offset: number, str: string) {
+			for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+		}
+
+		writeString(0, 'RIFF');
+		view.setUint32(4, 36 + len * 2, true);
+		writeString(8, 'WAVE');
+		writeString(12, 'fmt ');
+		view.setUint32(16, 16, true);
+		view.setUint16(20, 1, true); // PCM
+		view.setUint16(22, 1, true); // mono
+		view.setUint32(24, sampleRate, true);
+		view.setUint32(28, sampleRate * 2, true); // byte rate
+		view.setUint16(32, 2, true); // block align
+		view.setUint16(34, 16, true); // bits per sample
+		writeString(36, 'data');
+		view.setUint32(40, len * 2, true);
+
+		for (let i = 0; i < len; i++) {
+			const s = Math.max(-1, Math.min(1, samples[i]));
+			view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+		}
+		return buffer;
+	}
+
+	function startWaveform(stream: MediaStream) {
+		audioContext = new AudioContext();
+		analyser = audioContext.createAnalyser();
+		analyser.fftSize = 128;
+		const source = audioContext.createMediaStreamSource(stream);
+		source.connect(analyser);
+
+		const bufferLength = analyser.frequencyBinCount;
+		const dataArray = new Uint8Array(bufferLength);
+
+		function updateBars() {
+			if (!analyser) return;
+			analyser.getByteFrequencyData(dataArray);
+			const barCount = 40;
+			const step = Math.floor(bufferLength / barCount);
+			const newBars: number[] = [];
+			for (let i = 0; i < barCount; i++) {
+				const value = dataArray[i * step] || 0;
+				newBars.push(Math.max(3, (value / 255) * 48));
+			}
+			waveformBars = newBars;
+			animationFrameId = requestAnimationFrame(updateBars);
+		}
+		updateBars();
+	}
+
+	function stopWaveform() {
+		if (animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+			animationFrameId = undefined;
+		}
+		if (audioContext) {
+			audioContext.close();
+			audioContext = undefined;
+			analyser = undefined;
+		}
+		waveformBars = new Array(40).fill(3);
+	}
+
+	async function startRecording() {
+		error = '';
+		try {
+			const mimeType = getSupportedMimeType();
+			if (!mimeType) {
+				error = 'Je browser ondersteunt geen audio-opname.';
+				return;
+			}
+			status = 'preparing';
+			countdown = 2;
+			const countdownTimer = setInterval(() => {
+				countdown -= 1;
+				if (countdown <= 0) clearInterval(countdownTimer);
+			}, 1000);
+
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+			if (status !== 'preparing') return; // Cancelled
+
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			mediaRecorder = new MediaRecorder(stream, { mimeType });
+			chunks = [];
+
+			startWaveform(stream);
+
+			mediaRecorder.ondataavailable = (e) => {
+				if (e.data.size > 0) chunks.push(e.data);
+			};
+
+			mediaRecorder.onstop = async () => {
+				stream.getTracks().forEach((t) => t.stop());
+				stopWaveform();
+				if (chunks.length === 0) {
+					error = 'Geen audio opgenomen. Probeer langer op te nemen.';
+					status = 'idle';
+					return;
+				}
+				const blob = new Blob(chunks, { type: mimeType });
+				try {
+					const wav = await downsampleToWav(blob);
+					console.log(
+						`Downsampled: ${(blob.size / 1024).toFixed(0)}KB → ${(wav.size / 1024).toFixed(0)}KB`
+					);
+					await sendAudio(wav, 'recording.wav');
+				} catch {
+					// Fallback: send original if downsampling fails
+					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
+					await sendAudio(blob, `recording.${ext}`);
+				}
+			};
+
+			mediaRecorder.start(500);
+			status = 'recording';
+		} catch {
+			error = 'Microfoon niet beschikbaar. Controleer je browserpermissies.';
+		}
+	}
+
+	function stopRecording() {
+		if (mediaRecorder && mediaRecorder.state === 'recording') {
+			mediaRecorder.stop();
+			status = 'processing';
+		}
+	}
+
+	function toggleRecording() {
+		if (status === 'recording') {
+			stopRecording();
+		} else if (status === 'idle') {
+			startRecording();
+		} else if (status === 'preparing') {
+			status = 'idle';
+			countdown = 0;
+		}
+	}
+
+	async function handleFileUpload(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		error = '';
+		status = 'processing';
+		try {
+			const wav = await downsampleToWav(file);
+			console.log(
+				`Downsampled upload: ${(file.size / 1024).toFixed(0)}KB → ${(wav.size / 1024).toFixed(0)}KB`
+			);
+			await sendAudio(wav, 'upload.wav');
+		} catch {
+			// Fallback: send original if downsampling fails
+			await sendAudio(file, file.name);
+		}
+		input.value = '';
+	}
+
+	async function sendAudio(blob: Blob, filename: string) {
+		raw = '';
+		corrected = '';
+		console.log(`Sending audio: ${filename}, size: ${blob.size} bytes, type: ${blob.type}`);
+		if (blob.size === 0) {
+			error = 'Audio-bestand is leeg. Probeer opnieuw.';
+			status = 'idle';
+			return;
+		}
+		status = 'processing';
+
+		const formData = new FormData();
+		formData.append('file', blob, filename);
+		formData.append('quality', quality);
+		formData.append('lang', lang);
+
+		try {
+			// Step 1: Whisper transcription — show raw immediately
+			const controller = new AbortController();
+			const fetchTimeout = setTimeout(() => controller.abort(), 30 * 60 * 1000);
+
+			const resp = await fetch(`${BACKEND_URL}/transcribe`, {
+				method: 'POST',
+				body: formData,
+				signal: controller.signal
+			});
+
+			clearTimeout(fetchTimeout);
+
+			if (!resp.ok) {
+				const detail = await resp.text();
+				throw new Error(detail || `Server error ${resp.status}`);
+			}
+
+			const data = await resp.json();
+			raw = data.raw;
+			language = data.language || '';
+			status = 'idle';
+		} catch (e) {
+			if (e instanceof DOMException && e.name === 'AbortError') {
+				error = 'Verwerking duurde te lang (>30 min). Probeer een korter fragment.';
+			} else if (e instanceof TypeError) {
+				error = 'Backend niet bereikbaar. Start de server op localhost:8000.';
+			} else {
+				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
+			}
+			status = 'idle';
+		}
+	}
+
+	function startCorrection() {
+		if (!raw) return;
+		corrected = '';
+		status = 'correcting';
+		fetchCorrection(raw, language, quality);
+	}
+
+	async function fetchCorrection(text: string, lang: string, qual: string) {
+		try {
+			const resp = await fetch(`${BACKEND_URL}/correct`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ text, language: lang, quality: qual, mode, temperature })
+			});
+
+			if (!resp.ok) {
+				console.error('Correction failed:', resp.status);
+				corrected = text; // fallback to raw
+			} else {
+				const data = await resp.json();
+				corrected = data.corrected || text;
+			}
+		} catch (e) {
+			console.error('Correction error:', e);
+			corrected = text; // fallback to raw
+		} finally {
+			status = 'idle';
+		}
+	}
+
+	async function copyText(text: string, which: 'raw' | 'corrected') {
+		await navigator.clipboard.writeText(text);
+		if (which === 'raw') {
+			copiedRaw = true;
+			setTimeout(() => (copiedRaw = false), 1500);
+		} else {
+			copiedCorrected = true;
+			setTimeout(() => (copiedCorrected = false), 1500);
+		}
+	}
+</script>
+
+<svelte:head>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&display=swap"
+		rel="stylesheet"
+	/>
+</svelte:head>
+
+<div class="bg-dark-gradient min-h-screen">
+	<!-- Floating orbs -->
+	<div class="floating-orb orb-violet"></div>
+	<div class="floating-orb orb-indigo"></div>
+	<div class="floating-orb orb-cyan"></div>
+	<div class="floating-orb orb-fuchsia"></div>
+
+	<div class="mx-auto max-w-3xl px-4 py-16">
+		<!-- Header -->
+		<header class="mb-12 text-center animate-fade-in">
+			<h1 class="gradient-text mb-3 text-8xl font-normal tracking-tighter sm:text-9xl select-none">
+				<span class="inline-block hover:animate-letter-bounce">B</span><span
+					class="inline-block hover:animate-letter-bounce">A</span
+				><span class="inline-block hover:animate-letter-bounce">B</span><span
+					class="inline-block hover:animate-letter-bounce">L</span
+				>
+			</h1>
+			<p class="mb-4 text-lg text-white/50">Spraak naar tekst met Limburgse dialectcorrectie</p>
+			<span
+				class="glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white/60"
+			>
+				<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+					/>
+				</svg>
+				Privacy-bewust
+			</span>
+		</header>
+
+		<!-- Language toggle -->
+		<div class="mb-8 flex justify-center animate-fade-in">
+			<div class="glass inline-flex rounded-full p-1">
+				{#each [{ value: 'auto', label: 'Standaard' }, { value: 'nl', label: 'Nederlands' }, { value: 'li', label: 'Limburgs' }, { value: 'en', label: 'Engels' }] as opt}
+					<button
+						onclick={() => (lang = opt.value as typeof lang)}
+						class="rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {lang ===
+						opt.value
+							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+							: 'text-white/50 hover:text-white/80 scale-100'}"
+					>
+						{opt.label}
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Record button -->
+		<div class="mb-10 flex flex-col items-center gap-6 animate-fade-in">
+			<div class="relative">
+				<!-- Pulse rings during recording -->
+				{#if status === 'recording'}
+					<div class="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring"></div>
+					<div
+						class="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring"
+						style="animation-delay: 0.5s"
+					></div>
+					<div
+						class="absolute inset-0 rounded-full bg-red-500/15 animate-pulse-ring"
+						style="animation-delay: 1s"
+					></div>
+				{/if}
+
+				<!-- Conic gradient spinning border -->
+				<div
+					class="conic-border {status === 'preparing'
+						? 'conic-border-preparing'
+						: status === 'recording'
+							? 'conic-border-recording'
+							: status === 'processing'
+								? 'conic-border-processing'
+								: ''}"
+				>
+					<button
+						onclick={toggleRecording}
+						disabled={status === 'processing'}
+						class="relative z-10 flex h-36 w-36 items-center justify-center rounded-full bg-[#0a0a0f] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+							{status === 'recording'
+							? 'animate-pulse-glow'
+							: status === 'idle' || status === 'correcting'
+								? 'hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(212,255,0,0.4)]'
+								: ''}"
+					>
+						{#if status === 'preparing'}
+							<!-- Countdown -->
+							<span class="animate-countdown text-4xl font-bold text-amber-400">
+								{countdown}
+							</span>
+						{:else if status === 'recording'}
+							<!-- Stop icon -->
+							<svg class="h-12 w-12 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+								<rect x="6" y="6" width="12" height="12" rx="2" />
+							</svg>
+						{:else if status === 'processing'}
+							<!-- Spinner -->
+							<svg
+								class="h-12 w-12 text-white/60 animate-spin-slow"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+								/>
+							</svg>
+						{:else}
+							<!-- Mic icon -->
+							<svg
+								class="h-12 w-12 text-white"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+								/>
+							</svg>
+						{/if}
+					</button>
+				</div>
+			</div>
+
+			<!-- Live audio waveform visualizer -->
+			{#if status === 'recording'}
+				<div class="waveform-container animate-fade-in">
+					{#each waveformBars as height}
+						<div class="waveform-bar" style="height: {height}px"></div>
+					{/each}
+				</div>
+			{/if}
+
+			<!-- Status text under button -->
+			{#if status === 'preparing'}
+				<div class="flex items-center gap-2 text-amber-400 font-medium animate-fade-in">
+					<span class="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+					Maak je klaar...
+				</div>
+			{:else if status === 'recording'}
+				<div class="flex items-center gap-2 text-red-400 font-medium animate-fade-in">
+					<span class="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+					Opname bezig — {formattedTime}
+				</div>
+			{:else if status === 'processing'}
+				<div class="flex items-center gap-3 animate-fade-in">
+					<div class="flex gap-1">
+						<span
+							class="inline-block h-2 w-2 rounded-full bg-neon"
+							style="animation: dot-bounce 1.4s ease-in-out infinite;"
+						></span>
+						<span
+							class="inline-block h-2 w-2 rounded-full bg-neon"
+							style="animation: dot-bounce 1.4s ease-in-out 0.2s infinite;"
+						></span>
+						<span
+							class="inline-block h-2 w-2 rounded-full bg-neon"
+							style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
+						></span>
+					</div>
+					<span class="shimmer-text font-medium">Transcriberen...</span>
+				</div>
+			{:else}
+				<div class="flex flex-col items-center gap-2">
+					<p class="text-sm text-white/30">Druk om op te nemen</p>
+					<kbd class="kbd-hint"><span class="text-white/40">spatie</span> om op te nemen</kbd>
+				</div>
+			{/if}
+
+			<!-- Upload button -->
+			<button
+				onclick={() => fileInput.click()}
+				disabled={status !== 'idle' && status !== 'correcting'}
+				class="upload-btn glass rounded-full px-5 py-2 text-sm text-white/50 transition-all duration-200 hover:text-white/80 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+			>
+				<span class="flex items-center gap-2">
+					<svg
+						class="h-4 w-4"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+						/>
+					</svg>
+					Upload bestand
+				</span>
+			</button>
+			<input
+				bind:this={fileInput}
+				type="file"
+				accept="audio/*"
+				class="hidden"
+				onchange={handleFileUpload}
+			/>
+		</div>
+
+		<!-- Error -->
+		{#if error}
+			<div
+				class="mb-8 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-300 text-sm animate-slide-up"
+			>
+				{error}
+			</div>
+		{/if}
+
+		<!-- Results -->
+		{#if raw}
+			<div class="animate-slide-up space-y-4">
+				{#if language}
+					<div class="text-center text-sm text-white/40">
+						Gedetecteerde taal: <span class="font-medium text-white/70">{language}</span>
+					</div>
+				{/if}
+
+				<!-- Raw transcription — full width -->
+				<div
+					class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)]"
+				>
+					<div class="mb-3 flex items-center justify-between">
+						<h2 class="text-sm font-semibold text-white/70">Ruwe transcriptie</h2>
+						<button
+							onclick={() => copyText(raw, 'raw')}
+							class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
+								{copiedRaw
+								? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
+								: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
+						>
+							{#if copiedRaw}
+								<svg
+									class="h-3.5 w-3.5"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+								</svg>
+								Gekopieerd!
+							{:else}
+								<svg
+									class="h-3.5 w-3.5"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+									/>
+								</svg>
+								Kopieer
+							{/if}
+						</button>
+					</div>
+					<p class="whitespace-pre-wrap text-white/90 leading-relaxed">{raw}</p>
+				</div>
+
+				<!-- Step 2: Correction controls -->
+				{#if status !== 'correcting'}
+					<div class="glass rounded-2xl p-5 animate-fade-in">
+						<h3 class="mb-4 text-sm font-semibold text-white/70">Verslaglegging</h3>
+
+						<div class="flex flex-wrap items-center gap-4 mb-4">
+							<!-- Mode toggle -->
+							<div class="glass inline-flex rounded-full p-1">
+								<button
+									onclick={() => (mode = 'local')}
+									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+									'local'
+										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+										: 'text-white/50 hover:text-white/80 scale-100'}"
+								>
+									Lokaal
+								</button>
+								<button
+									onclick={() => (mode = 'api')}
+									disabled={!mistralAvailable}
+									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+									'api'
+										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+										: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+								>
+									API
+								</button>
+							</div>
+
+							<!-- Quality toggle -->
+							<div class="glass inline-flex rounded-full p-1">
+								<button
+									onclick={() => (quality = 'light')}
+									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+									'light'
+										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+										: 'text-white/50 hover:text-white/80 scale-100'}"
+								>
+									Light
+								</button>
+								<button
+									onclick={() => (quality = 'medium')}
+									class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+									'medium'
+										? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+										: 'text-white/50 hover:text-white/80 scale-100'}"
+								>
+									Medium
+								</button>
+							</div>
+						</div>
+
+						{#if mode === 'api'}
+							<p class="mb-3 text-xs text-amber-400/70">
+								Tekst wordt verwerkt via Mistral (Europese servers)
+							</p>
+						{/if}
+
+						<!-- Temperature slider -->
+						<div class="mb-5 flex items-center gap-3">
+							<label for="temperature" class="text-xs text-white/50 whitespace-nowrap"
+								>Temperatuur</label
+							>
+							<input
+								id="temperature"
+								type="range"
+								min="0"
+								max="1"
+								step="0.1"
+								bind:value={temperature}
+								class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/10 accent-neon"
+							/>
+							<span class="w-8 text-right text-xs font-mono text-white/60"
+								>{temperature.toFixed(1)}</span
+							>
+						</div>
+
+						<!-- Generate button -->
+						<button
+							onclick={startCorrection}
+							class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,255,0,0.3)] active:scale-[0.98]"
+						>
+							Verslaglegging genereren
+						</button>
+					</div>
+				{/if}
+
+				<!-- Correcting indicator -->
+				{#if status === 'correcting' && !corrected}
+					<div class="gradient-border-card p-5 animate-fade-in">
+						<div class="mb-3">
+							<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+						</div>
+						<div class="flex items-center gap-3">
+							<div class="flex gap-1">
+								<span
+									class="inline-block h-1.5 w-1.5 rounded-full bg-neon"
+									style="animation: dot-bounce 1.4s ease-in-out infinite;"
+								></span>
+								<span
+									class="inline-block h-1.5 w-1.5 rounded-full bg-neon"
+									style="animation: dot-bounce 1.4s ease-in-out 0.2s infinite;"
+								></span>
+								<span
+									class="inline-block h-1.5 w-1.5 rounded-full bg-neon"
+									style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
+								></span>
+							</div>
+							<span class="shimmer-text text-sm">Corrigeren...</span>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Corrected result — full width -->
+				{#if corrected}
+					<div
+						class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)] animate-slide-up"
+					>
+						<div class="mb-3 flex items-center justify-between">
+							<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+							<button
+								onclick={() => copyText(corrected, 'corrected')}
+								class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
+									{copiedCorrected
+									? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
+									: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
+							>
+								{#if copiedCorrected}
+									<svg
+										class="h-3.5 w-3.5"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+									</svg>
+									Gekopieerd!
+								{:else}
+									<svg
+										class="h-3.5 w-3.5"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+										/>
+									</svg>
+									Kopieer
+								{/if}
+							</button>
+						</div>
+						<p class="whitespace-pre-wrap text-white/90 leading-relaxed">{corrected}</p>
+					</div>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- Privacy footer (smooth accordion) -->
+		<div class="mt-16 animate-fade-in">
+			<button
+				onclick={() => (privacyOpen = !privacyOpen)}
+				class="glass w-full rounded-2xl px-5 py-4 text-left transition-all duration-300 hover:bg-white/8"
+			>
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-3">
+						<div
+							class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-neon/20 to-accent-start/20"
+						>
+							<svg
+								class="h-4 w-4 text-neon"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+								/>
+							</svg>
+						</div>
+						<div>
+							<span class="text-sm font-medium text-white/70"
+								>{mode === 'local' ? '100% lokale verwerking' : 'Privacy-bewuste verwerking'}</span
+							>
+							<span class="ml-2 text-xs text-white/30">AVG & EU AI Act compliant</span>
+						</div>
+					</div>
+					<svg
+						class="h-4 w-4 text-white/30 transition-transform duration-300 {privacyOpen
+							? 'rotate-180'
+							: ''}"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</div>
+			</button>
+
+			<div class="privacy-content {privacyOpen ? 'open' : ''}">
+				<div>
+					<div class="glass-strong mt-2 rounded-2xl p-6 text-sm text-white/50">
+						<p class="mb-4 text-white/60">
+							{#if mode === 'local'}
+								Alle spraakherkenning en tekstcorrectie gebeuren volledig op jouw eigen apparaat. Er
+								worden geen audio-opnames, transcripties of andere gegevens naar externe servers
+								verstuurd.
+							{:else}
+								Spraakherkenning gebeurt lokaal. Tekstcorrectie verloopt via Mistral AI op Europese
+								servers (EU-regio). Alleen de getranscribeerde tekst wordt verwerkt via de API —
+								geen audio wordt verstuurd.
+							{/if}
+						</p>
+						<div class="grid gap-6 md:grid-cols-2">
+							<div>
+								<h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-neon/80">
+									AVG / GDPR
+								</h4>
+								<ul class="space-y-1.5 text-white/40">
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+										Geen persoonsgegevens worden opgeslagen of verwerkt
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+										Audio wordt direct na transcriptie verwijderd
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+										Geen gebruikersprofielen of tracking
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+										{mode === 'local'
+											? 'Geen gegevensoverdracht naar derden'
+											: 'API-modus: alleen tekst naar Mistral EU-servers'}
+									</li>
+								</ul>
+							</div>
+							<div>
+								<h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-neon/80">
+									EU AI Act
+								</h4>
+								<ul class="space-y-1.5 text-white/40">
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+										Classificatie: minimaal risico (geen verboden toepassing)
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+										Transparantie: AI-gegenereerde output is duidelijk gelabeld
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+										{mode === 'local'
+											? 'Modellen: open-source (Whisper + Gemma), lokaal gedraaid'
+											: 'Modellen: Whisper (lokaal) + Mistral (EU-servers)'}
+									</li>
+									<li class="flex items-start gap-2">
+										<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+										Menselijke controle: gebruiker beoordeelt alle output
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
