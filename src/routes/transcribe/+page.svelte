@@ -810,28 +810,6 @@
 					</button>
 				{/each}
 			</div>
-
-			<!-- Regional profile toggle (Phase 4) -->
-			{#if lang === 'li'}
-				<div
-					class="glass flex flex-wrap justify-center rounded-2xl sm:rounded-full p-1 w-full sm:w-auto animate-fade-in"
-				>
-					{#each [{ value: 'limburgs', label: 'Algemeen' }, { value: 'mestreechs', label: 'Mestreechs' }, { value: 'zittesj', label: 'Zittesj' }, { value: 'venloos', label: 'Venloos' }, { value: 'kirchroeadsj', label: 'Kirchröadsj' }] as opt}
-						<button
-							onclick={() => (region = opt.value)}
-							class="flex-1 sm:flex-none rounded-xl sm:rounded-full px-2 py-2 text-[10px] sm:px-4 sm:py-2 sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {region ===
-							opt.value
-								? 'bg-white/20 text-white shadow-lg scale-105'
-								: 'text-white/30 hover:text-white/60 scale-100'}"
-						>
-							{opt.label}
-						</button>
-					{/each}
-				</div>
-				<p class="text-[10px] text-white/30 uppercase tracking-widest">
-					Selecteer regio voor optimale herkenning
-				</p>
-			{/if}
 		</div>
 
 		<!-- Transcribe mode toggle -->
