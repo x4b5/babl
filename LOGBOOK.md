@@ -11,3 +11,5 @@
 | 2026-03-15 | 20:02     | 20:23    | .34         | `8df64e3`   | feat: SvelteKit API routes voor Vercel — AssemblyAI + Mistral zonder lokale backend                                             |
 | 2026-03-15 | 20:23     | 20:53    | .50         | `519f555`   | fix: live transcriptie vereenvoudigd + AssemblyAI speech_models fix                                                             |
 | 2026-03-15 | 20:53     | 21:52    | .98         | `9e353ab`   | feat: implementation of Phase 3 (hybrid architecture), Phase 4 (regional dialect profiles), and Phase 5 (mobile responsiveness) |
+| 2026-03-15 | 21:52     | 21:57    | .07         | `330e504`   | security: strengthen authentication gate with static env vars and strict enforcement                                            |
+| 2026-03-15 | 21:57     | 21:58    | .02         | `12b7e2b`   | style: remove regional profile buttons from UI                                                                                  |
