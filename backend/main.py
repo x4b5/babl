@@ -392,8 +392,14 @@ async def transcribe(
 async def transcribe_live(
     file: UploadFile = File(...),
     lang: str = Form("li"),
+    offset: float = Form(0.0),
 ):
-    """Live transcription endpoint — returns a single JSON response quickly."""
+    """Live transcription endpoint — returns JSON with segment timestamps.
+
+    Args:
+        offset: seconds of audio already processed. Segments starting before
+                this offset are filtered out to avoid duplication.
+    """
     if lang not in ("auto", "nl", "li", "en"):
         lang = "li"
 
@@ -407,7 +413,7 @@ async def transcribe_live(
     suffix = os.path.splitext(file.filename or "audio.wav")[1] or ".wav"
     content = await file.read()
     if not content:
-        return {"text": "", "language": "nl"}
+        return {"text": "", "language": "nl", "segments": []}
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
     tmp.write(content)
@@ -426,12 +432,28 @@ async def transcribe_live(
 
         result = await asyncio.to_thread(mlx_whisper.transcribe, tmp_path, **transcribe_kwargs)
         detected_lang = result.get("language", "nl")
-        text = result.get("text", "").strip()
-        return {"text": text, "language": detected_lang}
+
+        # Return segments with timestamps so frontend can filter overlap
+        segments = []
+        for seg in result.get("segments", []):
+            text = seg.get("text", "").strip()
+            if text:
+                segments.append({
+                    "start": seg.get("start", 0.0),
+                    "end": seg.get("end", 0.0),
+                    "text": text,
+                })
+
+        # Filter segments: only keep those starting at or after the offset
+        if offset > 0:
+            segments = [s for s in segments if s["start"] >= offset]
+
+        full_text = " ".join(s["text"] for s in segments)
+        return {"text": full_text, "language": detected_lang, "segments": segments}
     except Exception as e:
         print(f"Live transcription error: {e}")
         traceback.print_exc()
-        return {"text": "", "language": "nl"}
+        return {"text": "", "language": "nl", "segments": []}
     finally:
         os.unlink(tmp_path)
 

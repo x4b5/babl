@@ -28,6 +28,13 @@
 	let liveInterval: ReturnType<typeof setInterval> | undefined;
 	let liveWorking = $state(false);
 
+	// Incremental live transcription state
+	let liveSegments = $state<string[]>([]);
+	let lastSentChunkIndex = $state(0);
+	let liveAudioDuration = $state(0); // seconds of audio already confirmed
+	const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
+	const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
+
 	let mediaRecorder: MediaRecorder | undefined;
 	let chunks: Blob[] = [];
 	let timerInterval: ReturnType<typeof setInterval> | undefined;
@@ -246,15 +253,30 @@
 		waveformBars = new Array(40).fill(3);
 	}
 
-	async function sendLiveChunk() {
+	async function sendLiveChunk(isFinal = false) {
 		if (chunks.length === 0 || !mediaRecorder) return;
 		try {
 			const mimeType = mediaRecorder.mimeType;
-			const blob = new Blob(chunks, { type: mimeType });
+			// Only send new chunks + overlap (3s = 6 chunks back)
+			const startIndex = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
+			const slicedChunks = chunks.slice(startIndex);
+			if (slicedChunks.length === 0) return;
+
+			const blob = new Blob(slicedChunks, { type: mimeType });
 			const wav = await downsampleToWav(blob);
+
+			// Calculate offset: how many seconds of audio we already confirmed
+			const offset = liveAudioDuration;
+
 			const formData = new FormData();
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', lang);
+			formData.append('offset', String(offset));
+
+			console.log(
+				`Live chunk: sending ${slicedChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
+			);
+
 			const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
 				method: 'POST',
 				body: formData
@@ -262,9 +284,18 @@
 			if (resp.ok) {
 				const data = await resp.json();
 				if (data.text) {
-					partialText = data.text;
+					// Append new text as a confirmed segment
+					liveSegments = [...liveSegments, data.text];
+					partialText = liveSegments.join(' ');
 					liveWorking = true;
 					if (data.language) language = data.language;
+
+					// Update tracking: mark current chunks as sent
+					lastSentChunkIndex = chunks.length;
+					// Update audio duration: new chunks × interval
+					liveAudioDuration +=
+						(chunks.length - startIndex - OVERLAP_CHUNKS) * (CHUNK_INTERVAL_MS / 1000);
+					if (liveAudioDuration < 0) liveAudioDuration = 0;
 				}
 			}
 		} catch {
@@ -275,6 +306,9 @@
 	function startLiveTranscription() {
 		partialText = '';
 		liveWorking = false;
+		liveSegments = [];
+		lastSentChunkIndex = 0;
+		liveAudioDuration = 0;
 		liveInterval = setInterval(() => {
 			sendLiveChunk();
 		}, 5000);
@@ -327,9 +361,52 @@
 				}
 				const blob = new Blob(chunks, { type: mimeType });
 
-				// Try final live transcription for instant result
 				if (transcribeMode === 'local') {
 					status = 'processing';
+
+					// Send final chunk (unsent audio + overlap) for the tail end
+					if (lastSentChunkIndex < chunks.length) {
+						try {
+							const startIndex = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
+							const tailChunks = chunks.slice(startIndex);
+							const tailBlob = new Blob(tailChunks, { type: mimeType });
+							const wav = await downsampleToWav(tailBlob);
+							const offset = liveAudioDuration;
+
+							const formData = new FormData();
+							formData.append('file', wav, 'final.wav');
+							formData.append('lang', lang);
+							formData.append('offset', String(offset));
+
+							console.log(
+								`Final chunk: sending ${tailChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
+							);
+
+							const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+								method: 'POST',
+								body: formData
+							});
+							if (resp.ok) {
+								const data = await resp.json();
+								if (data.text) {
+									liveSegments = [...liveSegments, data.text];
+									if (data.language) language = data.language;
+								}
+							}
+						} catch {
+							// Fall through — use what we have
+						}
+					}
+
+					// Use accumulated live segments as the raw result
+					if (liveSegments.length > 0) {
+						raw = liveSegments.join(' ');
+						partialText = '';
+						status = 'idle';
+						return;
+					}
+
+					// Fallback: no live segments, do full transcription
 					try {
 						const wav = await downsampleToWav(blob);
 						const formData = new FormData();
@@ -892,25 +969,11 @@
 							{/if}
 						</button>
 					</div>
-					<div class="relative">
-						<div
-							class="whitespace-pre-wrap text-white/90 leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
-							style="max-height: {rawExpanded ? 'none' : '12rem'}"
-						>
-							{raw}
-						</div>
-						{#if !rawExpanded}
-							<div
-								class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none"
-							></div>
-						{/if}
-					</div>
-					<button
-						onclick={() => (rawExpanded = !rawExpanded)}
-						class="mt-2 w-full text-center text-xs text-white/40 hover:text-white/70 transition-colors duration-200"
+					<div
+						class="max-h-48 overflow-y-auto whitespace-pre-wrap text-white/90 leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
 					>
-						{rawExpanded ? 'Inklappen' : 'Lees meer...'}
-					</button>
+						{raw}
+					</div>
 				</div>
 
 				<!-- Step 2: Correction controls -->

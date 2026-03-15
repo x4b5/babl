@@ -4,3 +4,4 @@
 | ---------- | --------- | -------- | ----------- | ----------- | -------------------------------------------------------------------------- |
 | 2026-03-03 | 15:35     | 15:35    | 0           | `beff59d`   | Add time tracking system: LOGBOOK.md, post-commit hook, start-day script   |
 | 2026-03-14 | 15:35     | 15:47    | 4.00        | `1c452d4`   | feat: improve Limburgish transcription, Maastricht support and UX feedback |
+| 2026-03-14 | 15:47     | 23:13    | 4.00        | `7c0bc23`   | feat: mlx-whisper + live transcriptie + Mistral rate limit fix             |
