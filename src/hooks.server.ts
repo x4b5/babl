@@ -24,11 +24,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const password = ACCESS_PASSWORD;
 	const path = event.url.pathname;
 
-	console.log(`[Hooks] ${event.request.method} ${path}`);
-
 	// Allow public paths
 	if (PUBLIC_PATHS.some((p) => path.startsWith(p))) {
-		console.log(`[Hooks] Public path: ${path}`);
 		return resolve(event);
 	}
 
@@ -36,15 +33,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const token = event.cookies.get(COOKIE_NAME);
 	if (token) {
 		const isValid = verifyToken(token, password);
-		console.log(`[Hooks] Token found, valid: ${isValid}`);
 		if (isValid) {
 			return resolve(event);
 		}
-	} else {
-		console.log(`[Hooks] No token found`);
+		console.warn(`[Auth] Invalid token for ${path}`);
 	}
 
 	// Redirect to login
-	console.log(`[Hooks] Redirecting to /login from ${path}`);
 	throw redirect(303, '/login');
 };
