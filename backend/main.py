@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent / ".env")
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import mlx_whisper
@@ -179,7 +179,18 @@ async def health():
 
 
 
-async def correct_chunk(
+def _build_ollama_prompt(chunk: str, detected_lang: str, full_context: str | None = None) -> str:
+    """Build the prompt for Ollama correction."""
+    if full_context and full_context != chunk:
+        return (
+            f"[Taal: {detected_lang}]\n\n"
+            f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
+            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
+        )
+    return f"[Taal: {detected_lang}]\n\n{chunk}"
+
+
+async def correct_chunk_stream(
     client: httpx.AsyncClient,
     chunk: str,
     detected_lang: str,
@@ -187,66 +198,69 @@ async def correct_chunk(
     full_context: str | None = None,
     temperature: float = 0.5,
     system_prompt: str = SYSTEM_PROMPT,
-) -> str:
-    """Send a single text chunk to Ollama for dialect correction."""
+):
+    """Stream tokens from Ollama for a single chunk. Yields token strings."""
     word_count = len(chunk.split())
     num_predict = max(512, int(word_count * 2))
+    prompt = _build_ollama_prompt(chunk, detected_lang, full_context)
 
-    # Give the model context of the full text so it understands the bigger picture
-    if full_context and full_context != chunk:
-        prompt = (
-            f"[Taal: {detected_lang}]\n\n"
-            f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
-            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
-        )
-    else:
-        prompt = f"[Taal: {detected_lang}]\n\n{chunk}"
-
-    resp = await client.post(
+    async with client.stream(
+        "POST",
         OLLAMA_URL,
         json={
             "model": ollama_model,
             "prompt": prompt,
             "system": system_prompt,
-            "stream": False,
+            "stream": True,
             "options": {"num_predict": num_predict, "temperature": temperature},
         },
-    )
-    resp.raise_for_status()
-    result = resp.json().get("response", chunk).strip()
-    return result if result else chunk
+    ) as resp:
+        resp.raise_for_status()
+        async for line in resp.aiter_lines():
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+                token = data.get("response", "")
+                if token:
+                    yield token
+            except json.JSONDecodeError:
+                continue
 
 
-async def correct_chunk_mistral(
+def _build_mistral_prompt(chunk: str, detected_lang: str, full_context: str | None = None) -> str:
+    """Build the user prompt for Mistral correction."""
+    if full_context and full_context != chunk:
+        return (
+            f"[Taal: {detected_lang}]\n\n"
+            f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
+            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
+        )
+    return f"[Taal: {detected_lang}]\n\n{chunk}"
+
+
+async def correct_chunk_mistral_stream(
     chunk: str,
     detected_lang: str,
     mistral_model: str,
     full_context: str | None = None,
     temperature: float = 0.5,
     system_prompt: str = SYSTEM_PROMPT,
-) -> str:
-    """Send a single text chunk to Mistral API for dialect correction."""
+):
+    """Stream tokens from Mistral API for a single chunk. Yields token strings."""
     client = get_mistral_client()
     if client is None:
         raise RuntimeError("Mistral API key not configured")
 
-    if full_context and full_context != chunk:
-        user_prompt = (
-            f"[Taal: {detected_lang}]\n\n"
-            f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
-            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
-        )
-    else:
-        user_prompt = f"[Taal: {detected_lang}]\n\n{chunk}"
-
+    user_prompt = _build_mistral_prompt(chunk, detected_lang, full_context)
     word_count = len(chunk.split())
     max_tokens = max(512, int(word_count * 2))
 
     max_retries = 8
     for attempt in range(max_retries):
         try:
-            response = await asyncio.to_thread(
-                client.chat.complete,
+            stream_response = await asyncio.to_thread(
+                client.chat.stream,
                 model=mistral_model,
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -255,20 +269,18 @@ async def correct_chunk_mistral(
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
-            content = response.choices[0].message.content
-            if content is None:
-                print(f"  WARNING: Mistral returned None content, full response: {response}")
-                return chunk
-            result = content.strip() if isinstance(content, str) else str(content).strip()
-            return result if result else chunk
+            for event in stream_response:
+                token = event.data.choices[0].delta.content
+                if token:
+                    yield token
+            return  # Success — exit retry loop
         except Exception as e:
             if "429" in str(e) and attempt < max_retries - 1:
-                wait = 3 * (2 ** attempt)  # 3s, 6s, 12s, 24s, 48s, 96s, 192s
+                wait = 3 * (2 ** attempt)
                 print(f"  Rate limited, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
                 await asyncio.sleep(wait)
             else:
                 raise
-    return chunk
 
 
 def split_into_chunks(text: str, max_words: int = 400) -> list[str]:
@@ -341,7 +353,6 @@ async def transcribe(
             try:
                 transcribe_kwargs = {
                     "path_or_hf_repo": WHISPER_MODEL_PATH,
-                    "beam_size": 10,
                     "temperature": (0.0, 0.2, 0.4),
                 }
                 if lang_config["language"] is not None:
@@ -423,7 +434,6 @@ async def transcribe_live(
     try:
         transcribe_kwargs = {
             "path_or_hf_repo": WHISPER_MODEL_PATH,
-            "beam_size": 5,
         }
         if lang_config["language"] is not None:
             transcribe_kwargs["language"] = lang_config["language"]
@@ -578,6 +588,109 @@ async def transcribe_api(
     )
 
 
+@app.websocket("/ws/transcribe-stream")
+async def ws_transcribe_stream(websocket: WebSocket):
+    """Real-time streaming transcription via AssemblyAI WebSocket API."""
+    await websocket.accept()
+
+    if not ASSEMBLYAI_API_KEY:
+        await websocket.send_json({"type": "error", "message": "AssemblyAI API key not configured"})
+        await websocket.close()
+        return
+
+    import assemblyai as aai
+    aai.settings.api_key = ASSEMBLYAI_API_KEY
+
+    loop = asyncio.get_event_loop()
+    queue: asyncio.Queue[dict | None] = asyncio.Queue()
+
+    def on_data(transcript):
+        is_final = isinstance(transcript, aai.RealtimeFinalTranscript)
+        if transcript.text:
+            loop.call_soon_threadsafe(queue.put_nowait, {
+                "type": "final" if is_final else "partial",
+                "text": transcript.text,
+            })
+
+    def on_error(error):
+        print(f"[AssemblyAI RT] Error: {error}")
+        loop.call_soon_threadsafe(queue.put_nowait, {
+            "type": "error",
+            "message": str(error),
+        })
+
+    def on_close():
+        print("[AssemblyAI RT] Connection closed")
+        loop.call_soon_threadsafe(queue.put_nowait, None)
+
+    transcriber = aai.RealtimeTranscriber(
+        sample_rate=16000,
+        encoding=aai.AudioEncoding.pcm_s16le,
+        on_data=on_data,
+        on_error=on_error,
+        on_close=on_close,
+    )
+
+    try:
+        # First message = config JSON (e.g. {"lang": "nl"})
+        config_text = await websocket.receive_text()
+        print(f"[AssemblyAI RT] Config: {config_text}")
+
+        # Connect to AssemblyAI (blocking, run in thread)
+        await asyncio.to_thread(transcriber.connect)
+        print("[AssemblyAI RT] Connected")
+
+        async def forward_audio():
+            """Read audio chunks from frontend WebSocket, forward to AssemblyAI."""
+            try:
+                while True:
+                    data = await websocket.receive_bytes()
+                    await asyncio.to_thread(transcriber.stream, data)
+            except WebSocketDisconnect:
+                pass
+            except Exception as e:
+                print(f"[AssemblyAI RT] Audio forward error: {e}")
+
+        async def send_events():
+            """Read transcription events from queue, send to frontend WebSocket."""
+            try:
+                while True:
+                    event = await queue.get()
+                    if event is None:
+                        break
+                    await websocket.send_json(event)
+            except Exception as e:
+                print(f"[AssemblyAI RT] Event send error: {e}")
+
+        # Run both tasks concurrently; when audio forwarder stops, close transcriber
+        audio_task = asyncio.create_task(forward_audio())
+        event_task = asyncio.create_task(send_events())
+
+        # Wait for audio to stop (client disconnected or stopped recording)
+        await audio_task
+
+        # Close AssemblyAI connection (triggers on_close → queue gets None)
+        await asyncio.to_thread(transcriber.close)
+
+        # Wait for remaining events to flush
+        await event_task
+
+    except WebSocketDisconnect:
+        print("[AssemblyAI RT] Client disconnected")
+    except Exception as e:
+        print(f"[AssemblyAI RT] Error: {e}")
+        traceback.print_exc()
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass
+    finally:
+        try:
+            await asyncio.to_thread(transcriber.close)
+        except Exception:
+            pass
+
+
 from pydantic import BaseModel
 
 
@@ -592,7 +705,7 @@ class CorrectionRequest(BaseModel):
 
 @app.post("/correct")
 async def correct(req: CorrectionRequest):
-    """Step 2: Dialect correction via Ollama (local) or Mistral (API)."""
+    """Step 2: Dialect correction via Ollama (local) or Mistral (API) — streams tokens as SSE."""
     if not req.text:
         return {"corrected": ""}
 
@@ -602,52 +715,44 @@ async def correct(req: CorrectionRequest):
     # Only send full context for small texts (≤5 chunks); for large texts it wastes tokens
     full_context = req.text if 1 < len(chunks) <= 5 else None
 
-    if req.mode == "api":
-        if not MISTRAL_API_KEY:
-            raise HTTPException(status_code=400, detail="Mistral API key not configured")
+    if req.mode == "api" and not MISTRAL_API_KEY:
+        raise HTTPException(status_code=400, detail="Mistral API key not configured")
 
-        mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
-        print(f"Correcting {len(chunks)} chunk(s) via Mistral {mistral_model} (length: {req.report_length})...")
-
+    async def generate():
         try:
-            # Mistral rate limits: max 1 parallel to avoid 429s on large texts
-            semaphore = asyncio.Semaphore(1)
+            if req.mode == "api":
+                mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
+                print(f"Streaming {len(chunks)} chunk(s) via Mistral {mistral_model} (length: {req.report_length})...")
 
-            async def correct_with_limit(i: int, chunk: str) -> tuple[int, str]:
-                async with semaphore:
-                    print(f"  Correcting chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
-                    result = await correct_chunk_mistral(chunk, req.language, mistral_model, full_context, req.temperature, system_prompt)
-                    return (i, result)
+                for i, chunk in enumerate(chunks):
+                    print(f"  Streaming chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
+                    async for token in correct_chunk_mistral_stream(
+                        chunk, req.language, mistral_model, full_context, req.temperature, system_prompt
+                    ):
+                        yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+            else:
+                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
+                print(f"Streaming {len(chunks)} chunk(s) via Ollama {ollama_model} (length: {req.report_length})...")
 
-            results = await asyncio.gather(
-                *(correct_with_limit(i, chunk) for i, chunk in enumerate(chunks))
-            )
-            corrected = " ".join(r for _, r in sorted(results))
+                async with httpx.AsyncClient(timeout=600.0) as client:
+                    for i, chunk in enumerate(chunks):
+                        print(f"  Streaming chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
+                        async for token in correct_chunk_stream(
+                            client, chunk, req.language, ollama_model, full_context, req.temperature, system_prompt
+                        ):
+                            yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
-            print(f"Mistral correction failed: {e}")
+            print(f"Correction streaming failed: {e}")
             traceback.print_exc()
-            raise HTTPException(status_code=500, detail=f"Mistral correction failed: {e}")
-    else:
-        ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
-        print(f"Correcting {len(chunks)} chunk(s) via Ollama {ollama_model} (max {MAX_PARALLEL_CORRECTIONS} parallel, length: {req.report_length})...")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
-        try:
-            async with httpx.AsyncClient(timeout=600.0) as client:
-                semaphore = asyncio.Semaphore(MAX_PARALLEL_CORRECTIONS)
-
-                async def correct_with_limit(i: int, chunk: str) -> tuple[int, str]:
-                    async with semaphore:
-                        print(f"  Correcting chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
-                        result = await correct_chunk(client, chunk, req.language, ollama_model, full_context, req.temperature, system_prompt)
-                        return (i, result)
-
-                results = await asyncio.gather(
-                    *(correct_with_limit(i, chunk) for i, chunk in enumerate(chunks))
-                )
-                corrected = " ".join(r for _, r in sorted(results))
-        except Exception as e:
-            print(f"Ollama correction failed: {e}")
-            traceback.print_exc()
-            raise HTTPException(status_code=500, detail=f"Ollama correction failed: {e}")
-
-    return {"corrected": corrected}
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )

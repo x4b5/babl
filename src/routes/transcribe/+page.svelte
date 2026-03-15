@@ -295,28 +295,24 @@
 		waveformBars = new Array(40).fill(3);
 	}
 
-	async function sendLiveChunk(isFinal = false) {
-		if (chunks.length === 0 || !mediaRecorder) return;
+	let liveBusy = false;
+
+	async function sendLiveChunk() {
+		if (liveBusy || chunks.length === 0 || !mediaRecorder) return;
+		liveBusy = true;
 		try {
 			const mimeType = mediaRecorder.mimeType;
-			// Only send new chunks + overlap (3s = 6 chunks back)
-			const startIndex = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
-			const slicedChunks = chunks.slice(startIndex);
-			if (slicedChunks.length === 0) return;
-
-			const blob = new Blob(slicedChunks, { type: mimeType });
+			// Send ALL accumulated audio — Whisper transcribes the whole thing,
+			// we replace (not append) the full transcription each time
+			const blob = new Blob(chunks, { type: mimeType });
 			const wav = await downsampleToWav(blob);
-
-			// Calculate offset: how many seconds of audio we already confirmed
-			const offset = liveAudioDuration;
 
 			const formData = new FormData();
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', lang);
-			formData.append('offset', String(offset));
 
 			console.log(
-				`Live chunk: sending ${slicedChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
+				`Live chunk: sending ${chunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB)`
 			);
 
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
@@ -326,41 +322,40 @@
 			if (resp.ok) {
 				const data = await resp.json();
 				if (data.text) {
-					// Append new text as a confirmed segment
-					liveSegments = [...liveSegments, data.text];
-					partialText = liveSegments.join(' ');
+					// Replace full transcription — not incremental, just the latest full result
+					partialText = data.text;
 					liveWorking = true;
 					if (data.language) language = data.language;
-
-					// Update tracking: mark current chunks as sent
-					lastSentChunkIndex = chunks.length;
-					// Update audio duration: new chunks × interval
-					liveAudioDuration +=
-						(chunks.length - startIndex - OVERLAP_CHUNKS) * (CHUNK_INTERVAL_MS / 1000);
-					if (liveAudioDuration < 0) liveAudioDuration = 0;
 				}
 			}
-		} catch {
-			// Live is optional — silent fallback
+		} catch (e) {
+			console.warn('Live chunk failed:', e);
+		} finally {
+			liveBusy = false;
 		}
 	}
+
+	let liveRunning = false;
 
 	function startLiveTranscription() {
 		partialText = '';
 		liveWorking = false;
-		liveSegments = [];
-		lastSentChunkIndex = 0;
-		liveAudioDuration = 0;
-		liveInterval = setInterval(() => {
-			sendLiveChunk();
-		}, 5000);
+		liveBusy = false;
+		liveRunning = true;
+		liveLoop();
+	}
+
+	async function liveLoop() {
+		while (liveRunning) {
+			// Wait at least 5s between sends, collecting audio
+			await new Promise((r) => setTimeout(r, 5000));
+			if (!liveRunning) break;
+			await sendLiveChunk();
+		}
 	}
 
 	function stopLiveTranscription() {
-		if (liveInterval) {
-			clearInterval(liveInterval);
-			liveInterval = undefined;
-		}
+		liveRunning = false;
 	}
 
 	/** Start real-time WebSocket streaming to AssemblyAI. */
@@ -482,51 +477,12 @@
 				if (transcribeMode === 'local') {
 					status = 'processing';
 
-					// Send final chunk (unsent audio + overlap) for the tail end
-					if (lastSentChunkIndex < chunks.length) {
-						try {
-							const startIndex = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
-							const tailChunks = chunks.slice(startIndex);
-							const tailBlob = new Blob(tailChunks, { type: mimeType });
-							const wav = await downsampleToWav(tailBlob);
-							const offset = liveAudioDuration;
-
-							const formData = new FormData();
-							formData.append('file', wav, 'final.wav');
-							formData.append('lang', lang);
-							formData.append('offset', String(offset));
-
-							console.log(
-								`Final chunk: sending ${tailChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
-							);
-
-							const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-								method: 'POST',
-								body: formData
-							});
-							if (resp.ok) {
-								const data = await resp.json();
-								if (data.text) {
-									liveSegments = [...liveSegments, data.text];
-									if (data.language) language = data.language;
-								}
-							}
-						} catch {
-							// Fall through — use what we have
-						}
-					}
-
-					// Use accumulated live segments as the raw result
-					if (liveSegments.length > 0) {
-						raw = liveSegments.join(' ');
-						partialText = '';
-						status = 'idle';
-						return;
-					}
-
-					// Fallback: no live segments, do full transcription
+					// Send full audio for final transcription
 					try {
 						const wav = await downsampleToWav(blob);
+						console.log(
+							`Final transcription: sending full audio (${(wav.size / 1024).toFixed(0)}KB)`
+						);
 						const formData = new FormData();
 						formData.append('file', wav, 'final.wav');
 						formData.append('lang', lang);
@@ -616,6 +572,7 @@
 	async function sendAudio(blob: Blob, filename: string) {
 		raw = '';
 		corrected = '';
+		error = '';
 		console.log(`Sending audio: ${filename}, size: ${blob.size} bytes, type: ${blob.type}`);
 		if (blob.size === 0) {
 			error = 'Audio-bestand is leeg. Probeer opnieuw.';

@@ -42,6 +42,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const langMap: Record<string, string> = { nl: 'nl', li: 'nl', en: 'en' };
 				const transcript = await client.transcripts.transcribe({
 					audio: buffer,
+					speech_models: ['universal-3-pro', 'universal-2'],
 					speaker_labels: true,
 					language_detection: lang === 'auto',
 					...(lang !== 'auto' && { language_code: langMap[lang] || 'nl' })
