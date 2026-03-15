@@ -1,6 +1,6 @@
 import { redirect, type Handle } from '@sveltejs/kit';
 import { createHmac } from 'node:crypto';
-import { env } from '$env/dynamic/private';
+import { ACCESS_PASSWORD } from '$env/static/private';
 
 const COOKIE_NAME = 'babl_session';
 const MAX_AGE = 30 * 24 * 60 * 60; // 30 days
@@ -21,12 +21,7 @@ export function verifyToken(token: string, password: string): boolean {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const password = env.ACCESS_PASSWORD;
-
-	// No password configured → no gate (dev mode)
-	if (!password) {
-		return resolve(event);
-	}
+	const password = ACCESS_PASSWORD;
 
 	// Allow public paths
 	if (PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p))) {
