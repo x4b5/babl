@@ -1,5 +1,5 @@
 <script lang="ts">
-	const BACKEND_URL = 'http://localhost:8000';
+	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
 	type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correcting';
 
@@ -18,9 +18,12 @@
 	let mode = $state<'local' | 'api'>('local');
 	let reportLength = $state<'kort' | 'middellang' | 'lang'>('middellang');
 	let transcribeMode = $state<'local' | 'api'>('local');
+	let apiStreamMode = $state<'realtime' | 'accurate'>('realtime');
+	let streamSocket: WebSocket | undefined;
 	let temperature = $state(0.5);
 	let mistralAvailable = $state(false);
 	let assemblyAvailable = $state(false);
+	let localAvailable = $state(false);
 	let privacyOpen = $state(false);
 	let rawExpanded = $state(false);
 
@@ -138,9 +141,10 @@
 		return () => window.removeEventListener('keydown', handleKeydown);
 	});
 
-	// Health check: detect Mistral availability
+	// Health check: detect API availability (SvelteKit routes) + local backend
 	$effect(() => {
-		fetch(`${BACKEND_URL}/health`)
+		// Check SvelteKit API routes (works on Vercel + local)
+		fetch('/api/health')
 			.then((r) => r.json())
 			.then((data) => {
 				mistralAvailable = data.mistral_available ?? false;
@@ -149,6 +153,16 @@
 			.catch(() => {
 				mistralAvailable = false;
 				assemblyAvailable = false;
+			});
+
+		// Check local backend (Whisper + Ollama)
+		fetch(`${LOCAL_BACKEND_URL}/health`)
+			.then((r) => r.json())
+			.then(() => {
+				localAvailable = true;
+			})
+			.catch(() => {
+				localAvailable = false;
 			});
 	});
 
@@ -214,6 +228,34 @@
 		return buffer;
 	}
 
+	/** Convert audio blob to raw 16kHz mono PCM Int16 LE bytes for AssemblyAI streaming. */
+	async function toPcmInt16(blob: Blob): Promise<ArrayBuffer> {
+		const TARGET_RATE = 16000;
+		const arrayBuffer = await blob.arrayBuffer();
+		const ctx = new OfflineAudioContext(1, 1, TARGET_RATE);
+		const decoded = await ctx.decodeAudioData(arrayBuffer);
+
+		const offline = new OfflineAudioContext(
+			1,
+			Math.ceil(decoded.duration * TARGET_RATE),
+			TARGET_RATE
+		);
+		const source = offline.createBufferSource();
+		source.buffer = decoded;
+		source.connect(offline.destination);
+		source.start();
+		const rendered = await offline.startRendering();
+
+		const samples = rendered.getChannelData(0);
+		const pcmBuffer = new ArrayBuffer(samples.length * 2);
+		const view = new DataView(pcmBuffer);
+		for (let i = 0; i < samples.length; i++) {
+			const s = Math.max(-1, Math.min(1, samples[i]));
+			view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+		}
+		return pcmBuffer;
+	}
+
 	function startWaveform(stream: MediaStream) {
 		audioContext = new AudioContext();
 		analyser = audioContext.createAnalyser();
@@ -277,7 +319,7 @@
 				`Live chunk: sending ${slicedChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
 			);
 
-			const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 				method: 'POST',
 				body: formData
 			});
@@ -321,6 +363,66 @@
 		}
 	}
 
+	/** Start real-time WebSocket streaming to AssemblyAI. */
+	function startRealtimeStream() {
+		partialText = '';
+		liveSegments = [];
+		liveWorking = false;
+
+		const wsUrl = LOCAL_BACKEND_URL.replace('http', 'ws') + '/ws/transcribe-stream';
+		streamSocket = new WebSocket(wsUrl);
+
+		streamSocket.onopen = () => {
+			console.log('[RT] WebSocket connected');
+			streamSocket!.send(JSON.stringify({ lang }));
+		};
+
+		streamSocket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+			if (data.type === 'partial') {
+				// Partial = work-in-progress, overwrite
+				partialText = [...liveSegments, data.text].join(' ');
+			} else if (data.type === 'final') {
+				// Final = confirmed segment, append
+				liveSegments = [...liveSegments, data.text];
+				partialText = liveSegments.join(' ');
+				liveWorking = true;
+			} else if (data.type === 'error') {
+				console.error('[RT] Error:', data.message);
+				error = `Real-time fout: ${data.message}`;
+			}
+		};
+
+		streamSocket.onerror = (e) => {
+			console.error('[RT] WebSocket error:', e);
+		};
+
+		streamSocket.onclose = () => {
+			console.log('[RT] WebSocket closed');
+		};
+	}
+
+	/** Stop real-time WebSocket streaming. */
+	function stopRealtimeStream() {
+		if (streamSocket) {
+			if (streamSocket.readyState === WebSocket.OPEN) {
+				streamSocket.close();
+			}
+			streamSocket = undefined;
+		}
+	}
+
+	/** Send a MediaRecorder chunk as PCM via WebSocket. */
+	async function sendChunkToStream(blob: Blob) {
+		if (!streamSocket || streamSocket.readyState !== WebSocket.OPEN) return;
+		try {
+			const pcm = await toPcmInt16(blob);
+			streamSocket.send(pcm);
+		} catch (e) {
+			console.error('[RT] PCM conversion error:', e);
+		}
+	}
+
 	async function startRecording() {
 		error = '';
 		try {
@@ -345,14 +447,22 @@
 
 			startWaveform(stream);
 
+			const useRealtimeStream = transcribeMode === 'api' && apiStreamMode === 'realtime';
+
 			mediaRecorder.ondataavailable = (e) => {
-				if (e.data.size > 0) chunks.push(e.data);
+				if (e.data.size > 0) {
+					chunks.push(e.data);
+					if (useRealtimeStream) {
+						sendChunkToStream(e.data);
+					}
+				}
 			};
 
 			mediaRecorder.onstop = async () => {
 				stream.getTracks().forEach((t) => t.stop());
 				stopWaveform();
 				stopLiveTranscription();
+				stopRealtimeStream();
 				recordingDuration = elapsed;
 				if (chunks.length === 0) {
 					error = 'Geen audio opgenomen. Probeer langer op te nemen.';
@@ -360,6 +470,14 @@
 					return;
 				}
 				const blob = new Blob(chunks, { type: mimeType });
+
+				// Real-time API streaming: use accumulated segments
+				if (useRealtimeStream && liveSegments.length > 0) {
+					raw = liveSegments.join(' ');
+					partialText = '';
+					status = 'idle';
+					return;
+				}
 
 				if (transcribeMode === 'local') {
 					status = 'processing';
@@ -382,7 +500,7 @@
 								`Final chunk: sending ${tailChunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB), offset=${offset.toFixed(1)}s`
 							);
 
-							const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+							const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 								method: 'POST',
 								body: formData
 							});
@@ -412,7 +530,7 @@
 						const formData = new FormData();
 						formData.append('file', wav, 'final.wav');
 						formData.append('lang', lang);
-						const resp = await fetch(`${BACKEND_URL}/transcribe-live`, {
+						const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 							method: 'POST',
 							body: formData
 						});
@@ -448,7 +566,9 @@
 
 			mediaRecorder.start(500);
 			status = 'recording';
-			if (transcribeMode === 'local') {
+			if (useRealtimeStream) {
+				startRealtimeStream();
+			} else if (transcribeMode === 'local') {
 				startLiveTranscription();
 			}
 		} catch {
@@ -509,12 +629,13 @@
 		formData.append('lang', lang);
 
 		const endpoint = transcribeMode === 'api' ? '/transcribe-api' : '/transcribe';
+		const baseUrl = transcribeMode === 'api' ? '/api' : LOCAL_BACKEND_URL;
 
 		try {
 			const controller = new AbortController();
 			const fetchTimeout = setTimeout(() => controller.abort(), 30 * 60 * 1000);
 
-			const resp = await fetch(`${BACKEND_URL}${endpoint}`, {
+			const resp = await fetch(`${baseUrl}${endpoint}`, {
 				method: 'POST',
 				body: formData,
 				signal: controller.signal
@@ -565,7 +686,10 @@
 			if (e instanceof DOMException && e.name === 'AbortError') {
 				error = 'Verwerking duurde te lang (>30 min). Probeer een korter fragment.';
 			} else if (e instanceof TypeError) {
-				error = 'Backend niet bereikbaar. Start de server op localhost:8000.';
+				error =
+					transcribeMode === 'local'
+						? 'Lokale backend niet bereikbaar. Start de server op localhost:8000.'
+						: 'API niet bereikbaar. Controleer je internetverbinding.';
 			} else {
 				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
 			}
@@ -595,8 +719,9 @@
 			mode: body.mode,
 			quality: body.quality
 		});
+		const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
 		try {
-			const resp = await fetch(`${BACKEND_URL}/correct`, {
+			const resp = await fetch(correctUrl, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body)
@@ -606,10 +731,38 @@
 				console.error('Correction failed:', resp.status);
 				error = 'Verslaglegging mislukt (rate limit of serverfout). Probeer het opnieuw.';
 				corrected = '';
-			} else {
-				const data = await resp.json();
-				corrected = data.corrected || text;
+				status = 'idle';
+				return;
 			}
+
+			// Read SSE stream — tokens arrive one by one
+			const reader = resp.body!.getReader();
+			const decoder = new TextDecoder();
+			let buffer = '';
+
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || '';
+
+				for (const line of lines) {
+					if (!line.startsWith('data: ')) continue;
+					const event = JSON.parse(line.slice(6));
+
+					if (event.type === 'token') {
+						corrected += event.text;
+					} else if (event.type === 'done') {
+						// Streaming complete
+					} else if (event.type === 'error') {
+						throw new Error(event.message);
+					}
+				}
+			}
+
+			if (!corrected) corrected = text;
 		} catch (e) {
 			console.error('Correction error:', e);
 			error = 'Verslaglegging mislukt. Controleer of de backend draait.';
@@ -694,10 +847,11 @@
 			<div class="glass inline-flex rounded-full p-1">
 				<button
 					onclick={() => (transcribeMode = 'local')}
+					disabled={!localAvailable}
 					class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/50 hover:text-white/80 scale-100'}"
+						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					Lokaal
 				</button>
@@ -713,7 +867,31 @@
 				</button>
 			</div>
 			{#if transcribeMode === 'api'}
-				<p class="text-xs text-white/40">AssemblyAI — inclusief sprekerdetectie</p>
+				<div class="glass inline-flex rounded-full p-1">
+					<button
+						onclick={() => (apiStreamMode = 'realtime')}
+						class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {apiStreamMode ===
+						'realtime'
+							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+							: 'text-white/50 hover:text-white/80 scale-100'}"
+					>
+						Real-time
+					</button>
+					<button
+						onclick={() => (apiStreamMode = 'accurate')}
+						class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {apiStreamMode ===
+						'accurate'
+							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+							: 'text-white/50 hover:text-white/80 scale-100'}"
+					>
+						Nauwkeurig
+					</button>
+				</div>
+				<p class="text-xs text-white/40">
+					{apiStreamMode === 'realtime'
+						? 'AssemblyAI — live streaming (geen sprekerdetectie)'
+						: 'AssemblyAI — batch met sprekerdetectie'}
+				</p>
 			{/if}
 		</div>
 
@@ -988,10 +1166,11 @@
 								<div class="glass inline-flex rounded-full p-1">
 									<button
 										onclick={() => (mode = 'local')}
+										disabled={!localAvailable}
 										class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 										'local'
 											? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-											: 'text-white/50 hover:text-white/80 scale-100'}"
+											: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 									>
 										Lokaal
 									</button>
@@ -1120,7 +1299,12 @@
 						class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)] animate-slide-up"
 					>
 						<div class="mb-3 flex items-center justify-between">
-							<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+							<div class="flex items-center gap-2">
+								<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+								{#if status === 'correcting'}
+									<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
+								{/if}
+							</div>
 							<button
 								onclick={() => copyText(corrected, 'corrected')}
 								class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200

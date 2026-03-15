@@ -38,6 +38,8 @@
 		"*.{js,ts,svelte,css,md,json}": "prettier --write"
 	},
 	"dependencies": {
+		"@mistralai/mistralai": "^1.15.1",
+		"assemblyai": "^4.27.0",
 		"posthog-js": "^1.352.1"
 	}
 }
