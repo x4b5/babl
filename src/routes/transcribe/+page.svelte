@@ -15,6 +15,7 @@
 	let correctedExpanded = $state(false);
 	let quality = $state<'light' | 'medium'>('light');
 	let lang = $state<'auto' | 'nl' | 'li' | 'en'>('li');
+	let region = $state('limburgs');
 	let mode = $state<'local' | 'api'>('local');
 	let reportLength = $state<'kort' | 'middellang' | 'lang'>('middellang');
 	let transcribeMode = $state<'local' | 'api'>('local');
@@ -26,6 +27,7 @@
 	let localAvailable = $state(false);
 	let privacyOpen = $state(false);
 	let rawExpanded = $state(false);
+	let keepDialect = $state(false);
 
 	let partialText = $state('');
 	let liveInterval: ReturnType<typeof setInterval> | undefined;
@@ -310,6 +312,7 @@
 			const formData = new FormData();
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', lang);
+			formData.append('region', region);
 
 			console.log(
 				`Live chunk: sending ${chunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB)`
@@ -369,7 +372,7 @@
 
 		streamSocket.onopen = () => {
 			console.log('[RT] WebSocket connected');
-			streamSocket!.send(JSON.stringify({ lang }));
+			streamSocket!.send(JSON.stringify({ lang, region }));
 		};
 
 		streamSocket.onmessage = (event) => {
@@ -486,6 +489,7 @@
 						const formData = new FormData();
 						formData.append('file', wav, 'final.wav');
 						formData.append('lang', lang);
+						formData.append('region', region);
 						const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 							method: 'POST',
 							body: formData
@@ -584,6 +588,7 @@
 		const formData = new FormData();
 		formData.append('file', blob, filename);
 		formData.append('lang', lang);
+		formData.append('region', region);
 
 		const endpoint = transcribeMode === 'api' ? '/transcribe-api' : '/transcribe';
 		const baseUrl = transcribeMode === 'api' ? '/api' : LOCAL_BACKEND_URL;
@@ -659,17 +664,19 @@
 		corrected = '';
 		correctedExpanded = false;
 		status = 'correcting';
-		fetchCorrection(raw, language, quality);
+		fetchCorrection(raw, lang, quality);
 	}
 
 	async function fetchCorrection(text: string, lang: string, qual: string) {
 		const body = {
 			text,
 			language: lang,
+			region,
 			quality: qual,
 			mode,
 			temperature,
-			report_length: reportLength
+			report_length: reportLength,
+			keep_dialect: keepDialect
 		};
 		console.log('Correction request:', {
 			report_length: body.report_length,
@@ -757,19 +764,23 @@
 	<div class="floating-orb orb-cyan"></div>
 	<div class="floating-orb orb-fuchsia"></div>
 
-	<div class="mx-auto max-w-3xl px-4 py-16">
+	<div class="mx-auto max-w-3xl px-4 py-6 sm:py-16">
 		<!-- Header -->
-		<header class="mb-12 text-center animate-fade-in">
-			<h1 class="gradient-text mb-3 text-8xl font-normal tracking-tighter sm:text-9xl select-none">
+		<header class="mb-6 sm:mb-12 text-center animate-fade-in">
+			<h1
+				class="gradient-text mb-2 sm:mb-4 text-5xl font-normal tracking-tighter sm:text-8xl md:text-9xl select-none"
+			>
 				<span class="inline-block hover:animate-letter-bounce">B</span><span
 					class="inline-block hover:animate-letter-bounce">A</span
 				><span class="inline-block hover:animate-letter-bounce">B</span><span
 					class="inline-block hover:animate-letter-bounce">L</span
 				>
 			</h1>
-			<p class="mb-4 text-lg text-white/50">Spraak naar tekst met Limburgse dialectcorrectie</p>
+			<p class="mb-3 sm:mb-4 text-xs sm:text-lg text-white/50">
+				Spraak naar tekst met Limburgse dialectcorrectie
+			</p>
 			<span
-				class="glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white/60"
+				class="glass inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] sm:text-xs font-medium text-white/60"
 			>
 				<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 					<path
@@ -783,12 +794,14 @@
 		</header>
 
 		<!-- Language toggle -->
-		<div class="mb-8 flex justify-center animate-fade-in">
-			<div class="glass inline-flex rounded-full p-1">
+		<div class="mb-4 sm:mb-8 flex flex-col items-center gap-3 animate-fade-in">
+			<div
+				class="glass flex flex-wrap justify-center rounded-2xl sm:rounded-full p-1 w-full sm:w-auto"
+			>
 				{#each [{ value: 'auto', label: 'Standaard' }, { value: 'nl', label: 'Nederlands' }, { value: 'li', label: 'Limburgs' }, { value: 'en', label: 'Engels' }] as opt}
 					<button
 						onclick={() => (lang = opt.value as typeof lang)}
-						class="rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {lang ===
+						class="flex-1 sm:flex-none rounded-xl sm:rounded-full px-3 py-2 text-xs sm:px-5 sm:py-2 sm:text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {lang ===
 						opt.value
 							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 							: 'text-white/50 hover:text-white/80 scale-100'}"
@@ -797,15 +810,37 @@
 					</button>
 				{/each}
 			</div>
+
+			<!-- Regional profile toggle (Phase 4) -->
+			{#if lang === 'li'}
+				<div
+					class="glass flex flex-wrap justify-center rounded-2xl sm:rounded-full p-1 w-full sm:w-auto animate-fade-in"
+				>
+					{#each [{ value: 'limburgs', label: 'Algemeen' }, { value: 'mestreechs', label: 'Mestreechs' }, { value: 'zittesj', label: 'Zittesj' }, { value: 'venloos', label: 'Venloos' }, { value: 'kirchroeadsj', label: 'Kirchröadsj' }] as opt}
+						<button
+							onclick={() => (region = opt.value)}
+							class="flex-1 sm:flex-none rounded-xl sm:rounded-full px-2 py-2 text-[10px] sm:px-4 sm:py-2 sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {region ===
+							opt.value
+								? 'bg-white/20 text-white shadow-lg scale-105'
+								: 'text-white/30 hover:text-white/60 scale-100'}"
+						>
+							{opt.label}
+						</button>
+					{/each}
+				</div>
+				<p class="text-[10px] text-white/30 uppercase tracking-widest">
+					Selecteer regio voor optimale herkenning
+				</p>
+			{/if}
 		</div>
 
 		<!-- Transcribe mode toggle -->
-		<div class="mb-4 flex flex-col items-center gap-2 animate-fade-in">
-			<div class="glass inline-flex rounded-full p-1">
+		<div class="mb-4 flex flex-col items-center gap-2 animate-fade-in w-full sm:w-auto">
+			<div class="glass flex rounded-full p-1 w-full sm:w-auto">
 				<button
 					onclick={() => (transcribeMode = 'local')}
 					disabled={!localAvailable}
-					class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+					class="flex-1 sm:flex-none rounded-full px-4 py-2 text-xs sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -815,7 +850,7 @@
 				<button
 					onclick={() => (transcribeMode = 'api')}
 					disabled={!assemblyAvailable}
-					class="rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+					class="flex-1 sm:flex-none rounded-full px-4 py-2 text-xs sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
 					'api'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -853,7 +888,7 @@
 		</div>
 
 		<!-- Record button -->
-		<div class="mb-10 flex flex-col items-center gap-6 animate-fade-in">
+		<div class="mb-6 sm:mb-10 flex flex-col items-center gap-4 sm:gap-6 animate-fade-in">
 			<div class="relative">
 				<!-- Pulse rings during recording -->
 				{#if status === 'recording'}
@@ -881,7 +916,7 @@
 					<button
 						onclick={toggleRecording}
 						disabled={status === 'processing'}
-						class="relative z-10 flex h-36 w-36 items-center justify-center rounded-full bg-[#0a0a0f] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+						class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#0a0a0f] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 							{status === 'recording'
 							? 'animate-pulse-glow'
 							: status === 'idle' || status === 'correcting'
@@ -890,18 +925,22 @@
 					>
 						{#if status === 'preparing'}
 							<!-- Countdown -->
-							<span class="animate-countdown text-4xl font-bold text-amber-400">
+							<span class="animate-countdown text-3xl sm:text-4xl font-bold text-amber-400">
 								{countdown}
 							</span>
 						{:else if status === 'recording'}
 							<!-- Stop icon -->
-							<svg class="h-12 w-12 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+							<svg
+								class="h-8 w-8 sm:h-12 sm:w-12 text-red-400"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+							>
 								<rect x="6" y="6" width="12" height="12" rx="2" />
 							</svg>
 						{:else if status === 'processing'}
 							<!-- Spinner -->
 							<svg
-								class="h-12 w-12 text-white/60 animate-spin-slow"
+								class="h-8 w-8 sm:h-12 sm:w-12 text-white/60 animate-spin-slow"
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -916,7 +955,7 @@
 						{:else}
 							<!-- Mic icon -->
 							<svg
-								class="h-12 w-12 text-white"
+								class="h-8 w-8 sm:h-12 sm:w-12 text-white"
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -1064,7 +1103,7 @@
 
 				<!-- Raw transcription — full width -->
 				<div
-					class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)]"
+					class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)]"
 				>
 					<div class="mb-3 flex items-center justify-between">
 						<h2 class="text-sm font-semibold text-white/70">Ruwe transcriptie</h2>
@@ -1113,10 +1152,10 @@
 
 				<!-- Step 2: Correction controls -->
 				{#if status !== 'correcting'}
-					<div class="glass rounded-2xl p-5 animate-fade-in">
-						<h3 class="mb-4 text-sm font-semibold text-white/70">Verslaglegging</h3>
+					<div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
+						<h3 class="mb-3 sm:mb-4 text-sm font-semibold text-white/70">Verslaglegging</h3>
 
-						<div class="flex flex-wrap items-center gap-4 mb-4">
+						<div class="flex flex-wrap items-start gap-3 sm:gap-4 mb-4">
 							<!-- Mode toggle -->
 							<div class="flex flex-col gap-1">
 								<span class="text-[10px] uppercase tracking-wider text-white/30">Model</span>
@@ -1213,6 +1252,22 @@
 								>{temperature.toFixed(1)}</span
 							>
 						</div>
+
+						<!-- Phase 3: Dialect retention toggle -->
+						{#if lang === 'li'}
+							<div class="mb-5 flex items-center justify-between gap-3">
+								<div class="flex flex-col">
+									<span class="text-xs text-white/80">Behoud Dialect</span>
+									<span class="text-[10px] text-white/30">Houd de output in het Limburgs</span>
+								</div>
+								<label class="relative inline-flex cursor-pointer items-center">
+									<input type="checkbox" bind:checked={keepDialect} class="peer sr-only" />
+									<div
+										class="peer h-5 w-9 rounded-full bg-white/10 after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white/40 after:transition-all after:content-[''] peer-checked:bg-neon peer-checked:after:translate-x-full peer-checked:after:bg-black"
+									></div>
+								</label>
+							</div>
+						{/if}
 
 						<!-- Generate button -->
 						<button
@@ -1323,18 +1378,18 @@
 		{/if}
 
 		<!-- Privacy footer (smooth accordion) -->
-		<div class="mt-16 animate-fade-in">
+		<div class="mt-12 sm:mt-16 animate-fade-in">
 			<button
 				onclick={() => (privacyOpen = !privacyOpen)}
-				class="glass w-full rounded-2xl px-5 py-4 text-left transition-all duration-300 hover:bg-white/8"
+				class="glass w-full rounded-2xl px-4 py-3 sm:px-5 sm:py-4 text-left transition-all duration-300 hover:bg-white/8"
 			>
 				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-3">
+					<div class="flex items-center gap-2 sm:gap-3">
 						<div
-							class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-neon/20 to-accent-start/20"
+							class="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-linear-to-br from-neon/20 to-accent-start/20"
 						>
 							<svg
-								class="h-4 w-4 text-neon"
+								class="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon"
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -1347,9 +1402,14 @@
 								/>
 							</svg>
 						</div>
-						<div>
-							<span class="text-sm font-medium text-white/70">Privacy-bewuste verwerking</span>
-							<span class="ml-2 text-xs text-white/30">AVG & EU AI Act compliant</span>
+						<div class="flex flex-col sm:flex-row sm:items-center">
+							<span class="text-xs sm:text-sm font-medium text-white/70"
+								>Privacy-bewuste verwerking</span
+							>
+							<span
+								class="sm:ml-2 text-[10px] text-white/30 uppercase tracking-tighter sm:normal-case sm:tracking-normal"
+								>AVG & EU Act compliant</span
+							>
 						</div>
 					</div>
 					<svg

@@ -93,6 +93,14 @@ body {
 	animation: orb-drift-1 25s ease-in-out infinite;
 }
 
+@media (max-width: 640px) {
+	.orb-violet {
+		width: 300px;
+		height: 300px;
+		filter: blur(80px);
+	}
+}
+
 .orb-indigo {
 	width: 400px;
 	height: 400px;
@@ -100,6 +108,14 @@ body {
 	top: 40%;
 	right: -15%;
 	animation: orb-drift-2 30s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+	.orb-indigo {
+		width: 250px;
+		height: 250px;
+		filter: blur(70px);
+	}
 }
 
 .orb-cyan {
@@ -111,6 +127,14 @@ body {
 	animation: orb-drift-3 22s ease-in-out infinite;
 }
 
+@media (max-width: 640px) {
+	.orb-cyan {
+		width: 200px;
+		height: 200px;
+		filter: blur(60px);
+	}
+}
+
 .orb-fuchsia {
 	width: 300px;
 	height: 300px;
@@ -118,6 +142,14 @@ body {
 	top: 20%;
 	left: 50%;
 	animation: orb-drift-4 28s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+	.orb-fuchsia {
+		width: 180px;
+		height: 180px;
+		filter: blur(50px);
+	}
 }
 
 @keyframes orb-drift-1 {
@@ -194,9 +226,15 @@ body {
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
-	filter: drop-shadow(0 0 30px rgba(212, 255, 0, 0.4)) drop-shadow(0 0 60px rgba(255, 0, 128, 0.2));
+	filter: drop-shadow(0 0 20px rgba(212, 255, 0, 0.3)) drop-shadow(0 0 40px rgba(255, 0, 128, 0.15));
 	letter-spacing: 0.02em;
 	line-height: 0.95;
+}
+
+@media (max-width: 640px) {
+	.gradient-text {
+		filter: drop-shadow(0 0 10px rgba(212, 255, 0, 0.3));
+	}
 }
 
 @keyframes letter-bounce {
@@ -395,6 +433,15 @@ body {
 	background: linear-gradient(to top, #7c3aed, #d4ff00);
 	transition: height 0.05s ease;
 	min-height: 3px;
+}
+
+@media (max-width: 640px) {
+	.waveform-bar:nth-child(even) {
+		display: none;
+	}
+	.waveform-container {
+		gap: 3px;
+	}
 }
 
 /* Upload button gradient border on hover */

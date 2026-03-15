@@ -4,6 +4,7 @@ import re
 import tempfile
 import os
 import traceback
+import subprocess
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -15,7 +16,11 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import mlx_whisper
 import httpx
-from dialects import DIALECT_HOTWORDS, DIALECT_PROMPT
+from dialects import (
+    REGIONAL_PROFILES,
+    get_dialect_config,
+    DIALECT_TRANSLATION_KEY
+)
 
 # Allow large uploads (500 MB covers ~2+ hours of compressed audio)
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024
@@ -83,8 +88,29 @@ app.add_middleware(
 # mlx-whisper model path — runs on Apple Silicon GPU via MLX
 WHISPER_MODEL_PATH = "mlx-community/whisper-large-v3-mlx"
 
-# Combined dialect prompt: DIALECT_PROMPT + hotwords integrated as initial_prompt
-DIALECT_INITIAL_PROMPT = DIALECT_PROMPT + "\n" + DIALECT_HOTWORDS
+# The DIALECT_INITIAL_PROMPT is now pre-composed in dialects.py
+
+def get_audio_duration(path: str) -> float:
+    """Get duration of audio file in seconds using ffprobe."""
+    try:
+        cmd = [
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1", path
+        ]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return float(result.stdout.strip())
+    except Exception:
+        return 0.0
+
+def extract_audio_segment(input_path: str, output_path: str, start: float, duration: float):
+    """Extract and transcode a segment of audio using ffmpeg."""
+    cmd = [
+        "ffmpeg", "-y", "-ss", str(start), "-i", input_path,
+        "-t", str(duration),
+        "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
+        output_path
+    ]
+    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 SYSTEM_PROMPTS = {
@@ -110,7 +136,8 @@ SYSTEM_PROMPTS = {
         "- Gebruik '- ' als bulletpoint-prefix.\n"
         "- Voeg geen informatie toe die niet in de brontekst staat.\n"
         "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Focus op resultaten en besluiten, niet op procesbeschrijving."
+        "- Focus op resultaten en besluiten, niet op procesbeschrijving.\n\n"
+        f"{DIALECT_TRANSLATION_KEY}"
     ),
     "middellang": (
         "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
@@ -133,7 +160,8 @@ SYSTEM_PROMPTS = {
         "- Geef ALLEEN het verslag terug, geen uitleg of commentaar.\n"
         "- Voeg geen informatie toe die niet in de brontekst staat.\n"
         "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Kort en bondig. Geen onnodige procesbeschrijving."
+        "- Kort en bondig. Geen onnodige procesbeschrijving.\n\n"
+        f"{DIALECT_TRANSLATION_KEY}"
     ),
     "lang": (
         "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
@@ -160,9 +188,32 @@ SYSTEM_PROMPTS = {
         "- Voeg geen informatie toe die niet in de brontekst staat.\n"
         "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
         "- Structureer met alinea's. Gebruik kopjes als de tekst meerdere onderwerpen bevat.\n"
-        "- Wees volledig: beschrijf het proces, de argumenten en de conclusies."
+        "- Wees volledig: beschrijf het proces, de argumenten en de conclusies.\n\n"
+        f"{DIALECT_TRANSLATION_KEY}"
     ),
 }
+
+DIALECT_RETENTION_PROMPT = (
+    "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect.\n\n"
+    "JE TAAK:\n"
+    "Je krijgt een schone Limburgse transcriptie. Maak er een verslag van in bulletpoints of doorlopende tekst (behoud de gevraagde lengte).\n"
+    "BELANGRIJK: Schrijf het verslag VOLLEDIG in het Limburgs dialect. Vertaal NIET naar het Nederlands.\n\n"
+    "1. Gebruik de Limburgse grammatica en spelling.\n"
+    "2. Behou de kern van de boodschap.\n"
+    "3. Verwijder herhalingen en irrelevant proces-gepraat.\n\n"
+    f"{DIALECT_TRANSLATION_KEY}"
+)
+
+CLEANUP_PROMPT = (
+    "Je bent een expert in het Limburgs dialect. Je krijgt een ruwe transcriptie.\n"
+    "JE TAAK:\n"
+    "1. Corrigeer spelfouten in het dialect (gebruik de context).\n"
+    "2. Behou het Limburgse dialect, vertaal NIET naar het Nederlands.\n"
+    "3. Verwijder stopwoorden zoals 'uhm', 'dus', 'eigenlijk' als ze geen betekenis toevoegen.\n"
+    "4. Herstel afgebroken woorden.\n\n"
+    "RESULTAAT: Geef alleen de gecorrigeerde Limburgse tekst terug.\n\n"
+    f"{DIALECT_TRANSLATION_KEY}"
+)
 
 SYSTEM_PROMPT = SYSTEM_PROMPTS["middellang"]
 
@@ -313,16 +364,19 @@ def split_into_chunks(text: str, max_words: int = 400) -> list[str]:
 async def transcribe(
     file: UploadFile = File(...),
     lang: str = Form("li"),
+    region: str = Form("limburgs"),
 ):
     """Step 1: Whisper transcription — streams segments as SSE."""
     if lang not in ("auto", "nl", "li", "en"):
         lang = "li"
 
+    dialect_config = get_dialect_config(region)
+
     # Map frontend lang to Whisper parameters
     lang_config: dict[str, str | None] = {
         "auto": {"language": None, "initial_prompt": None},
         "nl": {"language": "nl", "initial_prompt": None},
-        "li": {"language": "nl", "initial_prompt": DIALECT_INITIAL_PROMPT},
+        "li": {"language": "nl", "initial_prompt": dialect_config["initial_prompt"]},
         "en": {"language": "en", "initial_prompt": None},
     }[lang]
 
@@ -351,27 +405,44 @@ async def transcribe(
 
         def _transcribe_worker():
             try:
-                transcribe_kwargs = {
-                    "path_or_hf_repo": WHISPER_MODEL_PATH,
-                    "temperature": (0.0, 0.2, 0.4),
-                }
-                if lang_config["language"] is not None:
-                    transcribe_kwargs["language"] = lang_config["language"]
-                if lang_config["initial_prompt"] is not None:
-                    transcribe_kwargs["initial_prompt"] = lang_config["initial_prompt"]
-
-                result = mlx_whisper.transcribe(tmp_path, **transcribe_kwargs)
-                detected_lang = result.get("language", "nl")
-                print(f"Detected language: {detected_lang}")
-
-                loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n")
-
+                duration = get_audio_duration(tmp_path)
+                segment_duration = 30.0  # seconds
+                
+                print(f"Transcribing {duration:.2f}s audio in {segment_duration}s segments...")
+                
                 word_count = 0
-                for segment in result.get("segments", []):
-                    text = segment.get("text", "").strip()
-                    if text:
-                        word_count += len(text.split())
-                        loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n")
+                detected_lang = "nl"
+                
+                for start in range(0, int(duration), int(segment_duration)):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as chunk_tmp:
+                        chunk_path = chunk_tmp.name
+                    
+                    try:
+                        extract_audio_segment(tmp_path, chunk_path, float(start), segment_duration)
+                        
+                        transcribe_kwargs = {
+                            "path_or_hf_repo": WHISPER_MODEL_PATH,
+                            "temperature": (0.0, 0.2, 0.4),
+                        }
+                        if lang_config["language"] is not None:
+                            transcribe_kwargs["language"] = lang_config["language"]
+                        if lang_config["initial_prompt"] is not None:
+                            transcribe_kwargs["initial_prompt"] = lang_config["initial_prompt"]
+
+                        result = mlx_whisper.transcribe(chunk_path, **transcribe_kwargs)
+                        detected_lang = result.get("language", "nl")
+                        
+                        if start == 0:
+                            loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n")
+
+                        for segment in result.get("segments", []):
+                            text = segment.get("text", "").strip()
+                            if text:
+                                word_count += len(text.split())
+                                loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n")
+                    finally:
+                        if os.path.exists(chunk_path):
+                            os.unlink(chunk_path)
 
                 print(f"Transcription length: {word_count} words")
                 loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'done'})}\n\n")
@@ -403,6 +474,7 @@ async def transcribe(
 async def transcribe_live(
     file: UploadFile = File(...),
     lang: str = Form("li"),
+    region: str = Form("limburgs"),
     offset: float = Form(0.0),
 ):
     """Live transcription endpoint — returns JSON with segment timestamps.
@@ -414,10 +486,12 @@ async def transcribe_live(
     if lang not in ("auto", "nl", "li", "en"):
         lang = "li"
 
+    dialect_config = get_dialect_config(region)
+
     lang_config: dict[str, str | None] = {
         "auto": {"language": None, "initial_prompt": None},
         "nl": {"language": "nl", "initial_prompt": None},
-        "li": {"language": "nl", "initial_prompt": DIALECT_INITIAL_PROMPT},
+        "li": {"language": "nl", "initial_prompt": dialect_config["initial_prompt"]},
         "en": {"language": "en", "initial_prompt": None},
     }[lang]
 
@@ -472,6 +546,7 @@ async def transcribe_live(
 async def transcribe_api(
     file: UploadFile = File(...),
     lang: str = Form("auto"),
+    region: str = Form("limburgs"),
 ):
     """Step 1 (API): AssemblyAI transcription with speaker diarization — streams segments as SSE."""
     if not ASSEMBLYAI_API_KEY:
@@ -512,6 +587,11 @@ async def transcribe_api(
                 if lang != "auto":
                     lang_map = {"nl": "nl", "li": "nl", "en": "en"}
                     config_kwargs["language_code"] = lang_map.get(lang, "nl")
+                    if lang == "li":
+                        dialect_config = get_dialect_config(region)
+                        config_kwargs["word_boost"] = dialect_config["word_boost"]
+                        config_kwargs["boost_param"] = "high"
+                        config_kwargs["custom_spelling"] = dialect_config["custom_spelling"]
 
                 config = aai.TranscriptionConfig(**config_kwargs)
                 transcriber = aai.Transcriber()
@@ -539,13 +619,41 @@ async def transcribe_api(
                     word_count = 0
                     for utterance in utterances:
                         text = utterance.text.strip()
+                        
+                        # HYBRID MODE: If language is Limburgish, use Whisper for the actual text
+                        if lang == "li":
+                            start_sec = utterance.start / 1000.0
+                            end_sec = utterance.end / 1000.0
+                            seg_duration = end_sec - start_sec
+                            
+                            if seg_duration > 0:
+                                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as chunk_tmp:
+                                    chunk_path = chunk_tmp.name
+                                try:
+                                    extract_audio_segment(tmp_path, chunk_path, start_sec, seg_duration)
+                                    dialect_config = get_dialect_config(region)
+                                    whisper_res = mlx_whisper.transcribe(
+                                        chunk_path,
+                                        path_or_hf_repo=WHISPER_MODEL_PATH,
+                                        language="nl",
+                                        initial_prompt=dialect_config["initial_prompt"],
+                                        temperature=(0.0, 0.2, 0.4)
+                                    )
+                                    text = whisper_res.get("text", "").strip()
+                                except Exception as we:
+                                    print(f"[Hybrid] Whisper error: {we}")
+                                    traceback.print_exc()
+                                finally:
+                                    if os.path.exists(chunk_path):
+                                        os.unlink(chunk_path)
+
                         if text:
                             word_count += len(text.split())
                             loop.call_soon_threadsafe(
                                 queue.put_nowait,
                                 f"data: {json.dumps({'type': 'segment', 'text': text, 'speaker': utterance.speaker})}\n\n",
                             )
-                    print(f"[AssemblyAI] Transcription length: {word_count} words, {len(utterances)} utterances")
+                    print(f"[Hybrid] Transcription length: {word_count} words, {len(utterances)} utterances")
                 else:
                     # Fallback: no utterances, use full text
                     text = (transcript.text or "").strip()
@@ -632,8 +740,11 @@ async def ws_transcribe_stream(websocket: WebSocket):
     )
 
     try:
-        # First message = config JSON (e.g. {"lang": "nl"})
+        # First message = config JSON (e.g. {"lang": "nl", "region": "mestreechs"})
         config_text = await websocket.receive_text()
+        config = json.loads(config_text)
+        lang = config.get("lang", "li")
+        region = config.get("region", "limburgs")
         print(f"[AssemblyAI RT] Config: {config_text}")
 
         # Connect to AssemblyAI (blocking, run in thread)
@@ -697,10 +808,13 @@ from pydantic import BaseModel
 class CorrectionRequest(BaseModel):
     text: str
     language: str
+    region: str = "limburgs"
     quality: str = "light"
     mode: str = "local"
     temperature: float = 0.5
     report_length: str = "middellang"
+    keep_dialect: bool = False
+    target_lang: str = "nl"
 
 
 @app.post("/correct")
@@ -709,36 +823,84 @@ async def correct(req: CorrectionRequest):
     if not req.text:
         return {"corrected": ""}
 
+    dialect_config = get_dialect_config(req.region)
     system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["middellang"])
+    
+    # Inject regional translation key into system prompt if it's Limburgs
+    if req.language == "li":
+        # Note: This is an approximation. We could refactor SYSTEM_PROMPTS to be templates.
+        # For now, we'll append the regional key to the end or replace the generic one if we can.
+        regional_key = dialect_config["translation_key"]
+        system_prompt = system_prompt.replace(DIALECT_TRANSLATION_KEY, regional_key)
 
     chunks = split_into_chunks(req.text, max_words=400)
     # Only send full context for small texts (≤5 chunks); for large texts it wastes tokens
     full_context = req.text if 1 < len(chunks) <= 5 else None
+    text_to_process = req.text
 
     if req.mode == "api" and not MISTRAL_API_KEY:
         raise HTTPException(status_code=400, detail="Mistral API key not configured")
 
     async def generate():
         try:
+            nonlocal text_to_process
+            
+            # PHASE 3: Two-step correction for Limburgish
+            if req.language == "li":
+                print(f"[Phase 3] Starting cleanup pass for Limburgish...")
+                cleaned_chunks = []
+                async with httpx.AsyncClient(timeout=600.0) as client:
+                    for i, chunk in enumerate(chunks):
+                        print(f"  Cleaning chunk {i+1}/{len(chunks)}...")
+                        chunk_tokens = []
+                        if req.mode == "api":
+                            mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
+                            async for token in correct_chunk_mistral_stream(
+                                chunk, req.language, mistral_model, None, req.temperature, CLEANUP_PROMPT
+                            ):
+                                chunk_tokens.append(token)
+                        else:
+                            ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
+                            async for token in correct_chunk_stream(
+                                client, chunk, req.language, ollama_model, None, req.temperature, CLEANUP_PROMPT
+                            ):
+                                chunk_tokens.append(token)
+                        cleaned_chunks.append("".join(chunk_tokens))
+                
+                text_to_process = " ".join(cleaned_chunks)
+                print(f"[Phase 3] Cleanup pass complete.")
+                # Re-split cleaned text for the final formatting pass
+                final_chunks = split_into_chunks(text_to_process, max_words=400)
+            else:
+                final_chunks = chunks
+
+            # Adjust system prompt if keep_dialect is True
+            final_system_prompt = system_prompt
+            if req.keep_dialect and req.language == "li":
+                final_system_prompt = DIALECT_RETENTION_PROMPT
+                # Append information about length to the retention prompt if needed
+                if req.report_length == "kort":
+                    final_system_prompt += "\nMaak er een OPSOMMING van in bulletpoints."
+                elif req.report_length == "lang":
+                    final_system_prompt += "\nMaak er een UITGEBREIDE VERSLAGLEGGING van met alinea's."
+
             if req.mode == "api":
                 mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
-                print(f"Streaming {len(chunks)} chunk(s) via Mistral {mistral_model} (length: {req.report_length})...")
+                print(f"Streaming final pass via Mistral {mistral_model}...")
 
-                for i, chunk in enumerate(chunks):
-                    print(f"  Streaming chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
+                for i, chunk in enumerate(final_chunks):
                     async for token in correct_chunk_mistral_stream(
-                        chunk, req.language, mistral_model, full_context, req.temperature, system_prompt
+                        chunk, req.language, mistral_model, full_context, req.temperature, final_system_prompt
                     ):
                         yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
             else:
                 ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
-                print(f"Streaming {len(chunks)} chunk(s) via Ollama {ollama_model} (length: {req.report_length})...")
+                print(f"Streaming final pass via Ollama {ollama_model}...")
 
                 async with httpx.AsyncClient(timeout=600.0) as client:
-                    for i, chunk in enumerate(chunks):
-                        print(f"  Streaming chunk {i+1}/{len(chunks)} ({len(chunk.split())} words)")
+                    for i, chunk in enumerate(final_chunks):
                         async for token in correct_chunk_stream(
-                            client, chunk, req.language, ollama_model, full_context, req.temperature, system_prompt
+                            client, chunk, req.language, ollama_model, full_context, req.temperature, final_system_prompt
                         ):
                             yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
 

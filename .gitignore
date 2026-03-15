@@ -25,4 +25,5 @@ vite.config.ts.timestamp-*
 # Python
 .venv
 __pycache__
-*.pyc
+# Audio
+mp3/
