@@ -14,3 +14,4 @@
 | 2026-03-15 | 21:52     | 21:57    | .07         | `330e504`   | security: strengthen authentication gate with static env vars and strict enforcement                                            |
 | 2026-03-15 | 21:57     | 21:58    | .02         | `12b7e2b`   | style: remove regional profile buttons from UI                                                                                  |
 | 2026-03-15 | 21:58     | 22:00    | .03         | `7c01cc0`   | debug: add verbose logging to authentication hook for verification                                                              |
+| 2026-03-15 | 22:00     | 22:04    | .05         | `cfe41f9`   | feat: add logout functionality and improve session management                                                                   |
