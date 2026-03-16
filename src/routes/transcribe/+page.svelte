@@ -74,6 +74,20 @@
 		Math.min(95, Math.round((processingElapsed / estimatedProcessingTime) * 100))
 	);
 
+	const RECORDING_MAX_SECONDS = 60 * 60; // 60 minuten max
+	const RECORDING_WARN_SECONDS = 50 * 60; // waarschuwing bij 50 minuten
+
+	const recordingWarning = $derived.by(() => {
+		if (status !== 'recording') return '';
+		if (elapsed >= RECORDING_WARN_SECONDS) {
+			const remaining = Math.max(0, RECORDING_MAX_SECONDS - elapsed);
+			const mins = Math.floor(remaining / 60);
+			const secs = remaining % 60;
+			return `Nog ${mins}:${String(secs).padStart(2, '0')} tot maximale opnameduur`;
+		}
+		return '';
+	});
+
 	// AssemblyAI cost: $0.17/hour (Universal-2 $0.15 + speaker diarization $0.02)
 	const ASSEMBLYAI_COST_PER_SECOND = 0.17 / 3600;
 	const estimatedTranscribeCost = $derived.by(() => {
@@ -129,6 +143,13 @@
 		return () => {
 			if (processingTimerInterval) clearInterval(processingTimerInterval);
 		};
+	});
+
+	// Auto-stop recording at max duration
+	$effect(() => {
+		if (status === 'recording' && elapsed >= RECORDING_MAX_SECONDS) {
+			stopRecording();
+		}
 	});
 
 	// Keyboard shortcut: spacebar to toggle recording
@@ -573,10 +594,13 @@
 		input.value = '';
 	}
 
+	let apiStatus = $state('');
+
 	async function sendAudio(blob: Blob, filename: string) {
 		raw = '';
 		corrected = '';
 		error = '';
+		apiStatus = '';
 		console.log(`Sending audio: ${filename}, size: ${blob.size} bytes, type: ${blob.type}`);
 		if (blob.size === 0) {
 			error = 'Audio-bestand is leeg. Probeer opnieuw.';
@@ -590,14 +614,91 @@
 		formData.append('lang', lang);
 		formData.append('region', region);
 
-		const endpoint = transcribeMode === 'api' ? '/transcribe-api' : '/transcribe';
-		const baseUrl = transcribeMode === 'api' ? '/api' : LOCAL_BACKEND_URL;
+		if (transcribeMode === 'api') {
+			await sendAudioApi(formData);
+		} else {
+			await sendAudioLocal(formData);
+		}
+	}
 
+	async function sendAudioApi(formData: FormData) {
+		try {
+			// Step 1: Submit audio, get transcript ID
+			apiStatus = 'Uploaden...';
+			const submitResp = await fetch('/api/transcribe-api', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!submitResp.ok) {
+				const detail = await submitResp.text();
+				throw new Error(detail || `Server error ${submitResp.status}`);
+			}
+
+			const { transcriptId, error: submitError } = await submitResp.json();
+			if (submitError) throw new Error(submitError);
+
+			// Step 2: Poll for completion
+			apiStatus = 'Wachtrij...';
+			const POLL_INTERVAL = 3000;
+			const MAX_POLL_TIME = 60 * 60 * 1000; // 60 minutes max
+			const startTime = Date.now();
+
+			while (true) {
+				if (Date.now() - startTime > MAX_POLL_TIME) {
+					throw new Error('Transcriptie duurde te lang (>60 min).');
+				}
+
+				await new Promise((r) => setTimeout(r, POLL_INTERVAL));
+
+				const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`);
+				if (!pollResp.ok) {
+					const detail = await pollResp.text();
+					throw new Error(detail || `Poll error ${pollResp.status}`);
+				}
+
+				const result = await pollResp.json();
+				const elapsedMs = Date.now() - startTime;
+				const elapsedMin = Math.floor(elapsedMs / 60000);
+				const WARN_AT_MIN = 45;
+
+				if (result.status === 'queued') {
+					apiStatus =
+						elapsedMin >= WARN_AT_MIN
+							? `Wachtrij... (${elapsedMin} min — nog ${60 - elapsedMin} min tot timeout)`
+							: 'Wachtrij...';
+				} else if (result.status === 'processing') {
+					apiStatus =
+						elapsedMin >= WARN_AT_MIN
+							? `Verwerken... (${elapsedMin} min — nog ${60 - elapsedMin} min tot timeout)`
+							: 'Verwerken...';
+				} else if (result.status === 'completed') {
+					raw = result.text || '';
+					language = result.language || '';
+					apiStatus = '';
+					status = 'idle';
+					return;
+				} else if (result.status === 'error') {
+					throw new Error(result.error || 'Transcriptie mislukt');
+				}
+			}
+		} catch (e) {
+			if (e instanceof TypeError) {
+				error = 'API niet bereikbaar. Controleer je internetverbinding.';
+			} else {
+				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
+			}
+			apiStatus = '';
+			status = 'idle';
+		}
+	}
+
+	async function sendAudioLocal(formData: FormData) {
 		try {
 			const controller = new AbortController();
 			const fetchTimeout = setTimeout(() => controller.abort(), 30 * 60 * 1000);
 
-			const resp = await fetch(`${baseUrl}${endpoint}`, {
+			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe`, {
 				method: 'POST',
 				body: formData,
 				signal: controller.signal
@@ -614,7 +715,6 @@
 			const reader = resp.body!.getReader();
 			const decoder = new TextDecoder();
 			let buffer = '';
-			let hasSpeakers = false;
 
 			while (true) {
 				const { done, value } = await reader.read();
@@ -633,7 +733,6 @@
 					} else if (event.type === 'segment') {
 						let segmentText = event.text;
 						if (event.speaker) {
-							hasSpeakers = true;
 							segmentText = `Spreker ${event.speaker}: ${event.text}`;
 						}
 						raw = raw ? `${raw}\n${segmentText}` : segmentText;
@@ -648,10 +747,7 @@
 			if (e instanceof DOMException && e.name === 'AbortError') {
 				error = 'Verwerking duurde te lang (>30 min). Probeer een korter fragment.';
 			} else if (e instanceof TypeError) {
-				error =
-					transcribeMode === 'local'
-						? 'Lokale backend niet bereikbaar. Start de server op localhost:8000.'
-						: 'API niet bereikbaar. Controleer je internetverbinding.';
+				error = 'Lokale backend niet bereikbaar. Start de server op localhost:8000.';
 			} else {
 				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
 			}
@@ -1013,6 +1109,24 @@
 						<span class="text-xs text-white/30 font-mono">${estimatedTranscribeCost}</span>
 					{/if}
 				</div>
+				{#if recordingWarning}
+					<div class="flex items-center gap-2 text-amber-400 text-xs animate-fade-in">
+						<svg
+							class="h-3.5 w-3.5 shrink-0"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+							/>
+						</svg>
+						{recordingWarning}
+					</div>
+				{/if}
 			{:else if status === 'processing'}
 				<div class="flex flex-col items-center gap-3 animate-fade-in">
 					<div class="flex items-center gap-3">
@@ -1030,7 +1144,11 @@
 								style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
 							></span>
 						</div>
-						<span class="shimmer-text font-medium">Transcriberen...</span>
+						<span
+							class="{apiStatus.includes('timeout')
+								? 'text-amber-400'
+								: 'shimmer-text'} font-medium">{apiStatus || 'Transcriberen...'}</span
+						>
 						<span class="text-sm text-white/30 font-mono">{formattedProcessingTime}</span>
 					</div>
 					<!-- Progress bar -->

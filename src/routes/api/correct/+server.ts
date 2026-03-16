@@ -2,7 +2,7 @@ import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
 export const config = {
-	maxDuration: 300
+	maxDuration: 900
 };
 
 const MISTRAL_MODELS: Record<string, string> = {
