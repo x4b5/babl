@@ -15,7 +15,6 @@
 	let correctedExpanded = $state(false);
 	let quality = $state<'light' | 'medium'>('light');
 	let lang = $state<'auto' | 'nl' | 'li' | 'en'>('li');
-	let region = $state('limburgs');
 	let mode = $state<'local' | 'api'>('local');
 	let reportLength = $state<'kort' | 'middellang' | 'lang'>('middellang');
 	let transcribeMode = $state<'local' | 'api'>('local');
@@ -333,7 +332,6 @@
 			const formData = new FormData();
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', lang);
-			formData.append('region', region);
 
 			console.log(
 				`Live chunk: sending ${chunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB)`
@@ -393,7 +391,7 @@
 
 		streamSocket.onopen = () => {
 			console.log('[RT] WebSocket connected');
-			streamSocket!.send(JSON.stringify({ lang, region }));
+			streamSocket!.send(JSON.stringify({ lang }));
 		};
 
 		streamSocket.onmessage = (event) => {
@@ -510,7 +508,7 @@
 						const formData = new FormData();
 						formData.append('file', wav, 'final.wav');
 						formData.append('lang', lang);
-						formData.append('region', region);
+
 						const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 							method: 'POST',
 							body: formData
@@ -612,7 +610,6 @@
 		const formData = new FormData();
 		formData.append('file', blob, filename);
 		formData.append('lang', lang);
-		formData.append('region', region);
 
 		if (transcribeMode === 'api') {
 			await sendAudioApi(formData);
@@ -767,7 +764,6 @@
 		const body = {
 			text,
 			language: lang,
-			region,
 			quality: qual,
 			mode,
 			temperature,
