@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 
-- [ ] 01-00-PLAN.md -- Wave 0: Test scaffolding for offset filter, heartbeat, and dedup (OF-01, OF-02, OF-03, WS-03)
+- [x] 01-00-PLAN.md -- Wave 0: Test scaffolding for offset filter, heartbeat, and dedup (OF-01, OF-02, OF-03, WS-03)
 - [ ] 01-01-PLAN.md -- WebSocket reconnection + heartbeat + reconnect UI (WS-01, WS-02, WS-03, WS-04, WS-05)
 - [ ] 01-02-PLAN.md -- Offset filtering tolerance + deduplication + SSE timeout (OF-01, OF-02, OF-03, EH-03)
 

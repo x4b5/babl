@@ -11,15 +11,15 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 - [ ] **WS-01**: WebSocket herstelt automatisch bij backend disconnect (max 5 pogingen, exponential backoff met jitter)
 - [ ] **WS-02**: Gebruiker ziet foutmelding als WebSocket niet kan herstellen ("Verbinding verloren")
-- [ ] **WS-03**: Backend stuurt heartbeat (ping/pong elke 15s) en detecteert dode verbindingen (timeout 30s)
+- [x] **WS-03**: Backend stuurt heartbeat (ping/pong elke 15s) en detecteert dode verbindingen (timeout 30s)
 - [ ] **WS-04**: Bij reconnect start een nieuwe AssemblyAI sessie (geen session resume)
 - [ ] **WS-05**: Frontend detecteert stalled stream (geen data 30s) en toont timeout fout
 
 ### Offset Filtering (OF)
 
-- [ ] **OF-01**: Segmenten die de offset boundary overspannen worden niet gedropped (tolerance window 0.5s)
-- [ ] **OF-02**: Filter gebruikt `end > offset - tolerance` in plaats van `start >= offset`
-- [ ] **OF-03**: Frontend dedupliceert mogelijke herhaalde woorden aan boundaries
+- [x] **OF-01**: Segmenten die de offset boundary overspannen worden niet gedropped (tolerance window 0.5s)
+- [x] **OF-02**: Filter gebruikt `end > offset - tolerance` in plaats van `start >= offset`
+- [x] **OF-03**: Frontend dedupliceert mogelijke herhaalde woorden aan boundaries
 
 ### Rate Limiting (RL)
 
@@ -80,12 +80,12 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 | ----------- | ------- | ------- |
 | WS-01       | Phase 1 | Pending |
 | WS-02       | Phase 1 | Pending |
-| WS-03       | Phase 1 | Pending |
+| WS-03       | Phase 1 | Complete |
 | WS-04       | Phase 1 | Pending |
 | WS-05       | Phase 1 | Pending |
-| OF-01       | Phase 1 | Pending |
-| OF-02       | Phase 1 | Pending |
-| OF-03       | Phase 1 | Pending |
+| OF-01       | Phase 1 | Complete |
+| OF-02       | Phase 1 | Complete |
+| OF-03       | Phase 1 | Complete |
 | RL-01       | Phase 2 | Pending |
 | RL-02       | Phase 2 | Pending |
 | RL-03       | Phase 2 | Pending |
