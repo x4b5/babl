@@ -38,7 +38,7 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 - [ ] **EH-01**: Foutmeldingen zijn specifiek per type: rate_limit, timeout, upstream_disconnect, network_error
 - [ ] **EH-02**: Geen generieke "mislukt" meldingen — gebruiker ziet altijd wat er fout ging
-- [ ] **EH-03**: SSE stream timeout (30s geen data) toont foutmelding i.p.v. eindeloze spinner
+- [x] **EH-03**: SSE stream timeout (30s geen data) toont foutmelding i.p.v. eindeloze spinner
 
 ## v2 Requirements
 
@@ -76,8 +76,8 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 
 ## Traceability
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
 | WS-01       | Phase 1 | Complete |
 | WS-02       | Phase 1 | Complete |
 | WS-03       | Phase 1 | Complete |
@@ -86,16 +86,16 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 | OF-01       | Phase 1 | Complete |
 | OF-02       | Phase 1 | Complete |
 | OF-03       | Phase 1 | Complete |
-| RL-01       | Phase 2 | Pending |
-| RL-02       | Phase 2 | Pending |
-| RL-03       | Phase 2 | Pending |
-| RL-04       | Phase 2 | Pending |
-| RC-01       | Phase 3 | Pending |
-| RC-02       | Phase 3 | Pending |
-| RC-03       | Phase 3 | Pending |
-| EH-01       | Phase 2 | Pending |
-| EH-02       | Phase 2 | Pending |
-| EH-03       | Phase 1 | Pending |
+| RL-01       | Phase 2 | Pending  |
+| RL-02       | Phase 2 | Pending  |
+| RL-03       | Phase 2 | Pending  |
+| RL-04       | Phase 2 | Pending  |
+| RC-01       | Phase 3 | Pending  |
+| RC-02       | Phase 3 | Pending  |
+| RC-03       | Phase 3 | Pending  |
+| EH-01       | Phase 2 | Pending  |
+| EH-02       | Phase 2 | Pending  |
+| EH-03       | Phase 1 | Complete |
 
 **Coverage:**
 
