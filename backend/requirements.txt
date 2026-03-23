@@ -6,3 +6,5 @@ httpx
 mistralai
 assemblyai
 python-dotenv
+pytest
+pytest-asyncio

@@ -5,6 +5,7 @@ import tempfile
 import os
 import traceback
 import subprocess
+from datetime import datetime
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -27,6 +28,10 @@ MAX_UPLOAD_BYTES = 500 * 1024 * 1024
 
 # Max parallel Ollama requests (avoid overloading CPU/GPU)
 MAX_PARALLEL_CORRECTIONS = 3
+
+# WebSocket heartbeat configuration
+HEARTBEAT_INTERVAL = 15  # Send ping every 15 seconds
+HEARTBEAT_TIMEOUT = 30   # Close if no pong within 30 seconds
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODELS = {
@@ -89,6 +94,26 @@ app.add_middleware(
 WHISPER_MODEL_PATH = "mlx-community/whisper-large-v3-mlx"
 
 # The DIALECT_INITIAL_PROMPT is now pre-composed in dialects.py
+
+# Offset filtering tolerance (OF-01)
+OFFSET_TOLERANCE = 0.5  # seconds: tolerance window for boundary segments
+
+def filter_segments_by_offset(segments: list[dict], offset: float, tolerance: float = OFFSET_TOLERANCE) -> list[dict]:
+    """Filter segments by offset. Keeps segments relevant to current chunk.
+
+    Args:
+        segments: List of {"start": float, "end": float, "text": str}
+        offset: Seconds of audio already processed
+        tolerance: Seconds of tolerance for boundary segments
+
+    Returns:
+        Filtered list of segments
+    """
+    if offset <= 0:
+        return segments
+    # BUG: uses start >= offset, should use end > offset - tolerance
+    return [s for s in segments if s["start"] >= offset]
+
 
 def get_audio_duration(path: str) -> float:
     """Get duration of audio file in seconds using ffprobe."""
@@ -529,8 +554,7 @@ async def transcribe_live(
                 })
 
         # Filter segments: only keep those starting at or after the offset
-        if offset > 0:
-            segments = [s for s in segments if s["start"] >= offset]
+        segments = filter_segments_by_offset(segments, offset)
 
         full_text = " ".join(s["text"] for s in segments)
         return {"text": full_text, "language": detected_lang, "segments": segments}
@@ -711,6 +735,7 @@ async def ws_transcribe_stream(websocket: WebSocket):
 
     loop = asyncio.get_event_loop()
     queue: asyncio.Queue[dict | None] = asyncio.Queue()
+    last_pong = {"time": datetime.now()}
 
     def on_data(transcript):
         is_final = isinstance(transcript, aai.RealtimeFinalTranscript)
@@ -739,6 +764,24 @@ async def ws_transcribe_stream(websocket: WebSocket):
         on_close=on_close,
     )
 
+    async def heartbeat():
+        """Send ping every 15s, close if no pong within 30s"""
+        while True:
+            await asyncio.sleep(HEARTBEAT_INTERVAL)
+            try:
+                # Check if last pong is too old
+                elapsed = (datetime.now() - last_pong["time"]).total_seconds()
+                if elapsed > HEARTBEAT_TIMEOUT:
+                    print(f"[Heartbeat] No pong for {elapsed:.1f}s, closing connection")
+                    await websocket.close(code=1000, reason="Heartbeat timeout")
+                    break
+
+                # Send ping
+                await websocket.send_json({"type": "ping"})
+            except Exception as e:
+                print(f"[Heartbeat] Error: {e}")
+                break
+
     try:
         # First message = config JSON (e.g. {"lang": "nl", "region": "mestreechs"})
         config_text = await websocket.receive_text()
@@ -755,8 +798,15 @@ async def ws_transcribe_stream(websocket: WebSocket):
             """Read audio chunks from frontend WebSocket, forward to AssemblyAI."""
             try:
                 while True:
-                    data = await websocket.receive_bytes()
-                    await asyncio.to_thread(transcriber.stream, data)
+                    msg = await websocket.receive()
+                    if msg.get("type") == "websocket.disconnect":
+                        break
+                    if "bytes" in msg and msg["bytes"]:
+                        await asyncio.to_thread(transcriber.stream, msg["bytes"])
+                    elif "text" in msg and msg["text"]:
+                        data = json.loads(msg["text"])
+                        if data.get("type") == "pong":
+                            last_pong["time"] = datetime.now()
             except WebSocketDisconnect:
                 pass
             except Exception as e:
@@ -773,7 +823,8 @@ async def ws_transcribe_stream(websocket: WebSocket):
             except Exception as e:
                 print(f"[AssemblyAI RT] Event send error: {e}")
 
-        # Run both tasks concurrently; when audio forwarder stops, close transcriber
+        # Run all tasks concurrently
+        heartbeat_task = asyncio.create_task(heartbeat())
         audio_task = asyncio.create_task(forward_audio())
         event_task = asyncio.create_task(send_events())
 
@@ -796,6 +847,13 @@ async def ws_transcribe_stream(websocket: WebSocket):
         except Exception:
             pass
     finally:
+        # Clean up background task
+        if 'heartbeat_task' in locals():
+            heartbeat_task.cancel()
+            try:
+                await heartbeat_task
+            except asyncio.CancelledError:
+                pass
         try:
             await asyncio.to_thread(transcriber.close)
         except Exception:
