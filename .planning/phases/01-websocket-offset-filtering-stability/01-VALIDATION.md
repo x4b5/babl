@@ -2,9 +2,10 @@
 phase: 1
 slug: websocket-offset-filtering-stability
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-23
+updated: 2026-03-23
 ---
 
 # Phase 1 — Validation Strategy
@@ -15,20 +16,20 @@ created: 2026-03-23
 
 ## Test Infrastructure
 
-| Property               | Value              |
-| ---------------------- | ------------------ |
-| **Framework**          | vitest             |
-| **Config file**        | `vitest.config.ts` |
-| **Quick run command**  | `npm run test:run` |
-| **Full suite command** | `npm run test:run` |
-| **Estimated runtime**  | ~10 seconds        |
+| Property               | Value                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| **Framework**          | vitest (frontend), pytest (backend)                                                         |
+| **Config file**        | `vite.config.ts` (vitest), `backend/tests/` (pytest)                                        |
+| **Quick run command**  | `npm run test:run` (frontend) / `cd backend && python -m pytest tests/ -x` (backend)        |
+| **Full suite command** | `npm run test:run && cd backend && source .venv/bin/activate && python -m pytest tests/ -v` |
+| **Estimated runtime**  | ~10 seconds                                                                                 |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `npm run test:run`
-- **After every plan wave:** Run `npm run test:run`
+- **After every task commit:** Run `npm run test:run` + `cd backend && python -m pytest tests/ -x`
+- **After every plan wave:** Run full suite
 - **Before `/gsd:verify-work`:** Full suite must be green
 - **Max feedback latency:** 10 seconds
 
@@ -36,28 +37,27 @@ created: 2026-03-23
 
 ## Per-Task Verification Map
 
-| Task ID  | Plan | Wave | Requirement | Test Type | Automated Command                   | File Exists | Status     |
-| -------- | ---- | ---- | ----------- | --------- | ----------------------------------- | ----------- | ---------- |
-| 01-01-01 | 01   | 1    | WS-01       | manual    | WebSocket disconnect/reconnect      | N/A         | ⬜ pending |
-| 01-01-02 | 01   | 1    | WS-02       | manual    | Check "Verbinding verloren" UI      | N/A         | ⬜ pending |
-| 01-01-03 | 01   | 1    | WS-03       | manual    | Backend heartbeat ping/pong         | N/A         | ⬜ pending |
-| 01-01-04 | 01   | 1    | WS-04       | manual    | New AssemblyAI session on reconnect | N/A         | ⬜ pending |
-| 01-01-05 | 01   | 1    | WS-05       | manual    | Stalled stream 30s timeout          | N/A         | ⬜ pending |
-| 01-02-01 | 02   | 1    | OF-01       | unit      | `npm run test:run`                  | ❌ W0       | ⬜ pending |
-| 01-02-02 | 02   | 1    | OF-02       | unit      | `npm run test:run`                  | ❌ W0       | ⬜ pending |
-| 01-02-03 | 02   | 1    | OF-03       | unit      | `npm run test:run`                  | ❌ W0       | ⬜ pending |
-| 01-03-01 | 03   | 1    | EH-03       | manual    | SSE stream 30s no-data timeout      | N/A         | ⬜ pending |
+| Task ID  | Plan | Wave | Requirement | Test Type    | Automated Command                                                            | File Exists | Status  |
+| -------- | ---- | ---- | ----------- | ------------ | ---------------------------------------------------------------------------- | ----------- | ------- |
+| 01-00-01 | 00   | 0    | OF-01,OF-02 | unit (RED)   | `cd backend && python -m pytest tests/test_offset_filter.py -v`              | W0 creates  | pending |
+| 01-00-02 | 00   | 0    | WS-03       | unit         | `cd backend && python -m pytest tests/test_heartbeat.py -v`                  | W0 creates  | pending |
+| 01-00-03 | 00   | 0    | OF-03       | unit (GREEN) | `npx vitest run src/lib/utils/dedup.test.ts`                                 | W0 creates  | pending |
+| 01-01-01 | 01   | 1    | WS-01..05   | type+unit    | `npm run check && cd backend && python -m pytest tests/test_heartbeat.py -v` | W0          | pending |
+| 01-02-01 | 02   | 2    | OF-01,OF-02 | unit (GREEN) | `cd backend && python -m pytest tests/test_offset_filter.py -v`              | W0          | pending |
+| 01-02-02 | 02   | 2    | OF-03       | unit (GREEN) | `npx vitest run src/lib/utils/dedup.test.ts`                                 | W0          | pending |
+| 01-02-03 | 02   | 2    | EH-03       | type         | `npm run check`                                                              | N/A         | pending |
 
-_Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky_
+_Status: pending / green / red / flaky_
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] Offset filtering unit tests — stubs for OF-01, OF-02, OF-03 (pure function, testable)
-- [ ] Existing vitest infrastructure covers test runner
-
-_WebSocket and SSE tests are manual — require running backend + browser._
+- [x] Offset filtering unit tests -- stubs for OF-01, OF-02 (Plan 01-00 Task 1)
+- [x] Heartbeat message structure tests -- stubs for WS-03 (Plan 01-00 Task 1)
+- [x] Dedup module + tests -- OF-03 (Plan 01-00 Task 2)
+- [x] pytest + pytest-asyncio installed in backend venv
+- [x] Existing vitest infrastructure covers frontend test runner
 
 ---
 
@@ -74,13 +74,26 @@ _WebSocket and SSE tests are manual — require running backend + browser._
 
 ---
 
+## Nyquist Compliance
+
+Sampling continuity check: no 3 consecutive tasks without automated behavioral verification.
+
+| Window               | Tasks              | Automated Behavioral Tests | Compliant |
+| -------------------- | ------------------ | -------------------------- | --------- |
+| Wave 0 (01-00)       | 01-00-01, 01-00-02 | 2/2 (pytest + vitest)      | YES       |
+| Wave 0-1 (01-00..01) | 01-00-02, 01-01-01 | 2/2 (heartbeat pytest)     | YES       |
+| Wave 1-2 (01-01..02) | 01-01-01, 01-02-01 | 2/2 (heartbeat + offset)   | YES       |
+| Wave 2 (01-02)       | 01-02-01, 01-02-02 | 2/2 (offset + dedup)       | YES       |
+
+---
+
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** ready

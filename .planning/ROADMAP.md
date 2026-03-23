@@ -25,9 +25,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: WS-01, WS-02, WS-03, WS-04, WS-05, OF-01, OF-02, OF-03, EH-03
 **Key files**: `backend/main.py` (WebSocket endpoint, heartbeat, offset filtering), `src/routes/transcribe/+page.svelte` (WebSocket client, reconnection UI, stalled stream detection)
-**Dependencies to install**: npm: `reconnecting-websocket@4.4.0` (drop-in WebSocket replacement met auto-reconnect). pip: geen nieuwe packages voor Phase 1.
+**Dependencies to install**: npm: `reconnecting-websocket@4.4.0` (drop-in WebSocket replacement met auto-reconnect). pip: `pytest`, `pytest-asyncio` (test infrastructure voor Wave 0).
 **Complexity**: L (largest phase, 9 requirements, touches both backend and frontend WebSocket + filtering logic)
-**Plans:** 2 plans
+**Plans:** 3 plans
 **Success Criteria** (what must be TRUE):
 
 1. WebSocket herstelt automatisch na backend disconnect (tot 5x) zonder dat de gebruiker iets hoeft te doen
@@ -38,6 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 
+- [ ] 01-00-PLAN.md -- Wave 0: Test scaffolding for offset filter, heartbeat, and dedup (OF-01, OF-02, OF-03, WS-03)
 - [ ] 01-01-PLAN.md -- WebSocket reconnection + heartbeat + reconnect UI (WS-01, WS-02, WS-03, WS-04, WS-05)
 - [ ] 01-02-PLAN.md -- Offset filtering tolerance + deduplication + SSE timeout (OF-01, OF-02, OF-03, EH-03)
 
@@ -89,6 +90,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase                                     | Plans Complete | Status      | Completed |
 | ----------------------------------------- | -------------- | ----------- | --------- |
-| 1. WebSocket + Offset Filtering Stability | 0/2            | Not started | -         |
+| 1. WebSocket + Offset Filtering Stability | 0/3            | Not started | -         |
 | 2. Rate Limiting + Error Handling         | 0/2            | Not started | -         |
 | 3. Resource Cleanup                       | 0/1            | Not started | -         |
