@@ -40,6 +40,7 @@
 	"dependencies": {
 		"@mistralai/mistralai": "^1.15.1",
 		"assemblyai": "^4.27.0",
-		"posthog-js": "^1.352.1"
+		"posthog-js": "^1.352.1",
+		"reconnecting-websocket": "^4.4.0"
 	}
 }

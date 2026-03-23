@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ReconnectingWebSocket from 'reconnecting-websocket';
+
 	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
 	type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correcting';
@@ -19,8 +21,11 @@
 	let reportLength = $state<'kort' | 'middellang' | 'lang'>('middellang');
 	let transcribeMode = $state<'local' | 'api'>('local');
 	let apiStreamMode = $state<'realtime' | 'accurate'>('realtime');
-	let streamSocket: WebSocket | undefined;
+	let streamSocket: ReconnectingWebSocket | undefined;
 	let temperature = $state(0.5);
+	let reconnecting = $state(false);
+	let reconnectStatus = $state('');
+	let streamStallTimer: ReturnType<typeof setTimeout> | undefined;
 	let mistralAvailable = $state(false);
 	let assemblyAvailable = $state(false);
 	let localAvailable = $state(false);
@@ -321,20 +326,23 @@
 
 	async function sendLiveChunk() {
 		if (liveBusy || chunks.length === 0 || !mediaRecorder) return;
+		// Nothing new to send
+		if (chunks.length <= lastSentChunkIndex) return;
 		liveBusy = true;
 		try {
 			const mimeType = mediaRecorder.mimeType;
-			// Send ALL accumulated audio — Whisper transcribes the whole thing,
-			// we replace (not append) the full transcription each time
-			const blob = new Blob(chunks, { type: mimeType });
+			// Send only NEW chunks (with overlap for Whisper context)
+			const sendFrom = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
+			const blob = new Blob(chunks.slice(sendFrom), { type: mimeType });
 			const wav = await downsampleToWav(blob);
 
 			const formData = new FormData();
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', lang);
+			formData.append('offset', String(liveAudioDuration));
 
 			console.log(
-				`Live chunk: sending ${chunks.length} chunks (${(wav.size / 1024).toFixed(0)}KB)`
+				`Live chunk: sending chunks ${sendFrom}-${chunks.length} (${(wav.size / 1024).toFixed(0)}KB, offset=${liveAudioDuration.toFixed(1)}s)`
 			);
 
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
@@ -343,12 +351,17 @@
 			});
 			if (resp.ok) {
 				const data = await resp.json();
-				if (data.text) {
-					// Replace full transcription — not incremental, just the latest full result
-					partialText = data.text;
+				if (data.language) language = data.language;
+				const segments = data.segments || [];
+				if (segments.length > 0) {
+					const newText = segments.map((s: { text: string }) => s.text).join(' ');
+					partialText = partialText ? `${partialText} ${newText}` : newText;
 					liveWorking = true;
-					if (data.language) language = data.language;
+					// Update offset to the end of the last confirmed segment
+					const lastSeg = segments[segments.length - 1];
+					liveAudioDuration = lastSeg.end;
 				}
+				lastSentChunkIndex = chunks.length;
 			}
 		} catch (e) {
 			console.warn('Live chunk failed:', e);
@@ -364,6 +377,8 @@
 		liveWorking = false;
 		liveBusy = false;
 		liveRunning = true;
+		lastSentChunkIndex = 0;
+		liveAudioDuration = 0;
 		liveLoop();
 	}
 
@@ -387,45 +402,95 @@
 		liveWorking = false;
 
 		const wsUrl = LOCAL_BACKEND_URL.replace('http', 'ws') + '/ws/transcribe-stream';
-		streamSocket = new WebSocket(wsUrl);
+		streamSocket = new ReconnectingWebSocket(wsUrl, [], {
+			maxRetries: 5,
+			maxReconnectionDelay: 10000,
+			minReconnectionDelay: 1000,
+			reconnectionDelayGrowFactor: 1.3,
+			connectionTimeout: 4000,
+			minUptime: 5000
+		});
 
-		streamSocket.onopen = () => {
+		streamSocket.addEventListener('open', () => {
 			console.log('[RT] WebSocket connected');
+			reconnecting = false;
+			reconnectStatus = '';
 			streamSocket!.send(JSON.stringify({ lang }));
-		};
 
-		streamSocket.onmessage = (event) => {
+			// Start stall detection timer
+			if (streamStallTimer) clearTimeout(streamStallTimer);
+			streamStallTimer = setTimeout(() => {
+				error =
+					'Live transcriptie gestopt — geen data ontvangen. Controleer je internetverbinding.';
+				stopRealtimeStream();
+			}, 30000);
+		});
+
+		streamSocket.addEventListener('message', (event: MessageEvent) => {
 			const data = JSON.parse(event.data);
+
+			if (data.type === 'ping') {
+				streamSocket!.send(JSON.stringify({ type: 'pong' }));
+				return;
+			}
+
 			if (data.type === 'partial') {
 				// Partial = work-in-progress, overwrite
 				partialText = [...liveSegments, data.text].join(' ');
+				// Reset stall timer on data
+				if (streamStallTimer) clearTimeout(streamStallTimer);
+				streamStallTimer = setTimeout(() => {
+					error =
+						'Live transcriptie gestopt — geen data ontvangen. Controleer je internetverbinding.';
+					stopRealtimeStream();
+				}, 30000);
 			} else if (data.type === 'final') {
 				// Final = confirmed segment, append
 				liveSegments = [...liveSegments, data.text];
 				partialText = liveSegments.join(' ');
 				liveWorking = true;
+				// Reset stall timer on data
+				if (streamStallTimer) clearTimeout(streamStallTimer);
+				streamStallTimer = setTimeout(() => {
+					error =
+						'Live transcriptie gestopt — geen data ontvangen. Controleer je internetverbinding.';
+					stopRealtimeStream();
+				}, 30000);
 			} else if (data.type === 'error') {
 				console.error('[RT] Error:', data.message);
 				error = `Real-time fout: ${data.message}`;
 			}
-		};
+		});
 
-		streamSocket.onerror = (e) => {
-			console.error('[RT] WebSocket error:', e);
-		};
+		streamSocket.addEventListener('error', () => {
+			console.error('[RT] WebSocket error');
+			if (streamSocket && streamSocket.retryCount >= 5) {
+				reconnecting = false;
+				reconnectStatus = '';
+				error =
+					'Verbinding verloren. Je opname is bewaard — gebruik Bestand Upload om alsnog te transcriberen.';
+			} else if (streamSocket) {
+				reconnecting = true;
+				reconnectStatus = `Verbinding herstellen (poging ${(streamSocket.retryCount || 0) + 1}/5)...`;
+			}
+		});
 
-		streamSocket.onclose = () => {
+		streamSocket.addEventListener('close', () => {
 			console.log('[RT] WebSocket closed');
-		};
+		});
 	}
 
 	/** Stop real-time WebSocket streaming. */
 	function stopRealtimeStream() {
 		if (streamSocket) {
-			if (streamSocket.readyState === WebSocket.OPEN) {
-				streamSocket.close();
-			}
+			streamSocket.close();
 			streamSocket = undefined;
+		}
+		reconnecting = false;
+		reconnectStatus = '';
+		if (streamStallTimer) {
+			clearTimeout(streamStallTimer);
+			streamStallTimer = undefined;
 		}
 	}
 
@@ -497,9 +562,49 @@
 				}
 
 				if (transcribeMode === 'local') {
+					// Use accumulated live transcription if available
+					if (partialText) {
+						// Send only the remaining unprocessed audio for the final chunk
+						if (lastSentChunkIndex < chunks.length) {
+							status = 'processing';
+							try {
+								const sendFrom = Math.max(0, lastSentChunkIndex - OVERLAP_CHUNKS);
+								const remainingBlob = new Blob(chunks.slice(sendFrom), { type: mimeType });
+								const wav = await downsampleToWav(remainingBlob);
+								console.log(
+									`Final chunk: sending remaining chunks ${sendFrom}-${chunks.length} (${(wav.size / 1024).toFixed(0)}KB)`
+								);
+								const formData = new FormData();
+								formData.append('file', wav, 'final.wav');
+								formData.append('lang', lang);
+								formData.append('offset', String(liveAudioDuration));
+
+								const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
+									method: 'POST',
+									body: formData
+								});
+								if (resp.ok) {
+									const data = await resp.json();
+									if (data.language) language = data.language;
+									const segments = data.segments || [];
+									if (segments.length > 0) {
+										const newText = segments.map((s: { text: string }) => s.text).join(' ');
+										partialText = `${partialText} ${newText}`;
+									}
+								}
+							} catch {
+								// Use what we have
+							}
+						}
+						raw = partialText;
+						partialText = '';
+						status = 'idle';
+						return;
+					}
+
 					status = 'processing';
 
-					// Send full audio for final transcription
+					// No live text available — send full audio for final transcription
 					try {
 						const wav = await downsampleToWav(blob);
 						console.log(
@@ -1076,6 +1181,45 @@
 						<div class="waveform-bar" style="height: {height}px"></div>
 					{/each}
 				</div>
+
+				<!-- Reconnection banner -->
+				{#if reconnecting || reconnectStatus}
+					<div
+						class="w-full max-w-xl animate-fade-in rounded-lg border border-white/12 px-4 py-3"
+						style="background: rgba(255, 255, 255, 0.08); border-left: 4px solid {reconnecting
+							? 'var(--color-neon)'
+							: '#ef4444'};"
+					>
+						<div class="flex items-center gap-3">
+							{#if reconnecting}
+								<svg
+									class="h-4 w-4 animate-spin text-white/70"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<circle
+										class="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										stroke-width="4"
+									></circle>
+									<path
+										class="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+									></path>
+								</svg>
+							{/if}
+							<span class="text-sm text-white/80">
+								{reconnectStatus ||
+									'Verbinding verloren. Je opname is bewaard — gebruik Bestand Upload om alsnog te transcriberen.'}
+							</span>
+						</div>
+					</div>
+				{/if}
 
 				<!-- Live transcription preview -->
 				{#if partialText}
