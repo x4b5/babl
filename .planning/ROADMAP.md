@@ -27,6 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Key files**: `backend/main.py` (WebSocket endpoint, heartbeat, offset filtering), `src/routes/transcribe/+page.svelte` (WebSocket client, reconnection UI, stalled stream detection)
 **Dependencies to install**: npm: `reconnecting-websocket@4.4.0` (drop-in WebSocket replacement met auto-reconnect). pip: geen nieuwe packages voor Phase 1.
 **Complexity**: L (largest phase, 9 requirements, touches both backend and frontend WebSocket + filtering logic)
+**Plans:** 2 plans
 **Success Criteria** (what must be TRUE):
 
 1. WebSocket herstelt automatisch na backend disconnect (tot 5x) zonder dat de gebruiker iets hoeft te doen
@@ -34,13 +35,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. Backend detecteert dode verbindingen via heartbeat (ping/pong 15s, timeout 30s) en ruimt sessies op
 4. Tekst aan offset boundaries wordt niet meer gedropped -- woorden die de boundary overspannen blijven behouden
 5. SSE stream die 30 seconden geen data ontvangt toont een timeout foutmelding in plaats van eindeloze spinner
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 01-01: WebSocket reconnection + heartbeat (WS-01 t/m WS-05)
-- [ ] 01-02: Offset filtering tolerance + deduplication (OF-01, OF-02, OF-03)
-- [ ] 01-03: SSE stream timeout detection (EH-03)
+- [ ] 01-01-PLAN.md -- WebSocket reconnection + heartbeat + reconnect UI (WS-01, WS-02, WS-03, WS-04, WS-05)
+- [ ] 01-02-PLAN.md -- Offset filtering tolerance + deduplication + SSE timeout (OF-01, OF-02, OF-03, EH-03)
 
 ### Phase 2: Rate Limiting + Error Handling
 
@@ -90,6 +89,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase                                     | Plans Complete | Status      | Completed |
 | ----------------------------------------- | -------------- | ----------- | --------- |
-| 1. WebSocket + Offset Filtering Stability | 0/3            | Not started | -         |
+| 1. WebSocket + Offset Filtering Stability | 0/2            | Not started | -         |
 | 2. Rate Limiting + Error Handling         | 0/2            | Not started | -         |
 | 3. Resource Cleanup                       | 0/1            | Not started | -         |
