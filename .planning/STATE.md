@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 01-00-PLAN.md
-last_updated: "2026-03-23T21:17:59.647Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-03-23T21:19:02.356Z"
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 01 (websocket-offset-filtering-stability) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 2 of 3
 
 _Updated after each plan completion_
 | Phase 01 P00 | 2 | 2 tasks | 7 files |
+| Phase 01 P01 | 217 | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,9 @@ Recent decisions affecting current work:
 - Stability milestone: Focus op 3 bekende bugs (WebSocket, offset filtering, rate limiting) boven nieuwe features
 - API modus als primaire focus: Gebruiker werkt voornamelijk met AssemblyAI + Mistral
 - Refactoring uitgesteld: +page.svelte (1662 regels) wordt pas opgesplitst na stabiliteit
+- [Phase 01]: Use reconnecting-websocket library for automatic retry with exponential backoff and jitter
+- [Phase 01]: Application-level ping/pong via JSON messages instead of WebSocket protocol opcodes
+- [Phase 01]: 15s heartbeat interval with 30s timeout to detect dead connections before proxy timeouts
 
 ### Pending Todos
 
@@ -69,6 +73,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T21:17:59.644Z
-Stopped at: Completed 01-00-PLAN.md
+Last session: 2026-03-23T21:19:02.354Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None

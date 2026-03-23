@@ -9,11 +9,11 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 ### WebSocket Streaming (WS)
 
-- [ ] **WS-01**: WebSocket herstelt automatisch bij backend disconnect (max 5 pogingen, exponential backoff met jitter)
-- [ ] **WS-02**: Gebruiker ziet foutmelding als WebSocket niet kan herstellen ("Verbinding verloren")
+- [x] **WS-01**: WebSocket herstelt automatisch bij backend disconnect (max 5 pogingen, exponential backoff met jitter)
+- [x] **WS-02**: Gebruiker ziet foutmelding als WebSocket niet kan herstellen ("Verbinding verloren")
 - [x] **WS-03**: Backend stuurt heartbeat (ping/pong elke 15s) en detecteert dode verbindingen (timeout 30s)
-- [ ] **WS-04**: Bij reconnect start een nieuwe AssemblyAI sessie (geen session resume)
-- [ ] **WS-05**: Frontend detecteert stalled stream (geen data 30s) en toont timeout fout
+- [x] **WS-04**: Bij reconnect start een nieuwe AssemblyAI sessie (geen session resume)
+- [x] **WS-05**: Frontend detecteert stalled stream (geen data 30s) en toont timeout fout
 
 ### Offset Filtering (OF)
 
@@ -78,11 +78,11 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 
 | Requirement | Phase   | Status  |
 | ----------- | ------- | ------- |
-| WS-01       | Phase 1 | Pending |
-| WS-02       | Phase 1 | Pending |
+| WS-01       | Phase 1 | Complete |
+| WS-02       | Phase 1 | Complete |
 | WS-03       | Phase 1 | Complete |
-| WS-04       | Phase 1 | Pending |
-| WS-05       | Phase 1 | Pending |
+| WS-04       | Phase 1 | Complete |
+| WS-05       | Phase 1 | Complete |
 | OF-01       | Phase 1 | Complete |
 | OF-02       | Phase 1 | Complete |
 | OF-03       | Phase 1 | Complete |
