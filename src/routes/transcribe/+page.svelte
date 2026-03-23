@@ -1,5 +1,7 @@
 <script lang="ts">
 	import ReconnectingWebSocket from 'reconnecting-websocket';
+	import { deduplicateSegments } from '$lib/utils/dedup';
+	import type { TranscriptionSegment } from '$lib/utils/dedup';
 
 	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
@@ -41,6 +43,7 @@
 	let liveSegments = $state<string[]>([]);
 	let lastSentChunkIndex = $state(0);
 	let liveAudioDuration = $state(0); // seconds of audio already confirmed
+	let lastSegmentEnd = $state(0); // Last confirmed segment end time for dedup (OF-03)
 	const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 	const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
 
@@ -352,14 +355,18 @@
 			if (resp.ok) {
 				const data = await resp.json();
 				if (data.language) language = data.language;
-				const segments = data.segments || [];
+				const segments: TranscriptionSegment[] = data.segments || [];
 				if (segments.length > 0) {
-					const newText = segments.map((s: { text: string }) => s.text).join(' ');
-					partialText = partialText ? `${partialText} ${newText}` : newText;
-					liveWorking = true;
-					// Update offset to the end of the last confirmed segment
-					const lastSeg = segments[segments.length - 1];
-					liveAudioDuration = lastSeg.end;
+					// Timestamp-based deduplication (OF-03, D-06)
+					const { unique, newLastSegmentEnd } = deduplicateSegments(segments, lastSegmentEnd);
+
+					if (unique.length > 0) {
+						const newText = unique.map((s) => s.text).join(' ');
+						partialText = partialText ? `${partialText} ${newText}` : newText;
+						liveWorking = true;
+						lastSegmentEnd = newLastSegmentEnd;
+						liveAudioDuration = unique[unique.length - 1].end;
+					}
 				}
 				lastSentChunkIndex = chunks.length;
 			}
@@ -379,6 +386,7 @@
 		liveRunning = true;
 		lastSentChunkIndex = 0;
 		liveAudioDuration = 0;
+		lastSegmentEnd = 0; // Reset dedup tracking
 		liveLoop();
 	}
 

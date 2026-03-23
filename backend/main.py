@@ -111,8 +111,8 @@ def filter_segments_by_offset(segments: list[dict], offset: float, tolerance: fl
     """
     if offset <= 0:
         return segments
-    # BUG: uses start >= offset, should use end > offset - tolerance
-    return [s for s in segments if s["start"] >= offset]
+    # OF-01, OF-02: Use end time with tolerance window to capture boundary segments
+    return [s for s in segments if s["end"] > offset - tolerance]
 
 
 def get_audio_duration(path: str) -> float:
