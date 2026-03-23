@@ -46,6 +46,7 @@
 	let lastSegmentEnd = $state(0); // Last confirmed segment end time for dedup (OF-03)
 	const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 	const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
+	const SSE_STALL_TIMEOUT_MS = 30000; // 30s: abort SSE stream if no data received (EH-03)
 
 	let mediaRecorder: MediaRecorder | undefined;
 	let chunks: Blob[] = [];
@@ -804,17 +805,20 @@
 	}
 
 	async function sendAudioLocal(formData: FormData) {
-		try {
-			const controller = new AbortController();
-			const fetchTimeout = setTimeout(() => controller.abort(), 30 * 60 * 1000);
+		const controller = new AbortController();
+		let stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
 
+		const resetStallTimeout = () => {
+			clearTimeout(stallTimeout);
+			stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+		};
+
+		try {
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe`, {
 				method: 'POST',
 				body: formData,
 				signal: controller.signal
 			});
-
-			clearTimeout(fetchTimeout);
 
 			if (!resp.ok) {
 				const detail = await resp.text();
@@ -828,7 +832,11 @@
 
 			while (true) {
 				const { done, value } = await reader.read();
-				if (done) break;
+				if (done) {
+					clearTimeout(stallTimeout);
+					break;
+				}
+				resetStallTimeout(); // Reset 30s timeout on each chunk received
 
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
@@ -854,8 +862,10 @@
 
 			status = 'idle';
 		} catch (e) {
+			clearTimeout(stallTimeout);
 			if (e instanceof DOMException && e.name === 'AbortError') {
-				error = 'Verwerking duurde te lang (>30 min). Probeer een korter fragment.';
+				error =
+					'Transcriptie reageert niet meer. Controleer of de backend draait en probeer opnieuw.';
 			} else if (e instanceof TypeError) {
 				error = 'Lokale backend niet bereikbaar. Start de server op localhost:8000.';
 			} else {
@@ -889,11 +899,21 @@
 			quality: body.quality
 		});
 		const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
+
+		const controller = new AbortController();
+		let stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+
+		const resetStallTimeout = () => {
+			clearTimeout(stallTimeout);
+			stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+		};
+
 		try {
 			const resp = await fetch(correctUrl, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body)
+				body: JSON.stringify(body),
+				signal: controller.signal
 			});
 
 			if (!resp.ok) {
@@ -911,7 +931,11 @@
 
 			while (true) {
 				const { done, value } = await reader.read();
-				if (done) break;
+				if (done) {
+					clearTimeout(stallTimeout);
+					break;
+				}
+				resetStallTimeout(); // Reset 30s timeout on each chunk received
 
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split('\n');
@@ -933,8 +957,15 @@
 
 			if (!corrected) corrected = text;
 		} catch (e) {
-			console.error('Correction error:', e);
-			error = 'Verslaglegging mislukt. Controleer of de backend draait.';
+			clearTimeout(stallTimeout);
+			if (e instanceof DOMException && e.name === 'AbortError') {
+				console.error('Correction timeout: no data for 30s');
+				error =
+					'Verslaglegging duurt te lang — probeer een korter fragment of herstart de backend.';
+			} else {
+				console.error('Correction error:', e);
+				error = 'Verslaglegging mislukt. Controleer of de backend draait.';
+			}
 			corrected = '';
 		} finally {
 			status = 'idle';
