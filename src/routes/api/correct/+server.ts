@@ -1,9 +1,74 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
+import type { ErrorType } from '$lib/utils/error-types';
 
 export const config = {
 	maxDuration: 900
 };
+
+function classifyError(e: unknown): { errorType: ErrorType; retryAfter?: number } {
+	if (e && typeof e === 'object') {
+		// Check for HTTP status code on response object
+		const statusCode =
+			(e as Record<string, unknown>).statusCode ??
+			(e as Record<string, unknown>).status ??
+			((e as Record<string, unknown>).response as Record<string, unknown> | undefined)?.status;
+
+		if (statusCode === 429) {
+			// Try to extract Retry-After from response headers
+			const headers = (
+				(e as Record<string, unknown>).response as Record<string, unknown> | undefined
+			)?.headers;
+			const retryAfter = parseRetryAfter(headers);
+			return { errorType: 'rate_limit', retryAfter };
+		}
+		if (statusCode === 502 || statusCode === 503) {
+			return { errorType: 'upstream_disconnect' };
+		}
+	}
+
+	const msg = e instanceof Error ? e.message : String(e);
+
+	if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
+		return { errorType: 'rate_limit', retryAfter: 3 };
+	}
+	if (msg.includes('502') || msg.includes('503') || msg.includes('ECONNREFUSED')) {
+		return { errorType: 'upstream_disconnect' };
+	}
+	if (e instanceof DOMException && e.name === 'AbortError') {
+		return { errorType: 'timeout' };
+	}
+	if (msg.toLowerCase().includes('timeout')) {
+		return { errorType: 'timeout' };
+	}
+	if (
+		msg.includes('Failed to fetch') ||
+		msg.includes('NetworkError') ||
+		msg.includes('ENOTFOUND')
+	) {
+		return { errorType: 'network_error' };
+	}
+
+	return { errorType: 'network_error' };
+}
+
+function parseRetryAfter(headers: unknown): number {
+	if (!headers || typeof headers !== 'object') return 3;
+	const h = headers as Record<string, string>;
+	const val = h['retry-after'] || h['Retry-After'] || '';
+	if (!val) return 3;
+
+	const asInt = parseInt(val, 10);
+	if (!isNaN(asInt)) return Math.max(1, asInt);
+
+	try {
+		const retryDate = new Date(val);
+		const delta = Math.ceil((retryDate.getTime() - Date.now()) / 1000);
+		return Math.max(1, delta);
+	} catch {
+		return 3;
+	}
+}
 
 const MISTRAL_MODELS: Record<string, string> = {
 	light: 'mistral-small-latest',
@@ -138,8 +203,8 @@ async function* correctChunkMistralStream(
 	const wordCount = chunk.split(/\s+/).length;
 	const maxTokens = Math.max(512, wordCount * 2);
 
-	const maxRetries = 8;
-	for (let attempt = 0; attempt < maxRetries; attempt++) {
+	const maxAttempts = 5;
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
 		try {
 			const stream = await client.chat.stream({
 				model: mistralModel,
@@ -159,9 +224,13 @@ async function* correctChunkMistralStream(
 			}
 			return; // Success
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			if (msg.includes('429') && attempt < maxRetries - 1) {
-				const wait = 3 * Math.pow(2, attempt);
+			const classified = classifyError(e);
+			const isRetryable =
+				classified.errorType === 'rate_limit' || classified.errorType === 'upstream_disconnect';
+
+			if (isRetryable && attempt < maxAttempts - 1) {
+				const backoff = Math.min(30, Math.pow(2, attempt)) + Math.random() * 2;
+				const wait = classified.retryAfter ? Math.max(backoff, classified.retryAfter) : backoff;
 				await new Promise((r) => setTimeout(r, wait * 1000));
 			} else {
 				throw e;
@@ -222,7 +291,12 @@ export const POST: RequestHandler = async ({ request }) => {
 				}
 				send({ type: 'done' });
 			} catch (e) {
-				send({ type: 'error', message: e instanceof Error ? e.message : String(e) });
+				const classified = classifyError(e);
+				send({
+					type: 'error',
+					error_type: classified.errorType,
+					...(classified.retryAfter !== undefined && { retry_after: classified.retryAfter })
+				});
 			} finally {
 				controller.close();
 			}
