@@ -30,9 +30,9 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 ### Resource Cleanup (RC)
 
-- [ ] **RC-01**: beforeunload handler stopt MediaRecorder, sluit AudioContext, stopt MediaStreamTracks
-- [ ] **RC-02**: Svelte $effect cleanup ruimt audio resources op bij component destroy
-- [ ] **RC-03**: WebSocket verbinding wordt gesloten bij page unload
+- [x] **RC-01**: beforeunload handler stopt MediaRecorder, sluit AudioContext, stopt MediaStreamTracks
+- [x] **RC-02**: Svelte $effect cleanup ruimt audio resources op bij component destroy
+- [x] **RC-03**: WebSocket verbinding wordt gesloten bij page unload
 
 ### Error Handling (EH)
 
@@ -90,9 +90,9 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 | RL-02       | Phase 2 | Complete |
 | RL-03       | Phase 2 | Complete |
 | RL-04       | Phase 2 | Complete |
-| RC-01       | Phase 3 | Pending  |
-| RC-02       | Phase 3 | Pending  |
-| RC-03       | Phase 3 | Pending  |
+| RC-01       | Phase 3 | Complete |
+| RC-02       | Phase 3 | Complete |
+| RC-03       | Phase 3 | Complete |
 | EH-01       | Phase 2 | Complete |
 | EH-02       | Phase 2 | Complete |
 | EH-03       | Phase 1 | Complete |
