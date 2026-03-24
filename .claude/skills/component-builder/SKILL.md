@@ -1,4 +1,10 @@
-# Skill: Component Bouwen
+---
+name: component-builder
+description: Raadpleeg bij het bouwen of wijzigen van Svelte componenten. Bevat Svelte 5 syntax, state management, BABL design system, en component checklist.
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
+---
+
+# Component Builder
 
 ## Svelte 5 Syntax (verplicht)
 
@@ -42,8 +48,8 @@
 
 ### Glassmorphism
 
-- Licht: `class="glass"` → semi-transparant wit, blur, subtiele border
-- Sterk: `class="glass-strong"` → meer opaque, sterkere blur
+- Licht: `class="glass"` — semi-transparant wit, blur, subtiele border
+- Sterk: `class="glass-strong"` — meer opaque, sterkere blur
 - Altijd op donkere achtergrond gebruiken
 
 ### Kleuren
@@ -59,7 +65,7 @@
 
 ### Cards & Containers
 
-- Result cards: `class="gradient-border-card p-5"` → animated gradient border
+- Result cards: `class="gradient-border-card p-5"` — animated gradient border
 - Hover effect: `hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)]`
 - **NIET** gebruiken: `bg-white`, `shadow-lg`, `rounded-2xl bg-white` (template stijl)
 

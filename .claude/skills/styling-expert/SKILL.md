@@ -1,4 +1,10 @@
-# Skill: BABL Styling & Design System
+---
+name: styling-expert
+description: Raadpleeg bij het toevoegen of wijzigen van styling, animaties of visuele effecten. Bevat het BABL kleurpalet, glassmorphism, animaties, glow effecten en layout conventies.
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
+---
+
+# Styling Expert
 
 ## Bronbestand
 
@@ -59,13 +65,9 @@
 ### Conic border (record button)
 
 ```html
-<div class="conic-border">
-	<!-- idle: langzaam draaiend -->
-	<div class="conic-border conic-border-recording">
-		<!-- recording: snel, rood -->
-		<div class="conic-border conic-border-processing"><!-- processing: neon sweep --></div>
-	</div>
-</div>
+<div class="conic-border"><!-- idle: langzaam draaiend --></div>
+<div class="conic-border conic-border-recording"><!-- recording: snel, rood --></div>
+<div class="conic-border conic-border-processing"><!-- processing: neon sweep --></div>
 ```
 
 ### Tekst effecten

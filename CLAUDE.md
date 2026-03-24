@@ -2,7 +2,7 @@
 
 ## Doel
 
-BABL is een privacy-first spraak-naar-tekst tool met Limburgse dialectcorrectie. Het neemt audio op via de microfoon (of bestandsupload), transcribeert met Whisper, en corrigeert Limburgs dialect naar standaard Nederlands via Ollama/Gemma3. Alles draait 100% lokaal — geen cloudverwerking, GDPR en EU AI Act compliant.
+BABL is een privacy-first spraak-naar-tekst tool met Limburgse dialectcorrectie. Het neemt audio op via de microfoon (of bestandsupload), transcribeert en corrigeert Limburgs dialect naar standaard Nederlands. Verwerking kan lokaal (Whisper + Ollama) of via API (AssemblyAI + Mistral) — gebruiker kiest per stap. GDPR en EU AI Act compliant.
 
 ## Techstack
 
@@ -12,7 +12,8 @@ BABL is een privacy-first spraak-naar-tekst tool met Limburgse dialectcorrectie.
 - PostHog analytics (EU endpoint `eu.posthog.com`, `person_profiles: 'never'`)
 - Vercel deployment via `@sveltejs/adapter-vercel` (alleen frontend)
 - Vitest voor tests
-- **Backend**: Python FastAPI + faster-whisper + Ollama (Gemma3)
+- **Backend lokaal**: Python FastAPI + mlx-whisper (Apple Silicon) + Ollama (Gemma3)
+- **Backend API**: AssemblyAI (transcriptie, EU datacenter Dublin) + Mistral AI (correctie, EU servers)
 - **Node**: v24 (zie `.nvmrc`)
 
 ## Repo Map
@@ -27,10 +28,15 @@ src/lib/utils/           -> analytics.ts, a11y.ts, helpers
 src/routes/              -> +layout.svelte (analytics), +page.svelte (template phase router)
 src/routes/transcribe/   -> +page.svelte = HOOFD-APP (opname, transcriptie, correctie)
 backend/                 -> Python FastAPI server (Whisper + Ollama endpoints)
-backend/main.py          -> /health, /transcribe, /correct endpoints
+backend/main.py          -> /health, /transcribe, /transcribe-live, /correct, /ws/transcribe-stream
+src/routes/api/          -> SvelteKit API routes (AssemblyAI submit+poll, Mistral correctie)
 scripts/                 -> start-transcribe.sh (full stack), log-hours.sh (tijdregistratie)
 docs/                    -> Architectuur, ADRs, analytics-plan
-.claude/skills/          -> Gedetailleerde instructies per taaktype
+.claude/skills/          -> Build-instructies per domein (SKILL.md met YAML frontmatter)
+.claude/agents/          -> Geïsoleerde specialisten (security-expert)
+.claude/rules/           -> Altijd geladen constraints (code-standards, safety)
+.claude/commands/        -> Slash commands (/review, /commit, etc.)
+.claude/hooks/           -> Shell scripts (validate, post-edit-format, session-start)
 ```
 
 ## Architectuur
@@ -38,30 +44,49 @@ docs/                    -> Architectuur, ADRs, analytics-plan
 ### App Flow
 
 ```
-idle → recording → processing (Whisper) → correcting (Ollama) → idle
-                                              ↓
-                                  toont ruwe tekst + gecorrigeerde tekst
+idle → recording → processing (transcriptie) → correcting (verslaglegging) → idle
+                                                    ↓
+                                        toont ruwe tekst + gecorrigeerde tekst
 ```
+
+### Verwerkingsmodi
+
+Gebruiker kiest per stap (transcriptie en correctie) tussen lokaal of API:
+
+| Stap         | Lokaal                                | API                                 |
+| ------------ | ------------------------------------- | ----------------------------------- |
+| Transcriptie | mlx-whisper (large-v3, Apple Silicon) | AssemblyAI (Universal-2, EU Dublin) |
+| Correctie    | Ollama/Gemma3                         | Mistral AI (EU servers)             |
 
 ### Backend Endpoints (FastAPI, poort 8000)
 
-- `GET /health` — Health check
-- `POST /transcribe` — Audio → Whisper → ruwe transcriptie + taaldetectie
-- `POST /correct` — Ruwe tekst → Ollama/Gemma3 → gecorrigeerd Nederlands
+- `GET /health` — Health check + beschikbaarheid lokaal/API
+- `POST /transcribe` — Audio → Whisper (30s segmenten, SSE stream)
+- `POST /transcribe-live` — Audio → Whisper (incrementeel, met offset filtering)
+- `POST /correct` — Tekst → Ollama of Mistral (SSE token stream)
+- `WS /ws/transcribe-stream` — Real-time WebSocket streaming via AssemblyAI
 
 ### Kwaliteitsmodi
 
-| Modus  | Whisper model | Ollama model |
-| ------ | ------------- | ------------ |
-| Light  | small         | gemma3:4b    |
-| Medium | medium        | gemma3:12b   |
+| Modus  | Ollama model | Mistral model        |
+| ------ | ------------ | -------------------- |
+| Light  | gemma3:4b    | mistral-small-latest |
+| Medium | gemma3:12b   | mistral-large-latest |
 
 ### Audio Processing
 
 - Browser: MediaRecorder API + Web Audio API (waveform visualisatie)
 - Downsampling naar 16kHz mono WAV voor Whisper
+- Live transcriptie: incrementeel (alleen nieuwe chunks + 3s overlap), niet volledige audio
 - Lange teksten worden gechunkt (max 400 woorden per chunk)
 - Max 3 parallelle Ollama requests (semaphore)
+
+### Design System
+
+- Dark theme met glassmorphism — nooit `bg-white` gebruiken
+- Kleur tokens in `src/app.css`: `--color-neon` (#d4ff00), `--color-accent-start` (#7c3aed), `--color-glass`
+- Containers: `glass`, `glass-strong`, `gradient-border-card`
+- Animaties: `animate-fade-in`, `animate-slide-up`, `animate-pulse-glow` — respecteer `prefers-reduced-motion`
 
 ## Werkregels
 
@@ -70,9 +95,9 @@ idle → recording → processing (Whisper) → correcting (Ollama) → idle
 3. **Engine = pure functies**: Engine bestanden hebben geen side effects. Lees altijd alle engine files voor je er een wijzigt.
 4. **Data is heilig**: Data bestanden NIET wijzigen zonder expliciete opdracht.
 5. **Analytics via wrapper**: Altijd via `src/lib/utils/analytics.ts`, nooit direct PostHog. Try/catch verplicht.
-6. **Privacy first**: Geen PII loggen. `person_profiles: 'never'`. Alle verwerking is lokaal.
+6. **Privacy first**: Geen PII loggen. `person_profiles: 'never'`. Lokale modus = geen data naar buiten. API modus = alleen EU-servers (AssemblyAI Dublin, Mistral EU).
 7. **App flow**: idle → recording → processing → correcting → idle. Geen stappen overslaan.
-8. **Backend is lokaal**: De FastAPI backend draait lokaal. CORS alleen voor `localhost:5173`. Geen remote API calls voor spraakverwerking.
+8. **Dual mode**: Gebruiker kiest per stap (transcriptie/correctie) tussen lokaal en API. FastAPI backend draait lokaal voor beide modi.
 9. **Twee-staps verwerking**: Altijd eerst Whisper (ruwe transcriptie tonen), dan Ollama (correctie tonen). Gebruiker ziet progressie.
 10. **Spacebar shortcut**: Spacebar start/stopt opname. Niet conflicteren met andere keyboard handlers.
 
