@@ -1,8 +1,8 @@
 ---
 phase: 3
 slug: resource-cleanup
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-24
 ---
@@ -15,13 +15,13 @@ created: 2026-03-24
 
 ## Test Infrastructure
 
-| Property               | Value                  |
-| ---------------------- | ---------------------- |
-| **Framework**          | Vitest 4.1.1           |
-| **Config file**        | None — Wave 0 installs |
-| **Quick run command**  | `npm run test:run`     |
-| **Full suite command** | `npm run test:run`     |
-| **Estimated runtime**  | ~5 seconds             |
+| Property               | Value              |
+| ---------------------- | ------------------ |
+| **Framework**          | Vitest 4.1.1       |
+| **Config file**        | vite.config.ts     |
+| **Quick run command**  | `npm run test:run` |
+| **Full suite command** | `npm run test:run` |
+| **Estimated runtime**  | ~5 seconds         |
 
 ---
 
@@ -36,25 +36,25 @@ created: 2026-03-24
 
 ## Per-Task Verification Map
 
-| Task ID  | Plan | Wave | Requirement | Test Type | Automated Command                                        | File Exists | Status     |
-| -------- | ---- | ---- | ----------- | --------- | -------------------------------------------------------- | ----------- | ---------- |
-| 03-01-01 | 01   | 1    | RC-01       | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
-| 03-01-02 | 01   | 1    | RC-01       | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
-| 03-01-03 | 01   | 1    | RC-01       | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
-| 03-01-04 | 01   | 1    | RC-02       | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
-| 03-01-05 | 01   | 1    | RC-03       | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
-| 03-01-06 | 01   | 1    | D-04        | unit      | `npm run test:run src/routes/transcribe/cleanup.test.ts` | ❌ W0       | ⬜ pending |
+| Task ID  | Plan | Wave | Requirement | Test Type | Automated Command                                             | File Exists | Status     |
+| -------- | ---- | ---- | ----------- | --------- | ------------------------------------------------------------- | ----------- | ---------- |
+| 03-00-01 | 00   | 0    | RC-01       | scaffold  | `npm run check`                                               | Created W0  | ⬜ pending |
+| 03-00-02 | 00   | 0    | RC-01       | unit-RED  | `npx vitest run src/lib/utils/cleanup.test.ts 2>&1 \|\| true` | Created W0  | ⬜ pending |
+| 03-01-01 | 01   | 1    | RC-01       | unit      | `npm run test:run -- src/lib/utils/cleanup.test.ts`           | Yes (W0)    | ⬜ pending |
+| 03-01-02 | 01   | 1    | RC-01       | manual    | Browser checkpoint (Task 2)                                   | N/A         | ⬜ pending |
 
 _Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky_
 
 ---
 
-## Wave 0 Requirements
+## Wave 0 Plan (03-00-PLAN.md)
 
-- [ ] `src/routes/transcribe/cleanup.test.ts` — Unit tests for cleanup function, beforeunload/pagehide handlers, AbortController abort
-- [ ] Test utilities — Mock implementations for MediaStream, AudioContext, WebSocket, addEventListener/removeEventListener
+Wave 0 creates test scaffolding BEFORE implementation (Nyquist compliance):
 
-_Note: Vitest config already exists via package.json scripts. Browser API mocks needed for lifecycle event testing._
+- [x] `src/lib/utils/cleanup.ts` — Stub exports (function signatures, empty bodies)
+- [x] `src/lib/utils/cleanup.test.ts` — Full test suite (12 tests, imports from stub)
+
+Tests are expected to FAIL against stubs (RED phase). Plan 01 fills in implementations (GREEN phase).
 
 ---
 
@@ -70,11 +70,11 @@ _Note: Vitest config already exists via package.json scripts. Browser API mocks 
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (Plan 00 creates test scaffolding)
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (revision — Wave 0 plan added for Nyquist compliance)

@@ -71,7 +71,7 @@ Plans:
 **Key files**: `src/routes/transcribe/+page.svelte` (beforeunload handler, $effect cleanup, WebSocket close), `src/lib/utils/cleanup.ts` (extracted cleanup utilities)
 **Dependencies to install**: Geen nieuwe packages (native browser APIs)
 **Complexity**: S (3 requirements, frontend-only, well-understood browser APIs)
-**Plans:** 1 plan
+**Plans:** 2 plans
 **Success Criteria** (what must be TRUE):
 
 1. Bij sluiten van de tab stopt de microfoon (LED gaat uit), sluit AudioContext, en stoppen alle MediaStreamTracks
@@ -80,7 +80,8 @@ Plans:
 
 Plans:
 
-- [ ] 03-01-PLAN.md -- Resource cleanup: beforeunload/pagehide handlers, $effect cleanup, AbortController integration (RC-01, RC-02, RC-03)
+- [ ] 03-00-PLAN.md -- Wave 0: Test scaffolding + stub cleanup module (RC-01, RC-02, RC-03)
+- [ ] 03-01-PLAN.md -- Resource cleanup: implement cleanup logic, beforeunload/pagehide handlers, $effect cleanup, AbortController integration (RC-01, RC-02, RC-03)
 
 ## Progress
 
@@ -91,4 +92,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | ----------------------------------------- | -------------- | ----------- | ---------- |
 | 1. WebSocket + Offset Filtering Stability | 3/3            | Complete    | 2026-03-23 |
 | 2. Rate Limiting + Error Handling         | 2/2            | Complete    | 2026-03-24 |
-| 3. Resource Cleanup                       | 0/1            | Not started | -          |
+| 3. Resource Cleanup                       | 0/2            | Not started | -          |
