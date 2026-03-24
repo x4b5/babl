@@ -192,11 +192,11 @@ describe('cleanupTimers', () => {
 		const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
 		const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
 
-		const interval1 = 101 as ReturnType<typeof setInterval>;
-		const interval2 = 102 as ReturnType<typeof setInterval>;
-		const interval3 = 103 as ReturnType<typeof setInterval>;
-		const interval4 = 104 as ReturnType<typeof setInterval>;
-		const timeout1 = 201 as ReturnType<typeof setTimeout>;
+		const interval1 = 101 as unknown as ReturnType<typeof setInterval>;
+		const interval2 = 102 as unknown as ReturnType<typeof setInterval>;
+		const interval3 = 103 as unknown as ReturnType<typeof setInterval>;
+		const interval4 = 104 as unknown as ReturnType<typeof setInterval>;
+		const timeout1 = 201 as unknown as ReturnType<typeof setTimeout>;
 
 		cleanupTimers({
 			timerInterval: interval1,

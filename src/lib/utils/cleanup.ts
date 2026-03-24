@@ -17,7 +17,33 @@ export function cleanupMediaResources(refs: {
 	analyser: { current: AnalyserNode | undefined };
 	animationFrameId: { current: number | undefined };
 }): void {
-	// STUB — implementation in Plan 01
+	// Stop MediaRecorder if recording
+	if (refs.mediaRecorder && refs.mediaRecorder.state === 'recording') {
+		try {
+			refs.mediaRecorder.stop();
+		} catch {
+			// Already stopped - safe to ignore
+		}
+	}
+
+	// Stop all media tracks (turns off microphone LED)
+	if (refs.stream) {
+		refs.stream.getTracks().forEach((track) => track.stop());
+	}
+
+	// Cancel animation frame
+	if (refs.animationFrameId.current !== undefined) {
+		cancelAnimationFrame(refs.animationFrameId.current);
+		refs.animationFrameId.current = undefined;
+	}
+
+	// Close AudioContext if not already closed
+	if (refs.audioContext && refs.audioContext.state !== 'closed') {
+		refs.audioContext.close();
+	}
+
+	// Clear analyser reference
+	refs.analyser.current = undefined;
 }
 
 /**
@@ -31,7 +57,16 @@ export function cleanupNetworkResources(refs: {
 	apiPollController: AbortController | undefined;
 	streamSocket: { close: () => void } | undefined;
 }): void {
-	// STUB — implementation in Plan 01
+	// Abort all active AbortControllers
+	refs.transcribeController?.abort();
+	refs.correctionController?.abort();
+	refs.liveChunkController?.abort();
+	refs.apiPollController?.abort();
+
+	// Close WebSocket
+	if (refs.streamSocket) {
+		refs.streamSocket.close();
+	}
 }
 
 /**
@@ -45,5 +80,22 @@ export function cleanupTimers(refs: {
 	countdownInterval: ReturnType<typeof setInterval> | undefined;
 	streamStallTimer: ReturnType<typeof setTimeout> | undefined;
 }): void {
-	// STUB — implementation in Plan 01
+	// Clear all intervals
+	if (refs.timerInterval !== undefined) {
+		clearInterval(refs.timerInterval);
+	}
+	if (refs.processingTimerInterval !== undefined) {
+		clearInterval(refs.processingTimerInterval);
+	}
+	if (refs.liveInterval !== undefined) {
+		clearInterval(refs.liveInterval);
+	}
+	if (refs.countdownInterval !== undefined) {
+		clearInterval(refs.countdownInterval);
+	}
+
+	// Clear timeout
+	if (refs.streamStallTimer !== undefined) {
+		clearTimeout(refs.streamStallTimer);
+	}
 }

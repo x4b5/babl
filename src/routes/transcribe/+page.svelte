@@ -5,6 +5,11 @@
 	import { classifyFrontendError, getUserMessage, isRetryable } from '$lib/utils/error-classifier';
 	import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
 	import type { ErrorType } from '$lib/utils/error-types';
+	import {
+		cleanupMediaResources,
+		cleanupNetworkResources,
+		cleanupTimers
+	} from '$lib/utils/cleanup';
 
 	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
@@ -57,8 +62,15 @@
 	const SSE_STALL_TIMEOUT_MS = 30000; // 30s: abort SSE stream if no data received (EH-03)
 
 	let mediaRecorder: MediaRecorder | undefined;
+	let stream: MediaStream | undefined;
 	let chunks: Blob[] = [];
 	let timerInterval: ReturnType<typeof setInterval> | undefined;
+
+	// AbortControllers for network request cleanup
+	let transcribeController: AbortController | undefined;
+	let correctionController: AbortController | undefined;
+	let liveChunkController: AbortController | undefined;
+	let apiPollController: AbortController | undefined;
 
 	let fileInput: HTMLInputElement;
 
@@ -214,6 +226,35 @@
 			});
 	});
 
+	// Resource cleanup: beforeunload (desktop + confirmation dialog), pagehide (mobile fallback), $effect cleanup (component destroy)
+	$effect(() => {
+		function handleBeforeUnload(e: BeforeUnloadEvent) {
+			// Show confirmation dialog if recording/processing/correcting (D-01)
+			// No dialog if idle or preparing (D-02)
+			if (status === 'recording' || status === 'processing' || status === 'correcting') {
+				e.preventDefault();
+				e.returnValue = ''; // Legacy support -- custom messages not shown by browsers since 2017
+			}
+			// Cleanup runs regardless of dialog result
+			cleanupAllResources();
+		}
+
+		function handlePageHide() {
+			// Mobile fallback -- no confirmation dialog possible, just cleanup
+			cleanupAllResources();
+		}
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		window.addEventListener('pagehide', handlePageHide);
+
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+			window.removeEventListener('pagehide', handlePageHide);
+			// Component destroy path (RC-02) -- same cleanup as page unload
+			cleanupAllResources();
+		};
+	});
+
 	function getSupportedMimeType(): string {
 		for (const type of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', 'audio/mp4']) {
 			if (MediaRecorder.isTypeSupported(type)) return type;
@@ -350,6 +391,7 @@
 		// Nothing new to send
 		if (chunks.length <= lastSentChunkIndex) return;
 		liveBusy = true;
+		liveChunkController = new AbortController();
 		try {
 			const mimeType = mediaRecorder.mimeType;
 			// Send only NEW chunks (with overlap for Whisper context)
@@ -368,7 +410,8 @@
 
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 				method: 'POST',
-				body: formData
+				body: formData,
+				signal: liveChunkController.signal
 			});
 			if (resp.ok) {
 				const data = await resp.json();
@@ -389,8 +432,13 @@
 				lastSentChunkIndex = chunks.length;
 			}
 		} catch (e) {
+			if (e instanceof Error && e.name === 'AbortError') {
+				console.log('Live chunk aborted');
+				return;
+			}
 			console.warn('Live chunk failed:', e);
 		} finally {
+			liveChunkController = undefined;
 			liveBusy = false;
 		}
 	}
@@ -520,6 +568,50 @@
 		}
 	}
 
+	/** Clean up all resources. Called from beforeunload, pagehide, and $effect cleanup. */
+	function cleanupAllResources() {
+		// 1. Abort network requests (fastest, signals backend)
+		cleanupNetworkResources({
+			transcribeController,
+			correctionController,
+			liveChunkController,
+			apiPollController,
+			streamSocket
+		});
+
+		// 2. Stop media (MediaRecorder, tracks, AudioContext)
+		cleanupMediaResources({
+			mediaRecorder,
+			stream,
+			audioContext,
+			analyser: { current: analyser },
+			animationFrameId: { current: animationFrameId }
+		});
+
+		// 3. Clear timers
+		cleanupTimers({
+			timerInterval,
+			processingTimerInterval,
+			liveInterval,
+			countdownInterval,
+			streamStallTimer
+		});
+
+		// 4. Null out references to prevent double-cleanup
+		stream = undefined;
+		transcribeController = undefined;
+		correctionController = undefined;
+		liveChunkController = undefined;
+		apiPollController = undefined;
+		streamSocket = undefined;
+		audioContext = undefined;
+		analyser = undefined;
+		animationFrameId = undefined;
+		mediaRecorder = undefined;
+		reconnecting = false;
+		reconnectStatus = '';
+	}
+
 	/** Send a MediaRecorder chunk as PCM via WebSocket. */
 	async function sendChunkToStream(blob: Blob) {
 		if (!streamSocket || streamSocket.readyState !== WebSocket.OPEN) return;
@@ -550,7 +642,7 @@
 			await new Promise((resolve) => setTimeout(resolve, 2000));
 			if (status !== 'preparing') return; // Cancelled
 
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			mediaRecorder = new MediaRecorder(stream, { mimeType });
 			chunks = [];
 
@@ -568,7 +660,9 @@
 			};
 
 			mediaRecorder.onstop = async () => {
-				stream.getTracks().forEach((t) => t.stop());
+				if (stream) {
+					stream.getTracks().forEach((t) => t.stop());
+				}
 				stopWaveform();
 				stopLiveTranscription();
 				stopRealtimeStream();
@@ -751,12 +845,14 @@
 	}
 
 	async function sendAudioApi(formData: FormData) {
+		apiPollController = new AbortController();
 		try {
 			// Step 1: Submit audio, get transcript ID
 			apiStatus = 'Uploaden...';
 			const submitResp = await fetch('/api/transcribe-api', {
 				method: 'POST',
-				body: formData
+				body: formData,
+				signal: apiPollController.signal
 			});
 
 			if (!submitResp.ok) {
@@ -780,7 +876,9 @@
 
 				await new Promise((r) => setTimeout(r, POLL_INTERVAL));
 
-				const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`);
+				const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`, {
+					signal: apiPollController.signal
+				});
 				if (!pollResp.ok) {
 					const detail = await pollResp.text();
 					throw new Error(detail || `Poll error ${pollResp.status}`);
@@ -812,28 +910,35 @@
 				}
 			}
 		} catch (e) {
+			if (e instanceof Error && e.name === 'AbortError') {
+				console.log('API transcription aborted');
+				apiPollController = undefined;
+				return;
+			}
 			const classified = classifyFrontendError(e);
 			errorType = classified;
 			error = getUserMessage(classified);
 			apiStatus = '';
 			status = 'idle';
+		} finally {
+			apiPollController = undefined;
 		}
 	}
 
 	async function sendAudioLocal(formData: FormData) {
-		const controller = new AbortController();
-		let stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+		transcribeController = new AbortController();
+		let stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
 
 		const resetStallTimeout = () => {
 			clearTimeout(stallTimeout);
-			stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+			stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
 		};
 
 		try {
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe`, {
 				method: 'POST',
 				body: formData,
-				signal: controller.signal
+				signal: transcribeController.signal
 			});
 
 			if (!resp.ok) {
@@ -884,10 +989,17 @@
 			status = 'idle';
 		} catch (e) {
 			clearTimeout(stallTimeout);
+			if (e instanceof Error && e.name === 'AbortError') {
+				console.log('Local transcription aborted');
+				transcribeController = undefined;
+				return;
+			}
 			const classified = classifyFrontendError(e);
 			errorType = classified;
 			error = getUserMessage(classified);
 			status = 'idle';
+		} finally {
+			transcribeController = undefined;
 		}
 	}
 
@@ -971,12 +1083,12 @@
 		});
 		const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
 
-		const controller = new AbortController();
-		let stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+		correctionController = new AbortController();
+		let stallTimeout = setTimeout(() => correctionController!.abort(), SSE_STALL_TIMEOUT_MS);
 
 		const resetStallTimeout = () => {
 			clearTimeout(stallTimeout);
-			stallTimeout = setTimeout(() => controller.abort(), SSE_STALL_TIMEOUT_MS);
+			stallTimeout = setTimeout(() => correctionController!.abort(), SSE_STALL_TIMEOUT_MS);
 		};
 
 		try {
@@ -984,7 +1096,7 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
-				signal: controller.signal
+				signal: correctionController.signal
 			});
 
 			if (!resp.ok) {
@@ -1038,12 +1150,18 @@
 			if (!corrected) corrected = text;
 		} catch (e) {
 			clearTimeout(stallTimeout);
+			if (e instanceof Error && e.name === 'AbortError') {
+				console.log('Correction aborted');
+				correctionController = undefined;
+				return;
+			}
 			console.error('Correction error:', e);
 			const classified = classifyFrontendError(e);
 			errorType = classified;
 			error = getUserMessage(classified);
 			corrected = '';
 		} finally {
+			correctionController = undefined;
 			status = 'idle';
 		}
 	}

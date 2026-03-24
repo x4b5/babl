@@ -24,6 +24,7 @@
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.2.0",
 		"husky": "^9.1.7",
+		"jsdom": "^29.0.1",
 		"lint-staged": "^16.3.1",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.0",
