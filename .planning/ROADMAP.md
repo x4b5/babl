@@ -50,19 +50,18 @@ Plans:
 **Key files**: `backend/main.py` (Retry-After parsing, tenacity decorator, structured error SSE events), `src/routes/transcribe/+page.svelte` (rate limit countdown UI, error taxonomy routing), `src/routes/api/` (SvelteKit API routes error handling)
 **Dependencies to install**: pip: `tenacity>=9.0.0` (retry decorator met exponential backoff, vervangt custom retry loops)
 **Complexity**: M (6 requirements, focused on error path through backend + frontend)
+**Plans:** 2 plans
 **Success Criteria** (what must be TRUE):
 
 1. Bij Mistral 429 response ziet gebruiker "Overbelast. Probeer over X seconden" met live countdown
 2. Foutmeldingen zijn specifiek per type (rate_limit, timeout, upstream_disconnect, network_error) -- nooit generiek "mislukt"
 3. Backend retry logica gebruikt tenacity met exponential backoff + jitter in plaats van custom loops
 4. Elke foutmelding geeft de gebruiker handelingsperspectief (wat te doen, hoe lang te wachten)
-   **Plans**: TBD
-   **UI hint**: yes
 
 Plans:
 
-- [ ] 02-01: Rate limit parsing + tenacity retry (RL-01, RL-02, RL-04)
-- [ ] 02-02: Error taxonomy + user-facing messages (RL-03, EH-01, EH-02)
+- [ ] 02-01-PLAN.md -- Rate limit parsing + tenacity retry + structured SSE errors (RL-01, RL-02, RL-04)
+- [ ] 02-02-PLAN.md -- Error taxonomy + countdown UI + user-facing messages (RL-03, EH-01, EH-02)
 
 ### Phase 3: Resource Cleanup
 
@@ -77,7 +76,6 @@ Plans:
 1. Bij sluiten van de tab stopt de microfoon (LED gaat uit), sluit AudioContext, en stoppen alle MediaStreamTracks
 2. Bij component destroy via Svelte $effect cleanup worden dezelfde resources opgeruimd als bij page unload
 3. WebSocket verbinding wordt netjes gesloten (close frame) bij page unload
-   **Plans**: TBD
 
 Plans:
 
