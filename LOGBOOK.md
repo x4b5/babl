@@ -44,3 +44,4 @@
 | 2026-03-23 | 22:32     | 22:32    | 0           | `2d9d434`   | docs(phase-01): evolve PROJECT.md after phase completion                                                                        |
 | 2026-03-24 | 22:32     | 07:32    | 4.00        | `221d15a`   | docs(02): capture phase context                                                                                                 |
 | 2026-03-24 | 07:32     | 07:32    | 0           | `f17fd94`   | docs(state): record phase 2 context session                                                                                     |
+| 2026-03-24 | 07:32     | 19:12    | 4.00        | `2891a01`   | chore: restructure .claude/ config and update project docs                                                                      |
