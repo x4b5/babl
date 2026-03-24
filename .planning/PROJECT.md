@@ -36,7 +36,7 @@ Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet klop
 - ✓ WebSocket streaming herstelt bij backend disconnect (geen silent failures) — Validated in Phase 1
 - ✓ Live transcriptie offset filtering verliest geen tekst bij segment boundaries — Validated in Phase 1
 - ✓ Mistral rate limiting geeft duidelijke foutmelding aan gebruiker — Validated in Phase 2
-- [ ] Audio resources worden correct opgeruimd bij page unload/crash
+- ✓ Audio resources worden correct opgeruimd bij page unload/crash — Validated in Phase 3
 - ✓ Foutmeldingen zijn consistent en informatief (niet generiek "mislukt") — Validated in Phase 2
 
 ### Out of Scope
@@ -92,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-23 after Phase 1 completion_
+_Last updated: 2026-03-24 after Phase 3 completion (all milestone phases complete)_
