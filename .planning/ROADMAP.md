@@ -61,7 +61,7 @@ Plans:
 Plans:
 
 - [x] 02-01-PLAN.md -- Rate limit parsing + tenacity retry + structured SSE errors (RL-01, RL-02, RL-04)
-- [ ] 02-02-PLAN.md -- Error taxonomy + countdown UI + user-facing messages (RL-03, EH-01, EH-02)
+- [x] 02-02-PLAN.md -- Error taxonomy + countdown UI + user-facing messages (RL-03, EH-01, EH-02)
 
 ### Phase 3: Resource Cleanup
 

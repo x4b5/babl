@@ -25,7 +25,7 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 - [x] **RL-01**: Backend parsed Retry-After header bij Mistral 429 responses
 - [x] **RL-02**: Backend stuurt gestructureerde rate_limit error via SSE met retry_after waarde
-- [ ] **RL-03**: Frontend toont specifieke rate limit melding met countdown ("Probeer over X seconden")
+- [x] **RL-03**: Frontend toont specifieke rate limit melding met countdown ("Probeer over X seconden")
 - [x] **RL-04**: Retry logica gebruikt tenacity decorator i.p.v. custom loop (exponential backoff, max 5 pogingen)
 
 ### Resource Cleanup (RC)
@@ -36,8 +36,8 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 ### Error Handling (EH)
 
-- [ ] **EH-01**: Foutmeldingen zijn specifiek per type: rate_limit, timeout, upstream_disconnect, network_error
-- [ ] **EH-02**: Geen generieke "mislukt" meldingen — gebruiker ziet altijd wat er fout ging
+- [x] **EH-01**: Foutmeldingen zijn specifiek per type: rate_limit, timeout, upstream_disconnect, network_error
+- [x] **EH-02**: Geen generieke "mislukt" meldingen — gebruiker ziet altijd wat er fout ging
 - [x] **EH-03**: SSE stream timeout (30s geen data) toont foutmelding i.p.v. eindeloze spinner
 
 ## v2 Requirements
@@ -88,13 +88,13 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 | OF-03       | Phase 1 | Complete |
 | RL-01       | Phase 2 | Complete |
 | RL-02       | Phase 2 | Complete |
-| RL-03       | Phase 2 | Pending  |
+| RL-03       | Phase 2 | Complete |
 | RL-04       | Phase 2 | Complete |
 | RC-01       | Phase 3 | Pending  |
 | RC-02       | Phase 3 | Pending  |
 | RC-03       | Phase 3 | Pending  |
-| EH-01       | Phase 2 | Pending  |
-| EH-02       | Phase 2 | Pending  |
+| EH-01       | Phase 2 | Complete |
+| EH-02       | Phase 2 | Complete |
 | EH-03       | Phase 1 | Complete |
 
 **Coverage:**
