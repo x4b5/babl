@@ -81,7 +81,7 @@ Plans:
 Plans:
 
 - [x] 03-00-PLAN.md -- Wave 0: Test scaffolding + stub cleanup module (RC-01, RC-02, RC-03)
-- [ ] 03-01-PLAN.md -- Resource cleanup: implement cleanup logic, beforeunload/pagehide handlers, $effect cleanup, AbortController integration (RC-01, RC-02, RC-03)
+- [x] 03-01-PLAN.md -- Resource cleanup: implement cleanup logic, beforeunload/pagehide handlers, $effect cleanup, AbortController integration (RC-01, RC-02, RC-03)
 
 ## Progress
 
