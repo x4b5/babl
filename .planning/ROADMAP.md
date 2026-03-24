@@ -68,9 +68,10 @@ Plans:
 **Goal**: Audio resources (microfoon, AudioContext, WebSocket) worden correct opgeruimd bij elke exit path
 **Depends on**: Phase 1 (WebSocket close hangt af van WebSocket implementatie uit Phase 1)
 **Requirements**: RC-01, RC-02, RC-03
-**Key files**: `src/routes/transcribe/+page.svelte` (beforeunload handler, $effect cleanup, WebSocket close)
+**Key files**: `src/routes/transcribe/+page.svelte` (beforeunload handler, $effect cleanup, WebSocket close), `src/lib/utils/cleanup.ts` (extracted cleanup utilities)
 **Dependencies to install**: Geen nieuwe packages (native browser APIs)
 **Complexity**: S (3 requirements, frontend-only, well-understood browser APIs)
+**Plans:** 1 plan
 **Success Criteria** (what must be TRUE):
 
 1. Bij sluiten van de tab stopt de microfoon (LED gaat uit), sluit AudioContext, en stoppen alle MediaStreamTracks
@@ -79,7 +80,7 @@ Plans:
 
 Plans:
 
-- [ ] 03-01: beforeunload + $effect cleanup + WebSocket close (RC-01, RC-02, RC-03)
+- [ ] 03-01-PLAN.md -- Resource cleanup: beforeunload/pagehide handlers, $effect cleanup, AbortController integration (RC-01, RC-02, RC-03)
 
 ## Progress
 
