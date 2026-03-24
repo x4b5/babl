@@ -2,6 +2,9 @@
 	import ReconnectingWebSocket from 'reconnecting-websocket';
 	import { deduplicateSegments } from '$lib/utils/dedup';
 	import type { TranscriptionSegment } from '$lib/utils/dedup';
+	import { classifyFrontendError, getUserMessage, isRetryable } from '$lib/utils/error-classifier';
+	import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
+	import type { ErrorType } from '$lib/utils/error-types';
 
 	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
@@ -13,6 +16,11 @@
 	let corrected = $state('');
 	let language = $state('');
 	let error = $state('');
+	let errorType = $state<ErrorType | ''>('');
+	let countdownSeconds = $state(0);
+	let countdownInterval: ReturnType<typeof setInterval> | undefined;
+	let retryCount = $state(0);
+	const MAX_AUTO_RETRIES = 3;
 	let elapsed = $state(0);
 	let copiedRaw = $state(false);
 	let copiedCorrected = $state(false);
@@ -170,6 +178,15 @@
 		}
 		window.addEventListener('keydown', handleKeydown);
 		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
+	// Cleanup countdown interval on unmount
+	$effect(() => {
+		return () => {
+			if (countdownInterval) {
+				clearInterval(countdownInterval);
+			}
+		};
 	});
 
 	// Health check: detect API availability (SvelteKit routes) + local backend
@@ -516,6 +533,7 @@
 
 	async function startRecording() {
 		error = '';
+		errorType = '';
 		try {
 			const mimeType = getSupportedMimeType();
 			if (!mimeType) {
@@ -794,11 +812,9 @@
 				}
 			}
 		} catch (e) {
-			if (e instanceof TypeError) {
-				error = 'API niet bereikbaar. Controleer je internetverbinding.';
-			} else {
-				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
-			}
+			const classified = classifyFrontendError(e);
+			errorType = classified;
+			error = getUserMessage(classified);
 			apiStatus = '';
 			status = 'idle';
 		}
@@ -855,6 +871,11 @@
 						}
 						raw = raw ? `${raw}\n${segmentText}` : segmentText;
 					} else if (event.type === 'error') {
+						if (event.error_type) {
+							handleErrorEvent(event);
+							status = 'idle';
+							return;
+						}
 						throw new Error(event.message);
 					}
 				}
@@ -863,15 +884,57 @@
 			status = 'idle';
 		} catch (e) {
 			clearTimeout(stallTimeout);
-			if (e instanceof DOMException && e.name === 'AbortError') {
-				error =
-					'Transcriptie reageert niet meer. Controleer of de backend draait en probeer opnieuw.';
-			} else if (e instanceof TypeError) {
-				error = 'Lokale backend niet bereikbaar. Start de server op localhost:8000.';
-			} else {
-				error = `Fout: ${e instanceof Error ? e.message : String(e)}`;
-			}
+			const classified = classifyFrontendError(e);
+			errorType = classified;
+			error = getUserMessage(classified);
 			status = 'idle';
+		}
+	}
+
+	function startCountdown(seconds: number) {
+		// Clear existing countdown if any (Pitfall 4: prevent race conditions)
+		if (countdownInterval) {
+			clearInterval(countdownInterval);
+		}
+
+		countdownSeconds = seconds;
+		error = rateLimitMessage(countdownSeconds);
+
+		countdownInterval = setInterval(() => {
+			countdownSeconds -= 1;
+			if (countdownSeconds > 0) {
+				error = rateLimitMessage(countdownSeconds);
+			} else {
+				clearInterval(countdownInterval!);
+				countdownInterval = undefined;
+				error = '';
+				errorType = '';
+				// Auto-retry per D-03
+				retryCount += 1;
+				if (retryCount <= MAX_AUTO_RETRIES) {
+					fetchCorrection(raw, lang, quality);
+				} else {
+					// Max auto-retries exhausted — show final message without auto-retry
+					error = RATE_LIMIT_EXHAUSTED;
+					errorType = 'rate_limit';
+					retryCount = 0;
+				}
+			}
+		}, 1000);
+	}
+
+	function handleErrorEvent(event: {
+		error_type?: string;
+		retry_after?: number;
+		message?: string;
+	}) {
+		const eventErrorType = (event.error_type || 'network_error') as ErrorType;
+		errorType = eventErrorType;
+
+		if (isRetryable(eventErrorType) && event.retry_after) {
+			startCountdown(event.retry_after);
+		} else {
+			error = getUserMessage(eventErrorType);
 		}
 	}
 
@@ -879,6 +942,14 @@
 		if (!raw) return;
 		corrected = '';
 		correctedExpanded = false;
+		error = '';
+		errorType = '';
+		retryCount = 0; // Reset auto-retry counter for new correction attempt
+		if (countdownInterval) {
+			clearInterval(countdownInterval);
+			countdownInterval = undefined;
+		}
+		countdownSeconds = 0;
 		status = 'correcting';
 		fetchCorrection(raw, lang, quality);
 	}
@@ -918,7 +989,15 @@
 
 			if (!resp.ok) {
 				console.error('Correction failed:', resp.status);
-				error = 'Verslaglegging mislukt (rate limit of serverfout). Probeer het opnieuw.';
+				if (resp.status === 429) {
+					errorType = 'rate_limit';
+					const retryAfter = parseInt(resp.headers.get('Retry-After') || '3', 10);
+					startCountdown(Math.max(1, retryAfter));
+				} else {
+					const classified = classifyFrontendError(new Error(`HTTP ${resp.status}`));
+					errorType = classified;
+					error = getUserMessage(classified);
+				}
 				corrected = '';
 				status = 'idle';
 				return;
@@ -950,7 +1029,8 @@
 					} else if (event.type === 'done') {
 						// Streaming complete
 					} else if (event.type === 'error') {
-						throw new Error(event.message);
+						handleErrorEvent(event);
+						return;
 					}
 				}
 			}
@@ -958,14 +1038,10 @@
 			if (!corrected) corrected = text;
 		} catch (e) {
 			clearTimeout(stallTimeout);
-			if (e instanceof DOMException && e.name === 'AbortError') {
-				console.error('Correction timeout: no data for 30s');
-				error =
-					'Verslaglegging duurt te lang — probeer een korter fragment of herstart de backend.';
-			} else {
-				console.error('Correction error:', e);
-				error = 'Verslaglegging mislukt. Controleer of de backend draait.';
-			}
+			console.error('Correction error:', e);
+			const classified = classifyFrontendError(e);
+			errorType = classified;
+			error = getUserMessage(classified);
 			corrected = '';
 		} finally {
 			status = 'idle';
@@ -1388,7 +1464,11 @@
 		<!-- Error -->
 		{#if error}
 			<div
-				class="mb-8 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-300 text-sm animate-slide-up"
+				role="alert"
+				aria-live="assertive"
+				class="mb-8 rounded-xl border p-4 text-sm animate-slide-up {errorType === 'rate_limit'
+					? 'border-amber-500/20 bg-amber-500/10 text-amber-300'
+					: 'border-red-500/20 bg-red-500/10 text-red-300'}"
 			>
 				{error}
 			</div>
