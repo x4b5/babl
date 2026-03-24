@@ -8,3 +8,4 @@ assemblyai
 python-dotenv
 pytest
 pytest-asyncio
+tenacity>=9.0.0

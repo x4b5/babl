@@ -5,7 +5,8 @@ import tempfile
 import os
 import traceback
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
+import random
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -253,6 +254,34 @@ async def health():
     }
 
 
+def parse_retry_after(response_or_headers) -> int:
+    """Parse Retry-After header from response or exception. Returns seconds to wait.
+    Supports integer seconds format and HTTP-date (RFC 1123) format.
+    Falls back to 3 seconds if header missing or unparseable."""
+    header = ""
+    if hasattr(response_or_headers, 'headers'):
+        header = response_or_headers.headers.get("Retry-After", "")
+    elif isinstance(response_or_headers, dict):
+        header = response_or_headers.get("Retry-After", "")
+    elif isinstance(response_or_headers, str):
+        header = response_or_headers
+
+    if not header:
+        return 3  # Default fallback
+
+    # Try parsing as integer (seconds)
+    try:
+        return max(1, int(header))
+    except ValueError:
+        pass
+
+    # Parse as HTTP-date (RFC 1123 format: "Sun, 06 Nov 1994 08:49:37 GMT")
+    try:
+        retry_date = datetime.strptime(header, "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
+        delta = (retry_date - datetime.now(timezone.utc)).total_seconds()
+        return max(1, int(delta))
+    except ValueError:
+        return 3  # Fallback if parsing fails
 
 
 def _build_ollama_prompt(chunk: str, detected_lang: str, full_context: str | None = None) -> str:
@@ -323,7 +352,9 @@ async def correct_chunk_mistral_stream(
     temperature: float = 0.5,
     system_prompt: str = SYSTEM_PROMPT,
 ):
-    """Stream tokens from Mistral API for a single chunk. Yields token strings."""
+    """Stream tokens from Mistral API for a single chunk. Yields token strings.
+    Retry logic: max 5 attempts, exponential backoff with jitter, Retry-After header parsing.
+    Per RL-04: tenacity-patterned retry (manual loop because tenacity doesn't support async generators)."""
     client = get_mistral_client()
     if client is None:
         raise RuntimeError("Mistral API key not configured")
@@ -332,8 +363,8 @@ async def correct_chunk_mistral_stream(
     word_count = len(chunk.split())
     max_tokens = max(512, int(word_count * 2))
 
-    max_retries = 8
-    for attempt in range(max_retries):
+    max_attempts = 5  # Per RL-04: max 5 attempts
+    for attempt in range(max_attempts):
         try:
             stream_response = await asyncio.to_thread(
                 client.chat.stream,
@@ -350,10 +381,26 @@ async def correct_chunk_mistral_stream(
                 if token:
                     yield token
             return  # Success — exit retry loop
+
         except Exception as e:
-            if "429" in str(e) and attempt < max_retries - 1:
-                wait = 3 * (2 ** attempt)
-                print(f"  Rate limited, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+            error_str = str(e)
+            is_rate_limit = "429" in error_str or "rate" in error_str.lower()
+            is_server_error = any(code in error_str for code in ["500", "502", "503"])
+            is_retryable = is_rate_limit or is_server_error
+
+            if is_retryable and attempt < max_attempts - 1:
+                if is_rate_limit:
+                    # Try to extract Retry-After from exception attributes
+                    retry_after = 3
+                    if hasattr(e, 'response') and hasattr(e.response, 'headers'):
+                        retry_after = parse_retry_after(e.response)
+                    # Exponential backoff with jitter: min(retry_after, 1 * 2^attempt) + jitter
+                    backoff = min(30, 1 * (2 ** attempt)) + random.uniform(0, 2)
+                    wait = max(backoff, retry_after)
+                else:
+                    wait = min(30, 1 * (2 ** attempt)) + random.uniform(0, 2)
+
+                print(f"  Retrying in {wait:.1f}s (attempt {attempt + 1}/{max_attempts}): {error_str[:80]}")
                 await asyncio.sleep(wait)
             else:
                 raise
@@ -966,7 +1013,22 @@ async def correct(req: CorrectionRequest):
         except Exception as e:
             print(f"Correction streaming failed: {e}")
             traceback.print_exc()
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            error_str = str(e)
+
+            # Classify error type per EH-01 taxonomy
+            if "429" in error_str or "rate" in error_str.lower():
+                retry_after = 3
+                if hasattr(e, 'response') and hasattr(e.response, 'headers'):
+                    retry_after = parse_retry_after(e.response)
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'rate_limit', 'retry_after': retry_after})}\n\n"
+            elif any(code in error_str for code in ["502", "503"]):
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'upstream_disconnect'})}\n\n"
+            elif "timeout" in error_str.lower() or isinstance(e, asyncio.TimeoutError):
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'timeout'})}\n\n"
+            elif isinstance(e, (httpx.ConnectError, httpx.NetworkError, ConnectionError)):
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'network_error'})}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'network_error'})}\n\n"
 
     return StreamingResponse(
         generate(),
