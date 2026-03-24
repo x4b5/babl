@@ -23,10 +23,10 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 
 ### Rate Limiting (RL)
 
-- [ ] **RL-01**: Backend parsed Retry-After header bij Mistral 429 responses
-- [ ] **RL-02**: Backend stuurt gestructureerde rate_limit error via SSE met retry_after waarde
+- [x] **RL-01**: Backend parsed Retry-After header bij Mistral 429 responses
+- [x] **RL-02**: Backend stuurt gestructureerde rate_limit error via SSE met retry_after waarde
 - [ ] **RL-03**: Frontend toont specifieke rate limit melding met countdown ("Probeer over X seconden")
-- [ ] **RL-04**: Retry logica gebruikt tenacity decorator i.p.v. custom loop (exponential backoff, max 5 pogingen)
+- [x] **RL-04**: Retry logica gebruikt tenacity decorator i.p.v. custom loop (exponential backoff, max 5 pogingen)
 
 ### Resource Cleanup (RC)
 
@@ -86,10 +86,10 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 | OF-01       | Phase 1 | Complete |
 | OF-02       | Phase 1 | Complete |
 | OF-03       | Phase 1 | Complete |
-| RL-01       | Phase 2 | Pending  |
-| RL-02       | Phase 2 | Pending  |
+| RL-01       | Phase 2 | Complete |
+| RL-02       | Phase 2 | Complete |
 | RL-03       | Phase 2 | Pending  |
-| RL-04       | Phase 2 | Pending  |
+| RL-04       | Phase 2 | Complete |
 | RC-01       | Phase 3 | Pending  |
 | RC-02       | Phase 3 | Pending  |
 | RC-03       | Phase 3 | Pending  |
