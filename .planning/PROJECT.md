@@ -35,9 +35,9 @@ Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet klop
 
 - ✓ WebSocket streaming herstelt bij backend disconnect (geen silent failures) — Validated in Phase 1
 - ✓ Live transcriptie offset filtering verliest geen tekst bij segment boundaries — Validated in Phase 1
-- [ ] Mistral rate limiting geeft duidelijke foutmelding aan gebruiker
+- ✓ Mistral rate limiting geeft duidelijke foutmelding aan gebruiker — Validated in Phase 2
 - [ ] Audio resources worden correct opgeruimd bij page unload/crash
-- [ ] Foutmeldingen zijn consistent en informatief (niet generiek "mislukt")
+- ✓ Foutmeldingen zijn consistent en informatief (niet generiek "mislukt") — Validated in Phase 2
 
 ### Out of Scope
 
