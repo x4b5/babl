@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import type { ErrorType } from '$lib/utils/error-types';
 
 export const config = {
-	maxDuration: 900
+	maxDuration: 300
 };
 
 function classifyError(e: unknown): { errorType: ErrorType; retryAfter?: number } {
