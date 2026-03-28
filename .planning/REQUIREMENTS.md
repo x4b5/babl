@@ -118,28 +118,28 @@ Uitgesteld naar volgende milestone.
 
 ### v2.0 (Active)
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| EVAL-01     | TBD   | Pending |
-| EVAL-02     | TBD   | Pending |
-| EVAL-03     | TBD   | Pending |
-| TRANS-01    | TBD   | Pending |
-| TRANS-02    | TBD   | Pending |
-| TRANS-03    | TBD   | Pending |
-| CORR-01     | TBD   | Pending |
-| CORR-02     | TBD   | Pending |
-| CORR-03     | TBD   | Pending |
-| FEED-01     | TBD   | Pending |
-| FEED-02     | TBD   | Pending |
-| FEED-03     | TBD   | Pending |
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| EVAL-01     | Phase 4 | Pending |
+| EVAL-02     | Phase 4 | Pending |
+| EVAL-03     | Phase 4 | Pending |
+| TRANS-01    | Phase 5 | Pending |
+| TRANS-02    | Phase 5 | Pending |
+| TRANS-03    | Phase 5 | Pending |
+| CORR-01     | Phase 6 | Pending |
+| CORR-02     | Phase 6 | Pending |
+| CORR-03     | Phase 6 | Pending |
+| FEED-01     | Phase 7 | Pending |
+| FEED-02     | Phase 7 | Pending |
+| FEED-03     | Phase 7 | Pending |
 
 **Coverage:**
 
 - v2.0 requirements: 12 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 12
+- Mapped to phases: 12/12 ✓
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-03-23_
-_Last updated: 2026-03-28 — v2.0 Dialect Quality requirements added_
+_Last updated: 2026-03-28 — v2.0 traceability mapped to Phases 4-7_
