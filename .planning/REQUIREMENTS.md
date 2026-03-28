@@ -1,11 +1,11 @@
-# Requirements: BABL Stability Milestone
+# Requirements: BABL
 
 **Defined:** 2026-03-23
 **Core Value:** Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet kloppen en het proces mag niet stilzwijgend falen.
 
-## v1 Requirements
+## v1.0 Requirements (Stability) — Complete
 
-Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
+All 18 requirements completed. See MILESTONES.md for details.
 
 ### WebSocket Streaming (WS)
 
@@ -40,23 +40,51 @@ Requirements voor stabiliteit. Elke requirement mapt naar een roadmap phase.
 - [x] **EH-02**: Geen generieke "mislukt" meldingen — gebruiker ziet altijd wat er fout ging
 - [x] **EH-03**: SSE stream timeout (30s geen data) toont foutmelding i.p.v. eindeloze spinner
 
-## v2 Requirements
+## v2.0 Requirements (Dialect Quality) — Active
 
-Uitgesteld naar volgende milestone. Niet in huidige roadmap.
+Requirements voor verbetering van Limburgse dialectherkenning en -correctie.
 
-### Quality Improvements
+### Evaluatie & Meting (EVAL)
+
+- [ ] **EVAL-01**: Gebruiker kan per sessie de WER/CER score zien voor de ruwe transcriptie
+- [ ] **EVAL-02**: Gebruiker ziet per woord een confidence indicator bij onzekere herkenning (<0.7)
+- [ ] **EVAL-03**: Systeem logt error-patronen (substitutie/deletie/insertie) per dialectregio
+
+### Transcriptie Kwaliteit (TRANS)
+
+- [ ] **TRANS-01**: Alle 5 dialectprofielen zijn geaudit en uitgebreid conform AssemblyAI word boost richtlijnen
+- [ ] **TRANS-02**: Systeem ondersteunt meerdere uitspraak-varianten per woord per regio
+- [ ] **TRANS-03**: Whisper hallucinaties (herhalingen, onzin-output) worden gedetecteerd en gefilterd
+
+### Correctie Consistentie (CORR)
+
+- [ ] **CORR-01**: Correctie-prompts bevatten 3-5 few-shot voorbeelden per dialectregio
+- [ ] **CORR-02**: LLM output volgt een vast JSON schema met origineel, correctie, en confidence
+- [ ] **CORR-03**: Dialect-naar-standaard glossary (50-100+ termen) wordt in de prompt geïnjecteerd
+
+### Feedback & Iteratie (FEED)
+
+- [ ] **FEED-01**: Gebruiker kan correcties terugsturen (opt-in) die de glossary en word boost voeden
+- [ ] **FEED-02**: Prompt templates zijn versioned en kunnen A/B getest worden op kwaliteit
+- [ ] **FEED-03**: Tekst-chunks overlappen (50-100 woorden) zodat context behouden blijft bij lange transcripties
+
+## Future Requirements
+
+Uitgesteld naar volgende milestone.
+
+### Quality Improvements (from v1.0)
 
 - **QI-01**: Duplicate tekst deduplicatie via Levenshtein matching (>0.85 threshold)
 - **QI-02**: Schema validatie voor API responses (detect malformed 200 OK)
 - **QI-03**: Audio quality presets (8kHz/16kHz/24kHz)
 
-### Refactoring
+### Refactoring (from v1.0)
 
 - **RF-01**: +page.svelte opsplitsen in kleinere componenten
 - **RF-02**: System prompts centraliseren (niet dupliceren in backend + frontend)
 - **RF-03**: Structured logging (backend + frontend)
 
-### Testing
+### Testing (from v1.0)
 
 - **TS-01**: E2E tests voor recording + transcriptie + correctie flow
 - **TS-02**: Integration tests voor SSE streaming endpoints
@@ -64,46 +92,54 @@ Uitgesteld naar volgende milestone. Niet in huidige roadmap.
 
 ## Out of Scope
 
-| Feature                          | Reden                                                          |
-| -------------------------------- | -------------------------------------------------------------- |
-| Inline transcript editing        | Later milestone                                                |
-| Batch/bulk upload                | Later milestone                                                |
-| Mobile app                       | Web-first                                                      |
-| SSE auto-reconnect (EventSource) | Scope creep — huidige manual approach is voldoende met timeout |
-| AssemblyAI session resume        | Te complex — nieuwe sessie bij reconnect is acceptabel         |
-| Redis rate limiting backend      | Overkill voor single-user — in-memory voldoende                |
-| +page.svelte refactoring         | Bewust uitgesteld — stabiliteit eerst                          |
+| Feature                       | Reden                                                                |
+| ----------------------------- | -------------------------------------------------------------------- |
+| Custom ASR model training     | Vereist honderden uren gelabelde audio — niet haalbaar               |
+| Real-time LLM correctie       | Twee-staps flow (transcribe → correct) geeft betere UX               |
+| Multi-model ensemble ASR      | AssemblyAI Universal-3 is voldoende, ensemble voegt complexiteit toe |
+| Inline transcript editing     | Later milestone                                                      |
+| Batch/bulk upload             | Later milestone                                                      |
+| Mobile app                    | Web-first                                                            |
+| +page.svelte refactoring      | Bewust uitgesteld                                                    |
+| Voice biometrics              | Privacy risico, buiten scope                                         |
+| Automatic retraining pipeline | Over-engineering voor huidige schaal                                 |
 
 ## Traceability
 
+### v1.0 (Complete)
+
 | Requirement | Phase   | Status   |
 | ----------- | ------- | -------- |
-| WS-01       | Phase 1 | Complete |
-| WS-02       | Phase 1 | Complete |
-| WS-03       | Phase 1 | Complete |
-| WS-04       | Phase 1 | Complete |
-| WS-05       | Phase 1 | Complete |
-| OF-01       | Phase 1 | Complete |
-| OF-02       | Phase 1 | Complete |
-| OF-03       | Phase 1 | Complete |
-| RL-01       | Phase 2 | Complete |
-| RL-02       | Phase 2 | Complete |
-| RL-03       | Phase 2 | Complete |
-| RL-04       | Phase 2 | Complete |
-| RC-01       | Phase 3 | Complete |
-| RC-02       | Phase 3 | Complete |
-| RC-03       | Phase 3 | Complete |
-| EH-01       | Phase 2 | Complete |
-| EH-02       | Phase 2 | Complete |
-| EH-03       | Phase 1 | Complete |
+| WS-01..05   | Phase 1 | Complete |
+| OF-01..03   | Phase 1 | Complete |
+| RL-01..04   | Phase 2 | Complete |
+| RC-01..03   | Phase 3 | Complete |
+| EH-01..03   | Phase 2 | Complete |
+
+### v2.0 (Active)
+
+| Requirement | Phase | Status  |
+| ----------- | ----- | ------- |
+| EVAL-01     | TBD   | Pending |
+| EVAL-02     | TBD   | Pending |
+| EVAL-03     | TBD   | Pending |
+| TRANS-01    | TBD   | Pending |
+| TRANS-02    | TBD   | Pending |
+| TRANS-03    | TBD   | Pending |
+| CORR-01     | TBD   | Pending |
+| CORR-02     | TBD   | Pending |
+| CORR-03     | TBD   | Pending |
+| FEED-01     | TBD   | Pending |
+| FEED-02     | TBD   | Pending |
+| FEED-03     | TBD   | Pending |
 
 **Coverage:**
 
-- v1 requirements: 18 total
-- Mapped to phases: 18
-- Unmapped: 0
+- v2.0 requirements: 12 total
+- Mapped to phases: 0 (awaiting roadmap)
+- Unmapped: 12
 
 ---
 
 _Requirements defined: 2026-03-23_
-_Last updated: 2026-03-23 after initial definition_
+_Last updated: 2026-03-28 — v2.0 Dialect Quality requirements added_
