@@ -33,6 +33,10 @@ Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet klop
 
 ### Active
 
+_See REQUIREMENTS.md for v2.0 requirements_
+
+### Validated (v1.0)
+
 - ✓ WebSocket streaming herstelt bij backend disconnect (geen silent failures) — Validated in Phase 1
 - ✓ Live transcriptie offset filtering verliest geen tekst bij segment boundaries — Validated in Phase 1
 - ✓ Mistral rate limiting geeft duidelijke foutmelding aan gebruiker — Validated in Phase 2
@@ -47,13 +51,27 @@ Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet klop
 - E2E test suite — later milestone
 - Mobile app — web-first
 
+## Current Milestone: v2.0 Dialect Quality
+
+**Goal:** De Limburgse dialectherkenning en -correctie verbeteren zodat de betekenis/context van het gesprek altijd klopt in de output.
+
+**Target features:**
+
+- Betere Whisper transcriptie — Limburgse woorden worden nu vervangen door (verkeerde) Nederlandse woorden
+- Consistentere correctie — Mistral/Ollama is nu onvoorspelbaar (soms goed, soms totaal niet)
+- Werkt over alle 5 dialectregio's — niet alleen één variant
+
 ## Context
 
 - Gebruiker werkt primair met korte opnames (<10 min) in API modus (AssemblyAI + Mistral)
-- Alle 3 bekende bugs (WebSocket drops, offset filtering, rate limiting) worden actief ervaren
-- App wordt al dagelijks gebruikt — stabiliteit is kritiek
+- Stabiliteitsbugs (WebSocket, offset filtering, rate limiting) zijn opgelost in v1.0
+- App wordt dagelijks gebruikt — dialectkwaliteit is nu de primaire bottleneck
+- Whisper substitueert Limburgse woorden met foute Nederlandse woorden (bv. "ich" → verkeerd Nederlands woord)
+- Correctie via Mistral/Ollama is inconsistent — soms prima, soms totaal niet
+- Succescriterium: de strekking/betekenis moet altijd kloppen (niet per se elk woord perfect)
+- Gebruiker test met meerdere dialectregio's
 - Codebase map beschikbaar in `.planning/codebase/` (7 documenten)
-- Monolithisch +page.svelte (1662 regels) maakt bugfixes lastiger, maar refactoring is bewust uitgesteld
+- Monolithisch +page.svelte (1662 regels) — refactoring bewust uitgesteld
 
 ## Constraints
 
@@ -65,11 +83,12 @@ Betrouwbare spraak-naar-tekst met dialectcorrectie — de transcriptie moet klop
 
 ## Key Decisions
 
-| Decision                            | Rationale                                                 | Outcome   |
-| ----------------------------------- | --------------------------------------------------------- | --------- |
-| Focus op stabiliteit boven features | App wordt dagelijks gebruikt, bugs ondermijnen vertrouwen | — Pending |
-| Refactoring uitgesteld              | Stabiliteit eerst, dan pas structuur verbeteren           | — Pending |
-| API modus als primaire focus        | Gebruiker werkt voornamelijk in API modus                 | — Pending |
+| Decision                            | Rationale                                                          | Outcome   |
+| ----------------------------------- | ------------------------------------------------------------------ | --------- |
+| Focus op stabiliteit boven features | App wordt dagelijks gebruikt, bugs ondermijnen vertrouwen          | ✓ v1.0    |
+| Refactoring uitgesteld              | Stabiliteit eerst, dan pas structuur verbeteren                    | — Pending |
+| API modus als primaire focus        | Gebruiker werkt voornamelijk in API modus                          | ✓ v1.0    |
+| Dialectkwaliteit als v2.0 focus     | Transcriptie en correctie van Limburgs zijn de primaire bottleneck | — Pending |
 
 ## Evolution
 
@@ -92,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-24 after Phase 3 completion (all milestone phases complete)_
+_Last updated: 2026-03-28 — Milestone v2.0 Dialect Quality started_
