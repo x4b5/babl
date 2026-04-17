@@ -1725,8 +1725,8 @@
 					</div>
 				</div>
 
-				<!-- Step 2: Correction controls -->
-				{#if status !== 'correcting'}
+				<!-- Step 2: Correction controls (hidden after correction is done) -->
+				{#if status !== 'correcting' && !corrected}
 					<div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
 						<h3 class="mb-3 sm:mb-4 text-sm font-semibold text-white/70">Verslaglegging</h3>
 
