@@ -922,6 +922,27 @@ class CorrectionRequest(BaseModel):
     target_lang: str = "nl"
 
 
+class EvaluateRequest(BaseModel):
+    reference: str      # Ground truth (user-corrected text)
+    hypothesis: str     # Raw transcription output
+    session_id: str = ""
+    dialect_region: str = "limburgs"
+    low_confidence_count: int = 0
+
+
+class FeedbackRequest(BaseModel):
+    session_id: str
+    dialect_region: str = "limburgs"
+    wer: float
+    cer: float
+    substitutions: int
+    deletions: int
+    insertions: int
+    total_words: int
+    low_confidence_count: int = 0
+    feedback: str       # "thumbs_up" or "thumbs_down"
+
+
 @app.post("/correct")
 async def correct(req: CorrectionRequest):
     """Step 2: Dialect correction via Ollama (local) or Mistral (API) — streams tokens as SSE."""
@@ -1038,3 +1059,66 @@ async def correct(req: CorrectionRequest):
             "X-Accel-Buffering": "no",
         },
     )
+
+
+# --- Evaluation endpoints (Phase 4) ---
+
+from evaluation.metrics import calculate_metrics
+from evaluation.patterns import extract_error_patterns
+from evaluation.logger import log_evaluation, read_evaluations
+
+
+@app.post("/evaluate")
+async def evaluate(req: EvaluateRequest):
+    """Calculate WER/CER and error patterns for a reference/hypothesis pair.
+
+    PRIVACY: This endpoint processes text but does NOT log it.
+    Only computed metrics are returned."""
+    if not req.reference.strip() or not req.hypothesis.strip():
+        raise HTTPException(status_code=400, detail="Both reference and hypothesis text required")
+
+    try:
+        metrics = calculate_metrics(req.reference, req.hypothesis)
+        patterns = extract_error_patterns(req.reference, req.hypothesis)
+        return {
+            "wer": round(metrics["wer"], 4),
+            "cer": round(metrics["cer"], 4),
+            "substitutions": metrics["substitutions"],
+            "deletions": metrics["deletions"],
+            "insertions": metrics["insertions"],
+            "total_words": metrics["total_words"],
+            "error_details": patterns["details"],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/evaluate/log")
+async def evaluate_log(req: FeedbackRequest):
+    """Log evaluation metrics to JSONL. PRIVACY: No raw text is logged."""
+    try:
+        log_path = log_evaluation(
+            session_id=req.session_id,
+            dialect_region=req.dialect_region,
+            wer=req.wer,
+            cer=req.cer,
+            substitutions=req.substitutions,
+            deletions=req.deletions,
+            insertions=req.insertions,
+            total_words=req.total_words,
+            low_confidence_count=req.low_confidence_count,
+            feedback=req.feedback,
+        )
+        return {"status": "logged", "file": str(log_path)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/evaluate/history")
+async def evaluate_history(limit: int = 50):
+    """Read recent evaluation history from JSONL logs."""
+    try:
+        entries = read_evaluations(limit=limit)
+        return {"entries": entries, "count": len(entries)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -10,6 +10,9 @@
 		cleanupNetworkResources,
 		cleanupTimers
 	} from '$lib/utils/cleanup';
+	import ConfidenceHighlight from '$lib/components/ConfidenceHighlight.svelte';
+	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
+	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
 	const LOCAL_BACKEND_URL = 'http://localhost:8000';
 
@@ -47,6 +50,23 @@
 	let privacyOpen = $state(false);
 	let rawExpanded = $state(false);
 	let keepDialect = $state(false);
+
+	// Evaluation infrastructure (EVAL-01, EVAL-02)
+	interface WordWithConfidence {
+		text: string;
+		confidence: number;
+		speaker?: string;
+	}
+	let confidenceWords = $state<WordWithConfidence[]>([]);
+	let lowConfidenceCount = $state(0);
+	let evalResult = $state<{
+		wer: number;
+		cer: number;
+		substitutions: number;
+		deletions: number;
+		insertions: number;
+		totalWords: number;
+	} | null>(null);
 
 	let partialText = $state('');
 	let liveInterval: ReturnType<typeof setInterval> | undefined;
@@ -825,6 +845,9 @@
 		corrected = '';
 		error = '';
 		apiStatus = '';
+		confidenceWords = [];
+		lowConfidenceCount = 0;
+		evalResult = null;
 		console.log(`Sending audio: ${filename}, size: ${blob.size} bytes, type: ${blob.type}`);
 		if (blob.size === 0) {
 			error = 'Audio-bestand is leeg. Probeer opnieuw.';
@@ -926,6 +949,14 @@
 				} else if (result.status === 'completed') {
 					raw = result.text || '';
 					language = result.language || '';
+					// EVAL-02: Capture word-level confidence from AssemblyAI
+					if (result.words && Array.isArray(result.words)) {
+						confidenceWords = result.words;
+						lowConfidenceCount = result.low_confidence_count || 0;
+					} else {
+						confidenceWords = [];
+						lowConfidenceCount = 0;
+					}
 					apiStatus = '';
 					status = 'idle';
 					return;
@@ -1681,7 +1712,16 @@
 					<div
 						class="max-h-48 overflow-y-auto whitespace-pre-wrap text-white/90 leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
 					>
-						{raw}
+						{#if confidenceWords.length > 0 && transcribeMode === 'api'}
+							<ConfidenceHighlight words={confidenceWords} />
+						{:else}
+							{raw}
+							{#if transcribeMode === 'local' && raw}
+								<p class="mt-2 text-[10px] italic text-white/30">
+									Woordzekerheid niet beschikbaar in lokale modus
+								</p>
+							{/if}
+						{/if}
 					</div>
 				</div>
 
@@ -1908,6 +1948,32 @@
 							{correctedExpanded ? 'Inklappen' : 'Lees meer...'}
 						</button>
 					</div>
+				{/if}
+
+				<!-- EVAL-01: Feedback widget -->
+				{#if corrected && status === 'idle'}
+					<FeedbackWidget
+						rawText={raw}
+						correctedText={corrected}
+						dialectRegion="limburgs"
+						{lowConfidenceCount}
+						{transcribeMode}
+						onevaluated={(result) => {
+							evalResult = result;
+						}}
+					/>
+				{/if}
+
+				<!-- EVAL-01: Show evaluation score after feedback -->
+				{#if evalResult}
+					<EvaluationScore
+						wer={evalResult.wer}
+						cer={evalResult.cer}
+						substitutions={evalResult.substitutions}
+						deletions={evalResult.deletions}
+						insertions={evalResult.insertions}
+						totalWords={evalResult.totalWords}
+					/>
 				{/if}
 			</div>
 		{/if}

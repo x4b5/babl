@@ -47,11 +47,29 @@ export const GET: RequestHandler = async ({ params }) => {
 				text = (transcript.text || '').trim();
 			}
 
+			// Extract word-level confidence for EVAL-02
+			const words = (
+				((transcript as Record<string, unknown>).words as Array<{
+					text: string;
+					start: number;
+					end: number;
+					confidence: number;
+					speaker?: string;
+				}>) || []
+			).map((w) => ({
+				text: w.text,
+				confidence: w.confidence,
+				speaker: w.speaker || undefined
+			}));
+			const lowConfidenceCount = words.filter((w) => w.confidence < 0.7).length;
+
 			return new Response(
 				JSON.stringify({
 					status: 'completed',
 					text,
-					language: transcript.language_code || 'nl'
+					language: transcript.language_code || 'nl',
+					words,
+					low_confidence_count: lowConfidenceCount
 				}),
 				{ headers: { 'Content-Type': 'application/json' } }
 			);
