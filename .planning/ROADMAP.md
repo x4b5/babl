@@ -71,7 +71,7 @@ Plans:
 
 **Milestone Goal:** De Limburgse dialectherkenning en -correctie verbeteren zodat de betekenis/context van het gesprek altijd klopt in de output.
 
-- [ ] **Phase 4: Evaluation Infrastructure** - WER/CER meting en error pattern logging
+- [x] **Phase 4: Evaluation Infrastructure** - WER/CER meting en error pattern logging
 - [ ] **Phase 5: Vocabulary & Transcription** - Dialect profile audit en hallucination detection
 - [ ] **Phase 6: LLM Correction Consistency** - Few-shot prompts en structured JSON output
 - [ ] **Phase 7: Feedback & Iteration** - User corrections en prompt versioning
@@ -94,9 +94,9 @@ Plans:
 
 Plans:
 
-- [ ] 04-00-PLAN.md -- Wave 0: Test scaffolding + evaluation module stubs + jiwer dependency
-- [ ] 04-01-PLAN.md -- Backend evaluation: metrics implementation, error patterns, JSONL logger, FastAPI endpoints
-- [ ] 04-02-PLAN.md -- Frontend: confidence highlighting, evaluation score display, feedback widget
+- [x] 04-00-PLAN.md -- Wave 0: Test scaffolding + evaluation module stubs + jiwer dependency
+- [x] 04-01-PLAN.md -- Backend evaluation: metrics implementation, error patterns, JSONL logger, FastAPI endpoints
+- [x] 04-02-PLAN.md -- Frontend: confidence highlighting, evaluation score display, feedback widget
 
 ### Phase 5: Vocabulary & Transcription Quality
 
@@ -109,8 +109,13 @@ Plans:
 2. Systeem ondersteunt meerdere uitspraak-varianten per woord (multi-pronunciation lexicon)
 3. Whisper hallucinaties (repetitive phrases, nonsense) worden automatisch gedetecteerd
 4. Vocabulary boost lijsten bevatten 50-100 hoogwaardige termen per regio
-   **Plans**: TBD
-   **UI hint**: yes
+   **Plans**: 3 plans
+
+Plans:
+
+- [ ] 05-00-PLAN.md -- Wave 0: Test scaffolding for dialect profiles and hallucination detection
+- [ ] 05-01-PLAN.md -- Dialect profile audit: expand all 5 profiles to 50-100 word_boost + multi-pronunciation
+- [ ] 05-02-PLAN.md -- Hallucination detection: repetition + phantom blocklist + pipeline integration
 
 ### Phase 6: LLM Correction Consistency
 
@@ -150,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. WebSocket + Offset Filtering Stability | v1.0      | 3/3            | Complete    | 2026-03-23 |
 | 2. Rate Limiting + Error Handling         | v1.0      | 2/2            | Complete    | 2026-03-24 |
 | 3. Resource Cleanup                       | v1.0      | 2/2            | Complete    | 2026-03-28 |
-| 4. Evaluation Infrastructure              | v2.0      | 0/3            | Planned     | -          |
-| 5. Vocabulary & Transcription Quality     | v2.0      | 0/TBD          | Not started | -          |
+| 4. Evaluation Infrastructure              | v2.0      | 3/3            | Complete    | 2026-04-17 |
+| 5. Vocabulary & Transcription Quality     | v2.0      | 0/3            | Planning    | -          |
 | 6. LLM Correction Consistency             | v2.0      | 0/TBD          | Not started | -          |
 | 7. Feedback & Iteration                   | v2.0      | 0/TBD          | Not started | -          |
