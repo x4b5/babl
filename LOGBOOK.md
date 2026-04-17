@@ -78,3 +78,8 @@
 | 2026-03-28 | 07:45     | 07:49    | .07         | `56912dd`   | docs: define milestone v2.0 requirements                                                                                        |
 | 2026-03-28 | 07:49     | 07:54    | .07         | `e992bfd`   | docs: create milestone v2.0 roadmap (4 phases)                                                                                  |
 | 2026-04-17 | 07:54     | 07:53    | 4.00        | `a342dee`   | fix: add server_error type to prevent false "Geen internet" messages                                                            |
+| 2026-04-17 | 07:53     | 07:53    | 0           | `46d110c`   | chore: update logbook and normalize config whitespace                                                                           |
+| 2026-04-17 | 07:53     | 08:13    | .33         | `a77f792`   | docs(phase-04): research evaluation infrastructure domain                                                                       |
+| 2026-04-17 | 08:13     | 08:16    | .03         | `d273b51`   | docs(04): add research and validation strategy                                                                                  |
+| 2026-04-17 | 08:16     | 08:26    | .17         | `3ff7dbe`   | docs(04-evaluation-infrastructure): create phase plan                                                                           |
+| 2026-04-17 | 08:26     | 08:49    | .38         | `1bdb22c`   | feat(phase-04): implement evaluation infrastructure (WER/CER, feedback, confidence)                                             |
