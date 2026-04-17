@@ -90,7 +90,13 @@ Plans:
 3. Backend logt error patronen (substitutie/deletie/insertie) per dialectregio
 4. Evaluation data wordt opgeslagen als JSONL voor analyse
 5. Quality feedback UI toont thumbs up/down en inline correcties
-   **Plans**: TBD
+   **Plans**: 3 plans
+
+Plans:
+
+- [ ] 04-00-PLAN.md -- Wave 0: Test scaffolding + evaluation module stubs + jiwer dependency
+- [ ] 04-01-PLAN.md -- Backend evaluation: metrics implementation, error patterns, JSONL logger, FastAPI endpoints
+- [ ] 04-02-PLAN.md -- Frontend: confidence highlighting, evaluation score display, feedback widget
 
 ### Phase 5: Vocabulary & Transcription Quality
 
@@ -144,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. WebSocket + Offset Filtering Stability | v1.0      | 3/3            | Complete    | 2026-03-23 |
 | 2. Rate Limiting + Error Handling         | v1.0      | 2/2            | Complete    | 2026-03-24 |
 | 3. Resource Cleanup                       | v1.0      | 2/2            | Complete    | 2026-03-28 |
-| 4. Evaluation Infrastructure              | v2.0      | 0/TBD          | Not started | -          |
+| 4. Evaluation Infrastructure              | v2.0      | 0/3            | Planned     | -          |
 | 5. Vocabulary & Transcription Quality     | v2.0      | 0/TBD          | Not started | -          |
 | 6. LLM Correction Consistency             | v2.0      | 0/TBD          | Not started | -          |
 | 7. Feedback & Iteration                   | v2.0      | 0/TBD          | Not started | -          |
