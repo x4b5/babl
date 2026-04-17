@@ -6,7 +6,8 @@ const ALL_ERROR_TYPES: ErrorType[] = [
 	'rate_limit',
 	'timeout',
 	'upstream_disconnect',
-	'network_error'
+	'network_error',
+	'server_error'
 ];
 
 describe('getUserMessage', () => {
@@ -24,6 +25,10 @@ describe('getUserMessage', () => {
 
 	it('network_error returns Dutch network message', () => {
 		expect(getUserMessage('network_error')).toBe('Geen internet.');
+	});
+
+	it('server_error returns Dutch server error message', () => {
+		expect(getUserMessage('server_error')).toBe('Verwerking niet gelukt — probeer opnieuw.');
 	});
 
 	describe('EH-02: no generic messages', () => {

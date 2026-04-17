@@ -1,10 +1,16 @@
-export type ErrorType = 'rate_limit' | 'timeout' | 'upstream_disconnect' | 'network_error';
+export type ErrorType =
+	| 'rate_limit'
+	| 'timeout'
+	| 'upstream_disconnect'
+	| 'network_error'
+	| 'server_error';
 
 export const ERROR_MESSAGES: Record<ErrorType, string> = {
 	rate_limit: 'Overbelast. Even geduld.',
 	timeout: 'Duurt te lang — probeer een korter fragment.',
 	upstream_disconnect: 'Backend niet bereikbaar.',
-	network_error: 'Geen internet.'
+	network_error: 'Geen internet.',
+	server_error: 'Verwerking niet gelukt — probeer opnieuw.'
 };
 
 /** Rate limit message with countdown — per D-01, D-02, D-09 */

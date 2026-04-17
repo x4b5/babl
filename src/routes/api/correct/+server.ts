@@ -46,10 +46,10 @@ function classifyError(e: unknown): { errorType: ErrorType; retryAfter?: number 
 		msg.includes('NetworkError') ||
 		msg.includes('ENOTFOUND')
 	) {
-		return { errorType: 'network_error' };
+		return { errorType: 'server_error' };
 	}
 
-	return { errorType: 'network_error' };
+	return { errorType: 'server_error' };
 }
 
 function parseRetryAfter(headers: unknown): number {

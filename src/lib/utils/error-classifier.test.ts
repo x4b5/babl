@@ -38,12 +38,18 @@ describe('classifyFrontendError', () => {
 		expect(classifyFrontendError(new Error('NetworkError'))).toBe('network_error');
 	});
 
-	it('defaults unknown errors to network_error', () => {
-		expect(classifyFrontendError(new Error('Something completely unknown'))).toBe('network_error');
+	it('classifies generic TypeError (not fetch-related) as server_error', () => {
+		expect(classifyFrontendError(new TypeError('Cannot read properties of undefined'))).toBe(
+			'server_error'
+		);
+	});
+
+	it('defaults unknown errors to server_error', () => {
+		expect(classifyFrontendError(new Error('Something completely unknown'))).toBe('server_error');
 	});
 
 	it('handles non-Error values', () => {
-		expect(classifyFrontendError('string error')).toBe('network_error');
-		expect(classifyFrontendError(42)).toBe('network_error');
+		expect(classifyFrontendError('string error')).toBe('server_error');
+		expect(classifyFrontendError(42)).toBe('server_error');
 	});
 });

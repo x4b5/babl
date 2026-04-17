@@ -63,7 +63,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		});
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
-		let errorType = 'network_error';
+		let errorType = 'server_error';
 		if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) errorType = 'rate_limit';
 		else if (msg.includes('502') || msg.includes('503')) errorType = 'upstream_disconnect';
 		else if (msg.toLowerCase().includes('timeout')) errorType = 'timeout';

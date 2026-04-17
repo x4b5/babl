@@ -13,12 +13,15 @@ export function classifyFrontendError(e: unknown): ErrorType {
 		return 'timeout';
 	}
 
-	// TypeError = network error (browser fetch failure)
-	if (e instanceof TypeError) {
+	const msg = e instanceof Error ? e.message : String(e);
+
+	// TypeError with fetch-specific message = network error (browser can't reach server)
+	if (
+		e instanceof TypeError &&
+		(msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed'))
+	) {
 		return 'network_error';
 	}
-
-	const msg = e instanceof Error ? e.message : String(e);
 
 	// Rate limit
 	if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
@@ -35,13 +38,13 @@ export function classifyFrontendError(e: unknown): ErrorType {
 		return 'timeout';
 	}
 
-	// Network errors
+	// Network errors (from error message strings)
 	if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
 		return 'network_error';
 	}
 
-	// Default: network_error (safest fallback for unknown errors)
-	return 'network_error';
+	// Default: server_error — don't blame the user's internet for unknown errors
+	return 'server_error';
 }
 
 /**
@@ -50,7 +53,7 @@ export function classifyFrontendError(e: unknown): ErrorType {
  * Per EH-02: never generic "mislukt".
  */
 export function getUserMessage(errorType: ErrorType): string {
-	return ERROR_MESSAGES[errorType];
+	return ERROR_MESSAGES[errorType] || ERROR_MESSAGES['server_error'];
 }
 
 /**

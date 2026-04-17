@@ -856,8 +856,20 @@
 			});
 
 			if (!submitResp.ok) {
-				const detail = await submitResp.text();
-				throw new Error(detail || `Server error ${submitResp.status}`);
+				let body: { error?: string; error_type?: string } | undefined;
+				try {
+					body = await submitResp.json();
+				} catch {
+					// Response wasn't JSON
+				}
+				if (body?.error_type) {
+					errorType = body.error_type as ErrorType;
+					error = getUserMessage(errorType);
+					apiStatus = '';
+					status = 'idle';
+					return;
+				}
+				throw new Error(body?.error || `Server error ${submitResp.status}`);
 			}
 
 			const { transcriptId, error: submitError } = await submitResp.json();
@@ -880,8 +892,20 @@
 					signal: apiPollController.signal
 				});
 				if (!pollResp.ok) {
-					const detail = await pollResp.text();
-					throw new Error(detail || `Poll error ${pollResp.status}`);
+					let body: { error?: string; error_type?: string } | undefined;
+					try {
+						body = await pollResp.json();
+					} catch {
+						// Response wasn't JSON
+					}
+					if (body?.error_type) {
+						errorType = body.error_type as ErrorType;
+						error = getUserMessage(errorType);
+						apiStatus = '';
+						status = 'idle';
+						return;
+					}
+					throw new Error(body?.error || `Poll error ${pollResp.status}`);
 				}
 
 				const result = await pollResp.json();
@@ -942,8 +966,19 @@
 			});
 
 			if (!resp.ok) {
-				const detail = await resp.text();
-				throw new Error(detail || `Server error ${resp.status}`);
+				let body: { error?: string; error_type?: string } | undefined;
+				try {
+					body = await resp.json();
+				} catch {
+					// Response wasn't JSON
+				}
+				if (body?.error_type) {
+					errorType = body.error_type as ErrorType;
+					error = getUserMessage(errorType);
+					status = 'idle';
+					return;
+				}
+				throw new Error(body?.error || `Server error ${resp.status}`);
 			}
 
 			// Read SSE stream — segments arrive one by one
@@ -1040,7 +1075,7 @@
 		retry_after?: number;
 		message?: string;
 	}) {
-		const eventErrorType = (event.error_type || 'network_error') as ErrorType;
+		const eventErrorType = (event.error_type || 'server_error') as ErrorType;
 		errorType = eventErrorType;
 
 		if (isRetryable(eventErrorType) && event.retry_after) {
