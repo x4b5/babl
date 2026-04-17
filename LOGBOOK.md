@@ -45,3 +45,36 @@
 | 2026-03-24 | 22:32     | 07:32    | 4.00        | `221d15a`   | docs(02): capture phase context                                                                                                 |
 | 2026-03-24 | 07:32     | 07:32    | 0           | `f17fd94`   | docs(state): record phase 2 context session                                                                                     |
 | 2026-03-24 | 07:32     | 19:12    | 4.00        | `2891a01`   | chore: restructure .claude/ config and update project docs                                                                      |
+| 2026-03-24 | 19:12     | 19:13    | 0           | `bf0ab6f`   | chore: update logbook hours                                                                                                     |
+| 2026-03-24 | 19:13     | 19:24    | .19         | `d32594e`   | docs(phase-02): add validation strategy                                                                                         |
+| 2026-03-24 | 19:24     | 19:29    | .08         | `1f389af`   | docs(02): UI design contract                                                                                                    |
+| 2026-03-24 | 19:29     | 19:31    | .02         | `9ad1015`   | docs(02): phase research                                                                                                        |
+| 2026-03-24 | 19:31     | 19:45    | .23         | `fb8ec42`   | docs(02): create phase plan — 2 plans in 2 waves                                                                                |
+| 2026-03-24 | 19:45     | 19:51    | .09         | `d071956`   | fix(02): revise plan 02-02 based on checker feedback                                                                            |
+| 2026-03-24 | 19:51     | 19:58    | .11         | `e34a269`   | feat(02-01): add retry-after parsing, tenacity-pattern retry, structured SSE errors                                             |
+| 2026-03-24 | 19:58     | 19:59    | .02         | `c1b1e29`   | feat(02-01): add retry logic and structured errors to SvelteKit API routes                                                      |
+| 2026-03-24 | 19:59     | 20:01    | .02         | `7cd2d6e`   | docs(02-01): complete backend retry logic and structured SSE errors plan                                                        |
+| 2026-03-24 | 20:01     | 20:03    | .03         | `12301fc`   | feat(02-02): add error classifier with user message mapping                                                                     |
+| 2026-03-24 | 20:03     | 20:06    | .05         | `ebc6034`   | feat(02-02): add countdown timer + error event handling + amber/red styling                                                     |
+| 2026-03-24 | 20:06     | 20:12    | .08         | `e67e2cb`   | docs(02-02): complete frontend error taxonomy and countdown UI plan                                                             |
+| 2026-03-24 | 20:12     | 20:26    | .24         | `6ef4c50`   | docs(phase-02): complete phase execution                                                                                        |
+| 2026-03-24 | 20:26     | 20:35    | .14         | `405491c`   | docs(03): capture phase context                                                                                                 |
+| 2026-03-24 | 20:35     | 20:35    | 0           | `026cc0f`   | docs(state): record phase 3 context session                                                                                     |
+| 2026-03-24 | 20:35     | 20:43    | .12         | `454b5d2`   | docs(03): research browser resource cleanup patterns                                                                            |
+| 2026-03-24 | 20:43     | 20:44    | .02         | `30e5d3d`   | docs(phase-03): add research and validation strategy                                                                            |
+| 2026-03-24 | 20:44     | 20:48    | .07         | `fa61787`   | docs(03): UI design contract for resource cleanup phase                                                                         |
+| 2026-03-24 | 20:48     | 20:59    | .18         | `e5912d6`   | docs(03): create phase plan for resource cleanup                                                                                |
+| 2026-03-24 | 20:59     | 21:07    | .12         | `8c7a99a`   | fix(03): revise plans based on checker feedback                                                                                 |
+| 2026-03-24 | 21:07     | 21:12    | .09         | `958b8f3`   | chore(03-00): create cleanup.ts stub with function signatures                                                                   |
+| 2026-03-24 | 21:12     | 21:13    | .01         | `49b0b66`   | test(03-00): add cleanup.test.ts with full test suite (RED phase)                                                               |
+| 2026-03-24 | 21:13     | 21:14    | .01         | `a242847`   | docs(03-00): complete test scaffolding plan                                                                                     |
+| 2026-03-24 | 21:14     | 21:19    | .07         | `938025c`   | feat(03-01): implement resource cleanup (GREEN phase)                                                                           |
+| 2026-03-24 | 21:19     | 21:23    | .08         | `8a87162`   | docs(03-01): complete resource cleanup plan                                                                                     |
+| 2026-03-24 | 21:23     | 21:27    | .05         | `6f3b2dd`   | docs(phase-03): complete phase execution                                                                                        |
+| 2026-03-24 | 21:27     | 21:27    | 0           | `ce41812`   | docs(phase-03): evolve PROJECT.md after phase completion                                                                        |
+| 2026-03-28 | 21:27     | 07:14    | 4.00        | `9cc70fb`   | fix(deploy): reduce maxDuration to 300s for Vercel Hobby plan limit                                                             |
+| 2026-03-28 | 07:14     | 07:26    | .20         | `656b20d`   | docs: start milestone v2.0 Dialect Quality                                                                                      |
+| 2026-03-28 | 07:26     | 07:45    | .31         | `dc8f031`   | docs: complete project research                                                                                                 |
+| 2026-03-28 | 07:45     | 07:49    | .07         | `56912dd`   | docs: define milestone v2.0 requirements                                                                                        |
+| 2026-03-28 | 07:49     | 07:54    | .07         | `e992bfd`   | docs: create milestone v2.0 roadmap (4 phases)                                                                                  |
+| 2026-04-17 | 07:54     | 07:53    | 4.00        | `a342dee`   | fix: add server_error type to prevent false "Geen internet" messages                                                            |
