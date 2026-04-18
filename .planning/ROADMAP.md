@@ -132,7 +132,7 @@ Plans:
 
 Plans:
 
-- [ ] 06-00-PLAN.md -- Wave 0: Test scaffolding + CorrectionOutput Pydantic model + parser
+- [x] 06-00-PLAN.md -- Wave 0: Test scaffolding + CorrectionOutput Pydantic model + parser
 - [ ] 06-01-PLAN.md -- Few-shot examples + glossaries + prompt builder (CORR-01, CORR-03)
 - [ ] 06-02-PLAN.md -- Wire prompts + JSON validation into backend + frontend endpoints (CORR-02)
 

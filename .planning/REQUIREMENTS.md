@@ -58,8 +58,8 @@ Requirements voor verbetering van Limburgse dialectherkenning en -correctie.
 
 ### Correctie Consistentie (CORR)
 
-- [ ] **CORR-01**: Correctie-prompts bevatten 3-5 few-shot voorbeelden per dialectregio
-- [ ] **CORR-02**: LLM output volgt een vast JSON schema met origineel, correctie, en confidence
+- [x] **CORR-01**: Correctie-prompts bevatten 3-5 few-shot voorbeelden per dialectregio
+- [x] **CORR-02**: LLM output volgt een vast JSON schema met origineel, correctie, en confidence
 - [ ] **CORR-03**: Dialect-naar-standaard glossary (50-100+ termen) wordt in de prompt geïnjecteerd
 
 ### Feedback & Iteratie (FEED)
@@ -126,8 +126,8 @@ Uitgesteld naar volgende milestone.
 | TRANS-01    | Phase 5 | Complete |
 | TRANS-02    | Phase 5 | Complete |
 | TRANS-03    | Phase 5 | Complete |
-| CORR-01     | Phase 6 | Pending  |
-| CORR-02     | Phase 6 | Pending  |
+| CORR-01     | Phase 6 | Complete |
+| CORR-02     | Phase 6 | Complete |
 | CORR-03     | Phase 6 | Pending  |
 | FEED-01     | Phase 7 | Pending  |
 | FEED-02     | Phase 7 | Pending  |
