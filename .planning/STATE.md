@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Dialect Quality
-status: Phase complete — ready for verification
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-18T01:19:30.237Z"
+status: Phase 5 complete — advancing to Phase 6
+stopped_at: Phase 6 context gathered
+last_updated: '2026-04-18T01:51:35.081Z'
 progress:
   total_phases: 4
   completed_phases: 1
@@ -19,36 +19,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Betrouwbare spraak-naar-tekst met dialectcorrectie -- de transcriptie moet kloppen en het proces mag niet stilzwijgend falen.
-**Current focus:** Phase 05 — vocabulary-transcription-quality
+**Current focus:** Phase 06 — LLM Correction Consistency
 
 ## Current Position
 
-Phase: 05 (vocabulary-transcription-quality) — EXECUTING
-Plan: 3 of 3
+Phase: 06 (llm-correction-consistency) — PLANNING
+Plan: 0 of TBD
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3 (v2.0 milestone)
-- Average duration: ~15 min
-- Total execution time: ~0.9 hours
+- Total plans completed: 6 (v2.0 milestone)
+- Average duration: ~12 min
+- Total execution time: ~1.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 | ----- | ----- | ----- | -------- |
 | 4     | 3     | ~50m  | ~17m     |
+| 5     | 3     | ~22m  | ~7m      |
 
 **v1.0 Velocity (reference):**
 
 - Total plans completed: 7
 - Average duration: ~45 min
 - Total execution time: ~5.5 hours
-
-| Phase 05 P00 | 140 | 3 tasks | 3 files |
-| Phase 05 P02 | 7 | 2 tasks | 2 files |
-| Phase 05 P01 | 8 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -64,6 +61,7 @@ Recent decisions affecting current work:
 - Avoid over-biasing vocabulary (>200-300 words degrades general accuracy)
 - LLM consistency via structured outputs (instructor) + few-shot prompting
 - Phase 4 shipped: WER/CER via jiwer 3.1.0, JSONL logging, confidence highlighting, FeedbackWidget
+- Phase 5 shipped: Dialect profiles expanded (50-100 word_boost per regio), hallucination detection integrated
 - [Phase 05]: TDD RED-first pattern: tests define expected behavior before implementation
 
 ### Pending Todos
@@ -76,6 +74,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-18T01:19:30.235Z
-Stopped at: Completed 05-01-PLAN.md
-Resume file: None
+Last session: 2026-04-18T01:51:35.079Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-llm-correction-consistency/06-CONTEXT.md
