@@ -7,28 +7,44 @@ DIALECT_STYLE_PROMPT = (
 )
 
 DIALECT_HOTWORDS = (
-    "ich mich dich zich veer geer nao heem hoes kump neet doon kóm hiej "
+    "ich mich dich zich veer wae geer nao heem hoes kump neet doon kóm hiej "
     "sjool sjaol maat mert kirk hub han höb hant gekalld geproat versjtaon "
     "gegange oet efkes richtig zusamme veur woor hät mäkt boe mie die us "
-    "vendaog Mestreech sjat sjoen meziek get loupe kalle vaan uuch ajieda"
+    "vendaog Mestreech sjat sjoen meziek get loupe kalle vaan uuch ajieda "
+    "eur hön dae dat gaon kómme höbbe zeen wete sjtad sjtroat kènk wèrk aovend "
+    "groeët good sjtil flot sjoen dae efkes"
 )
 
 DIALECT_INITIAL_PROMPT = f"{DIALECT_STYLE_PROMPT}\n{DIALECT_HOTWORDS}"
 
-# 1.2 AssemblyAI Word Boost (Generic)
+# 1.2 AssemblyAI Word Boost (Generic) — expanded to 70 entries
 DIALECT_WORD_BOOST = [
-    "ich", "mich", "dich", "zich", "veer", "wae", "geer", "nao", "heem", "hoes",
-    "kump", "neet", "doon", "kóm", "hiej", "hie", "sjool", "sjaol", "maat", "mert",
-    "kirk", "hub", "han", "höb", "hant", "gekalld", "geproat", "versjtaon",
-    "gegange", "oet", "efkes", "richtig", "zusamme", "veur", "woor", "hät", "mäkt",
-    "boe", "mie", "die", "us", "vendaog", "Mestreech", "sjat", "sjoen", "meziek",
-    "get", "loupe", "kalle", "vaan", "uuch", "ajieda", "iéch", "miéch", "sjun"
+    # Pronouns and determiners
+    "ich", "mich", "dich", "zich", "veer", "wae", "geer", "eur", "hön", "dae", "dat",
+    # Verbs
+    "gaon", "kómme", "höbbe", "zeen", "wete", "kump", "doon", "kóm", "gekalld", "geproat",
+    "versjtaon", "gegange", "loupe", "kalle",
+    # Nouns
+    "heem", "hoes", "sjtad", "sjtroat", "kènk", "wèrk", "aovend", "sjool", "sjaol",
+    "maat", "mert", "kirk", "meziek",
+    # Adjectives and adverbs
+    "nao", "neet", "hiej", "hie", "oet", "efkes", "richtig", "zusamme", "veur", "woor",
+    "groeët", "good", "sjtil", "flot",
+    # Verb forms and particles
+    "hub", "han", "höb", "hant", "hät", "mäkt",
+    # Common expressions
+    "boe", "mie", "die", "us", "vendaog", "sjat", "sjoen", "sjun", "ajieda",
+    # Place names
+    "Mestreech",
+    # Accented variants
+    "iéch", "miéch"
 ]
 
-# 1.2 AssemblyAI Custom Spelling (Generic)
+# 1.2 AssemblyAI Custom Spelling (Generic) — expanded to 20 entries
 DIALECT_CUSTOM_SPELLING = {
     "neet": ["niet"],
     "sjoon": ["mooi"],
+    "sjoen": ["mooi"],
     "sjool": ["school"],
     "maat": ["markt"],
     "kirk": ["kerk"],
@@ -39,6 +55,13 @@ DIALECT_CUSTOM_SPELLING = {
     "vendaog": ["vandaag"],
     "hiej": ["hier"],
     "hae": ["hij"],
+    "dae": ["die"],
+    "gaon": ["gaan"],
+    "kómme": ["komen"],
+    "veur": ["voor"],
+    "woor": ["was"],
+    "oet": ["uit"],
+    "efkes": ["even"],
 }
 
 # 1.4 Correction Vertaalsleutel (Generic)
