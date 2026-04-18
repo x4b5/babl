@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
+from correction import CorrectionOutput
 
 
 @pytest.fixture
@@ -36,3 +37,14 @@ def hallucination_test_strings():
         "empty": "",
         "nonsense_loop": "hallo hallo hallo hallo hallo hallo hallo hallo hallo hallo",
     }
+
+
+@pytest.fixture
+def sample_correction_output():
+    """Sample CorrectionOutput instance for testing."""
+    return CorrectionOutput(
+        original="Iech bin gister nao de maat gegange.",
+        corrected="Ik ben gisteren naar de markt gegaan.",
+        confidence=0.92,
+        applied_rules=["iech->ik", "nao->naar", "maat->markt", "gegange->gegaan"]
+    )
