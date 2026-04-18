@@ -209,22 +209,27 @@ async def correct_chunk_stream(
     full_context: str | None = None,
     temperature: float = 0.5,
     system_prompt: str = SYSTEM_PROMPT,
+    json_schema: dict | None = None,
 ):
     """Stream tokens from Ollama for a single chunk. Yields token strings."""
     word_count = len(chunk.split())
     num_predict = max(512, int(word_count * 2))
     prompt = _build_ollama_prompt(chunk, detected_lang, full_context)
 
+    request_json = {
+        "model": ollama_model,
+        "prompt": prompt,
+        "system": system_prompt,
+        "stream": True,
+        "options": {"num_predict": num_predict, "temperature": temperature},
+    }
+    if json_schema:
+        request_json["format"] = json_schema
+
     async with client.stream(
         "POST",
         OLLAMA_URL,
-        json={
-            "model": ollama_model,
-            "prompt": prompt,
-            "system": system_prompt,
-            "stream": True,
-            "options": {"num_predict": num_predict, "temperature": temperature},
-        },
+        json=request_json,
     ) as resp:
         resp.raise_for_status()
         async for line in resp.aiter_lines():
@@ -896,14 +901,11 @@ async def correct(req: CorrectionRequest):
         return {"corrected": ""}
 
     dialect_config = get_dialect_config(req.region)
-    system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["middellang"])
-    
-    # Inject regional translation key into system prompt if it's Limburgs
     if req.language == "li":
-        # Note: This is an approximation. We could refactor SYSTEM_PROMPTS to be templates.
-        # For now, we'll append the regional key to the end or replace the generic one if we can.
-        regional_key = dialect_config["translation_key"]
-        system_prompt = system_prompt.replace(DIALECT_TRANSLATION_KEY, regional_key)
+        system_prompt, json_instr = build_correction_prompt(req.region, req.report_length)
+    else:
+        system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["middellang"])
+        json_instr = ""
 
     chunks = split_into_chunks(req.text, max_words=400)
     # Only send full context for small texts (≤5 chunks); for large texts it wastes tokens
@@ -956,25 +958,49 @@ async def correct(req: CorrectionRequest):
                 elif req.report_length == "lang":
                     final_system_prompt += "\nMaak er een UITGEBREIDE VERSLAGLEGGING van met alinea's."
 
+            # JSON mode: accumulate tokens, parse JSON, emit corrected text
+            # Disabled for keep_dialect (raw dialect text output)
+            use_json = bool(json_instr) and not req.keep_dialect
+
             if req.mode == "api":
                 mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
                 print(f"Streaming final pass via Mistral {mistral_model}...")
 
                 for i, chunk in enumerate(final_chunks):
+                    chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
+                    chunk_tokens: list[str] = []
                     async for token in correct_chunk_mistral_stream(
-                        chunk, req.language, mistral_model, full_context, req.temperature, final_system_prompt
+                        chunk_input, req.language, mistral_model, full_context, req.temperature, final_system_prompt
                     ):
-                        yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                        if use_json:
+                            chunk_tokens.append(token)
+                        else:
+                            yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                    if use_json and chunk_tokens:
+                        accumulated = "".join(chunk_tokens)
+                        validated = parse_correction_output(accumulated, chunk)
+                        yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
             else:
                 ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
                 print(f"Streaming final pass via Ollama {ollama_model}...")
+                json_schema = CorrectionOutput.model_json_schema() if use_json else None
 
                 async with httpx.AsyncClient(timeout=600.0) as client:
                     for i, chunk in enumerate(final_chunks):
+                        chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
+                        chunk_tokens: list[str] = []
                         async for token in correct_chunk_stream(
-                            client, chunk, req.language, ollama_model, full_context, req.temperature, final_system_prompt
+                            client, chunk_input, req.language, ollama_model, full_context, req.temperature, final_system_prompt,
+                            json_schema=json_schema
                         ):
-                            yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                            if use_json:
+                                chunk_tokens.append(token)
+                            else:
+                                yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                        if use_json and chunk_tokens:
+                            accumulated = "".join(chunk_tokens)
+                            validated = parse_correction_output(accumulated, chunk)
+                            yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
 
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
