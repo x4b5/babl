@@ -5,6 +5,15 @@ import re
 from pydantic import BaseModel, Field, ValidationError
 from dialects import REGIONAL_PROFILES, DIALECT_TRANSLATION_KEY
 
+# Prompt version — increment when system prompts, glossaries, or few-shot examples change.
+# Used for A/B testing and WER regression tracking (FEED-02).
+PROMPT_VERSION = "v1.0"
+
+
+def get_prompt_version() -> str:
+    """Return the current prompt version string."""
+    return PROMPT_VERSION
+
 
 class CorrectionOutput(BaseModel):
     """Structured output model for dialect correction (CORR-02)."""
