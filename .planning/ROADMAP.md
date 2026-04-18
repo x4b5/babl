@@ -114,7 +114,7 @@ Plans:
 Plans:
 
 - [x] 05-00-PLAN.md -- Wave 0: Test scaffolding for dialect profiles and hallucination detection
-- [ ] 05-01-PLAN.md -- Dialect profile audit: expand all 5 profiles to 50-100 word_boost + multi-pronunciation
+- [x] 05-01-PLAN.md -- Dialect profile audit: expand all 5 profiles to 50-100 word_boost + multi-pronunciation
 - [x] 05-02-PLAN.md -- Hallucination detection: repetition + phantom blocklist + pipeline integration
 
 ### Phase 6: LLM Correction Consistency
