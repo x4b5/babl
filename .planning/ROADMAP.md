@@ -133,7 +133,7 @@ Plans:
 Plans:
 
 - [x] 06-00-PLAN.md -- Wave 0: Test scaffolding + CorrectionOutput Pydantic model + parser
-- [ ] 06-01-PLAN.md -- Few-shot examples + glossaries + prompt builder (CORR-01, CORR-03)
+- [x] 06-01-PLAN.md -- Few-shot examples + glossaries + prompt builder (CORR-01, CORR-03)
 - [ ] 06-02-PLAN.md -- Wire prompts + JSON validation into backend + frontend endpoints (CORR-02)
 
 ### Phase 7: Feedback & Iteration
@@ -163,5 +163,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Resource Cleanup                       | v1.0      | 2/2            | Complete    | 2026-03-28 |
 | 4. Evaluation Infrastructure              | v2.0      | 3/3            | Complete    | 2026-04-17 |
 | 5. Vocabulary & Transcription Quality     | v2.0      | 3/3            | Complete    | 2026-04-18 |
-| 6. LLM Correction Consistency             | v2.0      | 0/3            | Not started | -          |
+| 6. LLM Correction Consistency             | v2.0      | 2/3 | In Progress|  |
 | 7. Feedback & Iteration                   | v2.0      | 0/TBD          | Not started | -          |

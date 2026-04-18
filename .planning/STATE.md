@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Dialect Quality
 status: Ready to execute
-stopped_at: Completed 06-00-PLAN.md
-last_updated: "2026-04-18T03:24:39.306Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-04-18T03:37:03.151Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 9
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 06 (llm-correction-consistency) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: 2 of 3
 - Total execution time: ~5.5 hours
 
 | Phase 06 P00 | 2 | 2 tasks | 4 files |
+| Phase 06 P01 | 9 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Recent decisions affecting current work:
 - Phase 4 shipped: WER/CER via jiwer 3.1.0, JSONL logging, confidence highlighting, FeedbackWidget
 - Phase 5 shipped: Dialect profiles expanded (50-100 word_boost per regio), hallucination detection integrated
 - [Phase 05]: TDD RED-first pattern: tests define expected behavior before implementation
+- [Phase 06]: Moved SYSTEM_PROMPTS to correction.py as single source of truth for prompt assembly
 
 ### Pending Todos
 
@@ -76,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-18T03:24:39.303Z
-Stopped at: Completed 06-00-PLAN.md
+Last session: 2026-04-18T03:37:03.148Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
