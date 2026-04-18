@@ -72,7 +72,7 @@ Plans:
 **Milestone Goal:** De Limburgse dialectherkenning en -correctie verbeteren zodat de betekenis/context van het gesprek altijd klopt in de output.
 
 - [x] **Phase 4: Evaluation Infrastructure** - WER/CER meting en error pattern logging
-- [ ] **Phase 5: Vocabulary & Transcription** - Dialect profile audit en hallucination detection
+- [x] **Phase 5: Vocabulary & Transcription** - Dialect profile audit en hallucination detection
 - [ ] **Phase 6: LLM Correction Consistency** - Few-shot prompts en structured JSON output
 - [ ] **Phase 7: Feedback & Iteration** - User corrections en prompt versioning
 
@@ -127,8 +127,14 @@ Plans:
 1. Correctie-prompts bevatten 3-5 few-shot voorbeelden per dialectregio
 2. LLM output volgt een vast JSON schema (origineel, correctie, confidence, toegepaste regels)
 3. Dialect-naar-standaard glossary (50-100+ termen) wordt in de prompt geïnjecteerd
-4. Structured outputs via instructor verminderen LLM non-determinisme
-   **Plans**: TBD
+4. Structured outputs via prompt-based JSON + Pydantic validation verminderen LLM non-determinisme
+   **Plans**: 3 plans
+
+Plans:
+
+- [ ] 06-00-PLAN.md -- Wave 0: Test scaffolding + CorrectionOutput Pydantic model + parser
+- [ ] 06-01-PLAN.md -- Few-shot examples + glossaries + prompt builder (CORR-01, CORR-03)
+- [ ] 06-02-PLAN.md -- Wire prompts + JSON validation into backend + frontend endpoints (CORR-02)
 
 ### Phase 7: Feedback & Iteration
 
@@ -156,6 +162,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Rate Limiting + Error Handling         | v1.0      | 2/2            | Complete    | 2026-03-24 |
 | 3. Resource Cleanup                       | v1.0      | 2/2            | Complete    | 2026-03-28 |
 | 4. Evaluation Infrastructure              | v2.0      | 3/3            | Complete    | 2026-04-17 |
-| 5. Vocabulary & Transcription Quality     | v2.0      | 0/3            | Planning    | -          |
-| 6. LLM Correction Consistency             | v2.0      | 0/TBD          | Not started | -          |
+| 5. Vocabulary & Transcription Quality     | v2.0      | 3/3            | Complete    | 2026-04-18 |
+| 6. LLM Correction Consistency             | v2.0      | 0/3            | Not started | -          |
 | 7. Feedback & Iteration                   | v2.0      | 0/TBD          | Not started | -          |
