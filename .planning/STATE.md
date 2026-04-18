@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Dialect Quality
 status: Ready to execute
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-18T03:37:03.151Z"
+stopped_at: Completed 06-02-PLAN.md (Phase 06 complete)
+last_updated: '2026-04-18T06:00:00Z'
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 5
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,20 +19,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Betrouwbare spraak-naar-tekst met dialectcorrectie -- de transcriptie moet kloppen en het proces mag niet stilzwijgend falen.
-**Current focus:** Phase 06 — llm-correction-consistency
+**Current focus:** Phase 06 complete — next is Phase 07 (Feedback & Iteration)
 
 ## Current Position
 
-Phase: 06 (llm-correction-consistency) — EXECUTING
-Plan: 3 of 3
+Phase: 06 (llm-correction-consistency) — COMPLETE
+Next: Phase 07 (feedback-iteration)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6 (v2.0 milestone)
+- Total plans completed: 9 (v2.0 milestone)
 - Average duration: ~12 min
-- Total execution time: ~1.2 hours
+- Total execution time: ~1.5 hours
 
 **By Phase:**
 
@@ -40,15 +40,13 @@ Plan: 3 of 3
 | ----- | ----- | ----- | -------- |
 | 4     | 3     | ~50m  | ~17m     |
 | 5     | 3     | ~22m  | ~7m      |
+| 6     | 3     | ~18m  | ~6m      |
 
 **v1.0 Velocity (reference):**
 
 - Total plans completed: 7
 - Average duration: ~45 min
 - Total execution time: ~5.5 hours
-
-| Phase 06 P00 | 2 | 2 tasks | 4 files |
-| Phase 06 P01 | 9 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,8 +63,9 @@ Recent decisions affecting current work:
 - LLM consistency via structured outputs (instructor) + few-shot prompting
 - Phase 4 shipped: WER/CER via jiwer 3.1.0, JSONL logging, confidence highlighting, FeedbackWidget
 - Phase 5 shipped: Dialect profiles expanded (50-100 word_boost per regio), hallucination detection integrated
-- [Phase 05]: TDD RED-first pattern: tests define expected behavior before implementation
+- Phase 6 shipped: Few-shot examples (3-5 per region), glossaries (50-100+ terms), JSON structured output, prompt builder wired into both endpoints
 - [Phase 06]: Moved SYSTEM_PROMPTS to correction.py as single source of truth for prompt assembly
+- [Phase 06]: JSON tokens accumulated silently, parsed, corrected text emitted (not raw JSON)
 
 ### Pending Todos
 
@@ -78,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-18T03:37:03.148Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-18T06:00:00Z
+Stopped at: Completed 06-02-PLAN.md (Phase 06 complete)
 Resume file: None
