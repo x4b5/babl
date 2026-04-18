@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Dialect Quality
-status: Ready to execute
-stopped_at: Completed 06-02-PLAN.md (Phase 06 complete)
-last_updated: '2026-04-18T06:00:00Z'
+status: Complete
+stopped_at: Completed 07-02 (Phase 07 complete, v2.0 milestone done)
+last_updated: '2026-04-18T12:00:00Z'
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  completed_phases: 4
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Project State
@@ -19,20 +19,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Betrouwbare spraak-naar-tekst met dialectcorrectie -- de transcriptie moet kloppen en het proces mag niet stilzwijgend falen.
-**Current focus:** Phase 06 complete — next is Phase 07 (Feedback & Iteration)
+**Current focus:** v2.0 Dialect Quality milestone complete
 
 ## Current Position
 
-Phase: 06 (llm-correction-consistency) — COMPLETE
-Next: Phase 07 (feedback-iteration)
+Phase: 07 (feedback-iteration) — COMPLETE
+Milestone: v2.0 Dialect Quality — COMPLETE
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 9 (v2.0 milestone)
-- Average duration: ~12 min
-- Total execution time: ~1.5 hours
+- Total plans completed: 12 (v2.0 milestone)
+- Average duration: ~11 min
+- Total execution time: ~2 hours
 
 **By Phase:**
 
@@ -41,6 +41,7 @@ Next: Phase 07 (feedback-iteration)
 | 4     | 3     | ~50m  | ~17m     |
 | 5     | 3     | ~22m  | ~7m      |
 | 6     | 3     | ~18m  | ~6m      |
+| 7     | 3     | ~30m  | ~10m     |
 
 **v1.0 Velocity (reference):**
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - Phase 6 shipped: Few-shot examples (3-5 per region), glossaries (50-100+ terms), JSON structured output, prompt builder wired into both endpoints
 - [Phase 06]: Moved SYSTEM_PROMPTS to correction.py as single source of truth for prompt assembly
 - [Phase 06]: JSON tokens accumulated silently, parsed, corrected text emitted (not raw JSON)
+- [Phase 07]: Chunk overlap (75 words) preserves context across chunk boundaries
+- [Phase 07]: PROMPT_VERSION tracks prompt template versions for A/B testing
+- [Phase 07]: User corrections stored in JSONL, glossary suggestions derived from accumulated corrections
 
 ### Pending Todos
 
@@ -77,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-18T06:00:00Z
-Stopped at: Completed 06-02-PLAN.md (Phase 06 complete)
+Last session: 2026-04-18T12:00:00Z
+Stopped at: Completed 07-02 (Phase 07 complete, v2.0 milestone done)
 Resume file: None

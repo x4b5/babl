@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Stability** - Phases 1-3 (shipped 2026-03-28)
-- 🚧 **v2.0 Dialect Quality** - Phases 4-7 (in progress)
+- ✅ **v2.0 Dialect Quality** - Phases 4-7 (shipped 2026-04-18)
 
 ## Phases
 
@@ -67,14 +67,14 @@ Plans:
 
 </details>
 
-### 🚧 v2.0 Dialect Quality (In Progress)
+### ✅ v2.0 Dialect Quality (Shipped 2026-04-18)
 
 **Milestone Goal:** De Limburgse dialectherkenning en -correctie verbeteren zodat de betekenis/context van het gesprek altijd klopt in de output.
 
 - [x] **Phase 4: Evaluation Infrastructure** - WER/CER meting en error pattern logging
 - [x] **Phase 5: Vocabulary & Transcription** - Dialect profile audit en hallucination detection
 - [x] **Phase 6: LLM Correction Consistency** - Few-shot prompts en structured JSON output
-- [ ] **Phase 7: Feedback & Iteration** - User corrections en prompt versioning
+- [x] **Phase 7: Feedback & Iteration** - User corrections en prompt versioning
 
 ## Phase Details
 
@@ -148,20 +148,25 @@ Plans:
 3. Prompt templates zijn versioned en kunnen A/B getest worden op kwaliteit
 4. Tekst-chunks overlappen (50-100 woorden) zodat context behouden blijft
 5. Productie WER metrics worden gemonitord voor regressie detectie
-   **Plans**: TBD
-   **UI hint**: yes
+   **Plans**: 3 plans
+
+Plans:
+
+- [x] 07-00-PLAN.md -- Wave 0: Test scaffolding for chunk overlap, prompt versioning, user corrections
+- [x] 07-01-PLAN.md -- Chunk overlap for context preservation (FEED-03) + Prompt versioning + WER monitoring (FEED-02)
+- [x] 07-02-PLAN.md -- User correction endpoints + glossary suggestion pipeline (FEED-01)
 
 ## Progress
 
 **Execution Order:**
 Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
-| Phase                                     | Milestone | Plans Complete | Status      | Completed  |
-| ----------------------------------------- | --------- | -------------- | ----------- | ---------- |
-| 1. WebSocket + Offset Filtering Stability | v1.0      | 3/3            | Complete    | 2026-03-23 |
-| 2. Rate Limiting + Error Handling         | v1.0      | 2/2            | Complete    | 2026-03-24 |
-| 3. Resource Cleanup                       | v1.0      | 2/2            | Complete    | 2026-03-28 |
-| 4. Evaluation Infrastructure              | v2.0      | 3/3            | Complete    | 2026-04-17 |
-| 5. Vocabulary & Transcription Quality     | v2.0      | 3/3            | Complete    | 2026-04-18 |
-| 6. LLM Correction Consistency             | v2.0      | 3/3            | Complete    | 2026-04-18 |
-| 7. Feedback & Iteration                   | v2.0      | 0/TBD          | Not started | -          |
+| Phase                                     | Milestone | Plans Complete | Status   | Completed  |
+| ----------------------------------------- | --------- | -------------- | -------- | ---------- |
+| 1. WebSocket + Offset Filtering Stability | v1.0      | 3/3            | Complete | 2026-03-23 |
+| 2. Rate Limiting + Error Handling         | v1.0      | 2/2            | Complete | 2026-03-24 |
+| 3. Resource Cleanup                       | v1.0      | 2/2            | Complete | 2026-03-28 |
+| 4. Evaluation Infrastructure              | v2.0      | 3/3            | Complete | 2026-04-17 |
+| 5. Vocabulary & Transcription Quality     | v2.0      | 3/3            | Complete | 2026-04-18 |
+| 6. LLM Correction Consistency             | v2.0      | 3/3            | Complete | 2026-04-18 |
+| 7. Feedback & Iteration                   | v2.0      | 3/3            | Complete | 2026-04-18 |
