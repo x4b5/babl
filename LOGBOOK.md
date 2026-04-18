@@ -83,3 +83,20 @@
 | 2026-04-17 | 08:13     | 08:16    | .03         | `d273b51`   | docs(04): add research and validation strategy                                                                                  |
 | 2026-04-17 | 08:16     | 08:26    | .17         | `3ff7dbe`   | docs(04-evaluation-infrastructure): create phase plan                                                                           |
 | 2026-04-17 | 08:26     | 08:49    | .38         | `1bdb22c`   | feat(phase-04): implement evaluation infrastructure (WER/CER, feedback, confidence)                                             |
+| 2026-04-17 | 08:49     | 08:50    | .01         | `983c6de`   | docs: update logbook with phase 04 session entries                                                                              |
+| 2026-04-17 | 08:50     | 09:01    | .19         | `5a1ccb1`   | fix: hide correction controls after correction to show feedback widget                                                          |
+| 2026-04-17 | 09:01     | 11:49    | 2.78        | `c457d06`   | docs(05): capture phase context                                                                                                 |
+| 2026-04-17 | 11:49     | 11:49    | 0           | `a969e47`   | docs(state): record phase 5 context session                                                                                     |
+| 2026-04-17 | 11:49     | 12:04    | .25         | `3e5a8ad`   | docs(05): research vocabulary optimization and hallucination detection                                                          |
+| 2026-04-17 | 12:04     | 12:20    | .26         | `735f576`   | docs(05-vocabulary-transcription-quality): add research and validation strategy                                                 |
+| 2026-04-17 | 12:20     | 12:27    | .11         | `b6108c1`   | docs(05-vocabulary-transcription-quality): create phase plan                                                                    |
+| 2026-04-18 | 12:27     | 03:06    | 4.00        | `872f889`   | docs(05): set nyquist_compliant after verification pass                                                                         |
+| 2026-04-18 | 03:06     | 03:10    | .07         | `7f7934b`   | test(05-00): add shared pytest fixtures for dialect and hallucination tests                                                     |
+| 2026-04-18 | 03:10     | 03:11    | .01         | `4d9f9a4`   | test(05-00): add RED tests for dialect profile audit (TRANS-01, TRANS-02)                                                       |
+| 2026-04-18 | 03:11     | 03:11    | 0           | `370acf8`   | test(05-00): add RED tests for hallucination detection (TRANS-03)                                                               |
+| 2026-04-18 | 03:11     | 03:13    | .02         | `087f336`   | docs(05-00): complete test scaffolding plan                                                                                     |
+| 2026-04-18 | 03:13     | 03:15    | .03         | `10684c0`   | feat(05-02): create hallucination detection module                                                                              |
+| 2026-04-18 | 03:15     | 03:15    | 0           | `277108b`   | feat(05-01): expand generic Limburgish vocabulary to 70 word_boost and 20 custom_spelling                                       |
+| 2026-04-18 | 03:15     | 03:17    | .02         | `70f88f5`   | feat(05-02): integrate hallucination detection into transcription pipeline                                                      |
+| 2026-04-18 | 03:17     | 03:18    | .02         | `72e4987`   | feat(05-01): expand all 4 regional profiles to 50+ word_boost and 15+ custom_spelling                                           |
+| 2026-04-18 | 03:18     | 03:20    | .03         | `04f9421`   | docs(05-01): complete expand dialect profiles plan                                                                              |

@@ -1950,8 +1950,8 @@
 					</div>
 				{/if}
 
-				<!-- EVAL-01: Feedback widget -->
-				{#if corrected && status === 'idle'}
+				<!-- EVAL-01: Feedback widget (shown once correction text exists) -->
+				{#if corrected}
 					<FeedbackWidget
 						rawText={raw}
 						correctedText={corrected}
