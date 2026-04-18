@@ -23,6 +23,7 @@ from dialects import (
     get_dialect_config,
     DIALECT_TRANSLATION_KEY
 )
+from hallucination import process_transcription
 
 # Allow large uploads (500 MB covers ~2+ hours of compressed audio)
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024
@@ -510,8 +511,18 @@ async def transcribe(
                         for segment in result.get("segments", []):
                             text = segment.get("text", "").strip()
                             if text:
-                                word_count += len(text.split())
-                                loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n")
+                                # Apply hallucination detection (TRANS-03)
+                                try:
+                                    hallucination_result = process_transcription(text)
+                                    if hallucination_result["was_modified"]:
+                                        print(f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s) in segment, cleaned")
+                                        text = hallucination_result["cleaned_text"]
+                                except Exception as e:
+                                    print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+
+                                if text:  # Only send if text remains after cleaning
+                                    word_count += len(text.split())
+                                    loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n")
                     finally:
                         if os.path.exists(chunk_path):
                             os.unlink(chunk_path)
@@ -602,6 +613,16 @@ async def transcribe_live(
 
         # Filter segments: only keep those starting at or after the offset
         segments = filter_segments_by_offset(segments, offset)
+
+        # Apply hallucination detection to each segment (TRANS-03)
+        for seg in segments:
+            try:
+                hallucination_result = process_transcription(seg["text"])
+                if hallucination_result["was_modified"]:
+                    print(f"[Hallucination] Live segment cleaned")
+                    seg["text"] = hallucination_result["cleaned_text"]
+            except Exception as e:
+                print(f"[Hallucination] Detection failed for segment, using unfiltered: {e}")
 
         full_text = " ".join(s["text"] for s in segments)
         return {"text": full_text, "language": detected_lang, "segments": segments}
@@ -719,21 +740,41 @@ async def transcribe_api(
                                         os.unlink(chunk_path)
 
                         if text:
-                            word_count += len(text.split())
-                            loop.call_soon_threadsafe(
-                                queue.put_nowait,
-                                f"data: {json.dumps({'type': 'segment', 'text': text, 'speaker': utterance.speaker})}\n\n",
-                            )
+                            # Apply hallucination detection (TRANS-03)
+                            try:
+                                hallucination_result = process_transcription(text)
+                                if hallucination_result["was_modified"]:
+                                    print(f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s) in utterance, cleaned")
+                                    text = hallucination_result["cleaned_text"]
+                            except Exception as e:
+                                print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+
+                            if text:  # Only send if text remains after cleaning
+                                word_count += len(text.split())
+                                loop.call_soon_threadsafe(
+                                    queue.put_nowait,
+                                    f"data: {json.dumps({'type': 'segment', 'text': text, 'speaker': utterance.speaker})}\n\n",
+                                )
                     print(f"[Hybrid] Transcription length: {word_count} words, {len(utterances)} utterances")
                 else:
                     # Fallback: no utterances, use full text
                     text = (transcript.text or "").strip()
                     if text:
-                        print(f"[AssemblyAI] Transcription length: {len(text.split())} words (no diarization)")
-                        loop.call_soon_threadsafe(
-                            queue.put_nowait,
-                            f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n",
-                        )
+                        # Apply hallucination detection (TRANS-03)
+                        try:
+                            hallucination_result = process_transcription(text)
+                            if hallucination_result["was_modified"]:
+                                print(f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s), cleaned")
+                                text = hallucination_result["cleaned_text"]
+                        except Exception as e:
+                            print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+
+                        if text:  # Only send if text remains after cleaning
+                            print(f"[AssemblyAI] Transcription length: {len(text.split())} words (no diarization)")
+                            loop.call_soon_threadsafe(
+                                queue.put_nowait,
+                                f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n",
+                            )
 
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
