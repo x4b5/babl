@@ -24,6 +24,16 @@ from dialects import (
     DIALECT_TRANSLATION_KEY
 )
 from hallucination import process_transcription
+from correction import (
+    SYSTEM_PROMPTS,
+    SYSTEM_PROMPT,
+    DIALECT_RETENTION_PROMPT,
+    CLEANUP_PROMPT,
+    build_correction_prompt,
+    parse_correction_output,
+    CorrectionOutput,
+    JSON_INSTRUCTION
+)
 
 # Allow large uploads (500 MB covers ~2+ hours of compressed audio)
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024
@@ -138,111 +148,6 @@ def extract_audio_segment(input_path: str, output_path: str, start: float, durat
         output_path
     ]
     subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-
-SYSTEM_PROMPTS = {
-    "kort": (
-        "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
-        "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een OPSOMMING van in bulletpoints.\n\n"
-        "1. Lees de volledige tekst om de context en bedoeling te begrijpen.\n"
-        "2. Vertaal dialectwoorden naar standaard Nederlands.\n"
-        "3. Destilleer de kernpunten en presenteer ze als een korte bulletpoint-lijst.\n"
-        "4. Elk bulletpoint is één kernpunt — maximaal één zin.\n"
-        "5. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n\n"
-        "VOORBEELD:\n"
-        "Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en "
-        "toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja "
-        "doe mós dat eigenlijk neet doon zag hae'\n"
-        "Output:\n"
-        "- Gisteren naar het plein gegaan, mooi weer\n"
-        "- Met Jan gesproken: hij zei dat het niet goed was\n"
-        "- Advies van Jan: dat moet je eigenlijk niet doen\n\n"
-        "REGELS:\n"
-        "- Geef ALLEEN de bulletpoint-lijst terug, geen uitleg of commentaar.\n"
-        "- Gebruik '- ' als bulletpoint-prefix.\n"
-        "- Voeg geen informatie toe die niet in de brontekst staat.\n"
-        "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Focus op resultaten en besluiten, niet op procesbeschrijving.\n\n"
-        f"{DIALECT_TRANSLATION_KEY}"
-    ),
-    "middellang": (
-        "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
-        "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een KORT VERSLAG van.\n"
-        "Focus op resultaten, besluiten en conclusies — niet op het proces.\n\n"
-        "1. Lees EERST de volledige tekst om de context en bedoeling te begrijpen.\n"
-        "2. Schrijf een beknopt, goed leesbaar Nederlands verslag.\n"
-        "3. Focus op WAT er besloten/geconcludeerd is, niet op HOE het gesprek verliep.\n"
-        "4. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n"
-        "5. Maak er lopende, correcte Nederlandse zinnen van.\n"
-        "6. Behoud de toon van de spreker (informeel blijft informeel).\n\n"
-        "VOORBEELD:\n"
-        "Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en "
-        "toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja "
-        "doe mós dat eigenlijk neet doon zag hae'\n"
-        "Output: 'Gisteren was het mooi weer op het plein. Jan gaf aan dat het niet goed was "
-        "en adviseerde om het niet te doen.'\n\n"
-        "REGELS:\n"
-        "- Geef ALLEEN het verslag terug, geen uitleg of commentaar.\n"
-        "- Voeg geen informatie toe die niet in de brontekst staat.\n"
-        "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Kort en bondig. Geen onnodige procesbeschrijving.\n\n"
-        f"{DIALECT_TRANSLATION_KEY}"
-    ),
-    "lang": (
-        "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
-        "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een UITGEBREIDE VERSLAGLEGGING van.\n\n"
-        "1. Lees EERST de volledige tekst om de context en bedoeling te begrijpen.\n"
-        "2. Schrijf een uitgebreid, goed gestructureerd Nederlands verslag.\n"
-        "3. Gebruik alinea's en indien passend kopjes om het verslag te structureren.\n"
-        "4. Geef alle details weer — ook nuances, context, bijzaken en procesbeschrijving.\n"
-        "5. Beschrijf wie wat zei, welke argumenten er waren, en hoe tot conclusies is gekomen.\n"
-        "6. Vertaal dialectwoorden naar standaard Nederlands.\n"
-        "7. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n"
-        "8. Behoud de toon en stijl van de spreker.\n\n"
-        "VOORBEELD:\n"
-        "Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en "
-        "toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja "
-        "doe mós dat eigenlijk neet doon zag hae'\n"
-        "Output: 'Gisteren ben ik naar het plein gegaan. Het was mooi weer.\n\n"
-        "Tijdens het bezoek heb ik met Jan gesproken. Hij gaf aan dat de situatie niet goed "
-        "was en adviseerde nadrukkelijk om het niet te doen. Zijn standpunt was duidelijk: "
-        "het is eigenlijk geen goede keuze.'\n\n"
-        "REGELS:\n"
-        "- Geef ALLEEN het uitgebreide verslag terug, geen uitleg of commentaar.\n"
-        "- Voeg geen informatie toe die niet in de brontekst staat.\n"
-        "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Structureer met alinea's. Gebruik kopjes als de tekst meerdere onderwerpen bevat.\n"
-        "- Wees volledig: beschrijf het proces, de argumenten en de conclusies.\n\n"
-        f"{DIALECT_TRANSLATION_KEY}"
-    ),
-}
-
-DIALECT_RETENTION_PROMPT = (
-    "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect.\n\n"
-    "JE TAAK:\n"
-    "Je krijgt een schone Limburgse transcriptie. Maak er een verslag van in bulletpoints of doorlopende tekst (behoud de gevraagde lengte).\n"
-    "BELANGRIJK: Schrijf het verslag VOLLEDIG in het Limburgs dialect. Vertaal NIET naar het Nederlands.\n\n"
-    "1. Gebruik de Limburgse grammatica en spelling.\n"
-    "2. Behou de kern van de boodschap.\n"
-    "3. Verwijder herhalingen en irrelevant proces-gepraat.\n\n"
-    f"{DIALECT_TRANSLATION_KEY}"
-)
-
-CLEANUP_PROMPT = (
-    "Je bent een expert in het Limburgs dialect. Je krijgt een ruwe transcriptie.\n"
-    "JE TAAK:\n"
-    "1. Corrigeer spelfouten in het dialect (gebruik de context).\n"
-    "2. Behou het Limburgse dialect, vertaal NIET naar het Nederlands.\n"
-    "3. Verwijder stopwoorden zoals 'uhm', 'dus', 'eigenlijk' als ze geen betekenis toevoegen.\n"
-    "4. Herstel afgebroken woorden.\n\n"
-    "RESULTAAT: Geef alleen de gecorrigeerde Limburgse tekst terug.\n\n"
-    f"{DIALECT_TRANSLATION_KEY}"
-)
-
-SYSTEM_PROMPT = SYSTEM_PROMPTS["middellang"]
 
 
 @app.get("/health")
