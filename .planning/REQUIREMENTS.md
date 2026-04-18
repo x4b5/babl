@@ -52,9 +52,9 @@ Requirements voor verbetering van Limburgse dialectherkenning en -correctie.
 
 ### Transcriptie Kwaliteit (TRANS)
 
-- [ ] **TRANS-01**: Alle 5 dialectprofielen zijn geaudit en uitgebreid conform AssemblyAI word boost richtlijnen
-- [ ] **TRANS-02**: Systeem ondersteunt meerdere uitspraak-varianten per woord per regio
-- [ ] **TRANS-03**: Whisper hallucinaties (herhalingen, onzin-output) worden gedetecteerd en gefilterd
+- [x] **TRANS-01**: Alle 5 dialectprofielen zijn geaudit en uitgebreid conform AssemblyAI word boost richtlijnen
+- [x] **TRANS-02**: Systeem ondersteunt meerdere uitspraak-varianten per woord per regio
+- [x] **TRANS-03**: Whisper hallucinaties (herhalingen, onzin-output) worden gedetecteerd en gefilterd
 
 ### Correctie Consistentie (CORR)
 
@@ -118,20 +118,20 @@ Uitgesteld naar volgende milestone.
 
 ### v2.0 (Active)
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
-| EVAL-01     | Phase 4 | Pending |
-| EVAL-02     | Phase 4 | Pending |
-| EVAL-03     | Phase 4 | Pending |
-| TRANS-01    | Phase 5 | Pending |
-| TRANS-02    | Phase 5 | Pending |
-| TRANS-03    | Phase 5 | Pending |
-| CORR-01     | Phase 6 | Pending |
-| CORR-02     | Phase 6 | Pending |
-| CORR-03     | Phase 6 | Pending |
-| FEED-01     | Phase 7 | Pending |
-| FEED-02     | Phase 7 | Pending |
-| FEED-03     | Phase 7 | Pending |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| EVAL-01     | Phase 4 | Pending  |
+| EVAL-02     | Phase 4 | Pending  |
+| EVAL-03     | Phase 4 | Pending  |
+| TRANS-01    | Phase 5 | Complete |
+| TRANS-02    | Phase 5 | Complete |
+| TRANS-03    | Phase 5 | Complete |
+| CORR-01     | Phase 6 | Pending  |
+| CORR-02     | Phase 6 | Pending  |
+| CORR-03     | Phase 6 | Pending  |
+| FEED-01     | Phase 7 | Pending  |
+| FEED-02     | Phase 7 | Pending  |
+| FEED-03     | Phase 7 | Pending  |
 
 **Coverage:**
 
