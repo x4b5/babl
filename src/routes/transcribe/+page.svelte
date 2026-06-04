@@ -752,6 +752,13 @@
 				body: formData,
 				signal: apiPollController.signal
 			});
+			// Detect auth redirect (fetch follows 303, lands on login HTML)
+			if (submitResp.redirected || submitResp.url.includes('/login')) {
+				setError('Sessie verlopen — log opnieuw in.');
+				setApiStatus('');
+				setStatus('idle');
+				return;
+			}
 			if (!submitResp.ok) {
 				let body: { error?: string; error_type?: string } | undefined;
 				try {
@@ -760,15 +767,22 @@
 					/* not JSON */
 				}
 				if (body?.error_type) {
+					const detail = body.error ? ` (${body.error})` : '';
 					setErrorType(body.error_type as ErrorType);
-					setError(getUserMessage(body.error_type as ErrorType));
+					setError(getUserMessage(body.error_type as ErrorType) + detail);
 					setApiStatus('');
 					setStatus('idle');
 					return;
 				}
 				throw new Error(body?.error || `Server error ${submitResp.status}`);
 			}
-			const { transcriptId, error: submitError } = await submitResp.json();
+			let submitJson: { transcriptId?: string; error?: string };
+			try {
+				submitJson = await submitResp.json();
+			} catch {
+				throw new Error('Onverwacht antwoord van server (geen JSON)');
+			}
+			const { transcriptId, error: submitError } = submitJson;
 			if (submitError) throw new Error(submitError);
 
 			setApiStatus('Wachtrij...');
@@ -784,6 +798,12 @@
 				const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`, {
 					signal: apiPollController.signal
 				});
+				if (pollResp.redirected || pollResp.url.includes('/login')) {
+					setError('Sessie verlopen — log opnieuw in.');
+					setApiStatus('');
+					setStatus('idle');
+					return;
+				}
 				if (!pollResp.ok) {
 					let body: { error?: string; error_type?: string } | undefined;
 					try {
@@ -1087,6 +1107,12 @@
 				body: JSON.stringify(body),
 				signal: correctionController.signal
 			});
+			if (resp.redirected || resp.url.includes('/login')) {
+				setError('Sessie verlopen — log opnieuw in.');
+				setCorrected('');
+				setStatus('idle');
+				return;
+			}
 			if (!resp.ok) {
 				if (resp.status === 429) {
 					setErrorType('rate_limit');
