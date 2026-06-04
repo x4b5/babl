@@ -11,6 +11,12 @@
 		cleanupTimers
 	} from '$lib/utils/cleanup';
 	import { getSupportedMimeType, downsampleToWav, toPcmInt16 } from '$lib/utils/audio';
+	import {
+		saveRecording,
+		getRecording,
+		deleteRecording,
+		pruneRecordings
+	} from '$lib/utils/recording-db';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
@@ -76,7 +82,9 @@
 		setReportLength,
 		setTranscribeMode,
 		setApiStreamMode,
-		setTemperature
+		setTemperature,
+		setSavedRecordingId,
+		setSavedRecordingMimeType
 	} from '$lib/stores/transcribe.svelte';
 
 	const s = getTranscribeState();
@@ -100,6 +108,38 @@
 	let animationFrameId: number | undefined;
 	let liveBusy = false;
 	let liveRunning = false;
+
+	/** Retry transcription using the saved recording from IndexedDB. */
+	async function retryTranscription() {
+		if (!s.savedRecordingId) return;
+		try {
+			const rec = await getRecording(s.savedRecordingId);
+			if (!rec) return;
+			setError('');
+			setErrorType('');
+			const ext = rec.mimeType.includes('webm')
+				? 'webm'
+				: rec.mimeType.includes('ogg')
+					? 'ogg'
+					: 'mp4';
+			await sendAudio(rec.blob, `retry.${ext}`);
+		} catch {
+			setError('Opnieuw proberen mislukt. Download de opname en upload het bestand handmatig.');
+		}
+	}
+
+	/** Remove saved recording from IndexedDB after successful transcription. */
+	async function clearSavedRecording() {
+		if (s.savedRecordingId) {
+			try {
+				await deleteRecording(s.savedRecordingId);
+			} catch {
+				// Ignore — best effort cleanup
+			}
+			setSavedRecordingId(null);
+			setSavedRecordingMimeType('');
+		}
+	}
 
 	// ── Effects ────────────────────────────────────────────────────
 
@@ -174,6 +214,9 @@
 			.then((r) => r.json())
 			.then(() => setLocalAvailable(true))
 			.catch(() => setLocalAvailable(false));
+
+		// Prune old recordings from IndexedDB (keep max 3)
+		pruneRecordings(3).catch(() => {});
 	});
 
 	// Resource cleanup: beforeunload + pagehide + component destroy
@@ -503,10 +546,20 @@
 				}
 				const blob = new Blob(chunks, { type: mimeType });
 
+				// Save recording locally before transcription attempt
+				try {
+					const recId = await saveRecording(blob, mimeType);
+					setSavedRecordingId(recId);
+					setSavedRecordingMimeType(mimeType);
+				} catch {
+					// IndexedDB unavailable — continue without saving
+				}
+
 				// Real-time API streaming: use accumulated segments
 				if (useRealtimeStream && s.liveSegments.length > 0) {
 					setRaw(s.liveSegments.join(' '));
 					setPartialText('');
+					await clearSavedRecording();
 					setStatus('idle');
 					return;
 				}
@@ -546,6 +599,7 @@
 						}
 						setRaw(s.partialText);
 						setPartialText('');
+						await clearSavedRecording();
 						setStatus('idle');
 						return;
 					}
@@ -570,6 +624,7 @@
 								setRaw(data.text);
 								if (data.language) setLanguage(data.language);
 								setPartialText('');
+								await clearSavedRecording();
 								setStatus('idle');
 								return;
 							}
@@ -772,6 +827,7 @@
 						setLowConfidenceCount(0);
 					}
 					setApiStatus('');
+					await clearSavedRecording();
 					setStatus('idle');
 					return;
 				} else if (result.status === 'error') {
@@ -857,6 +913,7 @@
 				}
 			}
 			setApiStatus('');
+			await clearSavedRecording();
 			setStatus('idle');
 		} catch (e) {
 			clearTimeout(stallTimeout);
@@ -936,6 +993,7 @@
 					}
 				}
 			}
+			await clearSavedRecording();
 			setStatus('idle');
 		} catch (e) {
 			clearTimeout(stallTimeout);
@@ -1144,7 +1202,12 @@
 		/>
 
 		{#if s.error}
-			<ErrorAlert error={s.error} errorType={s.errorType} />
+			<ErrorAlert
+				error={s.error}
+				errorType={s.errorType}
+				savedRecordingId={s.savedRecordingId}
+				onRetry={retryTranscription}
+			/>
 		{/if}
 
 		{#if s.raw}
