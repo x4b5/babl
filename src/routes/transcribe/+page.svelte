@@ -635,12 +635,23 @@
 				}
 
 				// Fallback: full SSE transcription
-				try {
-					const wav = await downsampleToWav(blob);
-					await sendAudio(wav, 'recording.wav');
-				} catch {
+				// API mode: send compressed audio directly (AssemblyAI accepts all formats)
+				// This avoids WAV bloat that exceeds Vercel's 4.5 MB body limit
+				if (s.transcribeMode === 'api') {
 					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
 					await sendAudio(blob, `recording.${ext}`);
+				} else {
+					try {
+						const wav = await downsampleToWav(blob);
+						await sendAudio(wav, 'recording.wav');
+					} catch {
+						const ext = mimeType.includes('webm')
+							? 'webm'
+							: mimeType.includes('ogg')
+								? 'ogg'
+								: 'mp4';
+						await sendAudio(blob, `recording.${ext}`);
+					}
 				}
 				setPartialText('');
 			};
@@ -697,7 +708,11 @@
 		setError('');
 		setStatus('processing');
 
-		if (file.size > MAX_DOWNSAMPLE_BYTES) {
+		if (s.transcribeMode === 'api') {
+			// API mode: send original file — AssemblyAI accepts all formats
+			// Avoids WAV bloat that can exceed Vercel's 4.5 MB body limit
+			await sendAudio(file, file.name);
+		} else if (file.size > MAX_DOWNSAMPLE_BYTES) {
 			// Too large for in-browser downsampling (OOM risk) — send original
 			await sendAudio(file, file.name);
 		} else {
@@ -744,6 +759,17 @@
 
 			if (useLocalProxy) {
 				await sendAudioApiViaLocal(formData);
+				return;
+			}
+
+			if (file && file.size > MAX_VERCEL_BODY_BYTES && !s.localAvailable) {
+				const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+				setError(
+					`Bestand te groot (${sizeMB} MB) voor cloud-upload (max 4 MB). ` +
+						'Neem een kortere opname of start de lokale backend.'
+				);
+				setApiStatus('');
+				setStatus('idle');
 				return;
 			}
 
