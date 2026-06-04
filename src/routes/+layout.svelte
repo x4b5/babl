@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>[APP_NAME]</title>
+	<title>BABL</title>
 </svelte:head>
 
 {@render children()}
