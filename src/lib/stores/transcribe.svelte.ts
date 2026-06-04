@@ -36,8 +36,8 @@ export const MAX_AUTO_RETRIES = 3;
 export const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 export const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
 export const SSE_STALL_TIMEOUT_MS = 30000; // 30s: abort SSE stream if no data received
-export const RECORDING_MAX_SECONDS = 60 * 60; // 60 minuten max
-export const RECORDING_WARN_SECONDS = 50 * 60; // waarschuwing bij 50 minuten
+export const RECORDING_MAX_SECONDS = 2 * 60 * 60; // 120 minuten max
+export const RECORDING_WARN_SECONDS = 110 * 60; // waarschuwing bij 110 minuten
 
 // AssemblyAI cost: $0.17/hour (Universal-2 $0.15 + speaker diarization $0.02)
 const ASSEMBLYAI_COST_PER_SECOND = 0.17 / 3600;

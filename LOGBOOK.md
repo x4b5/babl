@@ -141,3 +141,6 @@
 | 2026-06-04 | 21:53     | 21:55    | .02         | `b0910e5`   | fix: update design tokens to green/orange BABL palette                                                                          |
 | 2026-06-04 | 21:55     | 21:55    | .01         | `ed52f32`   | fix: update remaining CSS colors to green/orange palette                                                                        |
 | 2026-06-04 | 21:55     | 21:56    | .01         | `4455e2c`   | fix: update entire color theme from purple/neon-yellow to green-yellow-orange                                                   |
+| 2026-06-04 | 21:56     | 21:56    | 0           | `9276fd7`   | fix: update component hover colors to green/orange palette                                                                      |
+| 2026-06-04 | 21:56     | 21:59    | .04         | `dfce5a8`   | fix: make microphone icon yellow                                                                                                |
+| 2026-06-04 | 21:59     | 22:04    | .08         | `f137faf`   | fix: move logout button below upload, remove privacy badge from header                                                          |

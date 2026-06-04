@@ -705,7 +705,7 @@
 
 	// ── File upload ────────────────────────────────────────────────
 
-	const MAX_DOWNSAMPLE_BYTES = 25 * 1024 * 1024; // 25MB
+	const MAX_DOWNSAMPLE_BYTES = 50 * 1024 * 1024; // 50MB
 
 	async function handleFileUpload(e: Event) {
 		const input = e.target as HTMLInputElement;
