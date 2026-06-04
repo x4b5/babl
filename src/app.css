@@ -222,11 +222,20 @@ body {
 /* Gradient text with animated shift */
 .gradient-text {
 	font-family: 'Rubik Glitch', system-ui;
-	background: linear-gradient(135deg, #d4ff00 0%, #10b981 30%, #ff0080 60%, #d4ff00 100%);
+	background: linear-gradient(
+		135deg,
+		#059669 0%,
+		#10b981 20%,
+		#d4ff00 42%,
+		#f97316 65%,
+		#ea580c 85%,
+		#dc2626 100%
+	);
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
-	filter: drop-shadow(0 0 20px rgba(212, 255, 0, 0.3)) drop-shadow(0 0 40px rgba(255, 0, 128, 0.15));
+	filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.3))
+		drop-shadow(0 0 40px rgba(249, 115, 22, 0.15));
 	letter-spacing: 0.02em;
 	line-height: 0.95;
 }
