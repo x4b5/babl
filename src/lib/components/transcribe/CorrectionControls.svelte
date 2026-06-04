@@ -4,7 +4,6 @@
 	interface Props {
 		mode: Mode;
 		reportLength: ReportLength;
-		temperature: number;
 		lang: Lang;
 		keepDialect: boolean;
 		localAvailable: boolean;
@@ -12,7 +11,6 @@
 		estimatedCorrectionCost: string;
 		onModeChange: (mode: Mode) => void;
 		onReportLengthChange: (length: ReportLength) => void;
-		onTemperatureChange: (temp: number) => void;
 		onKeepDialectChange: (keep: boolean) => void;
 		onGenerate: () => void;
 	}
@@ -20,7 +18,6 @@
 	let {
 		mode,
 		reportLength,
-		temperature,
 		lang,
 		keepDialect,
 		localAvailable,
@@ -28,7 +25,6 @@
 		estimatedCorrectionCost,
 		onModeChange,
 		onReportLengthChange,
-		onTemperatureChange,
 		onKeepDialectChange,
 		onGenerate
 	}: Props = $props();
@@ -96,24 +92,6 @@
 			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 		</p>
 	{/if}
-
-	<!-- Temperature slider -->
-	<div class="mb-5 flex items-center gap-3">
-		<label for="temperature" class="text-sm sm:text-xs text-white/50 whitespace-nowrap"
-			>Temperatuur</label
-		>
-		<input
-			id="temperature"
-			type="range"
-			min="0"
-			max="1"
-			step="0.1"
-			value={temperature}
-			oninput={(e) => onTemperatureChange(parseFloat((e.target as HTMLInputElement).value))}
-			class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/10 accent-neon"
-		/>
-		<span class="w-8 text-right text-xs font-mono text-white/60">{temperature.toFixed(1)}</span>
-	</div>
 
 	<!-- Dialect retention toggle -->
 	{#if lang === 'li'}

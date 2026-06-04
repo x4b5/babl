@@ -1211,7 +1211,6 @@
 					<CorrectionControls
 						mode={s.mode}
 						reportLength={s.reportLength}
-						temperature={s.temperature}
 						lang={s.lang}
 						keepDialect={s.keepDialect}
 						localAvailable={s.localAvailable}
@@ -1219,7 +1218,6 @@
 						estimatedCorrectionCost={s.estimatedCorrectionCost}
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
-						onTemperatureChange={(v) => setTemperature(v)}
 						onKeepDialectChange={(v) => setKeepDialect(v)}
 						onGenerate={startCorrection}
 					/>
