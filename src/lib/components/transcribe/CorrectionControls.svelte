@@ -58,7 +58,7 @@
 					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					Lokaal
 				</button>
@@ -68,7 +68,7 @@
 					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'api'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/50 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					API
 				</button>
@@ -84,7 +84,7 @@
 					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
 					'light'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/50 hover:text-white/80 scale-100'}"
+						: 'text-neon/40 hover:text-neon/70 scale-100'}"
 				>
 					Light
 				</button>
@@ -93,7 +93,7 @@
 					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
 					'medium'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/50 hover:text-white/80 scale-100'}"
+						: 'text-neon/40 hover:text-neon/70 scale-100'}"
 				>
 					Medium
 				</button>
@@ -110,7 +110,7 @@
 						class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
 						opt.value
 							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-							: 'text-white/50 hover:text-white/80 scale-100'}"
+							: 'text-neon/40 hover:text-neon/70 scale-100'}"
 					>
 						{opt.label}
 					</button>

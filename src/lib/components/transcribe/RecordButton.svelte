@@ -261,7 +261,7 @@
 	<button
 		onclick={() => fileInput.click()}
 		disabled={status !== 'idle' && status !== 'correcting'}
-		class="upload-btn glass rounded-full px-5 py-2 text-sm text-white/50 transition-all duration-200 hover:text-white/80 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+		class="upload-btn glass rounded-full border border-neon/10 px-5 py-2 text-sm text-neon/50 transition-all duration-200 hover:text-neon/80 hover:border-neon/30 hover:bg-neon/5 disabled:opacity-30 disabled:cursor-not-allowed"
 	>
 		<span class="flex items-center gap-2">
 			<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
