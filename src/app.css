@@ -222,7 +222,7 @@ body {
 /* Gradient text with animated shift */
 .gradient-text {
 	font-family: 'Rubik Glitch', system-ui;
-	background: linear-gradient(135deg, #d4ff00 0%, #7c3aed 30%, #ff0080 60%, #d4ff00 100%);
+	background: linear-gradient(135deg, #d4ff00 0%, #10b981 30%, #ff0080 60%, #d4ff00 100%);
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
