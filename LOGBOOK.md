@@ -127,3 +127,4 @@
 | 2026-06-04 | 21:19     | 21:21    | .03         | `fc53b91`   | fix: update tagline to friendlier Dutch copy                                                                                    |
 | 2026-06-04 | 21:21     | 21:25    | .06         | `bd86a13`   | fix: improve mobile responsiveness across transcribe UI                                                                         |
 | 2026-06-04 | 21:25     | 21:31    | .10         | `0690830`   | fix: update spacebar hint to starten/stoppen                                                                                    |
+| 2026-06-04 | 21:31     | 21:31    | 0           | `1d8f8eb`   | fix: remove language toggle — always use Limburgs dialect                                                                       |
