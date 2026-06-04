@@ -36,7 +36,7 @@ body {
 	font-family: var(--font-sans);
 	-webkit-tap-highlight-color: transparent;
 	overflow-x: hidden;
-	background: #0a0a0f;
+	background: #1a1a2e;
 	color: #e2e8f0;
 }
 
@@ -44,11 +44,11 @@ body {
 .bg-dark-gradient {
 	background: linear-gradient(
 		135deg,
-		#0a0a0f 0%,
-		#0f0a1a 25%,
-		#0a0a0f 50%,
-		#0a0f1a 75%,
-		#0a0a0f 100%
+		#1a1a2e 0%,
+		#2d1b4e 25%,
+		#1b2a4a 50%,
+		#2a1d3d 75%,
+		#1a1a2e 100%
 	);
 	background-size: 400% 400%;
 	animation: gradient-shift 15s ease infinite;
