@@ -128,3 +128,6 @@
 | 2026-06-04 | 21:21     | 21:25    | .06         | `bd86a13`   | fix: improve mobile responsiveness across transcribe UI                                                                         |
 | 2026-06-04 | 21:25     | 21:31    | .10         | `0690830`   | fix: update spacebar hint to starten/stoppen                                                                                    |
 | 2026-06-04 | 21:31     | 21:31    | 0           | `1d8f8eb`   | fix: remove language toggle — always use Limburgs dialect                                                                       |
+| 2026-06-04 | 21:31     | 21:33    | .02         | `e3be8d9`   | chore: update logbook                                                                                                           |
+| 2026-06-04 | 21:33     | 21:38    | .08         | `a3ec4e6`   | fix: update favicon with green glitch style and replace purple accent in title gradient                                         |
+| 2026-06-04 | 21:38     | 21:44    | .11         | `a447317`   | fix: always use speaker detection, remove realtime/accurate toggle                                                              |
