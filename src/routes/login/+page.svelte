@@ -88,5 +88,14 @@
 				{/if}
 			</button>
 		</form>
+
+		<p class="mt-6 text-center">
+			<a
+				href="/privacy"
+				class="text-xs text-white/30 underline decoration-white/10 underline-offset-2 hover:text-white/50 transition-colors"
+			>
+				Privacyverklaring
+			</a>
+		</p>
 	</div>
 </div>
