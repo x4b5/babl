@@ -15,11 +15,15 @@ export function classifyFrontendError(e: unknown): ErrorType {
 
 	const msg = e instanceof Error ? e.message : String(e);
 
-	// TypeError with fetch-specific message = network error (browser can't reach server)
+	// TypeError with fetch-specific message = can't reach server.
+	// Check navigator.onLine to distinguish "no internet" from "backend down".
 	if (
 		e instanceof TypeError &&
 		(msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed'))
 	) {
+		if (typeof navigator !== 'undefined' && navigator.onLine) {
+			return 'upstream_disconnect';
+		}
 		return 'network_error';
 	}
 
@@ -36,11 +40,6 @@ export function classifyFrontendError(e: unknown): ErrorType {
 	// Timeout
 	if (msg.toLowerCase().includes('timeout')) {
 		return 'timeout';
-	}
-
-	// Network errors (from error message strings)
-	if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-		return 'network_error';
 	}
 
 	// Default: server_error — don't blame the user's internet for unknown errors

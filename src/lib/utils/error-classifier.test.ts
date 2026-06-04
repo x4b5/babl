@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { classifyFrontendError } from './error-classifier';
 
 describe('classifyFrontendError', () => {
-	it('classifies TypeError (Failed to fetch) as network_error', () => {
+	it('classifies TypeError (Failed to fetch) as upstream_disconnect when online', () => {
+		// navigator.onLine defaults to true in jsdom
+		expect(classifyFrontendError(new TypeError('Failed to fetch'))).toBe('upstream_disconnect');
+	});
+
+	it('classifies TypeError (Failed to fetch) as network_error when offline', () => {
+		vi.stubGlobal('navigator', { ...navigator, onLine: false });
 		expect(classifyFrontendError(new TypeError('Failed to fetch'))).toBe('network_error');
+		vi.unstubAllGlobals();
 	});
 
 	it('classifies DOMException AbortError as timeout', () => {
@@ -34,8 +41,15 @@ describe('classifyFrontendError', () => {
 		expect(classifyFrontendError(new Error('Request timeout'))).toBe('timeout');
 	});
 
-	it('classifies NetworkError as network_error', () => {
-		expect(classifyFrontendError(new Error('NetworkError'))).toBe('network_error');
+	it('classifies TypeError with NetworkError as upstream_disconnect when online', () => {
+		expect(classifyFrontendError(new TypeError('NetworkError when attempting to fetch'))).toBe(
+			'upstream_disconnect'
+		);
+	});
+
+	it('classifies non-TypeError NetworkError as server_error', () => {
+		// Only TypeError gets special fetch-failure handling
+		expect(classifyFrontendError(new Error('NetworkError'))).toBe('server_error');
 	});
 
 	it('classifies generic TypeError (not fetch-related) as server_error', () => {
