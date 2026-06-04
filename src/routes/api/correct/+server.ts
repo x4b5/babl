@@ -876,6 +876,7 @@ async function* correctChunkMistralStream(
 
 export const POST: RequestHandler = async ({ request }) => {
 	const apiKey = env.MISTRAL_API_KEY;
+	console.log('[correct] API key present:', !!apiKey, 'length:', apiKey?.length ?? 0);
 	if (!apiKey) {
 		return new Response(JSON.stringify({ error: 'Mistral API key not configured' }), {
 			status: 400,
@@ -960,12 +961,13 @@ export const POST: RequestHandler = async ({ request }) => {
 				}
 				send({ type: 'done' });
 			} catch (e) {
-				console.error('[correct] Mistral error:', e instanceof Error ? e.message : e);
+				const errMsg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+				console.error('[correct] Mistral error:', errMsg);
 				const classified = classifyError(e);
 				send({
 					type: 'error',
 					error_type: classified.errorType,
-					message: e instanceof Error ? e.message : String(e),
+					message: errMsg,
 					...(classified.retryAfter !== undefined && { retry_after: classified.retryAfter })
 				});
 			} finally {
