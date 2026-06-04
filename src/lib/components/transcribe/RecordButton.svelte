@@ -252,7 +252,7 @@
 		<div class="flex flex-col items-center gap-2">
 			<p class="text-sm text-white/30">Druk om op te nemen</p>
 			<kbd class="kbd-hint hidden sm:inline-flex"
-				><span class="text-white/40">spatie</span> om op te nemen</kbd
+				><span class="text-white/40">spatie</span> om te starten/stoppen</kbd
 			>
 		</div>
 	{/if}
