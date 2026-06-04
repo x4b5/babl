@@ -144,3 +144,6 @@
 | 2026-06-04 | 21:56     | 21:56    | 0           | `9276fd7`   | fix: update component hover colors to green/orange palette                                                                      |
 | 2026-06-04 | 21:56     | 21:59    | .04         | `dfce5a8`   | fix: make microphone icon yellow                                                                                                |
 | 2026-06-04 | 21:59     | 22:04    | .08         | `f137faf`   | fix: move logout button below upload, remove privacy badge from header                                                          |
+| 2026-06-04 | 22:04     | 22:06    | .02         | `7a35171`   | feat: increase recording limit to 2 hours and lighten record button                                                             |
+| 2026-06-04 | 22:06     | 22:07    | .01         | `05f0251`   | fix: lighten record button background to neutral grey                                                                           |
+| 2026-06-04 | 22:07     | 22:08    | .02         | `b6ab62d`   | fix: make record button ring thinner and more subtle                                                                            |
