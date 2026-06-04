@@ -637,9 +637,6 @@
 				// Fallback: full SSE transcription
 				try {
 					const wav = await downsampleToWav(blob);
-					console.log(
-						`Downsampled: ${(blob.size / 1024).toFixed(0)}KB → ${(wav.size / 1024).toFixed(0)}KB`
-					);
 					await sendAudio(wav, 'recording.wav');
 				} catch {
 					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
@@ -702,16 +699,10 @@
 
 		if (file.size > MAX_DOWNSAMPLE_BYTES) {
 			// Too large for in-browser downsampling (OOM risk) — send original
-			console.log(
-				`File too large for downsampling (${(file.size / 1024 / 1024).toFixed(0)}MB), sending original`
-			);
 			await sendAudio(file, file.name);
 		} else {
 			try {
 				const wav = await downsampleToWav(file);
-				console.log(
-					`Downsampled upload: ${(file.size / 1024).toFixed(0)}KB → ${(wav.size / 1024).toFixed(0)}KB`
-				);
 				await sendAudio(wav, 'upload.wav');
 			} catch {
 				await sendAudio(file, file.name);
@@ -724,7 +715,6 @@
 
 	async function sendAudio(blob: Blob, filename: string) {
 		resetForTranscription();
-		console.log(`Sending audio: ${filename}, size: ${blob.size} bytes, type: ${blob.type}`);
 		if (blob.size === 0) {
 			setError('Audio-bestand is leeg. Probeer opnieuw.');
 			setStatus('idle');
@@ -847,7 +837,6 @@
 			}
 		} catch (e) {
 			if (e instanceof Error && e.name === 'AbortError') {
-				console.log('API transcription aborted');
 				apiPollController = undefined;
 				return;
 			}
@@ -929,7 +918,6 @@
 		} catch (e) {
 			clearTimeout(stallTimeout);
 			if (e instanceof Error && e.name === 'AbortError') {
-				console.log('API via local transcription aborted');
 				transcribeController = undefined;
 				return;
 			}
@@ -1009,7 +997,6 @@
 		} catch (e) {
 			clearTimeout(stallTimeout);
 			if (e instanceof Error && e.name === 'AbortError') {
-				console.log('Local transcription aborted');
 				transcribeController = undefined;
 				return;
 			}
@@ -1084,11 +1071,6 @@
 			report_length: s.reportLength,
 			keep_dialect: s.keepDialect
 		};
-		console.log('Correction request:', {
-			report_length: body.report_length,
-			mode: body.mode,
-			quality: body.quality
-		});
 		const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
 		correctionController = new AbortController();
 		let stallTimeout = setTimeout(() => correctionController!.abort(), SSE_STALL_TIMEOUT_MS);
@@ -1105,7 +1087,6 @@
 				signal: correctionController.signal
 			});
 			if (!resp.ok) {
-				console.error('Correction failed:', resp.status);
 				if (resp.status === 429) {
 					setErrorType('rate_limit');
 					const retryAfter = parseInt(resp.headers.get('Retry-After') || '3', 10);
@@ -1149,11 +1130,9 @@
 		} catch (e) {
 			clearTimeout(stallTimeout);
 			if (e instanceof Error && e.name === 'AbortError') {
-				console.log('Correction aborted');
 				correctionController = undefined;
 				return;
 			}
-			console.error('Correction error:', e);
 			const classified = classifyFrontendError(e);
 			setErrorType(classified);
 			setError(getUserMessage(classified));
@@ -1227,7 +1206,7 @@
 					transcribeMode={s.transcribeMode}
 				/>
 
-				{#if s.status !== 'correcting' && !s.corrected}
+				{#if s.status !== 'correcting'}
 					<CorrectionControls
 						mode={s.mode}
 						reportLength={s.reportLength}
