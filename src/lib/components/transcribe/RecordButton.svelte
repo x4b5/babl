@@ -68,7 +68,7 @@
 			<button
 				onclick={onToggleRecording}
 				disabled={status === 'processing'}
-				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#1a1a2e] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#0f1a14] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
 					: status === 'idle' || status === 'correcting'
