@@ -131,3 +131,7 @@
 | 2026-06-04 | 21:31     | 21:33    | .02         | `e3be8d9`   | chore: update logbook                                                                                                           |
 | 2026-06-04 | 21:33     | 21:38    | .08         | `a3ec4e6`   | fix: update favicon with green glitch style and replace purple accent in title gradient                                         |
 | 2026-06-04 | 21:38     | 21:44    | .11         | `a447317`   | fix: always use speaker detection, remove realtime/accurate toggle                                                              |
+| 2026-06-04 | 21:44     | 21:45    | 0           | `adcc217`   | chore: update logbook                                                                                                           |
+| 2026-06-04 | 21:45     | 21:46    | .02         | `f2ea099`   | fix: update BABL title gradient to green-yellow-orange palette                                                                  |
+| 2026-06-04 | 21:46     | 21:48    | .03         | `d7dee0d`   | fix: match favicon gradient to title green-yellow-orange palette                                                                |
+| 2026-06-04 | 21:48     | 21:49    | .01         | `00194ae`   | fix: apply BABL brand colors to all toggle buttons                                                                              |
