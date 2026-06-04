@@ -305,22 +305,22 @@ body {
 	position: relative;
 	border-radius: 50%;
 	padding: 4px;
-	background: conic-gradient(from var(--angle), #d4ff00, #7c3aed, #ff0080, #d4ff00);
+	background: conic-gradient(from var(--angle), #10b981, #f97316, #ea580c, #10b981);
 	animation: conic-spin 4s linear infinite;
 }
 
 .conic-border-preparing {
-	background: conic-gradient(from var(--angle), #f59e0b, #d4ff00, #f59e0b);
+	background: conic-gradient(from var(--angle), #f59e0b, #10b981, #f59e0b);
 	animation: conic-spin 2s linear infinite;
 }
 
 .conic-border-recording {
-	background: conic-gradient(from var(--angle), #ef4444, #d4ff00, #ff0080, #ef4444);
+	background: conic-gradient(from var(--angle), #ef4444, #10b981, #f97316, #ef4444);
 	animation: conic-spin 1.5s linear infinite;
 }
 
 .conic-border-processing {
-	background: conic-gradient(from var(--angle), #d4ff00, transparent 40%, #d4ff00);
+	background: conic-gradient(from var(--angle), #10b981, transparent 40%, #10b981);
 	animation: conic-spin 1.2s linear infinite;
 }
 
@@ -363,10 +363,10 @@ body {
 	padding: 1px;
 	background: linear-gradient(
 		135deg,
-		rgba(212, 255, 0, 0.3),
-		rgba(124, 58, 237, 0.2),
-		rgba(255, 0, 128, 0.25),
-		rgba(212, 255, 0, 0.3)
+		rgba(16, 185, 129, 0.3),
+		rgba(249, 115, 22, 0.2),
+		rgba(234, 88, 12, 0.25),
+		rgba(16, 185, 129, 0.3)
 	);
 	background-size: 300% 300%;
 	animation: border-gradient-shift 8s ease infinite;
@@ -384,10 +384,10 @@ body {
 .gradient-border-card:hover::before {
 	background: linear-gradient(
 		135deg,
-		rgba(212, 255, 0, 0.6),
-		rgba(124, 58, 237, 0.4),
-		rgba(255, 0, 128, 0.5),
-		rgba(212, 255, 0, 0.6)
+		rgba(16, 185, 129, 0.6),
+		rgba(249, 115, 22, 0.4),
+		rgba(234, 88, 12, 0.5),
+		rgba(16, 185, 129, 0.6)
 	);
 	background-size: 300% 300%;
 	animation: border-gradient-shift 4s ease infinite;
@@ -407,9 +407,9 @@ body {
 .shimmer-text {
 	background: linear-gradient(
 		90deg,
-		rgba(212, 255, 0, 0.5) 0%,
+		rgba(16, 185, 129, 0.5) 0%,
 		rgba(255, 255, 255, 0.9) 50%,
-		rgba(212, 255, 0, 0.5) 100%
+		rgba(16, 185, 129, 0.5) 100%
 	);
 	background-size: 200% 100%;
 	-webkit-background-clip: text;
@@ -439,7 +439,7 @@ body {
 .waveform-bar {
 	width: 3px;
 	border-radius: 2px;
-	background: linear-gradient(to top, #7c3aed, #d4ff00);
+	background: linear-gradient(to top, #f97316, #10b981);
 	transition: height 0.05s ease;
 	min-height: 3px;
 }
@@ -479,7 +479,7 @@ body {
 }
 
 .upload-btn:hover::before {
-	background: linear-gradient(135deg, rgba(212, 255, 0, 0.5), rgba(255, 0, 128, 0.3));
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(249, 115, 22, 0.3));
 }
 
 /* Copy button bounce */

@@ -138,3 +138,4 @@
 | 2026-06-04 | 21:49     | 21:49    | 0           | `b6b1118`   | chore: update logbook                                                                                                           |
 | 2026-06-04 | 21:49     | 21:52    | .04         | `863df10`   | fix: default transcribe and correction mode to API                                                                              |
 | 2026-06-04 | 21:52     | 21:53    | .01         | `d062b41`   | fix: switch background to dark green-black to match BABL branding                                                               |
+| 2026-06-04 | 21:53     | 21:55    | .02         | `b0910e5`   | fix: update design tokens to green/orange BABL palette                                                                          |
