@@ -154,3 +154,5 @@
 | 2026-06-04 | 22:15     | 22:21    | .09         | `e118828`   | fix: remove quality toggle, default to medium                                                                                   |
 | 2026-06-04 | 22:21     | 22:24    | .04         | `1b781de`   | fix: keep correction controls visible after report is generated                                                                 |
 | 2026-06-04 | 22:24     | 22:31    | .12         | `acd98d0`   | fix: add error detail to correction failure messages                                                                            |
+| 2026-06-04 | 22:31     | 22:32    | .02         | `54f341a`   | refactor: remove unused legacy stores and update analytics                                                                      |
+| 2026-06-04 | 22:32     | 22:38    | .09         | `dd62252`   | fix: remove temperature slider, default to 0.2 for faithful output                                                              |

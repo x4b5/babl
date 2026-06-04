@@ -1,31 +1,25 @@
 <script lang="ts">
-	import type { Mode, ReportLength, Lang } from '$lib/stores/transcribe.svelte';
+	import type { Mode, ReportLength } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		mode: Mode;
 		reportLength: ReportLength;
-		lang: Lang;
-		keepDialect: boolean;
 		localAvailable: boolean;
 		mistralAvailable: boolean;
 		estimatedCorrectionCost: string;
 		onModeChange: (mode: Mode) => void;
 		onReportLengthChange: (length: ReportLength) => void;
-		onKeepDialectChange: (keep: boolean) => void;
 		onGenerate: () => void;
 	}
 
 	let {
 		mode,
 		reportLength,
-		lang,
-		keepDialect,
 		localAvailable,
 		mistralAvailable,
 		estimatedCorrectionCost,
 		onModeChange,
 		onReportLengthChange,
-		onKeepDialectChange,
 		onGenerate
 	}: Props = $props();
 
@@ -91,27 +85,6 @@
 			Tekst wordt verwerkt via Mistral (Europese servers)
 			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 		</p>
-	{/if}
-
-	<!-- Dialect retention toggle -->
-	{#if lang === 'li'}
-		<div class="mb-5 flex items-center justify-between gap-3">
-			<div class="flex flex-col">
-				<span class="text-sm sm:text-xs text-white/80">Behoud Dialect</span>
-				<span class="text-xs sm:text-[10px] text-white/30">Houd de output in het Limburgs</span>
-			</div>
-			<label class="relative inline-flex cursor-pointer items-center">
-				<input
-					type="checkbox"
-					checked={keepDialect}
-					onchange={(e) => onKeepDialectChange((e.target as HTMLInputElement).checked)}
-					class="peer sr-only"
-				/>
-				<div
-					class="peer h-5 w-9 rounded-full bg-white/10 after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white/40 after:transition-all after:content-[''] peer-checked:bg-neon peer-checked:after:translate-x-full peer-checked:after:bg-black"
-				></div>
-			</label>
-		</div>
 	{/if}
 
 	<!-- Generate button -->

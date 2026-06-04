@@ -1211,14 +1211,11 @@
 					<CorrectionControls
 						mode={s.mode}
 						reportLength={s.reportLength}
-						lang={s.lang}
-						keepDialect={s.keepDialect}
 						localAvailable={s.localAvailable}
 						mistralAvailable={s.mistralAvailable}
 						estimatedCorrectionCost={s.estimatedCorrectionCost}
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
-						onKeepDialectChange={(v) => setKeepDialect(v)}
 						onGenerate={startCorrection}
 					/>
 				{/if}
