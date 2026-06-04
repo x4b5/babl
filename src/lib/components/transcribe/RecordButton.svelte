@@ -250,7 +250,7 @@
 		</div>
 	{:else}
 		<div class="flex flex-col items-center gap-2">
-			<p class="text-sm text-white/30">Druk om op te nemen</p>
+			<p class="text-base sm:text-sm text-white/30">Druk om op te nemen</p>
 			<kbd class="kbd-hint hidden sm:inline-flex"
 				><span class="text-white/40">spatie</span> om te starten/stoppen</kbd
 			>
@@ -284,7 +284,7 @@
 
 	<a
 		href="/logout"
-		class="glass rounded-full border border-white/5 px-4 py-1.5 text-[10px] sm:text-xs font-medium text-white/30 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-200"
+		class="glass rounded-full border border-white/5 px-4 py-1.5 text-xs font-medium text-white/30 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-200"
 	>
 		Uitloggen
 	</a>

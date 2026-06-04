@@ -20,7 +20,7 @@
 			class="inline-block hover:animate-letter-bounce">L</span
 		>
 	</h1>
-	<p class="mb-3 sm:mb-4 text-xs sm:text-lg text-white/50">
+	<p class="mb-3 sm:mb-4 text-sm sm:text-lg text-white/50">
 		Van spraak naar tekst, met gevoel voor Limburgs
 	</p>
 </header>

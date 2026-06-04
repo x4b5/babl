@@ -45,17 +45,17 @@
 </script>
 
 <div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
-	<h3 class="mb-3 sm:mb-4 text-sm font-semibold text-white/70">Verslaglegging</h3>
+	<h3 class="mb-3 sm:mb-4 text-base sm:text-sm font-semibold text-white/70">Verslaglegging</h3>
 
 	<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
 		<!-- Mode toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-[10px] uppercase tracking-wider text-white/30">Model</span>
+			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Model</span>
 			<div class="glass flex rounded-full p-1">
 				<button
 					onclick={() => onModeChange('local')}
 					disabled={!localAvailable}
-					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -65,7 +65,7 @@
 				<button
 					onclick={() => onModeChange('api')}
 					disabled={!mistralAvailable}
-					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'api'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -77,11 +77,11 @@
 
 		<!-- Quality toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-[10px] uppercase tracking-wider text-white/30">Kwaliteit</span>
+			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Kwaliteit</span>
 			<div class="glass flex rounded-full p-1">
 				<button
 					onclick={() => onQualityChange('light')}
-					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
 					'light'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'}"
@@ -90,7 +90,7 @@
 				</button>
 				<button
 					onclick={() => onQualityChange('medium')}
-					class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
 					'medium'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'}"
@@ -102,12 +102,12 @@
 
 		<!-- Report length toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-[10px] uppercase tracking-wider text-white/30">Omvang</span>
+			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Omvang</span>
 			<div class="glass flex rounded-full p-1">
 				{#each reportLengthOptions as opt}
 					<button
 						onclick={() => onReportLengthChange(opt.value)}
-						class="flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
+						class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
 						opt.value
 							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 							: 'text-neon/40 hover:text-neon/70 scale-100'}"
@@ -120,7 +120,7 @@
 	</div>
 
 	{#if mode === 'api'}
-		<p class="mb-3 text-xs text-amber-400/70">
+		<p class="mb-3 text-sm sm:text-xs text-amber-400/70">
 			Tekst wordt verwerkt via Mistral (Europese servers)
 			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 		</p>
@@ -128,7 +128,9 @@
 
 	<!-- Temperature slider -->
 	<div class="mb-5 flex items-center gap-3">
-		<label for="temperature" class="text-xs text-white/50 whitespace-nowrap">Temperatuur</label>
+		<label for="temperature" class="text-sm sm:text-xs text-white/50 whitespace-nowrap"
+			>Temperatuur</label
+		>
 		<input
 			id="temperature"
 			type="range"
@@ -146,8 +148,8 @@
 	{#if lang === 'li'}
 		<div class="mb-5 flex items-center justify-between gap-3">
 			<div class="flex flex-col">
-				<span class="text-xs text-white/80">Behoud Dialect</span>
-				<span class="text-[10px] text-white/30">Houd de output in het Limburgs</span>
+				<span class="text-sm sm:text-xs text-white/80">Behoud Dialect</span>
+				<span class="text-xs sm:text-[10px] text-white/30">Houd de output in het Limburgs</span>
 			</div>
 			<label class="relative inline-flex cursor-pointer items-center">
 				<input

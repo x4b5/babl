@@ -17,7 +17,7 @@
 {#if status === 'correcting' && !corrected}
 	<div class="gradient-border-card p-5 animate-fade-in">
 		<div class="mb-3">
-			<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+			<h2 class="text-base sm:text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
 		</div>
 		<div class="flex items-center gap-3">
 			<div class="flex gap-1">
@@ -45,7 +45,7 @@
 	>
 		<div class="mb-3 flex items-center justify-between">
 			<div class="flex items-center gap-2">
-				<h2 class="text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+				<h2 class="text-base sm:text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
 				{#if status === 'correcting'}
 					<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
 				{/if}
