@@ -21,7 +21,7 @@
 		>
 	</h1>
 	<p class="mb-3 sm:mb-4 text-xs sm:text-lg text-white/50">
-		Spraak naar tekst met Limburgse dialectcorrectie
+		Van spraak naar tekst, met gevoel voor Limburgs
 	</p>
 	<div class="flex items-center justify-center gap-2">
 		<span
