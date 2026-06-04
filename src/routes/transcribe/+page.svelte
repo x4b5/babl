@@ -499,6 +499,23 @@
 		}
 	}
 
+	// ── Microphone permission ─────────────────────────────────────
+
+	async function requestMicPermission() {
+		try {
+			const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			// Permission granted — stop the temporary stream and clear error
+			tempStream.getTracks().forEach((t) => t.stop());
+			setError('');
+			setErrorType('');
+		} catch {
+			// Still denied — user needs to change it in browser settings
+			setError(
+				'Toestemming nog steeds geblokkeerd. Open je browserinstellingen (klik op het slotje links in de adresbalk) en zet "Microfoon" op "Toestaan". Herlaad daarna de pagina.'
+			);
+		}
+	}
+
 	// ── Recording ──────────────────────────────────────────────────
 
 	async function startRecording() {
@@ -655,8 +672,19 @@
 			} else if (s.transcribeMode === 'local') {
 				startLiveTranscription();
 			}
-		} catch {
-			setError('Microfoon niet beschikbaar. Controleer je browserpermissies.');
+		} catch (e) {
+			setStatus('idle');
+			const err = e instanceof DOMException ? e : null;
+			if (err?.name === 'NotAllowedError') {
+				setErrorType('mic_denied');
+				setError(
+					'Microfoontoegang is geweigerd. Klik op het slotje (of site-instellingen) in je adresbalk en zet "Microfoon" op "Toestaan".'
+				);
+			} else if (err?.name === 'NotFoundError') {
+				setError('Geen microfoon gevonden. Sluit een microfoon aan en probeer opnieuw.');
+			} else {
+				setError('Microfoon niet beschikbaar. Controleer je browserpermissies.');
+			}
 		}
 	}
 
@@ -1207,6 +1235,7 @@
 				errorType={s.errorType}
 				savedRecordingId={s.savedRecordingId}
 				onRetry={retryTranscription}
+				onRequestMic={requestMicPermission}
 			/>
 		{/if}
 

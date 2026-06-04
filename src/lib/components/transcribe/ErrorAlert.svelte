@@ -7,9 +7,10 @@
 		errorType: ErrorType | '';
 		savedRecordingId?: string | null;
 		onRetry?: () => void;
+		onRequestMic?: () => void;
 	}
 
-	let { error, errorType, savedRecordingId = null, onRetry }: Props = $props();
+	let { error, errorType, savedRecordingId = null, onRetry, onRequestMic }: Props = $props();
 
 	let downloading = $state(false);
 
@@ -48,6 +49,17 @@
 			: 'border-red-500/20 bg-red-500/10 text-red-300'}"
 	>
 		<p>{error}</p>
+
+		{#if errorType === 'mic_denied' && onRequestMic}
+			<div class="mt-3">
+				<button
+					onclick={onRequestMic}
+					class="rounded-lg border border-neon/20 bg-neon/10 px-3 py-1.5 text-xs font-medium text-neon transition hover:bg-neon/20"
+				>
+					Toestemming geven
+				</button>
+			</div>
+		{/if}
 
 		{#if savedRecordingId}
 			<div class="mt-3 flex flex-wrap gap-2">
