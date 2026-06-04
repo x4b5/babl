@@ -147,3 +147,10 @@
 | 2026-06-04 | 22:04     | 22:06    | .02         | `7a35171`   | feat: increase recording limit to 2 hours and lighten record button                                                             |
 | 2026-06-04 | 22:06     | 22:07    | .01         | `05f0251`   | fix: lighten record button background to neutral grey                                                                           |
 | 2026-06-04 | 22:07     | 22:08    | .02         | `b6ab62d`   | fix: make record button ring thinner and more subtle                                                                            |
+| 2026-06-04 | 22:08     | 22:09    | .02         | `e043299`   | chore: update logbook and brighten conic border ring                                                                            |
+| 2026-06-04 | 22:09     | 22:10    | .01         | `c9f417d`   | fix: adjust record button ring visibility and lighter grey background                                                           |
+| 2026-06-04 | 22:10     | 22:14    | .07         | `277ee8f`   | feat: add PWA icons and manifest for mobile home screen tile                                                                    |
+| 2026-06-04 | 22:14     | 22:15    | 0           | `a26a306`   | fix: increase mobile text sizes for better readability                                                                          |
+| 2026-06-04 | 22:15     | 22:21    | .09         | `e118828`   | fix: remove quality toggle, default to medium                                                                                   |
+| 2026-06-04 | 22:21     | 22:24    | .04         | `1b781de`   | fix: keep correction controls visible after report is generated                                                                 |
+| 2026-06-04 | 22:24     | 22:31    | .12         | `acd98d0`   | fix: add error detail to correction failure messages                                                                            |

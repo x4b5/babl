@@ -1,5 +1,5 @@
 import posthog from 'posthog-js';
-import type { GamePhase } from '../stores/game.svelte';
+import type { Status } from '../stores/transcribe.svelte';
 
 let initialized = false;
 
@@ -37,16 +37,14 @@ export function trackPageViewed(page: string): void {
 	capture('page_viewed', { page });
 }
 
-export function setupAbandonmentTracking(
-	getStateFn: () => { phase: GamePhase }
-): void {
+export function setupAbandonmentTracking(getStateFn: () => { status: Status }): void {
 	if (typeof document === 'undefined') return;
 
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState !== 'hidden') return;
 		try {
 			const state = getStateFn();
-			capture('session_abandoned', { phase: state.phase });
+			capture('session_abandoned', { status: state.status });
 		} catch {
 			// Silent fail
 		}

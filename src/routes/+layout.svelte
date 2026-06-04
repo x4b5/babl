@@ -6,10 +6,10 @@
 
 	onMount(async () => {
 		const { setupAbandonmentTracking } = await import('$lib/utils/analytics');
-		const { getGameState } = await import('$lib/stores/game.svelte');
-		const game = getGameState();
+		const { getTranscribeState } = await import('$lib/stores/transcribe.svelte');
+		const s = getTranscribeState();
 		setupAbandonmentTracking(() => ({
-			phase: game.phase
+			status: s.status
 		}));
 	});
 </script>
