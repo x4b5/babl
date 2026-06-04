@@ -99,7 +99,7 @@
 					</svg>
 				{:else}
 					<svg
-						class="h-8 w-8 sm:h-12 sm:w-12 text-white"
+						class="h-8 w-8 sm:h-12 sm:w-12 text-yellow-400"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
