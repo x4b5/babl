@@ -22,7 +22,7 @@
 {/if}
 
 <div
-	class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)]"
+	class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
 >
 	<div class="mb-3 flex items-center justify-between">
 		<h2 class="text-sm font-semibold text-white/70">Ruwe transcriptie</h2>

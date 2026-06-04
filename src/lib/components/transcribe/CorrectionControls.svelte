@@ -166,7 +166,7 @@
 	<!-- Generate button -->
 	<button
 		onclick={onGenerate}
-		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,255,0,0.3)] active:scale-[0.98]"
+		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
 	>
 		Verslaglegging genereren
 	</button>

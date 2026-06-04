@@ -72,7 +72,7 @@
 					{status === 'recording'
 					? 'animate-pulse-glow'
 					: status === 'idle' || status === 'correcting'
-						? 'hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(212,255,0,0.4)]'
+						? 'hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
 						: ''}"
 			>
 				{#if status === 'preparing'}

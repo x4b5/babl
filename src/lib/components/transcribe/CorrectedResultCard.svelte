@@ -41,7 +41,7 @@
 
 {#if corrected}
 	<div
-		class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(212,255,0,0.15)] animate-slide-up"
+		class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] animate-slide-up"
 	>
 		<div class="mb-3 flex items-center justify-between">
 			<div class="flex items-center gap-2">
