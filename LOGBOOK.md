@@ -100,3 +100,26 @@
 | 2026-04-18 | 03:15     | 03:17    | .02         | `70f88f5`   | feat(05-02): integrate hallucination detection into transcription pipeline                                                      |
 | 2026-04-18 | 03:17     | 03:18    | .02         | `72e4987`   | feat(05-01): expand all 4 regional profiles to 50+ word_boost and 15+ custom_spelling                                           |
 | 2026-04-18 | 03:18     | 03:20    | .03         | `04f9421`   | docs(05-01): complete expand dialect profiles plan                                                                              |
+| 2026-04-18 | 03:20     | 03:25    | .08         | `3a59ec5`   | chore(05): commit remaining phase 5 changes                                                                                     |
+| 2026-04-18 | 03:25     | 03:51    | .43         | `9758dc3`   | docs(06): capture phase context                                                                                                 |
+| 2026-04-18 | 03:51     | 03:51    | 0           | `f56c9eb`   | docs(state): record phase 6 context session                                                                                     |
+| 2026-04-18 | 03:51     | 04:14    | .38         | `65a61b1`   | docs(06): research LLM correction consistency                                                                                   |
+| 2026-04-18 | 04:14     | 04:16    | .03         | `975ab71`   | docs(06): add research and validation strategy                                                                                  |
+| 2026-04-18 | 04:16     | 04:27    | .17         | `18742fe`   | docs(06): create phase plan — 3 plans in 3 waves                                                                                |
+| 2026-04-18 | 04:27     | 05:21    | .90         | `b8a4445`   | feat(06-00): create CorrectionOutput model and parser                                                                           |
+| 2026-04-18 | 05:21     | 05:23    | .02         | `780e879`   | test(06-00): create test scaffolding for CORR-01, CORR-02, CORR-03                                                              |
+| 2026-04-18 | 05:23     | 05:24    | .02         | `8516860`   | docs(06-00): complete test scaffolding plan                                                                                     |
+| 2026-04-18 | 05:24     | 05:32    | .13         | `7259096`   | feat(06-01): add few-shot examples and glossaries to all 5 regional profiles                                                    |
+| 2026-04-18 | 05:32     | 05:35    | .04         | `6a41dd5`   | feat(06-01): add build_correction_prompt and move SYSTEM_PROMPTS to correction.py                                               |
+| 2026-04-18 | 05:35     | 05:37    | .02         | `76bf833`   | docs(06-01): complete few-shot examples and glossaries plan                                                                     |
+| 2026-04-18 | 05:37     | 11:32    | 4.00        | `aacdad3`   | feat(06-02): wire prompt builder + JSON output into correction endpoints                                                        |
+| 2026-04-18 | 11:32     | 11:32    | 0           | `9d97667`   | docs(06-02): complete prompt wiring plan — Phase 06 done                                                                        |
+| 2026-04-18 | 11:32     | 11:44    | .19         | `168614e`   | test(07-00): create test scaffolding for FEED-01, FEED-02, FEED-03                                                              |
+| 2026-04-18 | 11:44     | 11:52    | .13         | `6dbb0ac`   | feat(07): implement Phase 07 feedback & iteration (FEED-01, FEED-02, FEED-03)                                                   |
+| 2026-04-18 | 11:52     | 11:52    | 0           | `9fdeee1`   | docs(07): complete Phase 07 — v2.0 Dialect Quality milestone done                                                               |
+| 2026-06-04 | 11:52     | 19:13    | 4.00        | `b979464`   | fix: improve error classification and large file upload handling                                                                |
+| 2026-06-04 | 19:13     | 19:35    | .36         | `d4cc9cf`   | feat: auto-save recordings to IndexedDB before transcription                                                                    |
+| 2026-06-04 | 19:35     | 20:42    | 1.11        | `fd9655a`   | fix: show actionable mic permission prompt instead of generic error                                                             |
+| 2026-06-04 | 20:42     | 21:04    | .36         | `c7e3f6e`   | fix: lighten background and add warmer gradient color stops                                                                     |
+| 2026-06-04 | 21:04     | 21:09    | .07         | `4918c83`   | feat: add privacy policy page at /privacy                                                                                       |
+| 2026-06-04 | 21:09     | 21:11    | .03         | `93df7b3`   | feat: add BABL favicon, page title, and meta tags                                                                               |
