@@ -79,7 +79,6 @@
 		setMode,
 		setReportLength,
 		setTranscribeMode,
-		setApiStreamMode,
 		setTemperature,
 		setSavedRecordingId,
 		setSavedRecordingMimeType
@@ -1200,11 +1199,9 @@
 
 		<TranscribeModeToggle
 			transcribeMode={s.transcribeMode}
-			apiStreamMode={s.apiStreamMode}
 			localAvailable={s.localAvailable}
 			assemblyAvailable={s.assemblyAvailable}
 			onTranscribeModeChange={(v) => setTranscribeMode(v)}
-			onApiStreamModeChange={(v) => setApiStreamMode(v)}
 		/>
 
 		<RecordButton
