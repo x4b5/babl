@@ -123,3 +123,7 @@
 | 2026-06-04 | 20:42     | 21:04    | .36         | `c7e3f6e`   | fix: lighten background and add warmer gradient color stops                                                                     |
 | 2026-06-04 | 21:04     | 21:09    | .07         | `4918c83`   | feat: add privacy policy page at /privacy                                                                                       |
 | 2026-06-04 | 21:09     | 21:11    | .03         | `93df7b3`   | feat: add BABL favicon, page title, and meta tags                                                                               |
+| 2026-06-04 | 21:11     | 21:19    | .14         | `62ebd20`   | chore: commit outstanding component extractions and housekeeping                                                                |
+| 2026-06-04 | 21:19     | 21:21    | .03         | `fc53b91`   | fix: update tagline to friendlier Dutch copy                                                                                    |
+| 2026-06-04 | 21:21     | 21:25    | .06         | `bd86a13`   | fix: improve mobile responsiveness across transcribe UI                                                                         |
+| 2026-06-04 | 21:25     | 21:31    | .10         | `0690830`   | fix: update spacebar hint to starten/stoppen                                                                                    |

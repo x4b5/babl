@@ -22,7 +22,6 @@
 
 	// Components
 	import AppHeader from '$lib/components/transcribe/AppHeader.svelte';
-	import LanguageToggle from '$lib/components/transcribe/LanguageToggle.svelte';
 	import TranscribeModeToggle from '$lib/components/transcribe/TranscribeModeToggle.svelte';
 	import RecordButton from '$lib/components/transcribe/RecordButton.svelte';
 	import ErrorAlert from '$lib/components/transcribe/ErrorAlert.svelte';
@@ -77,7 +76,6 @@
 		resetForCorrection,
 		resetForTranscription,
 		setQuality,
-		setLang,
 		setMode,
 		setReportLength,
 		setTranscribeMode,
@@ -1199,8 +1197,6 @@
 
 	<div class="mx-auto max-w-3xl px-4 py-6 sm:py-16">
 		<AppHeader />
-
-		<LanguageToggle lang={s.lang} onchange={(v) => setLang(v)} />
 
 		<TranscribeModeToggle
 			transcribeMode={s.transcribeMode}

@@ -72,7 +72,7 @@ let copiedRaw = $state(false);
 let copiedCorrected = $state(false);
 let correctedExpanded = $state(false);
 let quality = $state<Quality>('light');
-let lang = $state<Lang>('li');
+const lang: Lang = 'li';
 let mode = $state<Mode>('local');
 let reportLength = $state<ReportLength>('middellang');
 let transcribeMode = $state<Mode>('local');
@@ -349,9 +349,6 @@ export function setCorrectedExpanded(v: boolean) {
 }
 export function setQuality(v: Quality) {
 	quality = v;
-}
-export function setLang(v: Lang) {
-	lang = v;
 }
 export function setMode(v: Mode) {
 	mode = v;
