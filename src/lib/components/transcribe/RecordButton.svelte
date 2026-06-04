@@ -68,7 +68,7 @@
 			<button
 				onclick={onToggleRecording}
 				disabled={status === 'processing'}
-				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#0a0a0f] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#1a1a2e] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
 					: status === 'idle' || status === 'correcting'
@@ -251,7 +251,9 @@
 	{:else}
 		<div class="flex flex-col items-center gap-2">
 			<p class="text-sm text-white/30">Druk om op te nemen</p>
-			<kbd class="kbd-hint"><span class="text-white/40">spatie</span> om op te nemen</kbd>
+			<kbd class="kbd-hint hidden sm:inline-flex"
+				><span class="text-white/40">spatie</span> om op te nemen</kbd
+			>
 		</div>
 	{/if}
 

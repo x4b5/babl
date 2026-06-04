@@ -95,7 +95,7 @@
 			</div>
 			{#if !expanded}
 				<div
-					class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none"
+					class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1a1a2e] to-transparent pointer-events-none"
 				></div>
 			{/if}
 		</div>
