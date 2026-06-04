@@ -960,10 +960,12 @@ export const POST: RequestHandler = async ({ request }) => {
 				}
 				send({ type: 'done' });
 			} catch (e) {
+				console.error('[correct] Mistral error:', e instanceof Error ? e.message : e);
 				const classified = classifyError(e);
 				send({
 					type: 'error',
 					error_type: classified.errorType,
+					message: e instanceof Error ? e.message : String(e),
 					...(classified.retryAfter !== undefined && { retry_after: classified.retryAfter })
 				});
 			} finally {

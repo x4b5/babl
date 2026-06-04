@@ -1047,7 +1047,8 @@
 		if (isRetryable(eventErrorType) && event.retry_after) {
 			startCountdown(event.retry_after);
 		} else {
-			setError(getUserMessage(eventErrorType));
+			const detail = event.message ? ` (${event.message})` : '';
+			setError(getUserMessage(eventErrorType) + detail);
 		}
 	}
 
