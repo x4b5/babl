@@ -135,3 +135,6 @@
 | 2026-06-04 | 21:45     | 21:46    | .02         | `f2ea099`   | fix: update BABL title gradient to green-yellow-orange palette                                                                  |
 | 2026-06-04 | 21:46     | 21:48    | .03         | `d7dee0d`   | fix: match favicon gradient to title green-yellow-orange palette                                                                |
 | 2026-06-04 | 21:48     | 21:49    | .01         | `00194ae`   | fix: apply BABL brand colors to all toggle buttons                                                                              |
+| 2026-06-04 | 21:49     | 21:49    | 0           | `b6b1118`   | chore: update logbook                                                                                                           |
+| 2026-06-04 | 21:49     | 21:52    | .04         | `863df10`   | fix: default transcribe and correction mode to API                                                                              |
+| 2026-06-04 | 21:52     | 21:53    | .01         | `d062b41`   | fix: switch background to dark green-black to match BABL branding                                                               |

@@ -5,11 +5,11 @@
 	--color-glass: rgba(255, 255, 255, 0.05);
 	--color-glass-border: rgba(255, 255, 255, 0.08);
 	--color-glass-hover: rgba(255, 255, 255, 0.1);
-	--color-accent-start: #7c3aed;
-	--color-accent-end: #4f46e5;
-	--color-neon: #d4ff00;
-	--color-glow-violet: rgba(124, 58, 237, 0.4);
-	--color-glow-neon: rgba(212, 255, 0, 0.4);
+	--color-accent-start: #f97316;
+	--color-accent-end: #ea580c;
+	--color-neon: #10b981;
+	--color-glow-violet: rgba(249, 115, 22, 0.4);
+	--color-glow-neon: rgba(16, 185, 129, 0.4);
 	--color-glow-red: rgba(239, 68, 68, 0.5);
 	--color-glow-green: rgba(34, 197, 94, 0.5);
 }
@@ -121,7 +121,7 @@ body {
 .orb-cyan {
 	width: 350px;
 	height: 350px;
-	background: rgba(212, 255, 0, 0.1);
+	background: rgba(16, 185, 129, 0.1);
 	bottom: -5%;
 	left: 20%;
 	animation: orb-drift-3 22s ease-in-out infinite;
@@ -242,7 +242,7 @@ body {
 
 @media (max-width: 640px) {
 	.gradient-text {
-		filter: drop-shadow(0 0 10px rgba(212, 255, 0, 0.3));
+		filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
 	}
 }
 
