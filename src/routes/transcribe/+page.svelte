@@ -293,9 +293,6 @@
 			formData.append('file', wav, 'live.wav');
 			formData.append('lang', s.lang);
 			formData.append('offset', String(s.liveAudioDuration));
-			console.log(
-				`Live chunk: sending chunks ${sendFrom}-${chunks.length} (${(wav.size / 1024).toFixed(0)}KB, offset=${s.liveAudioDuration.toFixed(1)}s)`
-			);
 			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 				method: 'POST',
 				body: formData,
@@ -319,10 +316,8 @@
 			}
 		} catch (e) {
 			if (e instanceof Error && e.name === 'AbortError') {
-				console.log('Live chunk aborted');
 				return;
 			}
-			console.warn('Live chunk failed:', e);
 		} finally {
 			liveChunkController = undefined;
 			liveBusy = false;
@@ -370,7 +365,6 @@
 		});
 
 		streamSocket.addEventListener('open', () => {
-			console.log('[RT] WebSocket connected');
 			setReconnecting(false);
 			setReconnectStatus('');
 			streamSocket!.send(JSON.stringify({ lang: s.lang }));
@@ -409,13 +403,11 @@
 				setLiveWorking(true);
 				resetStall();
 			} else if (data.type === 'error') {
-				console.error('[RT] Error:', data.message);
 				setError(`Real-time fout: ${data.message}`);
 			}
 		});
 
 		streamSocket.addEventListener('error', () => {
-			console.error('[RT] WebSocket error');
 			if (streamSocket && streamSocket.retryCount >= 5) {
 				setReconnecting(false);
 				setReconnectStatus('');
@@ -431,7 +423,7 @@
 		});
 
 		streamSocket.addEventListener('close', () => {
-			console.log('[RT] WebSocket closed');
+			// Connection closed
 		});
 	}
 
@@ -491,8 +483,8 @@
 		try {
 			const pcm = await toPcmInt16(blob);
 			streamSocket.send(pcm);
-		} catch (e) {
-			console.error('[RT] PCM conversion error:', e);
+		} catch {
+			// PCM conversion failed — skip this chunk
 		}
 	}
 
@@ -587,9 +579,6 @@
 								const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
 								const remainingBlob = new Blob(chunks.slice(sendFrom), { type: mimeType });
 								const wav = await downsampleToWav(remainingBlob);
-								console.log(
-									`Final chunk: sending remaining chunks ${sendFrom}-${chunks.length} (${(wav.size / 1024).toFixed(0)}KB)`
-								);
 								const formData = new FormData();
 								formData.append('file', wav, 'final.wav');
 								formData.append('lang', s.lang);
@@ -622,9 +611,6 @@
 					// No live text — send full audio for final transcription
 					try {
 						const wav = await downsampleToWav(blob);
-						console.log(
-							`Final transcription: sending full audio (${(wav.size / 1024).toFixed(0)}KB)`
-						);
 						const formData = new FormData();
 						formData.append('file', wav, 'final.wav');
 						formData.append('lang', s.lang);
@@ -1244,7 +1230,6 @@
 				{#if s.status !== 'correcting' && !s.corrected}
 					<CorrectionControls
 						mode={s.mode}
-						quality={s.quality}
 						reportLength={s.reportLength}
 						temperature={s.temperature}
 						lang={s.lang}
@@ -1253,7 +1238,6 @@
 						mistralAvailable={s.mistralAvailable}
 						estimatedCorrectionCost={s.estimatedCorrectionCost}
 						onModeChange={(v) => setMode(v)}
-						onQualityChange={(v) => setQuality(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
 						onTemperatureChange={(v) => setTemperature(v)}
 						onKeepDialectChange={(v) => setKeepDialect(v)}

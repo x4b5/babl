@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { Mode, Quality, ReportLength, Lang } from '$lib/stores/transcribe.svelte';
+	import type { Mode, ReportLength, Lang } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		mode: Mode;
-		quality: Quality;
 		reportLength: ReportLength;
 		temperature: number;
 		lang: Lang;
@@ -12,7 +11,6 @@
 		mistralAvailable: boolean;
 		estimatedCorrectionCost: string;
 		onModeChange: (mode: Mode) => void;
-		onQualityChange: (quality: Quality) => void;
 		onReportLengthChange: (length: ReportLength) => void;
 		onTemperatureChange: (temp: number) => void;
 		onKeepDialectChange: (keep: boolean) => void;
@@ -21,7 +19,6 @@
 
 	let {
 		mode,
-		quality,
 		reportLength,
 		temperature,
 		lang,
@@ -30,7 +27,6 @@
 		mistralAvailable,
 		estimatedCorrectionCost,
 		onModeChange,
-		onQualityChange,
 		onReportLengthChange,
 		onTemperatureChange,
 		onKeepDialectChange,
@@ -47,7 +43,7 @@
 <div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
 	<h3 class="mb-3 sm:mb-4 text-base sm:text-sm font-semibold text-white/70">Verslaglegging</h3>
 
-	<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
 		<!-- Mode toggle -->
 		<div class="flex flex-col gap-1">
 			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Model</span>
@@ -71,31 +67,6 @@
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					API
-				</button>
-			</div>
-		</div>
-
-		<!-- Quality toggle -->
-		<div class="flex flex-col gap-1">
-			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Kwaliteit</span>
-			<div class="glass flex rounded-full p-1">
-				<button
-					onclick={() => onQualityChange('light')}
-					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
-					'light'
-						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-neon/40 hover:text-neon/70 scale-100'}"
-				>
-					Light
-				</button>
-				<button
-					onclick={() => onQualityChange('medium')}
-					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {quality ===
-					'medium'
-						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-neon/40 hover:text-neon/70 scale-100'}"
-				>
-					Medium
 				</button>
 			</div>
 		</div>
