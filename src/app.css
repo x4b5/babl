@@ -33,6 +33,7 @@ body {
 	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
 		env(safe-area-inset-left);
 	min-height: 100svh;
+	font-size: 18px;
 	font-family: var(--font-sans);
 	-webkit-tap-highlight-color: transparent;
 	overflow-x: hidden;
