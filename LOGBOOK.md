@@ -256,3 +256,4 @@
 | 2026-06-06 | 23:37     | 23:38    | .01         | `8ccbc4a`   | feat: complete polishing rename in UI pages + add Qwen 3 model family                                                           |
 | 2026-06-06 | 23:38     | 23:45    | .11         | `ed26251`   | feat: split Whisper setup into install + start with clickable .command file                                                     |
 | 2026-06-06 | 23:45     | 23:45    | 0           | `6a24fc6`   | chore: update logbook entries                                                                                                   |
+| 2026-06-06 | 23:45     | 23:47    | .03         | `4b263c2`   | fix: verify Ollama model is loadable before use and improve error messages                                                      |
