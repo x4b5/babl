@@ -14,24 +14,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# --- 1. Ollama ---
-if ! command -v ollama &>/dev/null; then
-  echo "Error: ollama is not installed. Install it from https://ollama.com"
-  exit 1
-fi
-
-if curl -sf http://localhost:11434/api/tags &>/dev/null; then
-  echo "Ollama is already running"
+# --- 1. Ollama (optioneel — alleen nodig voor verslaglegging) ---
+if command -v ollama &>/dev/null; then
+  if curl -sf http://localhost:11434/api/tags &>/dev/null; then
+    echo "Ollama is already running"
+  else
+    echo "Starting ollama..."
+    ollama serve &>/dev/null &
+    OLLAMA_PID=$!
+    for i in $(seq 1 30); do
+      curl -sf http://localhost:11434/api/tags &>/dev/null && break
+      sleep 1
+    done
+    echo "Ollama started (pid $OLLAMA_PID)"
+  fi
 else
-  echo "Starting ollama..."
-  ollama serve &>/dev/null &
-  OLLAMA_PID=$!
-  # Wait until ollama is ready
-  for i in $(seq 1 30); do
-    curl -sf http://localhost:11434/api/tags &>/dev/null && break
-    sleep 1
-  done
-  echo "Ollama started (pid $OLLAMA_PID)"
+  echo "Ollama niet gevonden — transcriptie werkt, verslaglegging nog niet."
+  echo "Installeer later via https://ollama.com"
 fi
 
 # --- 2. Backend venv ---
