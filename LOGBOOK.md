@@ -174,3 +174,11 @@
 | 2026-06-06 | 12:02     | 12:13    | .19         | `6dd3529`   | feat: add Safari audio support, partial results, and safer segmented upload                                                     |
 | 2026-06-06 | 12:13     | 12:23    | .16         | `7a97637`   | feat: show build version (git hash) in footer                                                                                   |
 | 2026-06-06 | 12:23     | 12:26    | .04         | `6094cd3`   | fix: make version display work in Svelte template                                                                               |
+| 2026-06-06 | 12:26     | 12:30    | .06         | `0677fc0`   | fix: use VERCEL_GIT_COMMIT_SHA for version on Vercel builds                                                                     |
+| 2026-06-06 | 12:30     | 12:53    | .38         | `0175cbe`   | refactor: simplify report options to samenvatting/uitgebreid                                                                    |
+| 2026-06-06 | 12:53     | 13:00    | .11         | `ca76ffd`   | feat: add legal disclaimer to transcript and correction output                                                                  |
+| 2026-06-06 | 13:00     | 13:52    | .87         | `7495c47`   | feat: add cookie consent, data management, and legal pages for AVG compliance                                                   |
+| 2026-06-06 | 13:52     | 13:57    | .08         | `3ee2f5f`   | fix: add /cookies and /voorwaarden to public paths                                                                              |
+| 2026-06-06 | 13:57     | 14:09    | .19         | `fb4800c`   | feat: add legal page links to PrivacyFooter                                                                                     |
+| 2026-06-06 | 14:09     | 14:27    | .30         | `873961d`   | feat: expand dialect glossary and add /health/setup endpoint                                                                    |
+| 2026-06-06 | 14:27     | 14:29    | .02         | `328c56d`   | feat: add setup wizard for local mode configuration                                                                             |

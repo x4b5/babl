@@ -5,7 +5,7 @@
 ## Directory Layout
 
 ```
-babbel/
+babl/
 ├── src/                           # Frontend SvelteKit application
 │   ├── app.css                    # Global styles, design tokens, animations
 │   ├── hooks.server.ts            # Session middleware (auth verification)
