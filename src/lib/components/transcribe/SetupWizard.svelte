@@ -58,8 +58,7 @@
 		{
 			title: 'Start de server',
 			done: w.status.backendRunning,
-			description:
-				'Start de server elke keer als je BABL wilt gebruiken. Open de Terminal app en plak het commando.',
+			description: 'Dubbelklik op het bestand "start-babl" in de babl map om de server te starten.',
 			commands: [],
 			hasStartStep: true
 		},
@@ -331,12 +330,16 @@
 							{/if}
 
 							{#if step.hasStartStep}
-								{@const startCmd = 'cd ~/babl && npm run transcribe'}
+								{@const openCmd = 'open ~/babl'}
+								<div class="rounded-lg bg-white/5 p-3 text-center">
+									<p class="text-sm text-white/70 mb-1">Open de babl map en dubbelklik op:</p>
+									<p class="font-mono text-sm font-semibold text-neon/90">start-babl.command</p>
+								</div>
 								<button
-									onclick={() => copyCommand(startCmd)}
+									onclick={() => copyCommand(openCmd)}
 									class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(212,255,0,0.3)]"
 								>
-									{#if w.copiedCommand === startCmd}
+									{#if w.copiedCommand === openCmd}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
 												stroke-linecap="round"
@@ -345,23 +348,26 @@
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										Gekopieerd! Plak in Terminal
+										Gekopieerd! Plak in Terminal om map te openen
 									{:else}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
 												stroke-linecap="round"
 												stroke-linejoin="round"
 												stroke-width="2"
-												d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+												d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
 											/>
 										</svg>
-										Kopieer startcommando
+										Open babl map in Finder
 									{/if}
 								</button>
 								<p class="text-xs text-white/40 text-center">
-									Open Terminal en plak het commando met <kbd
-										class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
+									Plak
+									<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+										>open ~/babl</kbd
 									>
+									in Terminal, dubbelklik dan op
+									<strong class="text-white/60">start-babl</strong>
 								</p>
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
