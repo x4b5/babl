@@ -160,6 +160,39 @@ async def health():
     }
 
 
+@app.get("/health/setup")
+async def health_setup():
+    """Detailed setup status for the setup wizard. Checks Ollama and Whisper availability."""
+    ollama_running = False
+    ollama_models: dict[str, bool] = {model: False for model in OLLAMA_MODELS.values()}
+
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            resp = await client.get("http://localhost:11434/api/tags")
+            if resp.status_code == 200:
+                ollama_running = True
+                data = resp.json()
+                available = {m.get("name", "") for m in data.get("models", [])}
+                for model in OLLAMA_MODELS.values():
+                    ollama_models[model] = model in available
+    except Exception:
+        pass
+
+    whisper_available = False
+    try:
+        import importlib
+        whisper_available = importlib.util.find_spec("mlx_whisper") is not None
+    except Exception:
+        pass
+
+    return {
+        "backend_running": True,
+        "ollama_running": ollama_running,
+        "ollama_models": ollama_models,
+        "whisper_available": whisper_available,
+    }
+
+
 def parse_retry_after(response_or_headers) -> int:
     """Parse Retry-After header from response or exception. Returns seconds to wait.
     Supports integer seconds format and HTTP-date (RFC 1123) format.

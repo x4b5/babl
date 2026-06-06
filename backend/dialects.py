@@ -2,8 +2,10 @@
 
 # 1.1 Whisper Prompt Optimization (Legacy/Generic)
 DIALECT_STYLE_PROMPT = (
-    "Limburgs, West-Germaanse taal (Nederlands/Duits). "
-    "Behoud dialect: sj, ao, oa, gk. Vertaal NIET."
+    "Limburgs dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+    "Ich hub gister nao de maat gegange en dao woor het sjoen weer.\n"
+    "De kinjer höbbe efkes oet de sjtroat gesjpeelt, dat woor richtig flot.\n"
+    "Veer gaon nao hoes want het is al loat en veer zeen moe."
 )
 
 DIALECT_HOTWORDS = (
@@ -15,7 +17,7 @@ DIALECT_HOTWORDS = (
     "groeët good sjtil flot sjoen dae efkes"
 )
 
-DIALECT_INITIAL_PROMPT = f"{DIALECT_STYLE_PROMPT}\n{DIALECT_HOTWORDS}"
+DIALECT_INITIAL_PROMPT = DIALECT_STYLE_PROMPT
 
 # 1.2 AssemblyAI Word Boost (Generic) — expanded to 70 entries
 DIALECT_WORD_BOOST = [
@@ -78,7 +80,12 @@ DIALECT_TRANSLATION_KEY = (
 REGIONAL_PROFILES = {
     "limburgs": {
         "name": "Limburgs (Algemeen)",
-        "style_prompt": DIALECT_STYLE_PROMPT,
+        "style_prompt": (
+            "Limburgs dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+            "Ich hub gister nao de maat gegange en dao woor het sjoen weer.\n"
+            "De kinjer höbbe efkes oet de sjtroat gesjpeelt, dat woor richtig flot.\n"
+            "Veer gaon nao hoes want het is al loat en veer zeen moe."
+        ),
         "hotwords": DIALECT_HOTWORDS,
         "word_boost": DIALECT_WORD_BOOST,
         "custom_spelling": DIALECT_CUSTOM_SPELLING,
@@ -175,12 +182,90 @@ REGIONAL_PROFILES = {
             "zusamme": "samen",
             "loat": "laat",
             "sjpele": "spelen",
-            "gesjpeelt": "gespeeld"
+            "gesjpeelt": "gespeeld",
+            # Voorzetsels/voegwoorden
+            "tösje": "tussen",
+            "durch": "door",
+            "weil": "want",
+            "obwohl": "hoewel",
+            "toege": "toch",
+            "bove": "boven",
+            "ónger": "onder",
+            # Bijwoorden van tijd
+            "noe": "nu",
+            "dökser": "vaker",
+            "daonoets": "daarna",
+            "ieësjt": "eerst",
+            "nag": "nog",
+            "altiëd": "altijd",
+            # Werkwoord-vervoegingen
+            "höbs": "heb je",
+            "höbt": "hebt",
+            "woors": "was je",
+            "kömp": "komt",
+            "giëng": "ging",
+            "koam": "kwam",
+            "zouw": "zou",
+            "kós": "kon",
+            "mós": "moest",
+            "wool": "wilde",
+            # Samenstellingen
+            "gisteraovend": "gisteravond",
+            "vanoavend": "vanavond",
+            "vanmörge": "vanmorgen",
+            "overmaore": "overmorgen",
+            # Emotionele/informele taal
+            "auw": "au",
+            "jao": "ja",
+            "alleh": "vooruit",
+            "asjemenou": "hemeltjelief",
+            # Telwoorden
+            "ein": "een",
+            "twei": "twee",
+            "veer": "vier",
+            "vief": "vijf",
+            "zeve": "zeven",
+            "ach": "acht",
+            "nege": "negen",
+            # Fonetische varianten
+            "iech": "ik",
+            "sjun": "mooi",
+            # Body/daily life
+            "oge": "ogen",
+            "oore": "oren",
+            "kop": "hoofd",
+            "henj": "hand",
+            "hank": "handen",
+            "voot": "voet",
+            "veut": "voeten",
+            "ete": "eten",
+            "drinke": "drinken",
+            "sjlope": "slapen",
+            "wasche": "wassen",
+            # Family/social
+            "kèndj": "kind",
+            "mooder": "moeder",
+            "broor": "broer",
+            "zöster": "zuster",
+            "naoberj": "buurman",
+            # Weather/nature
+            "reëge": "regen",
+            "wink": "wind",
+            "zón": "zon",
+            "wólke": "wolken",
+            "kouw": "koud",
+            "werm": "warm",
+            "dróg": "droog"
         }
     },
     "mestreechs": {
         "name": "Mestreechs",
-        "style_prompt": "Mestreechs dialect. Gebruik zachte g, Franse invloeden, 'vaan', 'uuch', 'iech'.",
+        "style_prompt": (
+            "Mestreechs dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+            "Iech bin vaan de mörge nao de Vrijthof gegange en hub dao mien vrundin getroffe.\n"
+            "Uuch mót dees sjampetter sjnel oppe trottoir pakke vuur et kapot geit.\n"
+            "Iech höbbe gisteraovend mit de paraplu geloupe vaan Sjlaansen nao hoes toe."
+        ),
         "hotwords": "iech miéch diéch uuch vaan dees dink sjat kalle geit nörges hiel Mestreech ziech heur kómme höbbe waere kinne maoge moote sjoen sjun groeët kling good sjtil flot dök sjampetter trottoir paraplu Vrijthof Maas Sjlaansen Mooswief ajuu adiees asjeblieft dankewaal",
         "word_boost": [
             # Pronouns (Maastricht-specific)
@@ -324,12 +409,87 @@ REGIONAL_PROFILES = {
             "meziek": "muziek",
             "ènne": "een",
             "Mestreech": "Maastricht",
-            "Sjlaansen": "Schlaensen"
+            "Sjlaansen": "Schlaensen",
+            # Voorzetsels/voegwoorden
+            "tösje": "tussen",
+            "durch": "door",
+            "weil": "want",
+            "obwohl": "hoewel",
+            "toege": "toch",
+            "bove": "boven",
+            "ónger": "onder",
+            # Bijwoorden van tijd
+            "noe": "nu",
+            "dökser": "vaker",
+            "daonoets": "daarna",
+            "ieësjt": "eerst",
+            "nag": "nog",
+            "altiëd": "altijd",
+            "altied": "altijd",
+            # Werkwoord-vervoegingen
+            "höbs": "heb je",
+            "höbt": "hebt",
+            "woors": "was je",
+            "kömp": "komt",
+            "giëng": "ging",
+            "koam": "kwam",
+            "zouw": "zou",
+            "kós": "kon",
+            "mós": "moest",
+            "wool": "wilde",
+            # Samenstellingen
+            "vanoavend": "vanavond",
+            "vanmörge": "vanmorgen",
+            "overmaore": "overmorgen",
+            # Emotionele/informele taal
+            "auw": "au",
+            "jao": "ja",
+            "alleh": "vooruit",
+            "asjemenou": "hemeltjelief",
+            # Telwoorden
+            "ein": "een",
+            "twei": "twee",
+            "veer": "vier",
+            "vief": "vijf",
+            "zeve": "zeven",
+            "ach": "acht",
+            "nege": "negen",
+            # Body/daily life
+            "oge": "ogen",
+            "oore": "oren",
+            "kop": "hoofd",
+            "henj": "hand",
+            "hank": "handen",
+            "voot": "voet",
+            "veut": "voeten",
+            "ete": "eten",
+            "drinke": "drinken",
+            "sjlope": "slapen",
+            "wasche": "wassen",
+            # Family/social (French-influenced)
+            "kèndj": "kind",
+            "mooder": "moeder",
+            "broor": "broer",
+            "zöster": "zuster",
+            "naoberj": "buurman",
+            # Weather/nature
+            "reëge": "regen",
+            "wink": "wind",
+            "zón": "zon",
+            "wólke": "wolken",
+            "kouw": "koud",
+            "werm": "warm",
+            "dróg": "droog"
         }
     },
     "zittesj": {
         "name": "Zittesj",
-        "style_prompt": "Zittesj dialect. Meer Duits-geïnspireerd, hardere klanken, 'ich', 'mich', 'zittesj'.",
+        "style_prompt": (
+            "Zittesj dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+            "Ich han dat richtig zusamme mit de kinjer gedoon bitte.\n"
+            "De vrouw kump vaan Zitterd en sjpraoke altied Zittesj mit heur kinjer.\n"
+            "Ós uur höb plötzlich geseen dat wirklich neet good woor."
+        ),
         "hotwords": "ich mich dich zich hiej kump richtig zusamme Zitterd sjpraoke ós uur bitte wirklich plötzlich geit hant wees zoot",
         "word_boost": [
             # Pronouns (Sittard-specific)
@@ -457,12 +617,89 @@ REGIONAL_PROFILES = {
             "altiëd": "altijd",
             "oppe": "op het",
             "sjun": "mooi",
-            "gekalld": "gepraat"
+            "gekalld": "gepraat",
+            # Voorzetsels/voegwoorden (German-influenced)
+            "tösje": "tussen",
+            "durch": "door",
+            "weil": "want",
+            "obwohl": "hoewel",
+            "toege": "toch",
+            "bove": "boven",
+            "ónger": "onder",
+            # Bijwoorden van tijd
+            "noe": "nu",
+            "dökser": "vaker",
+            "daonoets": "daarna",
+            "ieësjt": "eerst",
+            "nag": "nog",
+            # Werkwoord-vervoegingen
+            "höbs": "heb je",
+            "höbt": "hebt",
+            "woors": "was je",
+            "kömp": "komt",
+            "giëng": "ging",
+            "koam": "kwam",
+            "zouw": "zou",
+            "kós": "kon",
+            "mós": "moest",
+            "wool": "wilde",
+            # Samenstellingen
+            "gisteraovend": "gisteravond",
+            "vanoavend": "vanavond",
+            "vanmörge": "vanmorgen",
+            "overmaore": "overmorgen",
+            # Emotionele/informele taal
+            "auw": "au",
+            "jao": "ja",
+            "alleh": "vooruit",
+            "asjemenou": "hemeltjelief",
+            # Telwoorden
+            "ein": "een",
+            "twei": "twee",
+            "veer": "vier",
+            "vief": "vijf",
+            "zeve": "zeven",
+            "ach": "acht",
+            "nege": "negen",
+            # Fonetische varianten
+            "noar": "naar",
+            # Body/daily life
+            "oge": "ogen",
+            "oore": "oren",
+            "kop": "hoofd",
+            "henj": "hand",
+            "hank": "handen",
+            "voot": "voet",
+            "veut": "voeten",
+            "ete": "eten",
+            "drinke": "drinken",
+            "sjlope": "slapen",
+            "wasche": "wassen",
+            # Family/social
+            "kèndj": "kind",
+            "mooder": "moeder",
+            "broor": "broer",
+            "zöster": "zuster",
+            "naoberj": "buurman",
+            "vrundin": "vriendin",
+            # Weather/nature
+            "reëge": "regen",
+            "wink": "wind",
+            "zón": "zon",
+            "wólke": "wolken",
+            "kouw": "koud",
+            "werm": "warm",
+            "dróg": "droog"
         }
     },
     "venloos": {
         "name": "Venloos",
-        "style_prompt": "Venloos dialect. Noordelijker, dichter bij standaard Nederlands maar met duidelijke 'Venlose' klanken.",
+        "style_prompt": (
+            "Venloos dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+            "Ik mótte gans gauw nao Venlo toe want de Maas is ouch sjoen vandaag.\n"
+            "Mich en dich höbbe gister inne sjtad geloupe en dao waas het drök.\n"
+            "De kènk zeen hiej veur de kirk en sjpele ouch aan de sjtroat."
+        ),
         "hotwords": "ik mich dich ouch gans Venlo mótte waas kómme höbbe zeen loupe gaon nao hiej neet hoes kirk sjtroat sjtad veur",
         "word_boost": [
             # Pronouns (Venlo-specific)
@@ -574,12 +811,89 @@ REGIONAL_PROFILES = {
             "vaan": "van",
             "gegange": "gegaan",
             "versjtaon": "verstaan",
-            "kalle": "praten"
+            "kalle": "praten",
+            # Voorzetsels/voegwoorden
+            "tösje": "tussen",
+            "durch": "door",
+            "toege": "toch",
+            "bove": "boven",
+            "ónger": "onder",
+            # Bijwoorden van tijd
+            "noe": "nu",
+            "dökser": "vaker",
+            "daonoets": "daarna",
+            "ieësjt": "eerst",
+            "nag": "nog",
+            "altied": "altijd",
+            # Werkwoord-vervoegingen
+            "höbs": "heb je",
+            "höbt": "hebt",
+            "woors": "was je",
+            "kömp": "komt",
+            "giëng": "ging",
+            "koam": "kwam",
+            "zouw": "zou",
+            "kós": "kon",
+            "mós": "moest",
+            "wool": "wilde",
+            "hät": "heeft",
+            # Samenstellingen
+            "gisteraovend": "gisteravond",
+            "vanoavend": "vanavond",
+            "vanmörge": "vanmorgen",
+            "overmaore": "overmorgen",
+            # Emotionele/informele taal
+            "auw": "au",
+            "jao": "ja",
+            "alleh": "vooruit",
+            "asjemenou": "hemeltjelief",
+            # Telwoorden
+            "ein": "een",
+            "twei": "twee",
+            "veer": "vier",
+            "vief": "vijf",
+            "zeve": "zeven",
+            "ach": "acht",
+            "nege": "negen",
+            # Fonetische varianten
+            "noar": "naar",
+            # Body/daily life
+            "oge": "ogen",
+            "oore": "oren",
+            "kop": "hoofd",
+            "henj": "hand",
+            "hank": "handen",
+            "voot": "voet",
+            "veut": "voeten",
+            "ete": "eten",
+            "drinke": "drinken",
+            "sjlope": "slapen",
+            "wasche": "wassen",
+            # Family/social
+            "kèndj": "kind",
+            "mooder": "moeder",
+            "broor": "broer",
+            "zöster": "zuster",
+            "naoberj": "buurman",
+            "vrundin": "vriendin",
+            # Weather/nature
+            "reëge": "regen",
+            "wink": "wind",
+            "zón": "zon",
+            "wólke": "wolken",
+            "kouw": "koud",
+            "werm": "warm",
+            "dróg": "droog"
         }
     },
     "kirchroeadsj": {
         "name": "Kirchröadsj",
-        "style_prompt": "Kirchröadsj (Ripuarisch). Sterke Duitse invloed, 'jonge', 'han', 'hant', 'mure'.",
+        "style_prompt": (
+            "Kirchröadsj dialect transcriptie. Behoud dialectwoorden letterlijk, vertaal NIET naar Nederlands.\n"
+            "Iech han mure d'r wasser uvver inne tsimmer gegosse want het woor zo hoeëg.\n"
+            "De jonge en d'r meëdsje hant inne kirchof gesjpeelt mit plat sjpas.\n"
+            "Ós junt mure nao Kirchröa toe en koame dan wier trök."
+        ),
         "hotwords": "iech miéch diéch d'r hant han hät Kirchröa jonge mure uvver wasser tsimmer sjtraos junt koame zage wisse ós plat sjpas hoeëg deep meëdsje kirchof",
         "word_boost": [
             # Pronouns (Kerkrade-specific, Ripuarian)
@@ -723,7 +1037,79 @@ REGIONAL_PROFILES = {
             "versjtaon": "verstaan",
             "kalle": "praten",
             "loupe": "lopen",
-            "sjpele": "spelen"
+            "sjpele": "spelen",
+            # Voorzetsels/voegwoorden (strong German influence)
+            "tösje": "tussen",
+            "durch": "door",
+            "weil": "want",
+            "obwohl": "hoewel",
+            "toege": "toch",
+            "bove": "boven",
+            "ónger": "onder",
+            # Bijwoorden van tijd
+            "noe": "nu",
+            "dökser": "vaker",
+            "daonoets": "daarna",
+            "ieësjt": "eerst",
+            "nag": "nog",
+            # Werkwoord-vervoegingen
+            "höbs": "heb je",
+            "höbt": "hebt",
+            "woors": "was je",
+            "kömp": "komt",
+            "giëng": "ging",
+            "zouw": "zou",
+            "kós": "kon",
+            "mós": "moest",
+            "wool": "wilde",
+            # Samenstellingen
+            "gisteraovend": "gisteravond",
+            "vanoavend": "vanavond",
+            "vanmörge": "vanmorgen",
+            "overmaore": "overmorgen",
+            # Emotionele/informele taal
+            "auw": "au",
+            "jao": "ja",
+            "alleh": "vooruit",
+            "asjemenou": "hemeltjelief",
+            # Telwoorden
+            "ein": "een",
+            "twei": "twee",
+            "veer": "vier",
+            "vief": "vijf",
+            "zeve": "zeven",
+            "ach": "acht",
+            "nege": "negen",
+            # Fonetische varianten
+            "noar": "naar",
+            "sjun": "mooi",
+            # Body/daily life
+            "oge": "ogen",
+            "oore": "oren",
+            "kop": "hoofd",
+            "henj": "hand",
+            "hank": "handen",
+            "voot": "voet",
+            "veut": "voeten",
+            "ete": "eten",
+            "drinke": "drinken",
+            "sjlope": "slapen",
+            "wasche": "wassen",
+            # Family/social
+            "kèndj": "kind",
+            "mooder": "moeder",
+            "broor": "broer",
+            "zöster": "zuster",
+            "naoberj": "buurman",
+            "vrundin": "vriendin",
+            # Weather/nature
+            "reëge": "regen",
+            "wink": "wind",
+            "zón": "zon",
+            "wólke": "wolken",
+            "kouw": "koud",
+            "werm": "warm",
+            "dróg": "droog"
         }
     }
 }
@@ -734,7 +1120,7 @@ def get_dialect_config(region_key: str):
     
     # Merge with generic if keys are missing (though they are all present above for now)
     return {
-        "initial_prompt": f"{profile['style_prompt']}\n{profile['hotwords']}",
+        "initial_prompt": profile["style_prompt"],
         "word_boost": profile.get("word_boost", DIALECT_WORD_BOOST),
         "custom_spelling": profile.get("custom_spelling", DIALECT_CUSTOM_SPELLING),
         "translation_key": profile.get("translation_key", DIALECT_TRANSLATION_KEY)

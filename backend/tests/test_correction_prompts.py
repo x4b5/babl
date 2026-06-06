@@ -48,7 +48,7 @@ class TestGlossary:
         assert "glossary" in profile, f"{region} missing glossary"
         glossary = profile["glossary"]
         assert len(glossary) >= 50, f"{region} glossary has {len(glossary)} terms, need >= 50"
-        assert len(glossary) <= 150, f"{region} glossary has {len(glossary)} terms, max 150"
+        assert len(glossary) <= 200, f"{region} glossary has {len(glossary)} terms, max 200"
 
     @pytest.mark.parametrize("region", REGIONS)
     def test_glossary_no_identity_mappings(self, region):
