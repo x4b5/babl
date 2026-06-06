@@ -49,12 +49,16 @@ let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined)
 
 // ── Derived ──────────────────────────────────────────────────
 
-const ollamaModelReady = $derived(status.ollamaModels[selectedModel] ?? false);
+const ollamaModelReady = $derived.by(() => {
+	const config = status.modelConfig?.ollama;
+	if (config && Object.keys(config).length > 0) {
+		return Object.values(config).every((model) => status.ollamaModels[model] ?? false);
+	}
+	return status.ollamaModels[selectedModel] ?? false;
+});
 
 const allReady = $derived(
-	wizardContext === 'ollama'
-		? status.ollamaRunning && (status.ollamaModels[selectedModel] ?? false)
-		: status.backendRunning
+	wizardContext === 'ollama' ? status.ollamaRunning && ollamaModelReady : status.backendRunning
 );
 
 const recommendedStep = $derived.by(() => {

@@ -51,6 +51,28 @@
 		}
 	]);
 
+	const qualityLabels: Record<string, string> = {
+		light: 'Klein (snel)',
+		medium: 'Standaard',
+		heavy: 'Groot (best)'
+	};
+
+	const ollamaModels = $derived.by(() => {
+		const config = w.status.modelConfig?.ollama;
+		if (config && Object.keys(config).length > 0) {
+			return Object.entries(config).map(([quality, model]) => ({ quality, model }));
+		}
+		return [
+			{ quality: 'light', model: 'gemma3:1b' },
+			{ quality: 'medium', model: 'gemma3:4b' },
+			{ quality: 'heavy', model: 'gemma3:12b' }
+		];
+	});
+
+	const allModelsInstalled = $derived(
+		ollamaModels.every(({ model }) => w.status.ollamaModels[model] ?? false)
+	);
+
 	const ollamaSteps: Step[] = $derived([
 		{
 			title: 'Installeer Ollama',
@@ -65,16 +87,14 @@
 			]
 		},
 		{
-			title: 'Download het taalmodel',
-			done: w.ollamaModelReady,
+			title: 'Download de taalmodellen',
+			done: allModelsInstalled,
 			description:
-				'Nu moet het taalmodel gedownload worden. Dit is eenmalig en duurt een paar minuten.',
-			commands: [
-				{
-					label: 'Kopieer en plak in Terminal',
-					cmd: `ollama pull ${w.selectedModel}`
-				}
-			]
+				'Download de drie taalmodellen. Dit is eenmalig per model en duurt een paar minuten.',
+			commands: ollamaModels.map(({ quality, model }) => ({
+				label: `${qualityLabels[quality] ?? quality} — ${model}`,
+				cmd: `ollama pull ${model}`
+			}))
 		}
 	]);
 
