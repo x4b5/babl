@@ -162,6 +162,24 @@ async def health():
     }
 
 
+def is_whisper_model_cached() -> bool:
+    """Check if the Whisper model is already downloaded in the HuggingFace cache."""
+    try:
+        cache_dir = os.path.expanduser(
+            "~/.cache/huggingface/hub/models--"
+            + WHISPER_MODEL_PATH.replace("/", "--")
+        )
+        if not os.path.isdir(cache_dir):
+            return False
+        snapshots_dir = os.path.join(cache_dir, "snapshots")
+        return os.path.isdir(snapshots_dir) and bool(os.listdir(snapshots_dir))
+    except Exception:
+        return False
+
+
+_whisper_downloading = False
+
+
 @app.get("/health/setup")
 async def health_setup():
     """Detailed setup status for the setup wizard. Checks Ollama and Whisper availability."""
@@ -192,7 +210,34 @@ async def health_setup():
         "ollama_running": ollama_running,
         "ollama_models": ollama_models,
         "whisper_available": whisper_available,
+        "whisper_model_cached": is_whisper_model_cached(),
+        "whisper_downloading": _whisper_downloading,
     }
+
+
+@app.post("/download-whisper")
+async def download_whisper():
+    """Start downloading the Whisper model in the background."""
+    global _whisper_downloading
+
+    if _whisper_downloading:
+        return {"status": "already_downloading"}
+
+    if is_whisper_model_cached():
+        return {"status": "already_cached"}
+
+    _whisper_downloading = True
+
+    async def do_download():
+        global _whisper_downloading
+        try:
+            from huggingface_hub import snapshot_download
+            await asyncio.to_thread(snapshot_download, WHISPER_MODEL_PATH)
+        finally:
+            _whisper_downloading = False
+
+    asyncio.create_task(do_download())
+    return {"status": "started"}
 
 
 def parse_retry_after(response_or_headers) -> int:

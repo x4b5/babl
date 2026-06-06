@@ -12,6 +12,8 @@ export interface SetupStatus {
 	ollamaRunning: boolean;
 	ollamaModels: Record<string, boolean>;
 	whisperAvailable: boolean;
+	whisperModelCached: boolean;
+	whisperDownloading: boolean;
 }
 
 // ── Reactive state ────────────────────────────────────────────
@@ -22,23 +24,33 @@ let status = $state<SetupStatus>({
 	backendRunning: false,
 	ollamaRunning: false,
 	ollamaModels: {},
-	whisperAvailable: false
+	whisperAvailable: false,
+	whisperModelCached: false,
+	whisperDownloading: false
 });
 let selectedModel = $state('gemma3:4b');
+let ramConfirmed = $state(false);
 let copiedCommand = $state('');
+let modelDownloading = $state(false);
+let modelDownloadProgress = $state<number | null>(null);
+let modelDownloadError = $state('');
 let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined);
 
 // ── Derived ──────────────────────────────────────────────────
 
 const ollamaModelReady = $derived(status.ollamaModels[selectedModel] ?? false);
 
-const allReady = $derived(status.backendRunning && status.ollamaRunning && ollamaModelReady);
+const allReady = $derived(
+	status.backendRunning && status.ollamaRunning && ollamaModelReady && status.whisperModelCached
+);
 
 const recommendedStep = $derived.by(() => {
-	if (!status.ollamaRunning) return 0;
-	if (!ollamaModelReady) return 1;
-	if (!status.backendRunning) return 2;
-	return 2; // All done
+	if (!ramConfirmed) return 0;
+	if (!status.ollamaRunning) return 1;
+	if (!ollamaModelReady) return 2;
+	if (!status.backendRunning) return 3;
+	if (!status.whisperModelCached) return 4;
+	return 4; // All done
 });
 
 // ── Polling ──────────────────────────────────────────────────
@@ -51,7 +63,9 @@ async function fetchSetupStatus(): Promise<void> {
 			backendRunning: data.backend_running ?? false,
 			ollamaRunning: data.ollama_running ?? false,
 			ollamaModels: data.ollama_models ?? {},
-			whisperAvailable: data.whisper_available ?? false
+			whisperAvailable: data.whisper_available ?? false,
+			whisperModelCached: data.whisper_model_cached ?? false,
+			whisperDownloading: data.whisper_downloading ?? false
 		};
 	} catch {
 		// Backend not running — check Ollama directly
@@ -67,14 +81,18 @@ async function fetchSetupStatus(): Promise<void> {
 					'gemma3:4b': available.has('gemma3:4b'),
 					'gemma3:12b': available.has('gemma3:12b')
 				},
-				whisperAvailable: false
+				whisperAvailable: false,
+				whisperModelCached: false,
+				whisperDownloading: false
 			};
 		} catch {
 			status = {
 				backendRunning: false,
 				ollamaRunning: false,
 				ollamaModels: {},
-				whisperAvailable: false
+				whisperAvailable: false,
+				whisperModelCached: false,
+				whisperDownloading: false
 			};
 		}
 	}
@@ -101,6 +119,7 @@ function stopPolling(): void {
 
 export function openWizard(): void {
 	open = true;
+	ramConfirmed = false;
 	currentStep = 0;
 	startPolling();
 }
@@ -116,6 +135,77 @@ export function setStep(step: number): void {
 
 export function setSelectedModel(model: string): void {
 	selectedModel = model;
+}
+
+export function confirmRam(): void {
+	ramConfirmed = true;
+	currentStep = recommendedStep;
+}
+
+export async function downloadModel(): Promise<void> {
+	modelDownloading = true;
+	modelDownloadProgress = 0;
+	modelDownloadError = '';
+
+	try {
+		const resp = await fetch('http://localhost:11434/api/pull', {
+			method: 'POST',
+			body: JSON.stringify({ name: selectedModel, stream: true })
+		});
+
+		if (!resp.ok || !resp.body) {
+			modelDownloadError = 'Ollama reageert niet. Is het geïnstalleerd en gestart?';
+			return;
+		}
+
+		const reader = resp.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
+
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split('\n');
+			buffer = lines.pop() ?? '';
+
+			for (const line of lines) {
+				if (!line.trim()) continue;
+				try {
+					const data = JSON.parse(line);
+					if (data.total && data.completed) {
+						modelDownloadProgress = Math.round((data.completed / data.total) * 100);
+					}
+					if (data.status === 'success') {
+						modelDownloadProgress = 100;
+					}
+				} catch {
+					/* ignore parse errors */
+				}
+			}
+		}
+
+		// Trigger a status refresh to detect the new model
+		await fetchSetupStatus();
+	} catch {
+		modelDownloadError = 'Download mislukt. Controleer of Ollama draait.';
+	} finally {
+		modelDownloading = false;
+		modelDownloadProgress = null;
+	}
+}
+
+export async function downloadWhisper(): Promise<void> {
+	try {
+		const resp = await fetch(`${LOCAL_BACKEND_URL}/download-whisper`, { method: 'POST' });
+		if (!resp.ok) {
+			console.error('Failed to start Whisper download');
+		}
+		// Polling will detect when download completes via whisper_model_cached
+	} catch {
+		console.error('Backend not reachable for Whisper download');
+	}
 }
 
 export async function copyCommand(command: string): Promise<void> {
@@ -153,6 +243,18 @@ export function getSetupWizardState() {
 		},
 		get selectedModel() {
 			return selectedModel;
+		},
+		get ramConfirmed() {
+			return ramConfirmed;
+		},
+		get modelDownloading() {
+			return modelDownloading;
+		},
+		get modelDownloadProgress() {
+			return modelDownloadProgress;
+		},
+		get modelDownloadError() {
+			return modelDownloadError;
 		}
 	};
 }

@@ -4,7 +4,10 @@
 		closeWizard,
 		setStep,
 		copyCommand,
-		setSelectedModel
+		setSelectedModel,
+		confirmRam,
+		downloadModel,
+		downloadWhisper
 	} from '$lib/stores/setup-wizard.svelte';
 	import { setQuality } from '$lib/stores/transcribe.svelte';
 	import type { Quality } from '$lib/stores/transcribe.svelte';
@@ -65,39 +68,52 @@
 		commands: { label: string; cmd: string }[];
 		description: string;
 		hasModelChoice?: boolean;
+		hasRamCheck?: boolean;
+		hasOllamaDownload?: boolean;
+		hasModelDownload?: boolean;
+		hasWhisperDownload?: boolean;
 	}
 
 	const steps: Step[] = $derived([
 		{
-			title: 'AI-software installeren',
-			done: w.status.ollamaRunning,
+			title: 'Controleer je werkgeheugen (RAM)',
+			done: w.ramConfirmed,
 			description:
-				'Ollama is een programma dat AI-modellen op jouw eigen computer kan draaien — zonder dat er iets naar het internet wordt gestuurd. Je installeert het via de terminal (opdrachtregel).',
-			commands: [
-				{ label: 'Installeer Ollama', cmd: 'brew install ollama' },
-				{ label: 'Start de server', cmd: 'ollama serve' }
-			]
+				'AI-modellen draaien in het werkgeheugen (RAM) van je computer. Hoe meer RAM, hoe beter het model dat je kunt gebruiken. Check je RAM via Apple menu (\uF8FF) > Over deze Mac.',
+			commands: [],
+			hasRamCheck: true
 		},
 		{
-			title: 'Taalmodel kiezen & downloaden',
+			title: 'Ollama installeren',
+			done: w.status.ollamaRunning,
+			description:
+				"Ollama is een gratis programma dat AI-modellen op jouw computer draait. Download het, open het bestand, en sleep het naar je Programma's map. Ollama start daarna automatisch op de achtergrond.",
+			commands: [],
+			hasOllamaDownload: true
+		},
+		{
+			title: 'Verslagmodel downloaden',
 			done: w.ollamaModelReady,
 			description:
-				'Kies een taalmodel dat past bij jouw computer. Een groter model geeft betere resultaten, maar heeft meer werkgeheugen (RAM) nodig.',
-			commands: [{ label: 'Download model', cmd: `ollama pull ${w.selectedModel}` }],
-			hasModelChoice: true
+				'Dit model zet de getranscribeerde tekst om naar een netjes verslag. Kies een grootte die past bij jouw RAM.',
+			commands: [],
+			hasModelChoice: true,
+			hasModelDownload: true
 		},
 		{
 			title: 'BABL-server starten',
 			done: w.status.backendRunning,
 			description:
-				'Start de BABL-server op jouw computer. Deze server verbindt de spraakherkenning (Whisper) met de tekstcorrectie (Ollama) zodat alles samenwerkt.',
-			commands: [
-				{ label: 'Alles-in-een', cmd: 'npm run transcribe' },
-				{
-					label: 'Of handmatig',
-					cmd: 'cd backend && source .venv/bin/activate && uvicorn main:app --reload --port 8000'
-				}
-			]
+				'Open de Terminal app (zoek "Terminal" in Spotlight) en plak onderstaand commando. Dit start alles wat nodig is.',
+			commands: [{ label: 'Kopieer en plak in Terminal', cmd: 'npm run transcribe' }]
+		},
+		{
+			title: 'Spraakmodel downloaden (Whisper)',
+			done: w.status.whisperModelCached,
+			description:
+				'Whisper zet je gesproken woorden om naar tekst. Het model is ~3 GB groot en wordt eenmalig gedownload.',
+			commands: [],
+			hasWhisperDownload: true
 		}
 	]);
 </script>
@@ -116,7 +132,7 @@
 	>
 		<!-- Header -->
 		<div class="mb-3 flex items-center justify-between">
-			<h2 class="text-lg font-semibold text-white">Privé-modus activeren</h2>
+			<h2 class="text-lg font-semibold text-white">Hoe te installeren</h2>
 			<button
 				onclick={handleClose}
 				class="rounded-lg p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white/80"
@@ -134,13 +150,9 @@
 		</div>
 
 		<!-- Intro -->
-		<p class="mb-4 text-sm text-white/50 leading-relaxed">
+		<p class="mb-5 text-sm text-white/50 leading-relaxed">
 			Met de privé-modus wordt alle verwerking op jouw eigen computer gedaan. Er wordt niets naar
-			het internet verstuurd.
-		</p>
-		<p class="mb-5 text-xs text-amber-400/60 leading-relaxed">
-			Je hebt een terminal (opdrachtregel) nodig voor de stappen hieronder. Vraag hulp als je hier
-			niet bekend mee bent.
+			het internet verstuurd. Volg de stappen hieronder.
 		</p>
 
 		<!-- Steps -->
@@ -205,6 +217,62 @@
 						<div class="mt-3 space-y-3">
 							<p class="text-sm text-white/60 leading-relaxed">{step.description}</p>
 
+							{#if step.hasRamCheck}
+								<div class="rounded-lg bg-white/5 p-3">
+									<table class="w-full text-xs">
+										<thead>
+											<tr class="text-white/50">
+												<th class="pb-2 text-left font-medium">RAM</th>
+												<th class="pb-2 text-left font-medium">Model</th>
+											</tr>
+										</thead>
+										<tbody class="text-white/70">
+											<tr>
+												<td class="py-1">8 GB</td>
+												<td class="py-1">Compact (gemma3:1b)</td>
+											</tr>
+											<tr>
+												<td class="py-1">16 GB</td>
+												<td class="py-1">Standaard (gemma3:4b)</td>
+											</tr>
+											<tr>
+												<td class="py-1">32+ GB</td>
+												<td class="py-1">Uitgebreid (gemma3:12b)</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<button
+									onclick={confirmRam}
+									class="w-full rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
+								>
+									Ik heb genoeg RAM
+								</button>
+							{/if}
+
+							{#if step.hasOllamaDownload}
+								<a
+									href="https://ollama.com/download"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
+								>
+									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+										/>
+									</svg>
+									Download Ollama (gratis)
+								</a>
+								<p class="text-xs text-white/40">
+									Na installatie start Ollama automatisch. Deze stap wordt groen zodra Ollama
+									draait.
+								</p>
+							{/if}
+
 							{#if step.hasModelChoice}
 								<div class="grid grid-cols-3 gap-2">
 									{#each modelOptions as opt}
@@ -244,6 +312,66 @@
 										</button>
 									{/each}
 								</div>
+							{/if}
+
+							{#if step.hasModelDownload}
+								{#if w.modelDownloading}
+									<div class="space-y-2">
+										<div class="h-2 overflow-hidden rounded-full bg-white/10">
+											<div
+												class="h-full rounded-full bg-neon/60 transition-all duration-300"
+												style="width: {w.modelDownloadProgress ?? 0}%"
+											></div>
+										</div>
+										<p class="text-xs text-white/50 text-center">
+											Downloaden... {w.modelDownloadProgress ?? 0}%
+										</p>
+									</div>
+								{:else}
+									<button
+										onclick={downloadModel}
+										class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
+									>
+										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+											/>
+										</svg>
+										Download {w.selectedModel}
+									</button>
+								{/if}
+								{#if w.modelDownloadError}
+									<p class="text-xs text-red-400">{w.modelDownloadError}</p>
+								{/if}
+							{/if}
+
+							{#if step.hasWhisperDownload}
+								{#if w.status.whisperDownloading}
+									<div class="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-3">
+										<span
+											class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-neon/30 border-t-neon"
+										></span>
+										<span class="text-sm text-white/60">Whisper wordt gedownload...</span>
+									</div>
+								{:else}
+									<button
+										onclick={downloadWhisper}
+										class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
+									>
+										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+											/>
+										</svg>
+										Download Whisper spraakmodel
+									</button>
+								{/if}
 							{/if}
 
 							{#each step.commands as { label, cmd }}
@@ -291,11 +419,14 @@
 								</div>
 							{/each}
 
-							<!-- Polling indicator -->
-							<p class="flex items-center gap-1.5 text-xs text-white/45">
-								<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"></span>
-								Checkt automatisch elke 3 seconden...
-							</p>
+							<!-- Polling indicator (only for auto-detected steps) -->
+							{#if !step.hasRamCheck && !step.hasWhisperDownload}
+								<p class="flex items-center gap-1.5 text-xs text-white/45">
+									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
+									></span>
+									Checkt automatisch elke 3 seconden...
+								</p>
+							{/if}
 						</div>
 					{/if}
 				</div>
