@@ -40,6 +40,7 @@ MAX_UPLOAD_BYTES = 500 * 1024 * 1024
 
 # Max parallel Ollama requests (avoid overloading CPU/GPU)
 MAX_PARALLEL_CORRECTIONS = 3
+_correction_semaphore = asyncio.Semaphore(MAX_PARALLEL_CORRECTIONS)
 
 # WebSocket heartbeat configuration
 HEARTBEAT_INTERVAL = 15  # Send ping every 15 seconds
@@ -73,19 +74,27 @@ def get_mistral_client():
     return _mistral_client
 
 
+async def _warmup_single(client: httpx.AsyncClient, name: str, model: str):
+    """Warm up a single Ollama model."""
+    try:
+        print(f"Warming up Ollama model: {model}...")
+        await client.post(
+            OLLAMA_URL,
+            json={"model": model, "prompt": "hallo", "stream": False, "options": {"num_predict": 1}},
+        )
+        print(f"  {model} ready.")
+    except Exception as e:
+        print(f"  {model} warmup failed (will load on first request): {e}")
+
+
 async def warmup_ollama():
-    """Send a tiny request to each Ollama model so they're loaded in memory."""
+    """Send a tiny request to each Ollama model so they're loaded in memory (parallel)."""
     async with httpx.AsyncClient(timeout=120.0) as client:
-        for name, model in OLLAMA_MODELS.items():
-            try:
-                print(f"Warming up Ollama model: {model}...")
-                await client.post(
-                    OLLAMA_URL,
-                    json={"model": model, "prompt": "hallo", "stream": False, "options": {"num_predict": 1}},
-                )
-                print(f"  {model} ready.")
-            except Exception as e:
-                print(f"  {model} warmup failed (will load on first request): {e}")
+        tasks = [
+            _warmup_single(client, name, model)
+            for name, model in OLLAMA_MODELS.items()
+        ]
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 
 @asynccontextmanager
@@ -203,6 +212,7 @@ def is_whisper_model_cached() -> bool:
 
 
 _whisper_downloading = False
+_whisper_download_lock = asyncio.Lock()
 
 
 @app.get("/health/setup")
@@ -250,13 +260,14 @@ async def download_whisper():
     """Start downloading the Whisper model in the background."""
     global _whisper_downloading
 
-    if _whisper_downloading:
-        return {"status": "already_downloading"}
+    async with _whisper_download_lock:
+        if _whisper_downloading:
+            return {"status": "already_downloading"}
 
-    if is_whisper_model_cached():
-        return {"status": "already_cached"}
+        if is_whisper_model_cached():
+            return {"status": "already_cached"}
 
-    _whisper_downloading = True
+        _whisper_downloading = True
 
     async def do_download():
         global _whisper_downloading
@@ -264,7 +275,8 @@ async def download_whisper():
             from huggingface_hub import snapshot_download
             await asyncio.to_thread(snapshot_download, WHISPER_MODEL_PATH)
         finally:
-            _whisper_downloading = False
+            async with _whisper_download_lock:
+                _whisper_downloading = False
 
     asyncio.create_task(do_download())
     return {"status": "started"}
@@ -498,40 +510,41 @@ async def transcribe(
 
     suffix = os.path.splitext(file.filename or "audio.webm")[1] or ".webm"
 
-    # Read and validate file before streaming
-    content = await file.read()
-    size_mb = len(content) / (1024 * 1024)
+    # Stream upload to disk in chunks to avoid loading entire file in RAM
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    try:
+        while chunk := await file.read(8192):
+            tmp.write(chunk)
+        file_size = tmp.tell()
+        tmp_path = tmp.name
+        tmp.close()
+    except Exception:
+        tmp.close()
+        os.unlink(tmp.name)
+        raise
+
+    size_mb = file_size / (1024 * 1024)
     print(f"Received file: {file.filename}, size: {size_mb:.1f} MB, lang: {lang}")
-    if not content:
+    if file_size == 0:
+        os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail="Empty audio file")
-    if len(content) > MAX_UPLOAD_BYTES:
+    if file_size > MAX_UPLOAD_BYTES:
+        os.unlink(tmp_path)
         raise HTTPException(
             status_code=413,
             detail=f"File too large ({size_mb:.0f} MB). Maximum is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
         )
-
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-    tmp.write(content)
-    tmp_path = tmp.name
-    tmp.close()
 
     async def generate():
         loop = asyncio.get_event_loop()
         queue: asyncio.Queue[str | None] = asyncio.Queue()
 
         def _transcribe_worker():
-            wav_path = None
             try:
-                # Pre-convert to WAV for reliable duration detection and seeking
-                # (MediaRecorder WebM lacks seekable index and duration metadata)
-                wav_path = tmp_path + ".wav"
-                subprocess.run([
-                    "ffmpeg", "-y", "-i", tmp_path,
-                    "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
-                    wav_path
-                ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                duration = get_audio_duration(wav_path)
+                # get_audio_duration works on any format (ffprobe + ffmpeg fallback)
+                # extract_audio_segment converts each chunk to 16kHz mono WAV
+                # so pre-converting the entire file is unnecessary
+                duration = get_audio_duration(tmp_path)
                 segment_duration = 30.0  # seconds
 
                 print(f"Transcribing {duration:.2f}s audio in {segment_duration}s segments...")
@@ -549,7 +562,7 @@ async def transcribe(
                         chunk_path = chunk_tmp.name
 
                     try:
-                        extract_audio_segment(wav_path, chunk_path, float(start), segment_duration)
+                        extract_audio_segment(tmp_path, chunk_path, float(start), segment_duration)
                         
                         transcribe_kwargs = {
                             "path_or_hf_repo": WHISPER_MODEL_PATH,
@@ -592,8 +605,6 @@ async def transcribe(
                 loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n")
             finally:
                 os.unlink(tmp_path)
-                if wav_path and os.path.exists(wav_path):
-                    os.unlink(wav_path)
                 loop.call_soon_threadsafe(queue.put_nowait, None)
 
         loop.run_in_executor(None, _transcribe_worker)
@@ -639,14 +650,23 @@ async def transcribe_live(
     }[lang]
 
     suffix = os.path.splitext(file.filename or "audio.wav")[1] or ".wav"
-    content = await file.read()
-    if not content:
-        return {"text": "", "language": "nl", "segments": []}
 
+    # Stream upload to disk in chunks to avoid loading entire file in RAM
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-    tmp.write(content)
-    tmp_path = tmp.name
-    tmp.close()
+    try:
+        while chunk := await file.read(8192):
+            tmp.write(chunk)
+        file_size = tmp.tell()
+        tmp_path = tmp.name
+        tmp.close()
+    except Exception:
+        tmp.close()
+        os.unlink(tmp.name)
+        raise
+
+    if file_size == 0:
+        os.unlink(tmp_path)
+        return {"text": "", "language": "nl", "segments": []}
 
     try:
         transcribe_kwargs = {
@@ -706,21 +726,30 @@ async def transcribe_api(
 
     suffix = os.path.splitext(file.filename or "audio.webm")[1] or ".webm"
 
-    content = await file.read()
-    size_mb = len(content) / (1024 * 1024)
+    # Stream upload to disk in chunks to avoid loading entire file in RAM
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    try:
+        while chunk := await file.read(8192):
+            tmp.write(chunk)
+        file_size = tmp.tell()
+        tmp_path = tmp.name
+        tmp.close()
+    except Exception:
+        tmp.close()
+        os.unlink(tmp.name)
+        raise
+
+    size_mb = file_size / (1024 * 1024)
     print(f"[AssemblyAI] Received file: {file.filename}, size: {size_mb:.1f} MB, lang: {lang}")
-    if not content:
+    if file_size == 0:
+        os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail="Empty audio file")
-    if len(content) > MAX_UPLOAD_BYTES:
+    if file_size > MAX_UPLOAD_BYTES:
+        os.unlink(tmp_path)
         raise HTTPException(
             status_code=413,
             detail=f"File too large ({size_mb:.0f} MB). Maximum is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
         )
-
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-    tmp.write(content)
-    tmp_path = tmp.name
-    tmp.close()
 
     async def generate():
         loop = asyncio.get_event_loop()
@@ -1087,18 +1116,19 @@ async def correct(req: CorrectionRequest):
                     for i, chunk in enumerate(chunks):
                         print(f"  Cleaning chunk {i+1}/{len(chunks)}...")
                         chunk_tokens = []
-                        if req.mode == "api":
-                            mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
-                            async for token in correct_chunk_mistral_stream(
-                                chunk, req.language, mistral_model, None, req.temperature, CLEANUP_PROMPT
-                            ):
-                                chunk_tokens.append(token)
-                        else:
-                            ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
-                            async for token in correct_chunk_stream(
-                                client, chunk, req.language, ollama_model, None, req.temperature, CLEANUP_PROMPT
-                            ):
-                                chunk_tokens.append(token)
+                        async with _correction_semaphore:
+                            if req.mode == "api":
+                                mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
+                                async for token in correct_chunk_mistral_stream(
+                                    chunk, req.language, mistral_model, None, req.temperature, CLEANUP_PROMPT
+                                ):
+                                    chunk_tokens.append(token)
+                            else:
+                                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
+                                async for token in correct_chunk_stream(
+                                    client, chunk, req.language, ollama_model, None, req.temperature, CLEANUP_PROMPT
+                                ):
+                                    chunk_tokens.append(token)
                         cleaned_chunks.append("".join(chunk_tokens))
                 
                 text_to_process = " ".join(cleaned_chunks)
@@ -1127,13 +1157,14 @@ async def correct(req: CorrectionRequest):
                 for i, chunk in enumerate(final_chunks):
                     chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
                     chunk_tokens: list[str] = []
-                    async for token in correct_chunk_mistral_stream(
-                        chunk_input, req.language, mistral_model, full_context, req.temperature, final_system_prompt
-                    ):
-                        if use_json:
-                            chunk_tokens.append(token)
-                        else:
-                            yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                    async with _correction_semaphore:
+                        async for token in correct_chunk_mistral_stream(
+                            chunk_input, req.language, mistral_model, full_context, req.temperature, final_system_prompt
+                        ):
+                            if use_json:
+                                chunk_tokens.append(token)
+                            else:
+                                yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
                     if use_json and chunk_tokens:
                         accumulated = "".join(chunk_tokens)
                         validated = parse_correction_output(accumulated, chunk)
@@ -1147,14 +1178,15 @@ async def correct(req: CorrectionRequest):
                     for i, chunk in enumerate(final_chunks):
                         chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
                         chunk_tokens: list[str] = []
-                        async for token in correct_chunk_stream(
-                            client, chunk_input, req.language, ollama_model, full_context, req.temperature, final_system_prompt,
-                            json_schema=json_schema
-                        ):
-                            if use_json:
-                                chunk_tokens.append(token)
-                            else:
-                                yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
+                        async with _correction_semaphore:
+                            async for token in correct_chunk_stream(
+                                client, chunk_input, req.language, ollama_model, full_context, req.temperature, final_system_prompt,
+                                json_schema=json_schema
+                            ):
+                                if use_json:
+                                    chunk_tokens.append(token)
+                                else:
+                                    yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
                         if use_json and chunk_tokens:
                             accumulated = "".join(chunk_tokens)
                             validated = parse_correction_output(accumulated, chunk)
