@@ -171,3 +171,4 @@
 | 2026-06-06 | 10:45     | 11:28    | .72         | `1656c72`   | refactor: split RecordButton, fix store access, extract utilities                                                               |
 | 2026-06-06 | 11:28     | 11:39    | .17         | `3440b48`   | refactor: extract live transcription and consolidate error handling                                                             |
 | 2026-06-06 | 11:39     | 12:02    | .38         | `f7446ba`   | fix: support large audio files and improve accessibility                                                                        |
+| 2026-06-06 | 12:02     | 12:13    | .19         | `6dd3529`   | feat: add Safari audio support, partial results, and safer segmented upload                                                     |

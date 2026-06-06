@@ -127,4 +127,6 @@
 			</div>
 		</div>
 	</div>
+
+	<p class="mt-4 text-center text-[10px] text-white/30">v{__APP_VERSION__}</p>
 </div>
