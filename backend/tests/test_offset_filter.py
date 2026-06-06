@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-from main import filter_segments_by_offset
+from audio import filter_segments_by_offset
 
 
 class TestOffsetFilterBasic:

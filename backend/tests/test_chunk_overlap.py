@@ -1,7 +1,7 @@
 """FEED-03: Text chunks overlap 50-100 words for context preservation."""
 import inspect
 import pytest
-from main import split_into_chunks
+from routes.correct import split_into_chunks
 
 
 class TestChunkOverlap:
