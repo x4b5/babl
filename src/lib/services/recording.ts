@@ -7,6 +7,7 @@ import { downsampleToWav } from '$lib/utils/audio';
 import { saveRecording } from '$lib/utils/recording-db';
 import { sendAudio } from '$lib/services/transcription';
 import type { TranscriptionRefs, TranscriptionCallbacks } from '$lib/services/transcription';
+import { getSupportedMimeType } from '$lib/utils/audio';
 import {
 	LOCAL_BACKEND_URL,
 	OVERLAP_CHUNKS,
@@ -15,6 +16,7 @@ import {
 	setError,
 	setErrorType,
 	setStatus,
+	setCountdown,
 	setPartialText,
 	setRecordingDuration,
 	setSavedRecordingId,
@@ -190,5 +192,55 @@ export async function requestMicPermission(): Promise<void> {
 		setError(
 			'Toestemming nog steeds geblokkeerd. Open je browserinstellingen (klik op het slotje links in de adresbalk) en zet "Microfoon" op "Toestaan". Herlaad daarna de pagina.'
 		);
+	}
+}
+
+/**
+ * Run the pre-recording countdown and acquire microphone access.
+ * Returns the MediaStream and supported MIME type, or null if cancelled/failed.
+ */
+export async function acquireMicrophone(): Promise<{
+	stream: MediaStream;
+	mimeType: string;
+} | null> {
+	setError('');
+	setErrorType('');
+
+	const mimeType = getSupportedMimeType();
+	if (!mimeType) {
+		setError('Je browser ondersteunt geen audio-opname.');
+		return null;
+	}
+
+	// Countdown
+	setStatus('preparing');
+	setCountdown(2);
+	const countdownTimer = setInterval(() => {
+		const s = getTranscribeState();
+		setCountdown(s.countdown - 1);
+		if (s.countdown <= 1) clearInterval(countdownTimer);
+	}, 1000);
+	await new Promise((resolve) => setTimeout(resolve, 2000));
+
+	const s = getTranscribeState();
+	if (s.status !== 'preparing') return null; // User cancelled
+
+	try {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		return { stream, mimeType };
+	} catch (e) {
+		setStatus('idle');
+		const err = e instanceof DOMException ? e : null;
+		if (err?.name === 'NotAllowedError') {
+			setErrorType('mic_denied');
+			setError(
+				'Microfoontoegang is geweigerd. Klik op het slotje (of site-instellingen) in je adresbalk en zet "Microfoon" op "Toestaan".'
+			);
+		} else if (err?.name === 'NotFoundError') {
+			setError('Geen microfoon gevonden. Sluit een microfoon aan en probeer opnieuw.');
+		} else {
+			setError('Microfoon niet beschikbaar. Controleer je browserpermissies.');
+		}
+		return null;
 	}
 }

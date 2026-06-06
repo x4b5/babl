@@ -1,18 +1,17 @@
 <script lang="ts">
 	import ConfidenceHighlight from '$lib/components/ConfidenceHighlight.svelte';
 	import type { WordWithConfidence, Mode } from '$lib/stores/transcribe.svelte';
-	import { copyText, getTranscribeState } from '$lib/stores/transcribe.svelte';
+	import { copyText } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		raw: string;
 		language: string;
 		confidenceWords: WordWithConfidence[];
 		transcribeMode: Mode;
+		copiedRaw: boolean;
 	}
 
-	let { raw, language, confidenceWords, transcribeMode }: Props = $props();
-
-	const s = getTranscribeState();
+	let { raw, language, confidenceWords, transcribeMode, copiedRaw }: Props = $props();
 </script>
 
 {#if language}
@@ -29,11 +28,11 @@
 		<button
 			onclick={() => copyText(raw, 'raw')}
 			class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
-				{s.copiedRaw
+				{copiedRaw
 				? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
 				: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
 		>
-			{#if s.copiedRaw}
+			{#if copiedRaw}
 				<svg
 					class="h-3.5 w-3.5"
 					fill="none"

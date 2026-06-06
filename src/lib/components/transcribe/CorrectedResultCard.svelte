@@ -1,17 +1,16 @@
 <script lang="ts">
 	import type { Status } from '$lib/stores/transcribe.svelte';
-	import { copyText, getTranscribeState } from '$lib/stores/transcribe.svelte';
+	import { copyText } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		corrected: string;
 		status: Status;
 		onToggleExpand: () => void;
 		expanded: boolean;
+		copiedCorrected: boolean;
 	}
 
-	let { corrected, status, onToggleExpand, expanded }: Props = $props();
-
-	const s = getTranscribeState();
+	let { corrected, status, onToggleExpand, expanded, copiedCorrected }: Props = $props();
 </script>
 
 {#if status === 'correcting' && !corrected}
@@ -53,11 +52,11 @@
 			<button
 				onclick={() => copyText(corrected, 'corrected')}
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
-					{s.copiedCorrected
+					{copiedCorrected
 					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
 					: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
 			>
-				{#if s.copiedCorrected}
+				{#if copiedCorrected}
 					<svg
 						class="h-3.5 w-3.5"
 						fill="none"

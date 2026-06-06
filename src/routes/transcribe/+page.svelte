@@ -4,8 +4,8 @@
 		cleanupNetworkResources,
 		cleanupTimers
 	} from '$lib/utils/cleanup';
-	import { getSupportedMimeType } from '$lib/utils/audio';
 	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
+	import { checkBackendHealth } from '$lib/utils/health-check';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
@@ -38,13 +38,13 @@
 	import {
 		processRecording,
 		handleFileUpload,
-		requestMicPermission
+		requestMicPermission,
+		acquireMicrophone
 	} from '$lib/services/recording';
 
 	// Store
 	import {
 		getTranscribeState,
-		LOCAL_BACKEND_URL,
 		CHUNK_INTERVAL_MS,
 		RECORDING_MAX_SECONDS,
 		setStatus,
@@ -54,9 +54,6 @@
 		setElapsed,
 		incrementElapsed,
 		setCorrectedExpanded,
-		setMistralAvailable,
-		setAssemblyAvailable,
-		setLocalAvailable,
 		setPrivacyOpen,
 		setEvalResult,
 		setProcessingElapsed,
@@ -232,22 +229,7 @@
 	});
 
 	$effect(() => {
-		fetch('/api/health')
-			.then((r) => r.json())
-			.then((data) => {
-				setMistralAvailable(data.mistral_available ?? false);
-				setAssemblyAvailable(data.assemblyai_available ?? false);
-			})
-			.catch(() => {
-				setMistralAvailable(false);
-				setAssemblyAvailable(false);
-			});
-
-		fetch(`${LOCAL_BACKEND_URL}/health`)
-			.then((r) => r.json())
-			.then(() => setLocalAvailable(true))
-			.catch(() => setLocalAvailable(false));
-
+		checkBackendHealth();
 		pruneRecordings(3).catch(() => {});
 	});
 
@@ -308,71 +290,44 @@
 	// ── Recording ─────────────────────────────────────────────────
 
 	async function startRecording() {
-		setError('');
-		setErrorType('');
-		try {
-			const mimeType = getSupportedMimeType();
-			if (!mimeType) {
-				setError('Je browser ondersteunt geen audio-opname.');
-				return;
+		const result = await acquireMicrophone();
+		if (!result) return;
+
+		const { stream: micStream, mimeType } = result;
+		stream = micStream;
+		mediaRecorder = new MediaRecorder(stream, { mimeType });
+		chunks = [];
+		waveformRefs = startWaveform(stream, waveformRefs);
+		const useRealtimeStream = s.transcribeMode === 'api' && s.apiStreamMode === 'realtime';
+
+		mediaRecorder.ondataavailable = (e) => {
+			if (e.data.size > 0) {
+				chunks.push(e.data);
+				if (useRealtimeStream) sendChunkToStream(e.data);
 			}
-			setStatus('preparing');
-			setCountdown(2);
-			const countdownTimer = setInterval(() => {
-				setCountdown(s.countdown - 1);
-				if (s.countdown <= 1) clearInterval(countdownTimer);
-			}, 1000);
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-			if (s.status !== 'preparing') return;
+		};
 
-			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			mediaRecorder = new MediaRecorder(stream, { mimeType });
-			chunks = [];
-			waveformRefs = startWaveform(stream, waveformRefs);
-			const useRealtimeStream = s.transcribeMode === 'api' && s.apiStreamMode === 'realtime';
+		mediaRecorder.onstop = async () => {
+			if (stream) stream.getTracks().forEach((t) => t.stop());
+			waveformRefs = stopWaveform(waveformRefs);
+			stopLiveTranscription();
+			stopRealtimeStream();
+			await processRecording({
+				chunks,
+				mimeType,
+				useRealtimeStream,
+				transcriptionRefs,
+				transcriptionCallbacks,
+				onClearSavedRecording: clearSavedRecording
+			});
+		};
 
-			mediaRecorder.ondataavailable = (e) => {
-				if (e.data.size > 0) {
-					chunks.push(e.data);
-					if (useRealtimeStream) sendChunkToStream(e.data);
-				}
-			};
-
-			mediaRecorder.onstop = async () => {
-				if (stream) stream.getTracks().forEach((t) => t.stop());
-				waveformRefs = stopWaveform(waveformRefs);
-				stopLiveTranscription();
-				stopRealtimeStream();
-				await processRecording({
-					chunks,
-					mimeType,
-					useRealtimeStream,
-					transcriptionRefs,
-					transcriptionCallbacks,
-					onClearSavedRecording: clearSavedRecording
-				});
-			};
-
-			mediaRecorder.start(CHUNK_INTERVAL_MS);
-			setStatus('recording');
-			if (useRealtimeStream) {
-				startRealtimeStream();
-			} else if (s.transcribeMode === 'local') {
-				startLiveTranscription(liveTranscriptionRefs, liveTranscriptionCallbacks);
-			}
-		} catch (e) {
-			setStatus('idle');
-			const err = e instanceof DOMException ? e : null;
-			if (err?.name === 'NotAllowedError') {
-				setErrorType('mic_denied');
-				setError(
-					'Microfoontoegang is geweigerd. Klik op het slotje (of site-instellingen) in je adresbalk en zet "Microfoon" op "Toestaan".'
-				);
-			} else if (err?.name === 'NotFoundError') {
-				setError('Geen microfoon gevonden. Sluit een microfoon aan en probeer opnieuw.');
-			} else {
-				setError('Microfoon niet beschikbaar. Controleer je browserpermissies.');
-			}
+		mediaRecorder.start(CHUNK_INTERVAL_MS);
+		setStatus('recording');
+		if (useRealtimeStream) {
+			startRealtimeStream();
+		} else if (s.transcribeMode === 'local') {
+			startLiveTranscription(liveTranscriptionRefs, liveTranscriptionCallbacks);
 		}
 	}
 
@@ -454,6 +409,7 @@
 					language={s.language}
 					confidenceWords={s.confidenceWords}
 					transcribeMode={s.transcribeMode}
+					copiedRaw={s.copiedRaw}
 				/>
 
 				{#if s.status !== 'correcting'}
@@ -473,6 +429,7 @@
 					corrected={s.corrected}
 					status={s.status}
 					expanded={s.correctedExpanded}
+					copiedCorrected={s.copiedCorrected}
 					onToggleExpand={() => setCorrectedExpanded(!s.correctedExpanded)}
 				/>
 
