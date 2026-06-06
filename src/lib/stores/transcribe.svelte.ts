@@ -84,7 +84,6 @@ let mistralAvailable = $state(false);
 let assemblyAvailable = $state(false);
 let localAvailable = $state(false);
 let privacyOpen = $state(false);
-let rawExpanded = $state(false);
 let keepDialect = $state(false);
 let confidenceWords = $state<WordWithConfidence[]>([]);
 let lowConfidenceCount = $state(0);
@@ -227,9 +226,6 @@ export function getTranscribeState() {
 		get privacyOpen() {
 			return privacyOpen;
 		},
-		get rawExpanded() {
-			return rawExpanded;
-		},
 		get keepDialect() {
 			return keepDialect;
 		},
@@ -338,17 +334,8 @@ export function setElapsed(v: number) {
 export function incrementElapsed() {
 	elapsed += 1;
 }
-export function setCopiedRaw(v: boolean) {
-	copiedRaw = v;
-}
-export function setCopiedCorrected(v: boolean) {
-	copiedCorrected = v;
-}
 export function setCorrectedExpanded(v: boolean) {
 	correctedExpanded = v;
-}
-export function setQuality(v: Quality) {
-	quality = v;
 }
 export function setMode(v: Mode) {
 	mode = v;
@@ -358,12 +345,6 @@ export function setReportLength(v: ReportLength) {
 }
 export function setTranscribeMode(v: Mode) {
 	transcribeMode = v;
-}
-export function setApiStreamMode(v: ApiStreamMode) {
-	apiStreamMode = v;
-}
-export function setTemperature(v: number) {
-	temperature = v;
 }
 export function setReconnecting(v: boolean) {
 	reconnecting = v;
@@ -382,9 +363,6 @@ export function setLocalAvailable(v: boolean) {
 }
 export function setPrivacyOpen(v: boolean) {
 	privacyOpen = v;
-}
-export function setRawExpanded(v: boolean) {
-	rawExpanded = v;
 }
 export function setKeepDialect(v: boolean) {
 	keepDialect = v;
@@ -433,9 +411,6 @@ export function setWaveformBars(v: number[]) {
 }
 export function appendCorrected(v: string) {
 	corrected += v;
-}
-export function appendRaw(v: string) {
-	raw = raw ? `${raw}\n${v}` : v;
 }
 export function appendPartialText(v: string) {
 	partialText = partialText ? `${partialText} ${v}` : v;
