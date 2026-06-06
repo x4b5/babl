@@ -17,7 +17,10 @@ if (process.env.VERCEL_GIT_COMMIT_SHA) {
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	define: {
-		__APP_VERSION__: JSON.stringify(commitHash)
+		__APP_VERSION__: JSON.stringify(commitHash),
+		__APP_BUILD_DATE__: JSON.stringify(
+			new Date().toLocaleString('nl-NL', { dateStyle: 'short', timeStyle: 'short' })
+		)
 	},
 	test: {
 		environment: 'jsdom',

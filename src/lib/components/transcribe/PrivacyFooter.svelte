@@ -7,6 +7,7 @@
 	let { open, onToggle }: Props = $props();
 
 	const version = __APP_VERSION__;
+	const buildDate = __APP_BUILD_DATE__;
 </script>
 
 <div class="mt-12 sm:mt-16 animate-fade-in">
@@ -130,5 +131,5 @@
 		</div>
 	</div>
 
-	<p class="mt-4 text-center text-[10px] text-white/30">v{version}</p>
+	<p class="mt-4 text-center text-[10px] text-white/30">v{version} — {buildDate}</p>
 </div>

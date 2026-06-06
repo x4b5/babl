@@ -24,6 +24,28 @@ import {
 
 const MAX_VERCEL_BODY_BYTES = 4 * 1024 * 1024;
 
+/** Build disclaimer with current date/time stamp. */
+function buildDisclaimer(type: 'transcript' | 'verslag'): string {
+	const now = new Date();
+	const stamp = now.toLocaleString('nl-NL', {
+		dateStyle: 'long',
+		timeStyle: 'short'
+	});
+	const label = type === 'transcript' ? 'transcript' : 'verslag';
+	return (
+		`\n\n---\nDit ${label} is automatisch gegenereerd op ${stamp} met behulp van ` +
+		'AI-spraakherkenning en -verwerking. De nauwkeurigheid is niet gegarandeerd; de tekst kan ' +
+		'onnauwkeurigheden of omissies bevatten ten opzichte van het gesproken woord. ' +
+		'Controleer de inhoud alvorens deze voor officiële of juridische doeleinden te gebruiken.'
+	);
+}
+
+/** Append disclaimer to raw text if there is content. */
+function finalizeRaw(): void {
+	const s = getTranscribeState();
+	if (s.raw) setRaw(s.raw + buildDisclaimer('transcript'));
+}
+
 export interface TranscriptionRefs {
 	transcribeController: AbortController | undefined;
 	apiPollController: AbortController | undefined;
@@ -90,6 +112,7 @@ async function sendAudioLocal(
 			stallTimeoutMs: SSE_STALL_TIMEOUT_MS,
 			onEvent: (event) => handleTranscriptionEvent(event, s, callbacks)
 		});
+		finalizeRaw();
 		await callbacks.onClearSavedRecording();
 		setStatus('idle');
 	} catch (e) {
@@ -225,6 +248,7 @@ async function pollTranscription(
 				setConfidenceWords([]);
 				setLowConfidenceCount(0);
 			}
+			finalizeRaw();
 			setApiStatus('');
 			await callbacks.onClearSavedRecording();
 			setStatus('idle');
@@ -260,6 +284,7 @@ async function sendAudioApiViaLocal(
 			stallTimeoutMs: SSE_STALL_TIMEOUT_MS,
 			onEvent: (event) => handleTranscriptionEvent(event, s, callbacks)
 		});
+		finalizeRaw();
 		setApiStatus('');
 		await callbacks.onClearSavedRecording();
 		setStatus('idle');
@@ -529,6 +554,7 @@ async function sendAudioApiSegmented(
 			setLowConfidenceCount(totalLowConf);
 		}
 
+		finalizeRaw();
 		setApiStatus('');
 		await callbacks.onClearSavedRecording();
 		setStatus('idle');

@@ -27,6 +27,22 @@ import {
 	resetForCorrection
 } from '$lib/stores/transcribe.svelte';
 
+/** Build disclaimer with current date/time stamp. */
+function buildCorrectionDisclaimer(): string {
+	const now = new Date();
+	const stamp = now.toLocaleString('nl-NL', {
+		dateStyle: 'long',
+		timeStyle: 'short'
+	});
+	return (
+		`\n\n---\nDit verslag is automatisch gegenereerd op ${stamp} op basis van een ` +
+		'audiotranscriptie met behulp van AI-spraakherkenning en -verwerking. De nauwkeurigheid ' +
+		'is niet gegarandeerd; de tekst kan onnauwkeurigheden of omissies bevatten ten opzichte ' +
+		'van het gesproken woord. Controleer de inhoud alvorens deze voor officiële of juridische ' +
+		'doeleinden te gebruiken.'
+	);
+}
+
 interface CorrectionRefs {
 	correctionController: AbortController | undefined;
 	countdownInterval: ReturnType<typeof setInterval> | undefined;
@@ -147,6 +163,7 @@ async function fetchCorrection(
 			return;
 		}
 
+		let streamError = false;
 		await readSSEStream(resp, {
 			controller,
 			stallTimeoutMs: SSE_STALL_TIMEOUT_MS,
@@ -154,6 +171,7 @@ async function fetchCorrection(
 				if (event.type === 'token') {
 					appendCorrected(event.text as string);
 				} else if (event.type === 'error') {
+					streamError = true;
 					handleErrorEvent(
 						event as { error_type?: string; retry_after?: number; message?: string },
 						refs,
@@ -166,6 +184,9 @@ async function fetchCorrection(
 		});
 
 		if (!s.corrected) setCorrected(text);
+		if (s.corrected && !streamError) {
+			appendCorrected(buildCorrectionDisclaimer());
+		}
 	} catch (e) {
 		if (isAbortError(e)) {
 			callbacks.setCorrectionController(undefined);
