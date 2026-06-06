@@ -73,7 +73,7 @@
 		>
 			<button
 				onclick={onToggleRecording}
-				disabled={status === 'processing' || localUnavailable}
+				disabled={(status === 'processing' || localUnavailable) && status !== 'recording'}
 				aria-label="Opname starten of stoppen"
 				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
