@@ -40,19 +40,26 @@
 			Via internet
 		</button>
 	</div>
-	<p class="text-sm text-white/40 text-center max-w-xs">
+	<div class="text-xs text-white/40 text-center max-w-xs">
 		{#if transcribeMode === 'local' && localAvailable}
-			Verwerking via <img
-				src="/openai.png"
-				alt=""
-				class="inline h-3.5 w-3.5 -mt-0.5 rounded-full"
-			/>
-			<a
-				href="https://github.com/openai/whisper"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="underline text-white/60 hover:text-white/80 transition-colors">Whisper</a
-			> op jouw computer. Niets verlaat je apparaat.
+			<p>
+				Verwerking via <img
+					src="/openai.png"
+					alt=""
+					class="inline h-3.5 w-3.5 -mt-0.5 rounded-full"
+				/>
+				<a
+					href="https://github.com/openai/whisper"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline text-white/60 hover:text-white/80 transition-colors">Whisper</a
+				> op jouw computer.
+			</p>
+			<p class="mt-1">
+				<span class="text-neon/60">+</span> Privé — niets verlaat je apparaat
+				<span class="mx-1 text-white/20">|</span>
+				<span class="text-amber-400/60">−</span> Langzamer
+			</p>
 		{:else if transcribeMode === 'local' && !localAvailable && onOpenSetupWizard}
 			<button
 				onclick={onOpenSetupWizard}
@@ -63,17 +70,24 @@
 		{:else if transcribeMode === 'local' && !localAvailable}
 			Klik hier om te installeren op je apparaat.
 		{:else}
-			Audio wordt verwerkt via EU-servers (<img
-				src="/assemblyai.png"
-				alt=""
-				class="inline h-3.5 w-3.5 -mt-0.5"
-			/>
-			<a
-				href="https://www.assemblyai.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="underline text-white/60 hover:text-white/80 transition-colors">AssemblyAI</a
-			>).
+			<p>
+				Audio wordt verwerkt via EU-servers (<img
+					src="/assemblyai.png"
+					alt=""
+					class="inline h-3.5 w-3.5 -mt-0.5"
+				/>
+				<a
+					href="https://www.assemblyai.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline text-white/60 hover:text-white/80 transition-colors">AssemblyAI</a
+				>).
+			</p>
+			<p class="mt-1">
+				<span class="text-neon/60">+</span> Sneller en nauwkeuriger
+				<span class="mx-1 text-white/20">|</span>
+				<span class="text-amber-400/60">−</span> Kost geld, data via EU-servers
+			</p>
 		{/if}
-	</p>
+	</div>
 </div>
