@@ -156,3 +156,9 @@
 | 2026-06-04 | 22:24     | 22:31    | .12         | `acd98d0`   | fix: add error detail to correction failure messages                                                                            |
 | 2026-06-04 | 22:31     | 22:32    | .02         | `54f341a`   | refactor: remove unused legacy stores and update analytics                                                                      |
 | 2026-06-04 | 22:32     | 22:38    | .09         | `dd62252`   | fix: remove temperature slider, default to 0.2 for faithful output                                                              |
+| 2026-06-04 | 22:38     | 22:41    | .05         | `b0e3da8`   | fix: remove dialect retention toggle from correction controls                                                                   |
+| 2026-06-04 | 22:41     | 22:46    | .08         | `8d20196`   | chore: trigger Vercel redeploy                                                                                                  |
+| 2026-06-04 | 22:46     | 23:17    | .52         | `a075ef0`   | fix: improve error logging in correction API for debugging                                                                      |
+| 2026-06-04 | 23:17     | 23:28    | .18         | `a18eef4`   | chore: add temporary Mistral API key validation to health endpoint                                                              |
+| 2026-06-04 | 23:28     | 23:37    | .14         | `8eecd51`   | fix: detect auth redirects and improve error handling in transcription flow                                                     |
+| 2026-06-04 | 23:37     | 23:41    | .05         | `8c43a22`   | fix: skip WAV conversion in API mode to stay under Vercel body limit                                                            |

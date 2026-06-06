@@ -4,6 +4,11 @@
 
 	let { form } = $props();
 	let loading = $state(false);
+	let passwordInput: HTMLInputElement | undefined = $state();
+
+	$effect(() => {
+		passwordInput?.focus();
+	});
 </script>
 
 <svelte:head>
@@ -41,6 +46,7 @@
 			{#if form?.incorrect}
 				<div
 					class="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-red-300 text-sm animate-slide-up"
+					role="alert"
 				>
 					Onjuist wachtwoord
 				</div>
@@ -48,12 +54,12 @@
 
 			<label for="password" class="mb-2 block text-xs font-medium text-white/50">Wachtwoord</label>
 			<input
+				bind:this={passwordInput}
 				id="password"
 				name="password"
 				type="password"
 				autocomplete="current-password"
 				required
-				autofocus
 				class="mb-4 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 outline-none transition-all duration-200 focus:border-neon/50 focus:ring-1 focus:ring-neon/30"
 				placeholder="Wachtwoord"
 			/>
@@ -65,7 +71,7 @@
 			>
 				{#if loading}
 					<span class="flex items-center justify-center gap-2">
-						<svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+						<svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
 							<circle
 								cx="12"
 								cy="12"

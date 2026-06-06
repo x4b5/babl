@@ -68,6 +68,7 @@
 			<button
 				onclick={onToggleRecording}
 				disabled={status === 'processing'}
+				aria-label="Opname starten of stoppen"
 				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
@@ -80,7 +81,12 @@
 						{countdown}
 					</span>
 				{:else if status === 'recording'}
-					<svg class="h-8 w-8 sm:h-12 sm:w-12 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+					<svg
+						class="h-8 w-8 sm:h-12 sm:w-12 text-red-400"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
 						<rect x="6" y="6" width="12" height="12" rx="2" />
 					</svg>
 				{:else if status === 'processing'}
@@ -90,6 +96,7 @@
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 						stroke-width="2"
+						aria-hidden="true"
 					>
 						<path
 							stroke-linecap="round"
@@ -104,6 +111,7 @@
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 						stroke-width="2"
+						aria-hidden="true"
 					>
 						<path
 							stroke-linecap="round"
@@ -139,6 +147,7 @@
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
+							aria-hidden="true"
 						>
 							<circle
 								class="opacity-25"
@@ -199,6 +208,7 @@
 					viewBox="0 0 24 24"
 					stroke="currentColor"
 					stroke-width="2"
+					aria-hidden="true"
 				>
 					<path
 						stroke-linecap="round"
@@ -264,7 +274,14 @@
 		class="upload-btn glass rounded-full border border-neon/10 px-5 py-2 text-sm text-neon/50 transition-all duration-200 hover:text-neon/80 hover:border-neon/30 hover:bg-neon/5 disabled:opacity-30 disabled:cursor-not-allowed"
 	>
 		<span class="flex items-center gap-2">
-			<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+			<svg
+				class="h-4 w-4"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				stroke-width="2"
+				aria-hidden="true"
+			>
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"

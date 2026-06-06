@@ -876,7 +876,6 @@ async function* correctChunkMistralStream(
 
 export const POST: RequestHandler = async ({ request }) => {
 	const apiKey = env.MISTRAL_API_KEY;
-	console.log('[correct] API key present:', !!apiKey, 'length:', apiKey?.length ?? 0);
 	if (!apiKey) {
 		return new Response(JSON.stringify({ error: 'Mistral API key not configured' }), {
 			status: 400,

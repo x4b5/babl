@@ -2,9 +2,6 @@
 	import ReconnectingWebSocket from 'reconnecting-websocket';
 	import { deduplicateSegments } from '$lib/utils/dedup';
 	import type { TranscriptionSegment } from '$lib/utils/dedup';
-	import { classifyFrontendError, getUserMessage, isRetryable } from '$lib/utils/error-classifier';
-	import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
-	import type { ErrorType } from '$lib/utils/error-types';
 	import {
 		cleanupMediaResources,
 		cleanupNetworkResources,
@@ -30,24 +27,24 @@
 	import CorrectedResultCard from '$lib/components/transcribe/CorrectedResultCard.svelte';
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 
+	// Services
+	import { sendAudio } from '$lib/services/transcription';
+	import { startCorrection, handleErrorEvent } from '$lib/services/correction';
+	import { startWaveform, stopWaveform, type WaveformRefs } from '$lib/services/waveform';
+
 	// Store
 	import {
 		getTranscribeState,
 		LOCAL_BACKEND_URL,
-		MAX_AUTO_RETRIES,
 		OVERLAP_CHUNKS,
 		CHUNK_INTERVAL_MS,
-		SSE_STALL_TIMEOUT_MS,
 		RECORDING_MAX_SECONDS,
 		setStatus,
 		setCountdown,
 		setRaw,
-		setCorrected,
 		setLanguage,
 		setError,
 		setErrorType,
-		setCountdownSeconds,
-		setRetryCount,
 		setElapsed,
 		incrementElapsed,
 		setCorrectedExpanded,
@@ -57,9 +54,6 @@
 		setAssemblyAvailable,
 		setLocalAvailable,
 		setPrivacyOpen,
-		setKeepDialect,
-		setConfidenceWords,
-		setLowConfidenceCount,
 		setEvalResult,
 		setPartialText,
 		setLiveWorking,
@@ -67,32 +61,24 @@
 		setLastSentChunkIndex,
 		setLiveAudioDuration,
 		setLastSegmentEnd,
-		setApiStatus,
 		setProcessingElapsed,
 		incrementProcessingElapsed,
 		setRecordingDuration,
-		setWaveformBars,
-		appendCorrected,
-		resetForCorrection,
-		resetForTranscription,
-		setQuality,
 		setMode,
 		setReportLength,
 		setTranscribeMode,
-		setTemperature,
 		setSavedRecordingId,
 		setSavedRecordingMimeType
 	} from '$lib/stores/transcribe.svelte';
 
 	const s = getTranscribeState();
 
-	// ── Infrastructure refs (local, not reactive) ──────────────────
+	// ── Infrastructure refs ───────────────────────────────────────
 	let mediaRecorder: MediaRecorder | undefined;
 	let stream: MediaStream | undefined;
 	let chunks: Blob[] = [];
 	let timerInterval: ReturnType<typeof setInterval> | undefined;
 	let processingTimerInterval: ReturnType<typeof setInterval> | undefined;
-	let liveInterval: ReturnType<typeof setInterval> | undefined;
 	let countdownInterval: ReturnType<typeof setInterval> | undefined;
 	let streamStallTimer: ReturnType<typeof setTimeout> | undefined;
 	let transcribeController: AbortController | undefined;
@@ -100,13 +86,63 @@
 	let liveChunkController: AbortController | undefined;
 	let apiPollController: AbortController | undefined;
 	let streamSocket: ReconnectingWebSocket | undefined;
-	let audioContext: AudioContext | undefined;
-	let analyser: AnalyserNode | undefined;
-	let animationFrameId: number | undefined;
+	let waveformRefs: WaveformRefs = {
+		audioContext: undefined,
+		analyser: undefined,
+		animationFrameId: undefined
+	};
 	let liveBusy = false;
 	let liveRunning = false;
 
-	/** Retry transcription using the saved recording from IndexedDB. */
+	// ── Service callbacks ─────────────────────────────────────────
+
+	const transcriptionCallbacks = {
+		setTranscribeController: (v: AbortController | undefined) => {
+			transcribeController = v;
+		},
+		setApiPollController: (v: AbortController | undefined) => {
+			apiPollController = v;
+		},
+		onClearSavedRecording: clearSavedRecording,
+		onHandleErrorEvent: (event: {
+			error_type?: string;
+			retry_after?: number;
+			message?: string;
+		}) => {
+			handleErrorEvent(event, correctionRefs, correctionCallbacks);
+		}
+	};
+
+	const correctionCallbacks = {
+		setCorrectionController: (v: AbortController | undefined) => {
+			correctionController = v;
+		},
+		setCountdownInterval: (v: ReturnType<typeof setInterval> | undefined) => {
+			countdownInterval = v;
+		}
+	};
+
+	// Lazy refs so correction service always reads current values
+	const correctionRefs = {
+		get correctionController() {
+			return correctionController;
+		},
+		get countdownInterval() {
+			return countdownInterval;
+		}
+	};
+
+	const transcriptionRefs = {
+		get transcribeController() {
+			return transcribeController;
+		},
+		get apiPollController() {
+			return apiPollController;
+		}
+	};
+
+	// ── IndexedDB helpers ─────────────────────────────────────────
+
 	async function retryTranscription() {
 		if (!s.savedRecordingId) return;
 		try {
@@ -119,28 +155,26 @@
 				: rec.mimeType.includes('ogg')
 					? 'ogg'
 					: 'mp4';
-			await sendAudio(rec.blob, `retry.${ext}`);
+			await sendAudio(rec.blob, `retry.${ext}`, transcriptionRefs, transcriptionCallbacks);
 		} catch {
 			setError('Opnieuw proberen mislukt. Download de opname en upload het bestand handmatig.');
 		}
 	}
 
-	/** Remove saved recording from IndexedDB after successful transcription. */
 	async function clearSavedRecording() {
 		if (s.savedRecordingId) {
 			try {
 				await deleteRecording(s.savedRecordingId);
 			} catch {
-				// Ignore — best effort cleanup
+				// Best effort cleanup
 			}
 			setSavedRecordingId(null);
 			setSavedRecordingMimeType('');
 		}
 	}
 
-	// ── Effects ────────────────────────────────────────────────────
+	// ── Effects ───────────────────────────────────────────────────
 
-	// Recording elapsed timer
 	$effect(() => {
 		if (s.status === 'recording') {
 			setElapsed(0);
@@ -154,7 +188,6 @@
 		};
 	});
 
-	// Processing elapsed timer
 	$effect(() => {
 		if (s.status === 'processing') {
 			setProcessingElapsed(0);
@@ -168,14 +201,12 @@
 		};
 	});
 
-	// Auto-stop recording at max duration
 	$effect(() => {
 		if (s.status === 'recording' && s.elapsed >= RECORDING_MAX_SECONDS) {
 			stopRecording();
 		}
 	});
 
-	// Keyboard shortcut: spacebar to toggle recording
 	$effect(() => {
 		function handleKeydown(e: KeyboardEvent) {
 			if (e.code === 'Space' && e.target === document.body) {
@@ -187,14 +218,12 @@
 		return () => window.removeEventListener('keydown', handleKeydown);
 	});
 
-	// Cleanup countdown interval on unmount
 	$effect(() => {
 		return () => {
 			if (countdownInterval) clearInterval(countdownInterval);
 		};
 	});
 
-	// Health check: detect API availability + local backend
 	$effect(() => {
 		fetch('/api/health')
 			.then((r) => r.json())
@@ -212,11 +241,9 @@
 			.then(() => setLocalAvailable(true))
 			.catch(() => setLocalAvailable(false));
 
-		// Prune old recordings from IndexedDB (keep max 3)
 		pruneRecordings(3).catch(() => {});
 	});
 
-	// Resource cleanup: beforeunload + pagehide + component destroy
 	$effect(() => {
 		function handleBeforeUnload(e: BeforeUnloadEvent) {
 			if (s.status === 'recording' || s.status === 'processing' || s.status === 'correcting') {
@@ -236,46 +263,6 @@
 			cleanupAllResources();
 		};
 	});
-
-	// ── Audio waveform ─────────────────────────────────────────────
-
-	function startWaveform(mediaStream: MediaStream) {
-		audioContext = new AudioContext();
-		analyser = audioContext.createAnalyser();
-		analyser.fftSize = 128;
-		const source = audioContext.createMediaStreamSource(mediaStream);
-		source.connect(analyser);
-		const bufferLength = analyser.frequencyBinCount;
-		const dataArray = new Uint8Array(bufferLength);
-
-		function updateBars() {
-			if (!analyser) return;
-			analyser.getByteFrequencyData(dataArray);
-			const barCount = 40;
-			const step = Math.floor(bufferLength / barCount);
-			const newBars: number[] = [];
-			for (let i = 0; i < barCount; i++) {
-				const value = dataArray[i * step] || 0;
-				newBars.push(Math.max(3, (value / 255) * 48));
-			}
-			setWaveformBars(newBars);
-			animationFrameId = requestAnimationFrame(updateBars);
-		}
-		updateBars();
-	}
-
-	function stopWaveform() {
-		if (animationFrameId) {
-			cancelAnimationFrame(animationFrameId);
-			animationFrameId = undefined;
-		}
-		if (audioContext) {
-			audioContext.close();
-			audioContext = undefined;
-			analyser = undefined;
-		}
-		setWaveformBars(new Array(40).fill(3));
-	}
 
 	// ── Live transcription (local Whisper) ─────────────────────────
 
@@ -315,9 +302,7 @@
 				setLastSentChunkIndex(chunks.length);
 			}
 		} catch (e) {
-			if (e instanceof Error && e.name === 'AbortError') {
-				return;
-			}
+			if (e instanceof Error && e.name === 'AbortError') return;
 		} finally {
 			liveChunkController = undefined;
 			liveBusy = false;
@@ -378,7 +363,12 @@
 		});
 
 		streamSocket.addEventListener('message', (event: MessageEvent) => {
-			const data = JSON.parse(event.data);
+			let data: { type: string; text?: string; message?: string };
+			try {
+				data = JSON.parse(event.data);
+			} catch {
+				return;
+			}
 			if (data.type === 'ping') {
 				streamSocket!.send(JSON.stringify({ type: 'pong' }));
 				return;
@@ -395,10 +385,10 @@
 			};
 
 			if (data.type === 'partial') {
-				setPartialText([...s.liveSegments, data.text].join(' '));
+				setPartialText([...s.liveSegments, data.text!].join(' '));
 				resetStall();
 			} else if (data.type === 'final') {
-				setLiveSegments([...s.liveSegments, data.text]);
+				setLiveSegments([...s.liveSegments, data.text!]);
 				setPartialText([...s.liveSegments].join(' '));
 				setLiveWorking(true);
 				resetStall();
@@ -422,9 +412,7 @@
 			}
 		});
 
-		streamSocket.addEventListener('close', () => {
-			// Connection closed
-		});
+		streamSocket.addEventListener('close', () => {});
 	}
 
 	function stopRealtimeStream() {
@@ -440,7 +428,7 @@
 		}
 	}
 
-	// ── Resource cleanup ───────────────────────────────────────────
+	// ── Resource cleanup ──────────────────────────────────────────
 
 	function cleanupAllResources() {
 		cleanupNetworkResources({
@@ -453,14 +441,14 @@
 		cleanupMediaResources({
 			mediaRecorder,
 			stream,
-			audioContext,
-			analyser: { current: analyser },
-			animationFrameId: { current: animationFrameId }
+			audioContext: waveformRefs.audioContext,
+			analyser: { current: waveformRefs.analyser },
+			animationFrameId: { current: waveformRefs.animationFrameId }
 		});
 		cleanupTimers({
 			timerInterval,
 			processingTimerInterval,
-			liveInterval,
+			liveInterval: undefined,
 			countdownInterval,
 			streamStallTimer
 		});
@@ -470,9 +458,7 @@
 		liveChunkController = undefined;
 		apiPollController = undefined;
 		streamSocket = undefined;
-		audioContext = undefined;
-		analyser = undefined;
-		animationFrameId = undefined;
+		waveformRefs = { audioContext: undefined, analyser: undefined, animationFrameId: undefined };
 		mediaRecorder = undefined;
 		setReconnecting(false);
 		setReconnectStatus('');
@@ -488,24 +474,24 @@
 		}
 	}
 
-	// ── Microphone permission ─────────────────────────────────────
+	// ── Microphone permission ────────────────────────────────────
 
 	async function requestMicPermission() {
 		try {
 			const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			// Permission granted — stop the temporary stream and clear error
 			tempStream.getTracks().forEach((t) => t.stop());
 			setError('');
 			setErrorType('');
 		} catch {
-			// Still denied — user needs to change it in browser settings
 			setError(
 				'Toestemming nog steeds geblokkeerd. Open je browserinstellingen (klik op het slotje links in de adresbalk) en zet "Microfoon" op "Toestaan". Herlaad daarna de pagina.'
 			);
 		}
 	}
 
-	// ── Recording ──────────────────────────────────────────────────
+	// ── Recording ─────────────────────────────────────────────────
+
+	const MAX_DOWNSAMPLE_BYTES = 50 * 1024 * 1024;
 
 	async function startRecording() {
 		setError('');
@@ -528,7 +514,7 @@
 			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			mediaRecorder = new MediaRecorder(stream, { mimeType });
 			chunks = [];
-			startWaveform(stream);
+			waveformRefs = startWaveform(stream, waveformRefs);
 			const useRealtimeStream = s.transcribeMode === 'api' && s.apiStreamMode === 'realtime';
 
 			mediaRecorder.ondataavailable = (e) => {
@@ -540,7 +526,7 @@
 
 			mediaRecorder.onstop = async () => {
 				if (stream) stream.getTracks().forEach((t) => t.stop());
-				stopWaveform();
+				waveformRefs = stopWaveform(waveformRefs);
 				stopLiveTranscription();
 				stopRealtimeStream();
 				setRecordingDuration(s.elapsed);
@@ -552,7 +538,6 @@
 				}
 				const blob = new Blob(chunks, { type: mimeType });
 
-				// Save recording locally before transcription attempt
 				try {
 					const recId = await saveRecording(blob, mimeType);
 					setSavedRecordingId(recId);
@@ -571,13 +556,14 @@
 				}
 
 				if (s.transcribeMode === 'local') {
-					// Use accumulated live transcription if available
 					if (s.partialText) {
 						if (s.lastSentChunkIndex < chunks.length) {
 							setStatus('processing');
 							try {
 								const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
-								const remainingBlob = new Blob(chunks.slice(sendFrom), { type: mimeType });
+								const remainingBlob = new Blob(chunks.slice(sendFrom), {
+									type: mimeType
+								});
 								const wav = await downsampleToWav(remainingBlob);
 								const formData = new FormData();
 								formData.append('file', wav, 'final.wav');
@@ -608,7 +594,6 @@
 					}
 
 					setStatus('processing');
-					// No live text — send full audio for final transcription
 					try {
 						const wav = await downsampleToWav(blob);
 						const formData = new FormData();
@@ -634,23 +619,21 @@
 					}
 				}
 
-				// Fallback: full SSE transcription
-				// API mode: send compressed audio directly (AssemblyAI accepts all formats)
-				// This avoids WAV bloat that exceeds Vercel's 4.5 MB body limit
+				// Fallback: full SSE transcription via service
 				if (s.transcribeMode === 'api') {
 					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
-					await sendAudio(blob, `recording.${ext}`);
+					await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
 				} else {
 					try {
 						const wav = await downsampleToWav(blob);
-						await sendAudio(wav, 'recording.wav');
+						await sendAudio(wav, 'recording.wav', transcriptionRefs, transcriptionCallbacks);
 					} catch {
 						const ext = mimeType.includes('webm')
 							? 'webm'
 							: mimeType.includes('ogg')
 								? 'ogg'
 								: 'mp4';
-						await sendAudio(blob, `recording.${ext}`);
+						await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
 					}
 				}
 				setPartialText('');
@@ -697,9 +680,7 @@
 		}
 	}
 
-	// ── File upload ────────────────────────────────────────────────
-
-	const MAX_DOWNSAMPLE_BYTES = 50 * 1024 * 1024; // 50MB
+	// ── File upload ───────────────────────────────────────────────
 
 	async function handleFileUpload(e: Event) {
 		const input = e.target as HTMLInputElement;
@@ -709,491 +690,22 @@
 		setStatus('processing');
 
 		if (s.transcribeMode === 'api') {
-			// API mode: send original file — AssemblyAI accepts all formats
-			// Avoids WAV bloat that can exceed Vercel's 4.5 MB body limit
-			await sendAudio(file, file.name);
+			await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
 		} else if (file.size > MAX_DOWNSAMPLE_BYTES) {
-			// Too large for in-browser downsampling (OOM risk) — send original
-			await sendAudio(file, file.name);
+			await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
 		} else {
 			try {
 				const wav = await downsampleToWav(file);
-				await sendAudio(wav, 'upload.wav');
+				await sendAudio(wav, 'upload.wav', transcriptionRefs, transcriptionCallbacks);
 			} catch {
-				await sendAudio(file, file.name);
+				await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
 			}
 		}
 		input.value = '';
 	}
 
-	// ── Audio send (dispatch to local/API) ─────────────────────────
-
-	async function sendAudio(blob: Blob, filename: string) {
-		resetForTranscription();
-		if (blob.size === 0) {
-			setError('Audio-bestand is leeg. Probeer opnieuw.');
-			setStatus('idle');
-			return;
-		}
-		setStatus('processing');
-		const formData = new FormData();
-		formData.append('file', blob, filename);
-		formData.append('lang', s.lang);
-		if (s.transcribeMode === 'api') {
-			await sendAudioApi(formData);
-		} else {
-			await sendAudioLocal(formData);
-		}
-	}
-
-	const MAX_VERCEL_BODY_BYTES = 4 * 1024 * 1024; // 4MB — Vercel limit ~4.5MB
-
-	async function sendAudioApi(formData: FormData) {
-		apiPollController = new AbortController();
-		try {
-			setApiStatus('Uploaden...');
-
-			// Vercel body limit is ~4.5MB — route large files through local backend SSE
-			const file = formData.get('file') as Blob | null;
-			const useLocalProxy = file && file.size > MAX_VERCEL_BODY_BYTES && s.localAvailable;
-
-			if (useLocalProxy) {
-				await sendAudioApiViaLocal(formData);
-				return;
-			}
-
-			if (file && file.size > MAX_VERCEL_BODY_BYTES && !s.localAvailable) {
-				const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-				setError(
-					`Bestand te groot (${sizeMB} MB) voor cloud-upload (max 4 MB). ` +
-						'Neem een kortere opname of start de lokale backend.'
-				);
-				setApiStatus('');
-				setStatus('idle');
-				return;
-			}
-
-			const submitResp = await fetch('/api/transcribe-api', {
-				method: 'POST',
-				body: formData,
-				signal: apiPollController.signal
-			});
-			// Detect auth redirect (fetch follows 303, lands on login HTML)
-			if (submitResp.redirected || submitResp.url.includes('/login')) {
-				setError('Sessie verlopen — log opnieuw in.');
-				setApiStatus('');
-				setStatus('idle');
-				return;
-			}
-			if (!submitResp.ok) {
-				let body: { error?: string; error_type?: string } | undefined;
-				try {
-					body = await submitResp.json();
-				} catch {
-					/* not JSON */
-				}
-				if (body?.error_type) {
-					const detail = body.error ? ` (${body.error})` : '';
-					setErrorType(body.error_type as ErrorType);
-					setError(getUserMessage(body.error_type as ErrorType) + detail);
-					setApiStatus('');
-					setStatus('idle');
-					return;
-				}
-				throw new Error(body?.error || `Server error ${submitResp.status}`);
-			}
-			let submitJson: { transcriptId?: string; error?: string };
-			try {
-				submitJson = await submitResp.json();
-			} catch {
-				throw new Error('Onverwacht antwoord van server (geen JSON)');
-			}
-			const { transcriptId, error: submitError } = submitJson;
-			if (submitError) throw new Error(submitError);
-
-			setApiStatus('Wachtrij...');
-			const POLL_INTERVAL = 3000;
-			const MAX_POLL_TIME = 60 * 60 * 1000;
-			const startTime = Date.now();
-
-			while (true) {
-				if (Date.now() - startTime > MAX_POLL_TIME) {
-					throw new Error('Transcriptie duurde te lang (>60 min).');
-				}
-				await new Promise((r) => setTimeout(r, POLL_INTERVAL));
-				const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`, {
-					signal: apiPollController.signal
-				});
-				if (pollResp.redirected || pollResp.url.includes('/login')) {
-					setError('Sessie verlopen — log opnieuw in.');
-					setApiStatus('');
-					setStatus('idle');
-					return;
-				}
-				if (!pollResp.ok) {
-					let body: { error?: string; error_type?: string } | undefined;
-					try {
-						body = await pollResp.json();
-					} catch {
-						/* not JSON */
-					}
-					if (body?.error_type) {
-						setErrorType(body.error_type as ErrorType);
-						setError(getUserMessage(body.error_type as ErrorType));
-						setApiStatus('');
-						setStatus('idle');
-						return;
-					}
-					throw new Error(body?.error || `Poll error ${pollResp.status}`);
-				}
-				const result = await pollResp.json();
-				const elapsedMs = Date.now() - startTime;
-				const elapsedMin = Math.floor(elapsedMs / 60000);
-				const WARN_AT_MIN = 45;
-
-				if (result.status === 'queued') {
-					setApiStatus(
-						elapsedMin >= WARN_AT_MIN
-							? `Wachtrij... (${elapsedMin} min — nog ${60 - elapsedMin} min tot timeout)`
-							: 'Wachtrij...'
-					);
-				} else if (result.status === 'processing') {
-					setApiStatus(
-						elapsedMin >= WARN_AT_MIN
-							? `Verwerken... (${elapsedMin} min — nog ${60 - elapsedMin} min tot timeout)`
-							: 'Verwerken...'
-					);
-				} else if (result.status === 'completed') {
-					setRaw(result.text || '');
-					setLanguage(result.language || '');
-					if (result.words && Array.isArray(result.words)) {
-						setConfidenceWords(result.words);
-						setLowConfidenceCount(result.low_confidence_count || 0);
-					} else {
-						setConfidenceWords([]);
-						setLowConfidenceCount(0);
-					}
-					setApiStatus('');
-					await clearSavedRecording();
-					setStatus('idle');
-					return;
-				} else if (result.status === 'error') {
-					throw new Error(result.error || 'Transcriptie mislukt');
-				}
-			}
-		} catch (e) {
-			if (e instanceof Error && e.name === 'AbortError') {
-				apiPollController = undefined;
-				return;
-			}
-			const classified = classifyFrontendError(e);
-			setErrorType(classified);
-			setError(getUserMessage(classified));
-			setApiStatus('');
-			setStatus('idle');
-		} finally {
-			apiPollController = undefined;
-		}
-	}
-
-	async function sendAudioApiViaLocal(formData: FormData) {
-		// Large file: use local backend's /transcribe-api SSE endpoint (bypasses Vercel body limit)
-		transcribeController = new AbortController();
-		let stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
-		const resetStallTimeout = () => {
-			clearTimeout(stallTimeout);
-			stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
-		};
-
-		try {
-			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-api`, {
-				method: 'POST',
-				body: formData,
-				signal: transcribeController.signal
-			});
-			if (!resp.ok) {
-				let body: { error?: string; error_type?: string } | undefined;
-				try {
-					body = await resp.json();
-				} catch {
-					/* not JSON */
-				}
-				if (body?.error_type) {
-					setErrorType(body.error_type as ErrorType);
-					setError(getUserMessage(body.error_type as ErrorType));
-					setStatus('idle');
-					return;
-				}
-				throw new Error(body?.error || `Server error ${resp.status}`);
-			}
-			const reader = resp.body!.getReader();
-			const decoder = new TextDecoder();
-			let buffer = '';
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					clearTimeout(stallTimeout);
-					break;
-				}
-				resetStallTimeout();
-				buffer += decoder.decode(value, { stream: true });
-				const lines = buffer.split('\n');
-				buffer = lines.pop() || '';
-				for (const line of lines) {
-					if (!line.startsWith('data: ')) continue;
-					const event = JSON.parse(line.slice(6));
-					if (event.type === 'info') {
-						setLanguage(event.language || '');
-					} else if (event.type === 'segment') {
-						let segmentText = event.text;
-						if (event.speaker) segmentText = `Spreker ${event.speaker}: ${event.text}`;
-						setRaw(s.raw ? `${s.raw}\n${segmentText}` : segmentText);
-					} else if (event.type === 'error') {
-						if (event.error_type) {
-							handleErrorEvent(event);
-							setStatus('idle');
-							return;
-						}
-						throw new Error(event.message);
-					}
-				}
-			}
-			setApiStatus('');
-			await clearSavedRecording();
-			setStatus('idle');
-		} catch (e) {
-			clearTimeout(stallTimeout);
-			if (e instanceof Error && e.name === 'AbortError') {
-				transcribeController = undefined;
-				return;
-			}
-			const classified = classifyFrontendError(e);
-			setErrorType(classified);
-			setError(getUserMessage(classified));
-			setApiStatus('');
-			setStatus('idle');
-		} finally {
-			transcribeController = undefined;
-		}
-	}
-
-	async function sendAudioLocal(formData: FormData) {
-		transcribeController = new AbortController();
-		let stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
-		const resetStallTimeout = () => {
-			clearTimeout(stallTimeout);
-			stallTimeout = setTimeout(() => transcribeController!.abort(), SSE_STALL_TIMEOUT_MS);
-		};
-
-		try {
-			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe`, {
-				method: 'POST',
-				body: formData,
-				signal: transcribeController.signal
-			});
-			if (!resp.ok) {
-				let body: { error?: string; error_type?: string } | undefined;
-				try {
-					body = await resp.json();
-				} catch {
-					/* not JSON */
-				}
-				if (body?.error_type) {
-					setErrorType(body.error_type as ErrorType);
-					setError(getUserMessage(body.error_type as ErrorType));
-					setStatus('idle');
-					return;
-				}
-				throw new Error(body?.error || `Server error ${resp.status}`);
-			}
-			const reader = resp.body!.getReader();
-			const decoder = new TextDecoder();
-			let buffer = '';
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					clearTimeout(stallTimeout);
-					break;
-				}
-				resetStallTimeout();
-				buffer += decoder.decode(value, { stream: true });
-				const lines = buffer.split('\n');
-				buffer = lines.pop() || '';
-				for (const line of lines) {
-					if (!line.startsWith('data: ')) continue;
-					const event = JSON.parse(line.slice(6));
-					if (event.type === 'info') {
-						setLanguage(event.language || '');
-					} else if (event.type === 'segment') {
-						let segmentText = event.text;
-						if (event.speaker) segmentText = `Spreker ${event.speaker}: ${event.text}`;
-						setRaw(s.raw ? `${s.raw}\n${segmentText}` : segmentText);
-					} else if (event.type === 'error') {
-						if (event.error_type) {
-							handleErrorEvent(event);
-							setStatus('idle');
-							return;
-						}
-						throw new Error(event.message);
-					}
-				}
-			}
-			await clearSavedRecording();
-			setStatus('idle');
-		} catch (e) {
-			clearTimeout(stallTimeout);
-			if (e instanceof Error && e.name === 'AbortError') {
-				transcribeController = undefined;
-				return;
-			}
-			const classified = classifyFrontendError(e);
-			setErrorType(classified);
-			setError(getUserMessage(classified));
-			setStatus('idle');
-		} finally {
-			transcribeController = undefined;
-		}
-	}
-
-	// ── Correction ─────────────────────────────────────────────────
-
-	function startCountdown(seconds: number) {
-		if (countdownInterval) clearInterval(countdownInterval);
-		setCountdownSeconds(seconds);
-		setError(rateLimitMessage(seconds));
-		countdownInterval = setInterval(() => {
-			const next = s.countdownSeconds - 1;
-			setCountdownSeconds(next);
-			if (next > 0) {
-				setError(rateLimitMessage(next));
-			} else {
-				clearInterval(countdownInterval!);
-				countdownInterval = undefined;
-				setError('');
-				setErrorType('');
-				setRetryCount(s.retryCount + 1);
-				if (s.retryCount + 1 <= MAX_AUTO_RETRIES) {
-					fetchCorrection(s.raw, s.lang, s.quality);
-				} else {
-					setError(RATE_LIMIT_EXHAUSTED);
-					setErrorType('rate_limit');
-					setRetryCount(0);
-				}
-			}
-		}, 1000);
-	}
-
-	function handleErrorEvent(event: {
-		error_type?: string;
-		retry_after?: number;
-		message?: string;
-	}) {
-		const eventErrorType = (event.error_type || 'server_error') as ErrorType;
-		setErrorType(eventErrorType);
-		if (isRetryable(eventErrorType) && event.retry_after) {
-			startCountdown(event.retry_after);
-		} else {
-			const detail = event.message ? ` (${event.message})` : '';
-			setError(getUserMessage(eventErrorType) + detail);
-		}
-	}
-
-	function startCorrection() {
-		if (!s.raw) return;
-		resetForCorrection();
-		if (countdownInterval) {
-			clearInterval(countdownInterval);
-			countdownInterval = undefined;
-		}
-		fetchCorrection(s.raw, s.lang, s.quality);
-	}
-
-	async function fetchCorrection(text: string, corrLang: string, qual: string) {
-		const body = {
-			text,
-			language: corrLang,
-			quality: qual,
-			mode: s.mode,
-			temperature: s.temperature,
-			report_length: s.reportLength,
-			keep_dialect: s.keepDialect
-		};
-		const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
-		correctionController = new AbortController();
-		let stallTimeout = setTimeout(() => correctionController!.abort(), SSE_STALL_TIMEOUT_MS);
-		const resetStallTimeout = () => {
-			clearTimeout(stallTimeout);
-			stallTimeout = setTimeout(() => correctionController!.abort(), SSE_STALL_TIMEOUT_MS);
-		};
-
-		try {
-			const resp = await fetch(correctUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body),
-				signal: correctionController.signal
-			});
-			if (resp.redirected || resp.url.includes('/login')) {
-				setError('Sessie verlopen — log opnieuw in.');
-				setCorrected('');
-				setStatus('idle');
-				return;
-			}
-			if (!resp.ok) {
-				if (resp.status === 429) {
-					setErrorType('rate_limit');
-					const retryAfter = parseInt(resp.headers.get('Retry-After') || '3', 10);
-					startCountdown(Math.max(1, retryAfter));
-				} else {
-					const classified = classifyFrontendError(new Error(`HTTP ${resp.status}`));
-					setErrorType(classified);
-					setError(getUserMessage(classified));
-				}
-				setCorrected('');
-				setStatus('idle');
-				return;
-			}
-			const reader = resp.body!.getReader();
-			const decoder = new TextDecoder();
-			let buffer = '';
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					clearTimeout(stallTimeout);
-					break;
-				}
-				resetStallTimeout();
-				buffer += decoder.decode(value, { stream: true });
-				const lines = buffer.split('\n');
-				buffer = lines.pop() || '';
-				for (const line of lines) {
-					if (!line.startsWith('data: ')) continue;
-					const event = JSON.parse(line.slice(6));
-					if (event.type === 'token') {
-						appendCorrected(event.text);
-					} else if (event.type === 'done') {
-						// Streaming complete
-					} else if (event.type === 'error') {
-						handleErrorEvent(event);
-						return;
-					}
-				}
-			}
-			if (!s.corrected) setCorrected(text);
-		} catch (e) {
-			clearTimeout(stallTimeout);
-			if (e instanceof Error && e.name === 'AbortError') {
-				correctionController = undefined;
-				return;
-			}
-			const classified = classifyFrontendError(e);
-			setErrorType(classified);
-			setError(getUserMessage(classified));
-			setCorrected('');
-		} finally {
-			correctionController = undefined;
-			setStatus('idle');
-		}
+	function onStartCorrection() {
+		startCorrection(correctionRefs, correctionCallbacks);
 	}
 </script>
 
@@ -1268,7 +780,7 @@
 						estimatedCorrectionCost={s.estimatedCorrectionCost}
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
-						onGenerate={startCorrection}
+						onGenerate={onStartCorrection}
 					/>
 				{/if}
 
