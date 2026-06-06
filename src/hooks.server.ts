@@ -4,7 +4,7 @@ import { ACCESS_PASSWORD } from '$env/static/private';
 
 const COOKIE_NAME = 'babl_session';
 const MAX_AGE = 30 * 24 * 60 * 60; // 30 days
-const PUBLIC_PATHS = ['/login', '/privacy'];
+const PUBLIC_PATHS = ['/login', '/privacy', '/cookies', '/voorwaarden'];
 
 export function createToken(password: string): string {
 	const timestamp = Date.now().toString();
