@@ -275,28 +275,49 @@ async def polish(req: PolishingRequest):
         try:
             nonlocal text_to_process
 
-            # Pre-check: verify Ollama model exists, fallback to any available model in family
+            # Pre-check: verify Ollama model exists and is loadable
             if req.mode != "api":
                 ollama_model = family_models.get(req.quality, family_models["light"])
                 try:
-                    async with httpx.AsyncClient(timeout=10.0) as check_client:
+                    async with httpx.AsyncClient(timeout=30.0) as check_client:
                         tags_resp = await check_client.get("http://localhost:11434/api/tags")
                         if tags_resp.status_code == 200:
                             available = [m["name"] for m in tags_resp.json().get("models", [])]
-                            if ollama_model not in available:
-                                # Fallback: try configured models from heavy to light
-                                fallback = None
-                                for q in ("heavy", "medium", "light"):
-                                    candidate = family_models.get(q, "")
-                                    if candidate in available:
-                                        fallback = candidate
+                            # Build candidate list: requested model first, then fallbacks heavy→light
+                            candidates = [ollama_model]
+                            for q in ("heavy", "medium", "light"):
+                                c = family_models.get(q, "")
+                                if c and c not in candidates:
+                                    candidates.append(c)
+
+                            # Find first model that is installed AND loadable
+                            chosen = None
+                            for candidate in candidates:
+                                if candidate not in available:
+                                    continue
+                                # Quick generate test to verify model can actually load
+                                try:
+                                    test_resp = await check_client.post(
+                                        OLLAMA_URL,
+                                        json={"model": candidate, "prompt": "test", "stream": False, "options": {"num_predict": 1}},
+                                    )
+                                    if test_resp.status_code == 200:
+                                        chosen = candidate
                                         break
-                                if fallback:
-                                    print(f"Model {ollama_model} not found, falling back to {fallback}")
-                                    ollama_model = fallback
-                                else:
-                                    yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': f'Geen taalmodel geïnstalleerd. Download er een via de installatiewizard.'})}\n\n"
-                                    return
+                                    else:
+                                        error_data = test_resp.json() if test_resp.headers.get("content-type", "").startswith("application/json") else {}
+                                        error_msg = error_data.get("error", "")
+                                        print(f"Model {candidate} installed but not loadable: {error_msg}")
+                                except Exception as e:
+                                    print(f"Model {candidate} test failed: {e}")
+
+                            if chosen:
+                                if chosen != ollama_model:
+                                    print(f"Model {ollama_model} not usable, falling back to {chosen}")
+                                ollama_model = chosen
+                            else:
+                                yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': 'Geen bruikbaar taalmodel gevonden. Mogelijk onvoldoende geheugen. Probeer een kleiner model via de installatiewizard.'})}\n\n"
+                                return
                         else:
                             yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Ollama reageert niet. Is de app gestart?'})}\n\n"
                             return
@@ -404,6 +425,9 @@ async def polish(req: PolishingRequest):
                 if hasattr(e, "response") and hasattr(e.response, "headers"):
                     retry_after = parse_retry_after(e.response)
                 yield f"data: {json.dumps({'type': 'error', 'error_type': 'rate_limit', 'retry_after': retry_after})}\n\n"
+            elif "memory" in error_str.lower() or "500" in error_str:
+                # Ollama out-of-memory or internal error
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Onvoldoende geheugen voor dit model. Probeer een kleiner model of sluit andere apps.'})}\n\n"
             elif any(code in error_str for code in ["502", "503"]):
                 yield f"data: {json.dumps({'type': 'error', 'error_type': 'upstream_disconnect'})}\n\n"
             elif "timeout" in error_str.lower() or isinstance(e, asyncio.TimeoutError):
@@ -411,7 +435,7 @@ async def polish(req: PolishingRequest):
             elif isinstance(e, (httpx.ConnectError, httpx.NetworkError, ConnectionError)):
                 yield f"data: {json.dumps({'type': 'error', 'error_type': 'network_error'})}\n\n"
             else:
-                yield f"data: {json.dumps({'type': 'error', 'error_type': 'network_error'})}\n\n"
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'server_error'})}\n\n"
 
     return StreamingResponse(
         generate(),
