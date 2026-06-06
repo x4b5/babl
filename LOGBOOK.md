@@ -234,3 +234,6 @@
 | 2026-06-06 | 20:51     | 20:55    | .06         | `73e60f0`   | fix: prevent recording cleanup on beforeunload cancel                                                                           |
 | 2026-06-06 | 20:55     | 20:58    | .04         | `a9cc95a`   | feat: add verwerkingsovereenkomst (DPA) page and template document                                                              |
 | 2026-06-06 | 20:58     | 21:05    | .12         | `dbf9b5a`   | fix: remove browser-side audio downsampling and improve backend duration detection                                              |
+| 2026-06-06 | 21:05     | 21:06    | 0           | `e277c89`   | chore: update logbook with session entries                                                                                      |
+| 2026-06-06 | 21:06     | 21:21    | .26         | `9d30422`   | feat: add fixed back button to privacy, voorwaarden, cookies and DPA pages                                                      |
+| 2026-06-06 | 21:21     | 21:23    | .02         | `a6f2b5e`   | refactor: centralize model configuration with backend as source of truth                                                        |
