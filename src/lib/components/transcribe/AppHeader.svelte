@@ -21,7 +21,8 @@
 		>
 	</h1>
 	<div class="mb-3 sm:mb-4 text-white/50 text-center">
-		<p class="text-lg sm:text-2xl tracking-widest">Van spraak naar tekst,</p>
-		<p class="text-sm sm:text-lg italic">mit un good geveul veur Limburgs.</p>
+		<p class="text-lg sm:text-2xl tracking-widest font-bold">Van spraak naar tekst,</p>
+		<p class="text-lg sm:text-2xl tracking-widest mt-3">met oog voor privacy</p>
+		<p class="text-sm sm:text-lg italic">en un good geveul veur Limburgs.</p>
 	</div>
 </header>
