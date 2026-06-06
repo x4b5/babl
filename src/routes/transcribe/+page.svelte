@@ -392,6 +392,7 @@
 			processingProgress={s.processingProgress}
 			recordingWarning={s.recordingWarning}
 			transcribeMode={s.transcribeMode}
+			localAvailable={s.localAvailable}
 			apiStatus={s.apiStatus}
 			estimatedTranscribeCost={s.estimatedTranscribeCost}
 			onToggleRecording={toggleRecording}
