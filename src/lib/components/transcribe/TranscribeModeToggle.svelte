@@ -53,7 +53,17 @@
 		{:else if transcribeMode === 'local' && !localAvailable}
 			Klik hier om te installeren op je apparaat.
 		{:else}
-			Audio wordt verwerkt via EU-servers (AssemblyAI).
+			Audio wordt verwerkt via EU-servers (<img
+				src="/assemblyai.png"
+				alt=""
+				class="inline h-3.5 w-3.5 -mt-0.5"
+			/>
+			<a
+				href="https://www.assemblyai.com"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="underline text-white/60 hover:text-white/80 transition-colors">AssemblyAI</a
+			>).
 		{/if}
 	</p>
 </div>

@@ -225,7 +225,16 @@
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
-						<h3 class="text-sm font-medium text-white/70">AssemblyAI</h3>
+						<h3 class="text-sm font-medium text-white/70 flex items-center gap-1.5">
+							<img src="/assemblyai.png" alt="" class="h-4 w-4" />
+							<a
+								href="https://www.assemblyai.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/50 transition-colors"
+								>AssemblyAI</a
+							>
+						</h3>
 						<p class="mt-1 text-xs text-white/40">
 							Professionele spraakherkenningsdienst met SOC 2 Type 2 certificering. Datacenter in
 							Dublin, Ierland (EU Data Residency). Wordt gebruikt in API-modus voor transcriptie.
