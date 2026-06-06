@@ -194,3 +194,43 @@
 | 2026-06-06 | 16:37     | 16:44    | .11         | `071c7ff`   | feat: improve UX with clearer labels, explanations and setup wizard                                                             |
 | 2026-06-06 | 16:44     | 16:55    | .17         | `da4ed3b`   | refactor: simplify PrivacyFooter component                                                                                      |
 | 2026-06-06 | 16:55     | 16:59    | .06         | `9f196d6`   | feat: simplify PrivacyFooter and add model selection to setup wizard                                                            |
+| 2026-06-06 | 16:59     | 17:00    | .02         | `e9a6711`   | chore: update logbook                                                                                                           |
+| 2026-06-06 | 17:00     | 17:04    | .06         | `deeae72`   | chore: update app tagline                                                                                                       |
+| 2026-06-06 | 17:04     | 17:08    | .06         | `3bd8a84`   | fix: improve contrast of inactive mode toggle buttons                                                                           |
+| 2026-06-06 | 17:08     | 17:13    | .08         | `7f67796`   | feat: improve mode toggle UX with inline install prompt                                                                         |
+| 2026-06-06 | 17:13     | 17:16    | .05         | `2236749`   | fix: disable record and upload buttons when local backend not installed                                                         |
+| 2026-06-06 | 17:16     | 17:17    | .02         | `1c3f248`   | chore: update tagline with Limburgish subtitle                                                                                  |
+| 2026-06-06 | 17:17     | 17:22    | .07         | `63eefff`   | chore: update tagline layout and install prompt text                                                                            |
+| 2026-06-06 | 17:22     | 17:43    | .35         | `0998451`   | feat: redesign setup wizard for beginner-friendly GUI flow                                                                      |
+| 2026-06-06 | 17:43     | 17:46    | .04         | `9141f30`   | fix: use Rubik Glitch font for favicon with green-to-yellow gradient                                                            |
+| 2026-06-06 | 17:46     | 17:47    | .01         | `e98b027`   | refactor: simplify setup wizard to transcription-only (3 steps)                                                                 |
+| 2026-06-06 | 17:47     | 17:51    | .06         | `da8f6b9`   | fix: make Ollama optional in start script                                                                                       |
+| 2026-06-06 | 17:51     | 17:52    | .02         | `25a343f`   | fix: include project path in wizard terminal command                                                                            |
+| 2026-06-06 | 17:52     | 17:54    | .02         | `3cbb72e`   | fix: use universal clone+install+start command in wizard                                                                        |
+| 2026-06-06 | 17:54     | 17:55    | .01         | `87816c9`   | fix: correct GitHub repo URL in wizard command                                                                                  |
+| 2026-06-06 | 17:55     | 18:02    | .12         | `2f469f1`   | refactor: simplify wizard to 2 steps (RAM check + install/start)                                                                |
+| 2026-06-06 | 18:02     | 18:04    | .02         | `3305968`   | fix: handle existing directory in wizard clone command                                                                          |
+| 2026-06-06 | 18:04     | 18:06    | .03         | `5f451c3`   | fix: don't auto-open browser on server start                                                                                    |
+| 2026-06-06 | 18:06     | 18:14    | .14         | `3aba97e`   | feat: add AssemblyAI favicon and link to website                                                                                |
+| 2026-06-06 | 18:14     | 18:16    | .02         | `b41ddb2`   | feat: add Mistral AI favicon and link to website                                                                                |
+| 2026-06-06 | 18:16     | 18:18    | .03         | `20cad17`   | feat: add Ollama and Whisper favicons and links to websites                                                                     |
+| 2026-06-06 | 18:18     | 18:25    | .11         | `27d45dd`   | feat: add pros and cons under mode toggles                                                                                      |
+| 2026-06-06 | 18:25     | 18:28    | .04         | `be0d66b`   | feat: add AVG and AI Act compliance info under mode toggles                                                                     |
+| 2026-06-06 | 18:28     | 18:56    | .47         | `b287e4b`   | fix: prevent local transcription from cutting off after first chunk                                                             |
+| 2026-06-06 | 18:56     | 19:00    | .06         | `7de8ead`   | refactor: move pros/cons to about page and simplify mode toggles                                                                |
+| 2026-06-06 | 19:00     | 19:03    | .03         | `183db78`   | chore: update about page section title to match toggle labels                                                                   |
+| 2026-06-06 | 19:03     | 19:07    | .06         | `6fb6a88`   | chore: update tagline with privacy message and Limburgish subtitle                                                              |
+| 2026-06-06 | 19:07     | 19:09    | .03         | `88acd38`   | fix: live transcription hanging after first sentence in local mode                                                              |
+| 2026-06-06 | 19:09     | 19:11    | .03         | `b3447d7`   | fix: increase font sizes and reduce size variation in toggle components                                                         |
+| 2026-06-06 | 19:11     | 19:12    | .02         | `815574d`   | fix: increase vertical spacing and fix text wrapping in toggle components                                                       |
+| 2026-06-06 | 19:12     | 19:17    | .07         | `e73abe6`   | chore: simplify tagline to two lines with Limburgish subtitle                                                                   |
+| 2026-06-06 | 19:17     | 19:20    | .04         | `2263dcf`   | fix: add fixed back button to about page and clean up footer                                                                    |
+| 2026-06-06 | 19:20     | 19:31    | .18         | `755f3d9`   | feat: show service names and icons in toggle buttons and about page title                                                       |
+| 2026-06-06 | 19:31     | 19:38    | .10         | `dca077c`   | fix: disable live transcription for local Whisper mode                                                                          |
+| 2026-06-06 | 19:38     | 19:41    | .05         | `3125ad4`   | fix: countdown 3-2-1 with exact 1s steps and clear after completion                                                             |
+| 2026-06-06 | 19:41     | 20:32    | .84         | `064b88d`   | feat: add intro text, SOC 2 explanation, and Limburgs technical explanation to about page                                       |
+| 2026-06-06 | 20:32     | 20:46    | .24         | `7c6875d`   | feat: enable AssemblyAI PII redaction for names, phone numbers and medical data                                                 |
+| 2026-06-06 | 20:46     | 20:51    | .08         | `b159a8a`   | docs: add PII redaction details to privacy page                                                                                 |
+| 2026-06-06 | 20:51     | 20:55    | .06         | `73e60f0`   | fix: prevent recording cleanup on beforeunload cancel                                                                           |
+| 2026-06-06 | 20:55     | 20:58    | .04         | `a9cc95a`   | feat: add verwerkingsovereenkomst (DPA) page and template document                                                              |
+| 2026-06-06 | 20:58     | 21:05    | .12         | `dbf9b5a`   | fix: remove browser-side audio downsampling and improve backend duration detection                                              |
