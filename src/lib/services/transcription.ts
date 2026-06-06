@@ -210,7 +210,7 @@ async function pollTranscription(
 	callbacks: TranscriptionCallbacks
 ): Promise<void> {
 	setApiStatus('Wachtrij...');
-	const POLL_INTERVAL = 3000;
+	const POLL_INTERVAL = 5000;
 	const MAX_POLL_TIME = 60 * 60 * 1000;
 	const startTime = Date.now();
 	const WARN_AT_MIN = 45;
@@ -432,7 +432,7 @@ async function pollSegment(
 	words?: { text: string; confidence: number; speaker?: string }[];
 	lowConfidenceCount: number;
 }> {
-	const POLL_INTERVAL = 3000;
+	const POLL_INTERVAL = 5000;
 	const MAX_POLL_TIME = 30 * 60 * 1000;
 	const startTime = Date.now();
 

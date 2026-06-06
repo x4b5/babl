@@ -33,14 +33,14 @@
 		"tailwindcss": "^4.2.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
-		"vitest": "^4.0.18"
+		"vitest": "^4.0.18",
+		"@mistralai/mistralai": "^1.15.1",
+		"assemblyai": "^4.27.0"
 	},
 	"lint-staged": {
 		"*.{js,ts,svelte,css,md,json}": "prettier --write"
 	},
 	"dependencies": {
-		"@mistralai/mistralai": "^1.15.1",
-		"assemblyai": "^4.27.0",
 		"posthog-js": "^1.352.1",
 		"reconnecting-websocket": "^4.4.0"
 	}
