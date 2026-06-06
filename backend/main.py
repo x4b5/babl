@@ -891,7 +891,7 @@ class CorrectionRequest(BaseModel):
     quality: str = "light"
     mode: str = "local"
     temperature: float = 0.5
-    report_length: str = "middellang"
+    report_length: str = "samenvatting"
     keep_dialect: bool = False
     target_lang: str = "nl"
 
@@ -927,7 +927,7 @@ async def correct(req: CorrectionRequest):
     if req.language == "li":
         system_prompt, json_instr = build_correction_prompt(req.region, req.report_length)
     else:
-        system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["middellang"])
+        system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["samenvatting"])
         json_instr = ""
 
     chunks = split_into_chunks(req.text, max_words=400)
@@ -976,10 +976,8 @@ async def correct(req: CorrectionRequest):
             if req.keep_dialect and req.language == "li":
                 final_system_prompt = DIALECT_RETENTION_PROMPT
                 # Append information about length to the retention prompt if needed
-                if req.report_length == "kort":
-                    final_system_prompt += "\nMaak er een OPSOMMING van in bulletpoints."
-                elif req.report_length == "lang":
-                    final_system_prompt += "\nMaak er een UITGEBREIDE VERSLAGLEGGING van met alinea's."
+                if req.report_length == "uitgebreid":
+                    final_system_prompt += "\nMaak er een UITGEBREID VERSLAG van met alinea's en kopjes."
 
             # JSON mode: accumulate tokens, parse JSON, emit corrected text
             # Disabled for keep_dialect (raw dialect text output)

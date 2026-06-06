@@ -33,7 +33,7 @@ class TestPromptVersioning:
     def test_build_correction_prompt_unchanged_interface(self):
         """build_correction_prompt should still return (system_prompt, json_instruction)."""
         from correction import build_correction_prompt
-        result = build_correction_prompt("limburgs", "middellang")
+        result = build_correction_prompt("limburgs", "samenvatting")
         assert isinstance(result, tuple)
         assert len(result) == 2
 

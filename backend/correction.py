@@ -35,42 +35,15 @@ JSON_INSTRUCTION = (
 
 
 SYSTEM_PROMPTS = {
-    "kort": (
+    "samenvatting": (
         "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
         "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een OPSOMMING van in bulletpoints.\n\n"
+        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een BEKNOPTE SAMENVATTING van.\n\n"
         "1. Lees de volledige tekst om de context en bedoeling te begrijpen.\n"
         "2. Vertaal dialectwoorden naar standaard Nederlands.\n"
-        "3. Destilleer de kernpunten en presenteer ze als een korte bulletpoint-lijst.\n"
-        "4. Elk bulletpoint is één kernpunt — maximaal één zin.\n"
+        "3. Schrijf een korte, bondige samenvatting in lopende tekst (2-4 zinnen voor korte opnames, meer voor langere).\n"
+        "4. Focus op de kernpunten: besluiten, conclusies en belangrijkste informatie.\n"
         "5. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n\n"
-        "VOORBEELD:\n"
-        "Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en "
-        "toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja "
-        "doe mós dat eigenlijk neet doon zag hae'\n"
-        "Output:\n"
-        "- Gisteren naar het plein gegaan, mooi weer\n"
-        "- Met Jan gesproken: hij zei dat het niet goed was\n"
-        "- Advies van Jan: dat moet je eigenlijk niet doen\n\n"
-        "REGELS:\n"
-        "- Geef ALLEEN de bulletpoint-lijst terug, geen uitleg of commentaar.\n"
-        "- Gebruik '- ' als bulletpoint-prefix.\n"
-        "- Voeg geen informatie toe die niet in de brontekst staat.\n"
-        "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
-        "- Focus op resultaten en besluiten, niet op procesbeschrijving.\n\n"
-        f"{DIALECT_TRANSLATION_KEY}"
-    ),
-    "middellang": (
-        "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
-        "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een KORT VERSLAG van.\n"
-        "Focus op resultaten, besluiten en conclusies — niet op het proces.\n\n"
-        "1. Lees EERST de volledige tekst om de context en bedoeling te begrijpen.\n"
-        "2. Schrijf een beknopt, goed leesbaar Nederlands verslag.\n"
-        "3. Focus op WAT er besloten/geconcludeerd is, niet op HOE het gesprek verliep.\n"
-        "4. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n"
-        "5. Maak er lopende, correcte Nederlandse zinnen van.\n"
-        "6. Behoud de toon van de spreker (informeel blijft informeel).\n\n"
         "VOORBEELD:\n"
         "Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en "
         "toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja "
@@ -78,16 +51,16 @@ SYSTEM_PROMPTS = {
         "Output: 'Gisteren was het mooi weer op het plein. Jan gaf aan dat het niet goed was "
         "en adviseerde om het niet te doen.'\n\n"
         "REGELS:\n"
-        "- Geef ALLEEN het verslag terug, geen uitleg of commentaar.\n"
+        "- Geef ALLEEN de samenvatting terug als platte tekst, geen JSON, geen labels, geen uitleg.\n"
         "- Voeg geen informatie toe die niet in de brontekst staat.\n"
         "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
         "- Kort en bondig. Geen onnodige procesbeschrijving.\n\n"
         f"{DIALECT_TRANSLATION_KEY}"
     ),
-    "lang": (
+    "uitgebreid": (
         "Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n"
         "JE TAAK:\n"
-        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een UITGEBREIDE VERSLAGLEGGING van.\n\n"
+        "Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een UITGEBREID VERSLAG van.\n\n"
         "1. Lees EERST de volledige tekst om de context en bedoeling te begrijpen.\n"
         "2. Schrijf een uitgebreid, goed gestructureerd Nederlands verslag.\n"
         "3. Gebruik alinea's en indien passend kopjes om het verslag te structureren.\n"
@@ -105,7 +78,7 @@ SYSTEM_PROMPTS = {
         "was en adviseerde nadrukkelijk om het niet te doen. Zijn standpunt was duidelijk: "
         "het is eigenlijk geen goede keuze.'\n\n"
         "REGELS:\n"
-        "- Geef ALLEEN het uitgebreide verslag terug, geen uitleg of commentaar.\n"
+        "- Geef ALLEEN het verslag terug als platte tekst, geen JSON, geen labels, geen uitleg.\n"
         "- Voeg geen informatie toe die niet in de brontekst staat.\n"
         "- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n"
         "- Structureer met alinea's. Gebruik kopjes als de tekst meerdere onderwerpen bevat.\n"
@@ -136,7 +109,7 @@ CLEANUP_PROMPT = (
     f"{DIALECT_TRANSLATION_KEY}"
 )
 
-SYSTEM_PROMPT = SYSTEM_PROMPTS["middellang"]
+SYSTEM_PROMPT = SYSTEM_PROMPTS["samenvatting"]
 
 
 def _format_few_shot_examples(examples: list[dict]) -> str:
@@ -156,13 +129,13 @@ def build_correction_prompt(region: str, report_length: str) -> tuple[str, str]:
 
     Args:
         region: Regional dialect key (e.g., "mestreechs")
-        report_length: "kort", "middellang", or "lang"
+        report_length: "samenvatting" or "uitgebreid"
 
     Returns:
         Tuple of (system_prompt, json_instruction)
     """
     profile = REGIONAL_PROFILES.get(region, REGIONAL_PROFILES["limburgs"])
-    base = SYSTEM_PROMPTS.get(report_length, SYSTEM_PROMPTS["middellang"])
+    base = SYSTEM_PROMPTS.get(report_length, SYSTEM_PROMPTS["samenvatting"])
 
     # Inject expanded glossary (per D-07, D-08: key=value format)
     glossary = profile.get("glossary", {})

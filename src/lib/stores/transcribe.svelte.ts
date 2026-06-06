@@ -11,7 +11,7 @@ export type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correc
 export type Quality = 'light' | 'medium';
 export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
-export type ReportLength = 'kort' | 'middellang' | 'lang';
+export type ReportLength = 'samenvatting' | 'uitgebreid';
 export type ApiStreamMode = 'realtime' | 'accurate';
 
 export interface WordWithConfidence {
@@ -51,9 +51,8 @@ const MISTRAL_COST_PER_WORD: Record<string, number> = {
 	medium: ((2.0 + 6.0) * 1.3) / 1_000_000 // ~$0.0000104/word
 };
 const REPORT_LENGTH_FACTOR: Record<string, number> = {
-	kort: 0.3,
-	middellang: 1,
-	lang: 1.5
+	samenvatting: 0.5,
+	uitgebreid: 1.5
 };
 
 // ── Reactive state ────────────────────────────────────────────
@@ -74,7 +73,7 @@ let correctedExpanded = $state(false);
 let quality = $state<Quality>('medium');
 const lang: Lang = 'li';
 let mode = $state<Mode>('api');
-let reportLength = $state<ReportLength>('middellang');
+let reportLength = $state<ReportLength>('samenvatting');
 let transcribeMode = $state<Mode>('api');
 let apiStreamMode = $state<ApiStreamMode>('accurate');
 let temperature = $state(0.2);

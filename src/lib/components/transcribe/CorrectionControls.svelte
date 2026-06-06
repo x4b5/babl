@@ -24,9 +24,8 @@
 	}: Props = $props();
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
-		{ value: 'kort', label: 'Kort' },
-		{ value: 'middellang', label: 'Middellang' },
-		{ value: 'lang', label: 'Lang' }
+		{ value: 'samenvatting', label: 'Samenvatting' },
+		{ value: 'uitgebreid', label: 'Uitgebreid' }
 	];
 </script>
 
@@ -92,6 +91,6 @@
 		onclick={onGenerate}
 		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
 	>
-		Verslaglegging genereren
+		Genereren
 	</button>
 </div>

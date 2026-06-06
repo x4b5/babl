@@ -78,7 +78,7 @@ class TestPromptBuilder:
     def test_glossary_injection(self, region):
         """build_correction_prompt must include glossary terms in output."""
         from correction import build_correction_prompt
-        system, json_instr = build_correction_prompt(region, "middellang")
+        system, json_instr = build_correction_prompt(region, "samenvatting")
         profile = REGIONAL_PROFILES[region]
         # Check that at least 5 glossary terms appear in the system prompt
         glossary = profile["glossary"]
@@ -89,5 +89,5 @@ class TestPromptBuilder:
     def test_few_shot_in_prompt(self, region):
         """build_correction_prompt must include few-shot examples."""
         from correction import build_correction_prompt
-        system, json_instr = build_correction_prompt(region, "middellang")
+        system, json_instr = build_correction_prompt(region, "samenvatting")
         assert "VOORBEELDEN" in system or "Voorbeeld" in system
