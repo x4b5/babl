@@ -192,3 +192,4 @@
 | 2026-06-06 | 16:30     | 16:37    | .11         | `b1541fb`   | chore: formatting and logbook sync                                                                                              |
 | 2026-06-06 | 16:37     | 16:37    | 0           | `7546a78`   | chore: logbook update                                                                                                           |
 | 2026-06-06 | 16:37     | 16:44    | .11         | `071c7ff`   | feat: improve UX with clearer labels, explanations and setup wizard                                                             |
+| 2026-06-06 | 16:44     | 16:55    | .17         | `da4ed3b`   | refactor: simplify PrivacyFooter component                                                                                      |

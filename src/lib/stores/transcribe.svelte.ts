@@ -8,7 +8,7 @@ import type { ErrorType } from '$lib/utils/error-types';
 // ── Type definitions ──────────────────────────────────────────
 
 export type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correcting';
-export type Quality = 'light' | 'medium';
+export type Quality = 'light' | 'medium' | 'heavy';
 export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
 export type ReportLength = 'samenvatting' | 'uitgebreid';
@@ -48,7 +48,8 @@ const ASSEMBLYAI_COST_PER_SECOND = 0.17 / 3600;
 // Estimate: ~1.3 tokens per word, output ≈ same length as input
 const MISTRAL_COST_PER_WORD: Record<string, number> = {
 	light: ((0.06 + 0.18) * 1.3) / 1_000_000, // ~$0.000000312/word
-	medium: ((2.0 + 6.0) * 1.3) / 1_000_000 // ~$0.0000104/word
+	medium: ((0.06 + 0.18) * 1.3) / 1_000_000, // same as light (small model)
+	heavy: ((2.0 + 6.0) * 1.3) / 1_000_000 // ~$0.0000104/word (large model)
 };
 const REPORT_LENGTH_FACTOR: Record<string, number> = {
 	samenvatting: 0.5,
@@ -339,6 +340,9 @@ export function incrementElapsed() {
 }
 export function setCorrectedExpanded(v: boolean) {
 	correctedExpanded = v;
+}
+export function setQuality(v: Quality) {
+	quality = v;
 }
 export function setMode(v: Mode) {
 	mode = v;

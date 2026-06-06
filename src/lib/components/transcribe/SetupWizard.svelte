@@ -3,8 +3,11 @@
 		getSetupWizardState,
 		closeWizard,
 		setStep,
-		copyCommand
+		copyCommand,
+		setSelectedModel
 	} from '$lib/stores/setup-wizard.svelte';
+	import { setQuality } from '$lib/stores/transcribe.svelte';
+	import type { Quality } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		onClose?: () => void;
@@ -19,11 +22,49 @@
 		onClose?.();
 	}
 
+	interface ModelOption {
+		label: string;
+		model: string;
+		quality: Quality;
+		ram: string;
+		description: string;
+	}
+
+	const modelOptions: ModelOption[] = [
+		{
+			label: 'Compact',
+			model: 'gemma3:1b',
+			quality: 'light',
+			ram: '~1 GB',
+			description: 'Basis — geschikt voor korte notities'
+		},
+		{
+			label: 'Standaard',
+			model: 'gemma3:4b',
+			quality: 'medium',
+			ram: '~3 GB',
+			description: 'Goed — geschikt voor de meeste verslagen'
+		},
+		{
+			label: 'Uitgebreid',
+			model: 'gemma3:12b',
+			quality: 'heavy',
+			ram: '~8 GB',
+			description: 'Beste kwaliteit — vereist krachtige laptop'
+		}
+	];
+
+	function selectModel(opt: ModelOption) {
+		setSelectedModel(opt.model);
+		setQuality(opt.quality);
+	}
+
 	interface Step {
 		title: string;
 		done: boolean;
 		commands: { label: string; cmd: string }[];
 		description: string;
+		hasModelChoice?: boolean;
 	}
 
 	const steps: Step[] = $derived([
@@ -38,11 +79,12 @@
 			]
 		},
 		{
-			title: 'Taalmodel downloaden',
+			title: 'Taalmodel kiezen & downloaden',
 			done: w.ollamaModelReady,
 			description:
-				'Download het taalmodel Gemma 3 (2.3 GB). Dit is de AI die jouw tekst leest en corrigeert. Het downloaden kan even duren afhankelijk van je internetsnelheid.',
-			commands: [{ label: 'Download model', cmd: 'ollama pull gemma3:4b' }]
+				'Kies een taalmodel dat past bij jouw computer. Een groter model geeft betere resultaten, maar heeft meer werkgeheugen (RAM) nodig.',
+			commands: [{ label: 'Download model', cmd: `ollama pull ${w.selectedModel}` }],
+			hasModelChoice: true
 		},
 		{
 			title: 'BABL-server starten',
@@ -162,6 +204,47 @@
 					{#if isActive}
 						<div class="mt-3 space-y-3">
 							<p class="text-sm text-white/60 leading-relaxed">{step.description}</p>
+
+							{#if step.hasModelChoice}
+								<div class="grid grid-cols-3 gap-2">
+									{#each modelOptions as opt}
+										{@const isSelected = w.selectedModel === opt.model}
+										{@const isDownloaded = w.status.ollamaModels[opt.model] ?? false}
+										<button
+											onclick={() => selectModel(opt)}
+											class="rounded-xl p-3 text-left transition-all {isSelected
+												? 'bg-neon/15 ring-1 ring-neon/40'
+												: 'bg-white/5 hover:bg-white/10'}"
+										>
+											<div class="flex items-center justify-between">
+												<span
+													class="text-xs font-semibold {isSelected ? 'text-neon' : 'text-white/80'}"
+													>{opt.label}</span
+												>
+												{#if isDownloaded}
+													<svg
+														class="h-3.5 w-3.5 text-emerald-400"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2.5"
+															d="M5 13l4 4L19 7"
+														/>
+													</svg>
+												{/if}
+											</div>
+											<span class="mt-1 block text-[10px] text-white/40">{opt.ram} RAM</span>
+											<span class="mt-0.5 block text-[10px] text-white/30 leading-tight"
+												>{opt.description}</span
+											>
+										</button>
+									{/each}
+								</div>
+							{/if}
 
 							{#each step.commands as { label, cmd }}
 								<div>

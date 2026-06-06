@@ -15,13 +15,20 @@
 </script>
 
 <div class="mt-12 sm:mt-16 animate-fade-in">
-	<!-- Data management (AVG rechten) -->
-	<div class="glass-strong rounded-2xl px-4 py-3 sm:px-5 sm:py-4">
-		<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-white/55">Jouw data</p>
-		<div class="flex flex-wrap gap-2">
+	<div class="flex flex-col items-center gap-3">
+		<div class="flex flex-wrap items-center justify-center gap-2 text-xs text-white/50">
+			<a href="/privacy" class="hover:text-white/60 transition-colors">Privacy</a>
+			<span class="text-white/40">|</span>
+			<a href="/cookies" class="hover:text-white/60 transition-colors">Cookies</a>
+			<span class="text-white/40">|</span>
+			<a href="/voorwaarden" class="hover:text-white/60 transition-colors">Voorwaarden</a>
+			<span class="text-white/40">|</span>
+			<a href="/about" class="hover:text-white/60 transition-colors">Over BABL</a>
+		</div>
+		<div class="flex flex-wrap items-center justify-center gap-2">
 			<button
 				onclick={() => exportLocalData()}
-				class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white/80"
+				class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white/70"
 			>
 				Exporteer mijn data
 			</button>
@@ -36,7 +43,7 @@
 					</button>
 					<button
 						onclick={() => (confirmingDelete = false)}
-						class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10"
+						class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10"
 					>
 						Annuleren
 					</button>
@@ -51,23 +58,11 @@
 			{/if}
 			<button
 				onclick={() => resetConsent()}
-				class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white/80"
+				class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white/70"
 			>
 				Cookie-instellingen
 			</button>
 		</div>
-	</div>
-
-	<div class="mt-4 flex flex-col items-center gap-1">
-		<div class="flex items-center gap-2 text-xs text-white/50">
-			<a href="/privacy" class="hover:text-white/60 transition-colors">Privacy</a>
-			<span class="text-white/40">|</span>
-			<a href="/cookies" class="hover:text-white/60 transition-colors">Cookies</a>
-			<span class="text-white/40">|</span>
-			<a href="/voorwaarden" class="hover:text-white/60 transition-colors">Voorwaarden</a>
-			<span class="text-white/40">|</span>
-			<a href="/about" class="hover:text-white/60 transition-colors">Over BABL</a>
-		</div>
-		<p class="text-xs text-white/50">v{version} — {buildDate}</p>
+		<p class="text-xs text-white/40">v{version} — {buildDate}</p>
 	</div>
 </div>

@@ -47,8 +47,9 @@ HEARTBEAT_TIMEOUT = 30   # Close if no pong within 30 seconds
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODELS = {
-    "light": "gemma3:4b",
-    "medium": "gemma3:12b",
+    "light": "gemma3:1b",
+    "medium": "gemma3:4b",
+    "heavy": "gemma3:12b",
 }
 
 ASSEMBLYAI_API_KEY = os.environ.get("ASSEMBLYAI_API_KEY", "")
@@ -56,7 +57,8 @@ ASSEMBLYAI_API_KEY = os.environ.get("ASSEMBLYAI_API_KEY", "")
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_MODELS = {
     "light": "mistral-small-latest",
-    "medium": "mistral-large-latest",
+    "medium": "mistral-small-latest",
+    "heavy": "mistral-large-latest",
 }
 
 # Lazy-initialized Mistral client

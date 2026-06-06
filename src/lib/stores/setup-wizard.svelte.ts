@@ -24,12 +24,13 @@ let status = $state<SetupStatus>({
 	ollamaModels: {},
 	whisperAvailable: false
 });
+let selectedModel = $state('gemma3:4b');
 let copiedCommand = $state('');
 let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined);
 
 // ── Derived ──────────────────────────────────────────────────
 
-const ollamaModelReady = $derived(status.ollamaModels['gemma3:4b'] ?? false);
+const ollamaModelReady = $derived(status.ollamaModels[selectedModel] ?? false);
 
 const allReady = $derived(status.backendRunning && status.ollamaRunning && ollamaModelReady);
 
@@ -62,6 +63,7 @@ async function fetchSetupStatus(): Promise<void> {
 				backendRunning: false,
 				ollamaRunning: true,
 				ollamaModels: {
+					'gemma3:1b': available.has('gemma3:1b'),
 					'gemma3:4b': available.has('gemma3:4b'),
 					'gemma3:12b': available.has('gemma3:12b')
 				},
@@ -112,6 +114,10 @@ export function setStep(step: number): void {
 	currentStep = step;
 }
 
+export function setSelectedModel(model: string): void {
+	selectedModel = model;
+}
+
 export async function copyCommand(command: string): Promise<void> {
 	await navigator.clipboard.writeText(command);
 	copiedCommand = command;
@@ -144,6 +150,9 @@ export function getSetupWizardState() {
 		},
 		get ollamaModelReady() {
 			return ollamaModelReady;
+		},
+		get selectedModel() {
+			return selectedModel;
 		}
 	};
 }
