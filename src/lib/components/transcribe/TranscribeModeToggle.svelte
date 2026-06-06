@@ -60,6 +60,9 @@
 				<span class="mx-1 text-white/20">|</span>
 				<span class="text-amber-400/60">−</span> Langzamer
 			</p>
+			<p class="mt-0.5 text-white/25">
+				AVG: geen derden, geen verwerkersovereenkomst nodig. AI Act: geen extra verplichtingen.
+			</p>
 		{:else if transcribeMode === 'local' && !localAvailable && onOpenSetupWizard}
 			<button
 				onclick={onOpenSetupWizard}
@@ -87,6 +90,10 @@
 				<span class="text-neon/60">+</span> Sneller en nauwkeuriger
 				<span class="mx-1 text-white/20">|</span>
 				<span class="text-amber-400/60">−</span> Kost geld, data via EU-servers
+			</p>
+			<p class="mt-0.5 text-white/25">
+				AVG: verwerker in EU (Dublin), verwerkersovereenkomst van toepassing. AI Act:
+				AI-gegenereerde output.
 			</p>
 		{/if}
 	</div>

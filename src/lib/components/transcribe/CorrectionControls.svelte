@@ -80,6 +80,9 @@
 						<span class="mx-1 text-white/20">|</span>
 						<span class="text-amber-400/60">−</span> Langzamer
 					</p>
+					<p class="mt-0.5 text-white/25">
+						AVG: geen derden, geen verwerkersovereenkomst nodig. AI Act: geen extra verplichtingen.
+					</p>
 				{:else}
 					<p>
 						Correctie via <img src="/mistral.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
@@ -94,6 +97,10 @@
 						<span class="text-neon/60">+</span> Sneller, betere kwaliteit
 						<span class="mx-1 text-white/20">|</span>
 						<span class="text-amber-400/60">−</span> Kost geld, data via EU-servers
+					</p>
+					<p class="mt-0.5 text-white/25">
+						AVG: verwerker in EU (Parijs), verwerkersovereenkomst van toepassing. AI Act:
+						AI-gegenereerde output.
 					</p>
 				{/if}
 			</div>
