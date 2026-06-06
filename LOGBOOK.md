@@ -182,3 +182,4 @@
 | 2026-06-06 | 13:57     | 14:09    | .19         | `fb4800c`   | feat: add legal page links to PrivacyFooter                                                                                     |
 | 2026-06-06 | 14:09     | 14:27    | .30         | `873961d`   | feat: expand dialect glossary and add /health/setup endpoint                                                                    |
 | 2026-06-06 | 14:27     | 14:29    | .02         | `328c56d`   | feat: add setup wizard for local mode configuration                                                                             |
+| 2026-06-06 | 14:29     | 14:56    | .46         | `64527f2`   | chore: rename package to babl and update planning docs                                                                          |
