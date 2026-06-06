@@ -1,19 +1,11 @@
 <script lang="ts">
-	import ReconnectingWebSocket from 'reconnecting-websocket';
-	import { deduplicateSegments } from '$lib/utils/dedup';
-	import type { TranscriptionSegment } from '$lib/utils/dedup';
 	import {
 		cleanupMediaResources,
 		cleanupNetworkResources,
 		cleanupTimers
 	} from '$lib/utils/cleanup';
-	import { getSupportedMimeType, downsampleToWav, toPcmInt16 } from '$lib/utils/audio';
-	import {
-		saveRecording,
-		getRecording,
-		deleteRecording,
-		pruneRecordings
-	} from '$lib/utils/recording-db';
+	import { getSupportedMimeType } from '$lib/utils/audio';
+	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
@@ -28,42 +20,47 @@
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 
 	// Services
-	import { sendAudio } from '$lib/services/transcription';
+	import {
+		sendAudio,
+		startLiveTranscription,
+		stopLiveTranscription,
+		type LiveTranscriptionRefs
+	} from '$lib/services/transcription';
 	import { startCorrection, handleErrorEvent } from '$lib/services/correction';
+	import {
+		startRealtimeStream,
+		stopRealtimeStream,
+		sendChunkToStream,
+		getStreamSocket,
+		getStreamStallTimer
+	} from '$lib/services/realtime-stream';
 	import { startWaveform, stopWaveform, type WaveformRefs } from '$lib/services/waveform';
+	import {
+		processRecording,
+		handleFileUpload,
+		requestMicPermission
+	} from '$lib/services/recording';
 
 	// Store
 	import {
 		getTranscribeState,
 		LOCAL_BACKEND_URL,
-		OVERLAP_CHUNKS,
 		CHUNK_INTERVAL_MS,
 		RECORDING_MAX_SECONDS,
 		setStatus,
 		setCountdown,
-		setRaw,
-		setLanguage,
 		setError,
 		setErrorType,
 		setElapsed,
 		incrementElapsed,
 		setCorrectedExpanded,
-		setReconnecting,
-		setReconnectStatus,
 		setMistralAvailable,
 		setAssemblyAvailable,
 		setLocalAvailable,
 		setPrivacyOpen,
 		setEvalResult,
-		setPartialText,
-		setLiveWorking,
-		setLiveSegments,
-		setLastSentChunkIndex,
-		setLiveAudioDuration,
-		setLastSegmentEnd,
 		setProcessingElapsed,
 		incrementProcessingElapsed,
-		setRecordingDuration,
 		setMode,
 		setReportLength,
 		setTranscribeMode,
@@ -80,19 +77,29 @@
 	let timerInterval: ReturnType<typeof setInterval> | undefined;
 	let processingTimerInterval: ReturnType<typeof setInterval> | undefined;
 	let countdownInterval: ReturnType<typeof setInterval> | undefined;
-	let streamStallTimer: ReturnType<typeof setTimeout> | undefined;
 	let transcribeController: AbortController | undefined;
 	let correctionController: AbortController | undefined;
 	let liveChunkController: AbortController | undefined;
 	let apiPollController: AbortController | undefined;
-	let streamSocket: ReconnectingWebSocket | undefined;
 	let waveformRefs: WaveformRefs = {
 		audioContext: undefined,
 		analyser: undefined,
 		animationFrameId: undefined
 	};
-	let liveBusy = false;
-	let liveRunning = false;
+	const liveTranscriptionRefs: LiveTranscriptionRefs = {
+		get chunks() {
+			return chunks;
+		},
+		get mediaRecorder() {
+			return mediaRecorder;
+		}
+	};
+
+	const liveTranscriptionCallbacks = {
+		setLiveChunkController: (v: AbortController | undefined) => {
+			liveChunkController = v;
+		}
+	};
 
 	// ── Service callbacks ─────────────────────────────────────────
 
@@ -264,170 +271,6 @@
 		};
 	});
 
-	// ── Live transcription (local Whisper) ─────────────────────────
-
-	async function sendLiveChunk() {
-		if (liveBusy || chunks.length === 0 || !mediaRecorder) return;
-		if (chunks.length <= s.lastSentChunkIndex) return;
-		liveBusy = true;
-		liveChunkController = new AbortController();
-		try {
-			const mimeType = mediaRecorder.mimeType;
-			const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
-			const blob = new Blob(chunks.slice(sendFrom), { type: mimeType });
-			const wav = await downsampleToWav(blob);
-			const formData = new FormData();
-			formData.append('file', wav, 'live.wav');
-			formData.append('lang', s.lang);
-			formData.append('offset', String(s.liveAudioDuration));
-			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-				method: 'POST',
-				body: formData,
-				signal: liveChunkController.signal
-			});
-			if (resp.ok) {
-				const data = await resp.json();
-				if (data.language) setLanguage(data.language);
-				const segments: TranscriptionSegment[] = data.segments || [];
-				if (segments.length > 0) {
-					const { unique, newLastSegmentEnd } = deduplicateSegments(segments, s.lastSegmentEnd);
-					if (unique.length > 0) {
-						const newText = unique.map((seg) => seg.text).join(' ');
-						setPartialText(s.partialText ? `${s.partialText} ${newText}` : newText);
-						setLiveWorking(true);
-						setLastSegmentEnd(newLastSegmentEnd);
-						setLiveAudioDuration(unique[unique.length - 1].end);
-					}
-				}
-				setLastSentChunkIndex(chunks.length);
-			}
-		} catch (e) {
-			if (e instanceof Error && e.name === 'AbortError') return;
-		} finally {
-			liveChunkController = undefined;
-			liveBusy = false;
-		}
-	}
-
-	function startLiveTranscription() {
-		setPartialText('');
-		setLiveWorking(false);
-		liveBusy = false;
-		liveRunning = true;
-		setLastSentChunkIndex(0);
-		setLiveAudioDuration(0);
-		setLastSegmentEnd(0);
-		liveLoop();
-	}
-
-	async function liveLoop() {
-		while (liveRunning) {
-			await new Promise((r) => setTimeout(r, 5000));
-			if (!liveRunning) break;
-			await sendLiveChunk();
-		}
-	}
-
-	function stopLiveTranscription() {
-		liveRunning = false;
-	}
-
-	// ── Real-time WebSocket streaming (AssemblyAI) ─────────────────
-
-	function startRealtimeStream() {
-		setPartialText('');
-		setLiveSegments([]);
-		setLiveWorking(false);
-
-		const wsUrl = LOCAL_BACKEND_URL.replace('http', 'ws') + '/ws/transcribe-stream';
-		streamSocket = new ReconnectingWebSocket(wsUrl, [], {
-			maxRetries: 5,
-			maxReconnectionDelay: 10000,
-			minReconnectionDelay: 1000,
-			reconnectionDelayGrowFactor: 1.3,
-			connectionTimeout: 4000,
-			minUptime: 5000
-		});
-
-		streamSocket.addEventListener('open', () => {
-			setReconnecting(false);
-			setReconnectStatus('');
-			streamSocket!.send(JSON.stringify({ lang: s.lang }));
-			if (streamStallTimer) clearTimeout(streamStallTimer);
-			streamStallTimer = setTimeout(() => {
-				setError(
-					'Live transcriptie gestopt — geen data ontvangen. Controleer je internetverbinding.'
-				);
-				stopRealtimeStream();
-			}, 30000);
-		});
-
-		streamSocket.addEventListener('message', (event: MessageEvent) => {
-			let data: { type: string; text?: string; message?: string };
-			try {
-				data = JSON.parse(event.data);
-			} catch {
-				return;
-			}
-			if (data.type === 'ping') {
-				streamSocket!.send(JSON.stringify({ type: 'pong' }));
-				return;
-			}
-
-			const resetStall = () => {
-				if (streamStallTimer) clearTimeout(streamStallTimer);
-				streamStallTimer = setTimeout(() => {
-					setError(
-						'Live transcriptie gestopt — geen data ontvangen. Controleer je internetverbinding.'
-					);
-					stopRealtimeStream();
-				}, 30000);
-			};
-
-			if (data.type === 'partial') {
-				setPartialText([...s.liveSegments, data.text!].join(' '));
-				resetStall();
-			} else if (data.type === 'final') {
-				setLiveSegments([...s.liveSegments, data.text!]);
-				setPartialText([...s.liveSegments].join(' '));
-				setLiveWorking(true);
-				resetStall();
-			} else if (data.type === 'error') {
-				setError(`Real-time fout: ${data.message}`);
-			}
-		});
-
-		streamSocket.addEventListener('error', () => {
-			if (streamSocket && streamSocket.retryCount >= 5) {
-				setReconnecting(false);
-				setReconnectStatus('');
-				setError(
-					'Verbinding verloren. Je opname is bewaard — gebruik Bestand Upload om alsnog te transcriberen.'
-				);
-			} else if (streamSocket) {
-				setReconnecting(true);
-				setReconnectStatus(
-					`Verbinding herstellen (poging ${(streamSocket.retryCount || 0) + 1}/5)...`
-				);
-			}
-		});
-
-		streamSocket.addEventListener('close', () => {});
-	}
-
-	function stopRealtimeStream() {
-		if (streamSocket) {
-			streamSocket.close();
-			streamSocket = undefined;
-		}
-		setReconnecting(false);
-		setReconnectStatus('');
-		if (streamStallTimer) {
-			clearTimeout(streamStallTimer);
-			streamStallTimer = undefined;
-		}
-	}
-
 	// ── Resource cleanup ──────────────────────────────────────────
 
 	function cleanupAllResources() {
@@ -436,7 +279,7 @@
 			correctionController,
 			liveChunkController,
 			apiPollController,
-			streamSocket
+			streamSocket: getStreamSocket()
 		});
 		cleanupMediaResources({
 			mediaRecorder,
@@ -450,48 +293,19 @@
 			processingTimerInterval,
 			liveInterval: undefined,
 			countdownInterval,
-			streamStallTimer
+			streamStallTimer: getStreamStallTimer()
 		});
+		stopRealtimeStream();
 		stream = undefined;
 		transcribeController = undefined;
 		correctionController = undefined;
 		liveChunkController = undefined;
 		apiPollController = undefined;
-		streamSocket = undefined;
 		waveformRefs = { audioContext: undefined, analyser: undefined, animationFrameId: undefined };
 		mediaRecorder = undefined;
-		setReconnecting(false);
-		setReconnectStatus('');
-	}
-
-	async function sendChunkToStream(blob: Blob) {
-		if (!streamSocket || streamSocket.readyState !== WebSocket.OPEN) return;
-		try {
-			const pcm = await toPcmInt16(blob);
-			streamSocket.send(pcm);
-		} catch {
-			// PCM conversion failed — skip this chunk
-		}
-	}
-
-	// ── Microphone permission ────────────────────────────────────
-
-	async function requestMicPermission() {
-		try {
-			const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			tempStream.getTracks().forEach((t) => t.stop());
-			setError('');
-			setErrorType('');
-		} catch {
-			setError(
-				'Toestemming nog steeds geblokkeerd. Open je browserinstellingen (klik op het slotje links in de adresbalk) en zet "Microfoon" op "Toestaan". Herlaad daarna de pagina.'
-			);
-		}
 	}
 
 	// ── Recording ─────────────────────────────────────────────────
-
-	const MAX_DOWNSAMPLE_BYTES = 50 * 1024 * 1024;
 
 	async function startRecording() {
 		setError('');
@@ -529,114 +343,14 @@
 				waveformRefs = stopWaveform(waveformRefs);
 				stopLiveTranscription();
 				stopRealtimeStream();
-				setRecordingDuration(s.elapsed);
-
-				if (chunks.length === 0) {
-					setError('Geen audio opgenomen. Probeer langer op te nemen.');
-					setStatus('idle');
-					return;
-				}
-				const blob = new Blob(chunks, { type: mimeType });
-
-				try {
-					const recId = await saveRecording(blob, mimeType);
-					setSavedRecordingId(recId);
-					setSavedRecordingMimeType(mimeType);
-				} catch {
-					// IndexedDB unavailable — continue without saving
-				}
-
-				// Real-time API streaming: use accumulated segments
-				if (useRealtimeStream && s.liveSegments.length > 0) {
-					setRaw(s.liveSegments.join(' '));
-					setPartialText('');
-					await clearSavedRecording();
-					setStatus('idle');
-					return;
-				}
-
-				if (s.transcribeMode === 'local') {
-					if (s.partialText) {
-						if (s.lastSentChunkIndex < chunks.length) {
-							setStatus('processing');
-							try {
-								const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
-								const remainingBlob = new Blob(chunks.slice(sendFrom), {
-									type: mimeType
-								});
-								const wav = await downsampleToWav(remainingBlob);
-								const formData = new FormData();
-								formData.append('file', wav, 'final.wav');
-								formData.append('lang', s.lang);
-								formData.append('offset', String(s.liveAudioDuration));
-								const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-									method: 'POST',
-									body: formData
-								});
-								if (resp.ok) {
-									const data = await resp.json();
-									if (data.language) setLanguage(data.language);
-									const segments = data.segments || [];
-									if (segments.length > 0) {
-										const newText = segments.map((seg: { text: string }) => seg.text).join(' ');
-										setPartialText(`${s.partialText} ${newText}`);
-									}
-								}
-							} catch {
-								// Use what we have
-							}
-						}
-						setRaw(s.partialText);
-						setPartialText('');
-						await clearSavedRecording();
-						setStatus('idle');
-						return;
-					}
-
-					setStatus('processing');
-					try {
-						const wav = await downsampleToWav(blob);
-						const formData = new FormData();
-						formData.append('file', wav, 'final.wav');
-						formData.append('lang', s.lang);
-						const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-							method: 'POST',
-							body: formData
-						});
-						if (resp.ok) {
-							const data = await resp.json();
-							if (data.text) {
-								setRaw(data.text);
-								if (data.language) setLanguage(data.language);
-								setPartialText('');
-								await clearSavedRecording();
-								setStatus('idle');
-								return;
-							}
-						}
-					} catch {
-						// Fall through to SSE transcription
-					}
-				}
-
-				// Fallback: full SSE transcription via service
-				if (s.transcribeMode === 'api') {
-					const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
-					await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
-				} else {
-					try {
-						const wav = await downsampleToWav(blob);
-						await sendAudio(wav, 'recording.wav', transcriptionRefs, transcriptionCallbacks);
-					} catch {
-						const ext = mimeType.includes('webm')
-							? 'webm'
-							: mimeType.includes('ogg')
-								? 'ogg'
-								: 'mp4';
-						await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
-					}
-				}
-				setPartialText('');
+				await processRecording({
+					chunks,
+					mimeType,
+					useRealtimeStream,
+					transcriptionRefs,
+					transcriptionCallbacks,
+					onClearSavedRecording: clearSavedRecording
+				});
 			};
 
 			mediaRecorder.start(CHUNK_INTERVAL_MS);
@@ -644,7 +358,7 @@
 			if (useRealtimeStream) {
 				startRealtimeStream();
 			} else if (s.transcribeMode === 'local') {
-				startLiveTranscription();
+				startLiveTranscription(liveTranscriptionRefs, liveTranscriptionCallbacks);
 			}
 		} catch (e) {
 			setStatus('idle');
@@ -680,28 +394,8 @@
 		}
 	}
 
-	// ── File upload ───────────────────────────────────────────────
-
-	async function handleFileUpload(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const file = input.files?.[0];
-		if (!file) return;
-		setError('');
-		setStatus('processing');
-
-		if (s.transcribeMode === 'api') {
-			await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-		} else if (file.size > MAX_DOWNSAMPLE_BYTES) {
-			await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-		} else {
-			try {
-				const wav = await downsampleToWav(file);
-				await sendAudio(wav, 'upload.wav', transcriptionRefs, transcriptionCallbacks);
-			} catch {
-				await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-			}
-		}
-		input.value = '';
+	function onFileUpload(e: Event) {
+		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
 
 	function onStartCorrection() {
@@ -749,7 +443,7 @@
 			apiStatus={s.apiStatus}
 			estimatedTranscribeCost={s.estimatedTranscribeCost}
 			onToggleRecording={toggleRecording}
-			onFileUpload={handleFileUpload}
+			{onFileUpload}
 		/>
 
 		{#if s.error}

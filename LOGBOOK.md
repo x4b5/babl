@@ -162,3 +162,4 @@
 | 2026-06-04 | 23:17     | 23:28    | .18         | `a18eef4`   | chore: add temporary Mistral API key validation to health endpoint                                                              |
 | 2026-06-04 | 23:28     | 23:37    | .14         | `8eecd51`   | fix: detect auth redirects and improve error handling in transcription flow                                                     |
 | 2026-06-04 | 23:37     | 23:41    | .05         | `8c43a22`   | fix: skip WAV conversion in API mode to stay under Vercel body limit                                                            |
+| 2026-06-06 | 23:41     | 09:36    | 4.00        | `d0890b6`   | refactor: extract services and utils from transcribe page                                                                       |
