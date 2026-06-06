@@ -100,6 +100,13 @@
 							<li>Audio wordt verwerkt door AssemblyAI (datacenter Dublin, Ierland)</li>
 							<li>Tekst wordt verwerkt door Mistral AI (EU-servers)</li>
 							<li class="font-medium text-indigo-400/60">Uitsluitend EU-servers</li>
+							<li>
+								<span class="font-medium text-white/70">PII-redactie</span> — AssemblyAI verwijdert
+								automatisch persoonsnamen, telefoonnummers, e-mailadressen, geboortedatums en
+								medische gegevens uit de transcriptie. Deze worden vervangen door labels zoals
+								<code class="rounded bg-white/10 px-1.5 py-0.5 text-xs">[PERSON_NAME]</code>. Zo
+								worden persoonsgegevens niet doorgestuurd naar de correctiestap (Mistral).
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -189,7 +196,7 @@
 						<tbody class="text-white/60">
 							<tr class="border-b border-white/5">
 								<td class="py-2 pr-4 font-medium text-white/70">AssemblyAI</td>
-								<td class="py-2 pr-4">Spraaktranscriptie</td>
+								<td class="py-2 pr-4">Spraaktranscriptie + PII-redactie</td>
 								<td class="py-2 pr-4">Dublin, Ierland</td>
 								<td class="py-2">SOC 2 Type 2</td>
 							</tr>
