@@ -4,17 +4,14 @@
  */
 
 import { downsampleToWav } from '$lib/utils/audio';
-import { deduplicateSegments } from '$lib/utils/dedup';
-import type { TranscriptionSegment } from '$lib/utils/dedup';
 import {
 	LOCAL_BACKEND_URL,
 	OVERLAP_CHUNKS,
+	CHUNK_INTERVAL_MS,
 	setLanguage,
 	setPartialText,
 	setLiveWorking,
-	setLastSegmentEnd,
 	setLastSentChunkIndex,
-	setLiveAudioDuration,
 	appendPartialText,
 	getTranscribeState
 } from '$lib/stores/transcribe.svelte';
@@ -46,10 +43,16 @@ async function sendLiveChunk(
 		const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
 		const blob = new Blob(refs.chunks.slice(sendFrom), { type: mimeType });
 		const wav = await downsampleToWav(blob);
+
+		// Calculate overlap in seconds based on actual chunk indices
+		// (not accumulated Whisper timestamps which are chunk-relative)
+		const overlapChunks = s.lastSentChunkIndex - sendFrom;
+		const overlapSeconds = overlapChunks * (CHUNK_INTERVAL_MS / 1000);
+
 		const formData = new FormData();
 		formData.append('file', wav, 'live.wav');
 		formData.append('lang', s.lang);
-		formData.append('offset', String(s.liveAudioDuration));
+		formData.append('offset', String(overlapSeconds));
 		const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 			method: 'POST',
 			body: formData,
@@ -58,16 +61,11 @@ async function sendLiveChunk(
 		if (resp.ok) {
 			const data = await resp.json();
 			if (data.language) setLanguage(data.language);
-			const segments: TranscriptionSegment[] = data.segments || [];
+			const segments: { text: string }[] = data.segments || [];
 			if (segments.length > 0) {
-				const { unique, newLastSegmentEnd } = deduplicateSegments(segments, s.lastSegmentEnd);
-				if (unique.length > 0) {
-					const newText = unique.map((seg) => seg.text).join(' ');
-					appendPartialText(newText);
-					setLiveWorking(true);
-					setLastSegmentEnd(newLastSegmentEnd);
-					setLiveAudioDuration(unique[unique.length - 1].end);
-				}
+				const newText = segments.map((seg) => seg.text).join(' ');
+				appendPartialText(newText);
+				setLiveWorking(true);
 			}
 			setLastSentChunkIndex(refs.chunks.length);
 		}
@@ -88,8 +86,6 @@ export function startLiveTranscription(
 	liveBusy = false;
 	liveRunning = true;
 	setLastSentChunkIndex(0);
-	setLiveAudioDuration(0);
-	setLastSegmentEnd(0);
 	liveLoop(refs, callbacks);
 }
 

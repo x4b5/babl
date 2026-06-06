@@ -11,6 +11,7 @@ import { getSupportedMimeType } from '$lib/utils/audio';
 import {
 	LOCAL_BACKEND_URL,
 	OVERLAP_CHUNKS,
+	CHUNK_INTERVAL_MS,
 	setRaw,
 	setLanguage,
 	setError,
@@ -83,10 +84,13 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 					const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
 					const remainingBlob = new Blob(chunks.slice(sendFrom), { type: mimeType });
 					const wav = await downsampleToWav(remainingBlob);
+					// Calculate overlap in seconds (same formula as live-transcription.ts)
+					const overlapChunks = s.lastSentChunkIndex - sendFrom;
+					const overlapSeconds = overlapChunks * (CHUNK_INTERVAL_MS / 1000);
 					const formData = new FormData();
 					formData.append('file', wav, 'final.wav');
 					formData.append('lang', s.lang);
-					formData.append('offset', String(s.liveAudioDuration));
+					formData.append('offset', String(overlapSeconds));
 					const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 						method: 'POST',
 						body: formData
