@@ -8,9 +8,17 @@
 		savedRecordingId?: string | null;
 		onRetry?: () => void;
 		onRequestMic?: () => void;
+		onOpenSetupWizard?: () => void;
 	}
 
-	let { error, errorType, savedRecordingId = null, onRetry, onRequestMic }: Props = $props();
+	let {
+		error,
+		errorType,
+		savedRecordingId = null,
+		onRetry,
+		onRequestMic,
+		onOpenSetupWizard
+	}: Props = $props();
 
 	let downloading = $state(false);
 
@@ -57,6 +65,17 @@
 					class="rounded-lg border border-neon/20 bg-neon/10 px-3 py-1.5 text-xs font-medium text-neon transition hover:bg-neon/20"
 				>
 					Toestemming geven
+				</button>
+			</div>
+		{/if}
+
+		{#if (errorType === 'ollama_model_missing' || errorType === 'ollama_unavailable') && onOpenSetupWizard}
+			<div class="mt-3">
+				<button
+					onclick={onOpenSetupWizard}
+					class="rounded-lg border border-neon/20 bg-neon/10 px-3 py-1.5 text-xs font-medium text-neon transition hover:bg-neon/20"
+				>
+					Installatiewizard openen
 				</button>
 			</div>
 		{/if}

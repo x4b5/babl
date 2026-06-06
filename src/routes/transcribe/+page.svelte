@@ -388,6 +388,7 @@
 				savedRecordingId={s.savedRecordingId}
 				onRetry={retryTranscription}
 				onRequestMic={requestMicPermission}
+				onOpenSetupWizard={handleOpenOllamaWizard}
 			/>
 		{/if}
 
