@@ -1,5 +1,6 @@
 import type { ErrorType } from './error-types';
 import { ERROR_MESSAGES } from './error-types';
+import { setError, setErrorType, setStatus } from '$lib/stores/transcribe.svelte';
 
 /**
  * Classify a frontend-caught error into the error taxonomy.
@@ -61,4 +62,17 @@ export function getUserMessage(errorType: ErrorType): string {
  */
 export function isRetryable(errorType: ErrorType): boolean {
 	return errorType === 'rate_limit';
+}
+
+/** Check if an error is an AbortController cancellation. */
+export function isAbortError(e: unknown): boolean {
+	return e instanceof Error && e.name === 'AbortError';
+}
+
+/** Classify a caught error, set store error state, and reset status to idle. */
+export function handleCaughtError(e: unknown): void {
+	const classified = classifyFrontendError(e);
+	setErrorType(classified);
+	setError(getUserMessage(classified));
+	setStatus('idle');
 }

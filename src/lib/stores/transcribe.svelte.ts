@@ -364,9 +364,6 @@ export function setLocalAvailable(v: boolean) {
 export function setPrivacyOpen(v: boolean) {
 	privacyOpen = v;
 }
-export function setKeepDialect(v: boolean) {
-	keepDialect = v;
-}
 export function setConfidenceWords(v: WordWithConfidence[]) {
 	confidenceWords = v;
 }

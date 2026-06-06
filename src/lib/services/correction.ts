@@ -4,7 +4,12 @@
  */
 
 import { readSSEStream } from '$lib/utils/sse-reader';
-import { classifyFrontendError, getUserMessage, isRetryable } from '$lib/utils/error-classifier';
+import {
+	getUserMessage,
+	isRetryable,
+	isAbortError,
+	handleCaughtError
+} from '$lib/utils/error-classifier';
 import type { ErrorType } from '$lib/utils/error-types';
 import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
 import {
@@ -136,12 +141,9 @@ async function fetchCorrection(
 				const retryAfter = parseInt(resp.headers.get('Retry-After') || '3', 10);
 				startCountdown(Math.max(1, retryAfter), refs, callbacks);
 			} else {
-				const classified = classifyFrontendError(new Error(`HTTP ${resp.status}`));
-				setErrorType(classified);
-				setError(getUserMessage(classified));
+				handleCaughtError(new Error(`HTTP ${resp.status}`));
 			}
 			setCorrected('');
-			setStatus('idle');
 			return;
 		}
 
@@ -165,13 +167,11 @@ async function fetchCorrection(
 
 		if (!s.corrected) setCorrected(text);
 	} catch (e) {
-		if (e instanceof Error && e.name === 'AbortError') {
+		if (isAbortError(e)) {
 			callbacks.setCorrectionController(undefined);
 			return;
 		}
-		const classified = classifyFrontendError(e);
-		setErrorType(classified);
-		setError(getUserMessage(classified));
+		handleCaughtError(e);
 		setCorrected('');
 	} finally {
 		callbacks.setCorrectionController(undefined);

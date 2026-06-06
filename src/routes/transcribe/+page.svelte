@@ -20,12 +20,12 @@
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 
 	// Services
+	import { sendAudio } from '$lib/services/transcription';
 	import {
-		sendAudio,
 		startLiveTranscription,
 		stopLiveTranscription,
 		type LiveTranscriptionRefs
-	} from '$lib/services/transcription';
+	} from '$lib/services/live-transcription';
 	import { startCorrection, handleErrorEvent } from '$lib/services/correction';
 	import {
 		startRealtimeStream,
