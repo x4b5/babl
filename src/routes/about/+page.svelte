@@ -87,7 +87,18 @@
 
 			<!-- 3. Lokaal vs API -->
 			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Op dit apparaat vs via internet</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90">
+					Op dit apparaat (<img
+						src="/openai.png"
+						alt=""
+						class="inline h-4 w-4 -mt-0.5 rounded-full"
+					/>
+					Whisper) vs via internet (<img
+						src="/assemblyai.png"
+						alt=""
+						class="inline h-4 w-4 -mt-0.5"
+					/> AssemblyAI)
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Het bijzondere aan BABL is dat je per stap zelf kiest hoe de verwerking gebeurt. Twee
 					opties, elk met eigen voor- en nadelen:
