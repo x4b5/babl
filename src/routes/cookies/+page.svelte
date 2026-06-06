@@ -172,6 +172,10 @@
 				<span class="text-white/10">|</span>
 				<a href="/voorwaarden" class="hover:text-white/70 transition-colors"> Voorwaarden </a>
 				<span class="text-white/10">|</span>
+				<a href="/verwerkingsovereenkomst" class="hover:text-white/70 transition-colors">
+					Verwerkingsovereenkomst
+				</a>
+				<span class="text-white/10">|</span>
 				<a href="/about" class="hover:text-white/70 transition-colors"> Over BABL </a>
 			</div>
 		</footer>
