@@ -9,11 +9,7 @@ import { sendAudio } from '$lib/services/transcription';
 import type { TranscriptionRefs, TranscriptionCallbacks } from '$lib/services/transcription';
 import { getSupportedMimeType } from '$lib/utils/audio';
 import {
-	LOCAL_BACKEND_URL,
-	OVERLAP_CHUNKS,
-	CHUNK_INTERVAL_MS,
 	setRaw,
-	setLanguage,
 	setError,
 	setErrorType,
 	setStatus,
@@ -76,72 +72,7 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 		return;
 	}
 
-	if (s.transcribeMode === 'local') {
-		if (s.partialText) {
-			if (s.lastSentChunkIndex < chunks.length) {
-				setStatus('processing');
-				try {
-					const sendFrom = Math.max(0, s.lastSentChunkIndex - OVERLAP_CHUNKS);
-					const remainingBlob = new Blob(chunks.slice(sendFrom), { type: mimeType });
-					const wav = await downsampleToWav(remainingBlob);
-					// Calculate overlap in seconds (same formula as live-transcription.ts)
-					const overlapChunks = s.lastSentChunkIndex - sendFrom;
-					const overlapSeconds = overlapChunks * (CHUNK_INTERVAL_MS / 1000);
-					const formData = new FormData();
-					formData.append('file', wav, 'final.wav');
-					formData.append('lang', s.lang);
-					formData.append('offset', String(overlapSeconds));
-					const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-						method: 'POST',
-						body: formData
-					});
-					if (resp.ok) {
-						const data = await resp.json();
-						if (data.language) setLanguage(data.language);
-						const segments = data.segments || [];
-						if (segments.length > 0) {
-							const newText = segments.map((seg: { text: string }) => seg.text).join(' ');
-							setPartialText(`${s.partialText} ${newText}`);
-						}
-					}
-				} catch {
-					// Use what we have
-				}
-			}
-			setRaw(s.partialText);
-			setPartialText('');
-			await onClearSavedRecording();
-			setStatus('idle');
-			return;
-		}
-
-		setStatus('processing');
-		try {
-			const wav = await downsampleToWav(blob);
-			const formData = new FormData();
-			formData.append('file', wav, 'final.wav');
-			formData.append('lang', s.lang);
-			const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
-				method: 'POST',
-				body: formData
-			});
-			if (resp.ok) {
-				const data = await resp.json();
-				if (data.text) {
-					setRaw(data.text);
-					if (data.language) setLanguage(data.language);
-					setPartialText('');
-					await onClearSavedRecording();
-					setStatus('idle');
-					return;
-				}
-			}
-		} catch {
-			// Fall through to SSE transcription
-		}
-	}
-
-	// Fallback: full SSE transcription via service
+	// Send full audio for transcription via SSE streaming (30s chunks with progress events)
 	if (s.transcribeMode === 'api') {
 		const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
 		await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
@@ -216,18 +147,14 @@ export async function acquireMicrophone(): Promise<{
 		return null;
 	}
 
-	// Countdown
+	// Countdown 3 → 2 → 1 (each step exactly 1 second)
 	setStatus('preparing');
-	setCountdown(2);
-	const countdownTimer = setInterval(() => {
+	for (let i = 3; i >= 1; i--) {
+		setCountdown(i);
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 		const s = getTranscribeState();
-		setCountdown(s.countdown - 1);
-		if (s.countdown <= 1) clearInterval(countdownTimer);
-	}, 1000);
-	await new Promise((resolve) => setTimeout(resolve, 2000));
-
-	const s = getTranscribeState();
-	if (s.status !== 'preparing') return null; // User cancelled
+		if (s.status !== 'preparing') return null; // User cancelled
+	}
 
 	try {
 		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

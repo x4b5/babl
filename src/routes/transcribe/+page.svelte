@@ -22,11 +22,7 @@
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
-	import {
-		startLiveTranscription,
-		stopLiveTranscription,
-		type LiveTranscriptionRefs
-	} from '$lib/services/live-transcription';
+	import { stopLiveTranscription } from '$lib/services/live-transcription';
 	import { startCorrection, handleErrorEvent } from '$lib/services/correction';
 	import {
 		startRealtimeStream,
@@ -84,21 +80,6 @@
 		analyser: undefined,
 		animationFrameId: undefined
 	};
-	const liveTranscriptionRefs: LiveTranscriptionRefs = {
-		get chunks() {
-			return chunks;
-		},
-		get mediaRecorder() {
-			return mediaRecorder;
-		}
-	};
-
-	const liveTranscriptionCallbacks = {
-		setLiveChunkController: (v: AbortController | undefined) => {
-			liveChunkController = v;
-		}
-	};
-
 	// ── Service callbacks ─────────────────────────────────────────
 
 	const transcriptionCallbacks = {
@@ -327,8 +308,6 @@
 		setStatus('recording');
 		if (useRealtimeStream) {
 			startRealtimeStream();
-		} else if (s.transcribeMode === 'local') {
-			startLiveTranscription(liveTranscriptionRefs, liveTranscriptionCallbacks);
 		}
 	}
 
