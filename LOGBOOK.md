@@ -193,3 +193,4 @@
 | 2026-06-06 | 16:37     | 16:37    | 0           | `7546a78`   | chore: logbook update                                                                                                           |
 | 2026-06-06 | 16:37     | 16:44    | .11         | `071c7ff`   | feat: improve UX with clearer labels, explanations and setup wizard                                                             |
 | 2026-06-06 | 16:44     | 16:55    | .17         | `da4ed3b`   | refactor: simplify PrivacyFooter component                                                                                      |
+| 2026-06-06 | 16:55     | 16:59    | .06         | `9f196d6`   | feat: simplify PrivacyFooter and add model selection to setup wizard                                                            |
