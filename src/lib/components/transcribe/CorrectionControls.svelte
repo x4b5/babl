@@ -66,7 +66,13 @@
 			</div>
 			<p class="text-xs text-white/40 mt-1">
 				{#if mode === 'local'}
-					Correctie via Ollama op jouw computer.
+					Correctie via <img src="/ollama.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
+					<a
+						href="https://ollama.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="underline text-white/60 hover:text-white/80 transition-colors">Ollama</a
+					> op jouw computer.
 				{:else}
 					Correctie via <img src="/mistral.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
 					<a
