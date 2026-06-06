@@ -4,10 +4,14 @@ import { defineConfig } from 'vitest/config';
 import { execSync } from 'child_process';
 
 let commitHash: string;
-try {
-	commitHash = execSync('git rev-parse --short HEAD').toString().trim();
-} catch {
-	commitHash = 'dev';
+if (process.env.VERCEL_GIT_COMMIT_SHA) {
+	commitHash = process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7);
+} else {
+	try {
+		commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+	} catch {
+		commitHash = 'dev';
+	}
 }
 
 export default defineConfig({
