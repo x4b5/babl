@@ -27,4 +27,6 @@ vite.config.ts.timestamp-*
 __pycache__
 # Audio
 mp3/
+# Evaluation logs
+backend/eval_logs/
 .env*.local
