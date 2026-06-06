@@ -47,7 +47,7 @@
 			commands: [
 				{
 					label: 'Kopieer en plak in Terminal',
-					cmd: 'cd ~/Dev/experiments/babl && npm run transcribe'
+					cmd: 'git clone https://github.com/xavierbuise/babl.git ~/babl && cd ~/babl && npm install && npm run transcribe'
 				}
 			]
 		},
