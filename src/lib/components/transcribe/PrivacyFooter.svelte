@@ -185,5 +185,14 @@
 		</div>
 	</div>
 
-	<p class="mt-4 text-center text-[10px] text-white/30">v{version} — {buildDate}</p>
+	<div class="mt-4 flex flex-col items-center gap-1">
+		<div class="flex items-center gap-2 text-[10px] text-white/30">
+			<a href="/privacy" class="hover:text-white/50 transition-colors">Privacy</a>
+			<span class="text-white/15">|</span>
+			<a href="/cookies" class="hover:text-white/50 transition-colors">Cookies</a>
+			<span class="text-white/15">|</span>
+			<a href="/voorwaarden" class="hover:text-white/50 transition-colors">Voorwaarden</a>
+		</div>
+		<p class="text-[10px] text-white/30">v{version} — {buildDate}</p>
+	</div>
 </div>
