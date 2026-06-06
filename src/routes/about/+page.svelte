@@ -235,7 +235,99 @@
 				</div>
 			</section>
 
-			<!-- 4. Privacy-bewuste verwerking -->
+			<!-- 4. BABL in gesprekken -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90">BABL gebruiken in gesprekken</h2>
+				<p class="mb-4 text-sm text-white/60">
+					Wil je BABL inzetten tijdens een gesprek met iemand anders? Dan neem je ook de stem van je
+					gesprekspartner op. Dat is persoonsdata — daar horen spelregels bij.
+				</p>
+				<div class="space-y-3">
+					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-neon/80">Wat moet je doen?</h3>
+						<ul class="space-y-1.5 text-sm text-white/60">
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								<span
+									><span class="text-white/80">Toestemming vragen</span> — vooraf, expliciet. De ander
+									moet vrijwillig "ja" kunnen zeggen.</span
+								>
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								<span
+									><span class="text-white/80">Uitleggen waarvoor</span> — vertel dat je het gesprek opneemt
+									om er een verslag van te maken.</span
+								>
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								<span
+									><span class="text-white/80">Verwerking benoemen</span> — lokaal (niets verlaat je computer)
+									of via EU-servers (audio wordt na verwerking verwijderd).</span
+								>
+							</li>
+						</ul>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<p class="mb-2 text-sm font-medium text-white/70">Voorbeeldzin</p>
+						<p class="text-sm italic text-white/50">
+							"Ik wil dit gesprek opnemen om er een verslag van te maken. Ik gebruik daarvoor een
+							tool die de spraak omzet naar tekst. Alles blijft op mijn laptop / de audio wordt via
+							beveiligde EU-servers verwerkt en daarna verwijderd. Vind je dat goed?"
+						</p>
+					</div>
+					<div class="rounded-xl border border-indigo-500/15 bg-indigo-500/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">Zakelijk gebruik</h3>
+						<p class="mb-3 text-sm text-white/60">
+							Gebruik je BABL voor werk (journalistiek, zorg, onderzoek, vergaderingen)? Dan ben jij
+							<span class="text-white/80">verwerkingsverantwoordelijke</span> onder de AVG. Dat betekent:
+						</p>
+						<ul class="space-y-1.5 text-sm text-white/60">
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								<span
+									><span class="text-white/80">Aantoonbare toestemming</span> — mondeling kan, maar schriftelijk
+									is sterker (bijv. een e-mail of formulier vooraf)</span
+								>
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								<span
+									><span class="text-white/80">Informatieplicht</span> — wijs je gesprekspartner op hun
+									AVG-rechten (inzage, rectificatie, verwijdering)</span
+								>
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								<span
+									><span class="text-white/80">Verwerkingsregister</span> — houd bij welke verwerkingen
+									je uitvoert, met welk doel en welke rechtsgrond</span
+								>
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								<span
+									><span class="text-white/80">API-modus = sub-verwerkers</span> — dan gelden de
+									verwerkingsovereenkomsten met AssemblyAI (Dublin) en Mistral (Parijs). Zie onze
+									<a
+										href="/verwerkingsovereenkomst"
+										class="text-indigo-400/70 underline decoration-indigo-400/30 underline-offset-2 hover:text-indigo-400 transition-colors"
+									>
+										verwerkingsovereenkomst
+									</a></span
+								>
+							</li>
+						</ul>
+						<p class="mt-3 text-xs text-white/40">
+							Tip: kies lokale modus om verwerking door derden te vermijden. Laat je aanpak bij
+							twijfel toetsen door een privacy-specialist.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 5. Privacy-bewuste verwerking -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">Privacy-bewuste verwerking</h2>
 				<p class="mb-4 text-sm text-white/60">
