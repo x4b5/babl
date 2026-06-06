@@ -44,11 +44,10 @@
 			<div class="glass flex rounded-full p-1 w-full sm:w-auto">
 				<button
 					onclick={() => onModeChange('local')}
-					disabled={!localCorrectionAvailable}
 					class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/60 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
+						: 'text-white/60 hover:text-white/80 scale-100'}"
 				>
 					<span class="block">Op dit apparaat</span>
 					<span class="block text-xs opacity-70"
@@ -69,7 +68,7 @@
 					>
 				</button>
 			</div>
-			{#if !localCorrectionAvailable && onOpenSetupWizard}
+			{#if mode === 'local' && !localCorrectionAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
 					class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
@@ -114,7 +113,8 @@
 	<!-- Generate button -->
 	<button
 		onclick={onGenerate}
-		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+		disabled={mode === 'local' && !localCorrectionAvailable}
+		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
 	>
 		Genereren
 	</button>
