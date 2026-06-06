@@ -271,6 +271,24 @@ async def correct(req: CorrectionRequest):
         try:
             nonlocal text_to_process
 
+            # Pre-check: verify Ollama model exists before streaming
+            if req.mode != "api":
+                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as check_client:
+                        tags_resp = await check_client.get("http://localhost:11434/api/tags")
+                        if tags_resp.status_code == 200:
+                            available = [m["name"] for m in tags_resp.json().get("models", [])]
+                            if ollama_model not in available:
+                                yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': f'Model {ollama_model} is niet geïnstalleerd. Download het via de installatiewizard.'})}\n\n"
+                                return
+                        else:
+                            yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Ollama reageert niet. Is de app gestart?'})}\n\n"
+                            return
+                except (httpx.ConnectError, httpx.NetworkError):
+                    yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Ollama is niet bereikbaar. Start de Ollama app.'})}\n\n"
+                    return
+
             # PHASE 3: Two-step correction for Limburgish
             if req.language == "li":
                 print("[Phase 3] Starting cleanup pass for Limburgish...")

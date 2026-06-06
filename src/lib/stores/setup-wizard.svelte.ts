@@ -43,6 +43,7 @@ let selectedModel = $state('gemma3:4b');
 let ramConfirmed = $state(false);
 let copiedCommand = $state('');
 let modelDownloading = $state(false);
+let modelDownloadingName = $state('');
 let modelDownloadProgress = $state<number | null>(null);
 let modelDownloadError = $state('');
 let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined);
@@ -57,19 +58,29 @@ const ollamaModelReady = $derived.by(() => {
 	return status.ollamaModels[selectedModel] ?? false;
 });
 
+const anyOllamaModelReady = $derived.by(() => {
+	const config = status.modelConfig?.ollama;
+	const models = config && Object.keys(config).length > 0 ? Object.values(config) : [selectedModel];
+	return models.some((model) => status.ollamaModels[model] ?? false);
+});
+
 const allReady = $derived(
-	wizardContext === 'ollama' ? status.ollamaRunning && ollamaModelReady : status.backendRunning
+	wizardContext === 'ollama'
+		? status.ollamaRunning && anyOllamaModelReady
+		: status.backendRunning && status.whisperModelCached
 );
 
 const recommendedStep = $derived.by(() => {
 	if (wizardContext === 'ollama') {
-		if (!status.ollamaRunning) return 0;
-		if (!(status.ollamaModels[selectedModel] ?? false)) return 1;
-		return 1;
+		if (!ramConfirmed) return 0;
+		if (!status.ollamaRunning) return 1;
+		if (!anyOllamaModelReady) return 2;
+		return 2;
 	}
 	if (!ramConfirmed) return 0;
 	if (!status.backendRunning) return 1;
-	return 1;
+	if (!status.whisperModelCached) return 2;
+	return 2;
 });
 
 // ── Polling ──────────────────────────────────────────────────
@@ -177,15 +188,17 @@ export function confirmRam(): void {
 	currentStep = recommendedStep;
 }
 
-export async function downloadModel(): Promise<void> {
+export async function downloadModel(modelName?: string): Promise<void> {
+	const target = modelName ?? selectedModel;
 	modelDownloading = true;
+	modelDownloadingName = target;
 	modelDownloadProgress = 0;
 	modelDownloadError = '';
 
 	try {
 		const resp = await fetch('http://localhost:11434/api/pull', {
 			method: 'POST',
-			body: JSON.stringify({ name: selectedModel, stream: true })
+			body: JSON.stringify({ name: target, stream: true })
 		});
 
 		if (!resp.ok || !resp.body) {
@@ -287,6 +300,9 @@ export function getSetupWizardState() {
 		},
 		get modelDownloading() {
 			return modelDownloading;
+		},
+		get modelDownloadingName() {
+			return modelDownloadingName;
 		},
 		get modelDownloadProgress() {
 			return modelDownloadProgress;

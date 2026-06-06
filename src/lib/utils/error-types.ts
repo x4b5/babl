@@ -4,7 +4,9 @@ export type ErrorType =
 	| 'upstream_disconnect'
 	| 'network_error'
 	| 'server_error'
-	| 'mic_denied';
+	| 'mic_denied'
+	| 'ollama_model_missing'
+	| 'ollama_unavailable';
 
 export const ERROR_MESSAGES: Record<ErrorType, string> = {
 	rate_limit: 'Overbelast. Even geduld.',
@@ -13,7 +15,10 @@ export const ERROR_MESSAGES: Record<ErrorType, string> = {
 	network_error: 'Geen internet.',
 	server_error: 'Verwerking niet gelukt — probeer opnieuw.',
 	mic_denied:
-		'Microfoontoegang is geweigerd. Klik op het slotje in je adresbalk en zet "Microfoon" op "Toestaan".'
+		'Microfoontoegang is geweigerd. Klik op het slotje in je adresbalk en zet "Microfoon" op "Toestaan".',
+	ollama_model_missing:
+		'Het benodigde AI-model is niet geïnstalleerd. Download het via de installatiewizard.',
+	ollama_unavailable: 'Ollama is niet bereikbaar. Start de Ollama app.'
 };
 
 /** Rate limit message with countdown — per D-01, D-02, D-09 */

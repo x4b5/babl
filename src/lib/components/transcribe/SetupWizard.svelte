@@ -4,7 +4,9 @@
 		closeWizard,
 		setStep,
 		copyCommand,
-		confirmRam
+		confirmRam,
+		downloadModel,
+		downloadWhisper
 	} from '$lib/stores/setup-wizard.svelte';
 
 	interface Props {
@@ -26,6 +28,9 @@
 		commands: { label: string; cmd: string }[];
 		description: string;
 		hasRamCheck?: boolean;
+		hasDownloadLink?: boolean;
+		hasModelDownload?: boolean;
+		hasWhisperDownload?: boolean;
 	}
 
 	const fullSteps: Step[] = $derived([
@@ -48,6 +53,14 @@
 					cmd: '(test -d ~/babl || git clone https://github.com/x4b5/babl.git ~/babl) && cd ~/babl && npm install && npm run transcribe'
 				}
 			]
+		},
+		{
+			title: 'Download Whisper taalmodel',
+			done: w.status.whisperModelCached,
+			description:
+				'Het Whisper model zet spraak om naar tekst. Klik hieronder om het te downloaden (eenmalig, ±3 GB).',
+			commands: [],
+			hasWhisperDownload: true
 		}
 	]);
 
@@ -55,6 +68,12 @@
 		light: 'Klein (snel)',
 		medium: 'Standaard',
 		heavy: 'Groot (best)'
+	};
+
+	const modelInfo: Record<string, { storage: string; ram: string }> = {
+		light: { storage: '~1 GB', ram: '~2 GB' },
+		medium: { storage: '~3 GB', ram: '~5 GB' },
+		heavy: { storage: '~8 GB', ram: '~10 GB' }
 	};
 
 	const ollamaModels = $derived.by(() => {
@@ -69,32 +88,34 @@
 		];
 	});
 
-	const allModelsInstalled = $derived(
-		ollamaModels.every(({ model }) => w.status.ollamaModels[model] ?? false)
+	const anyModelInstalled = $derived(
+		ollamaModels.some(({ model }) => w.status.ollamaModels[model] ?? false)
 	);
 
 	const ollamaSteps: Step[] = $derived([
 		{
-			title: 'Installeer Ollama',
-			done: w.status.ollamaRunning,
+			title: 'Controleer je systeem',
+			done: w.ramConfirmed,
 			description:
-				'Ollama draait AI-modellen lokaal op je computer. Open de Terminal app en plak onderstaand commando.',
-			commands: [
-				{
-					label: 'Kopieer en plak in Terminal',
-					cmd: 'brew install ollama && ollama serve'
-				}
-			]
+				'De taalmodellen draaien op je eigen computer. Controleer of je genoeg werkgeheugen (RAM) en opslagruimte hebt.',
+			commands: [],
+			hasRamCheck: true
 		},
 		{
-			title: 'Download de taalmodellen',
-			done: allModelsInstalled,
+			title: 'Download Ollama',
+			done: w.status.ollamaRunning,
 			description:
-				'Download de drie taalmodellen. Dit is eenmalig per model en duurt een paar minuten.',
-			commands: ollamaModels.map(({ quality, model }) => ({
-				label: `${qualityLabels[quality] ?? quality} — ${model}`,
-				cmd: `ollama pull ${model}`
-			}))
+				'Ollama is een gratis app die AI-modellen op je computer draait. Download de app (~500 MB), open het, en het start automatisch.',
+			commands: [],
+			hasDownloadLink: true
+		},
+		{
+			title: 'Download een taalmodel',
+			done: anyModelInstalled,
+			description:
+				'Kies minstens een model en klik op Download. Ollama draait het model automatisch na het downloaden — je hoeft verder niets te doen.',
+			commands: [],
+			hasModelDownload: true
 		}
 	]);
 
@@ -208,18 +229,166 @@
 							<p class="text-sm text-white/60 leading-relaxed">{step.description}</p>
 
 							{#if step.hasRamCheck}
-								<div class="rounded-lg bg-white/5 p-3">
-									<p class="text-xs text-white/60">
-										Minimaal <span class="font-semibold text-white/80">8 GB RAM</span> nodig. Meer is
-										beter.
+								{#if w.wizardContext === 'ollama'}
+									<div class="space-y-1.5 rounded-lg bg-white/5 p-3">
+										<p class="text-xs font-medium text-white/70 mb-2">Benodigdheden per model:</p>
+										{#each ollamaModels as { quality, model }}
+											{@const info = modelInfo[quality] ?? { storage: '?', ram: '?' }}
+											<div class="flex items-center justify-between text-xs">
+												<span class="text-white/60"
+													>{qualityLabels[quality] ?? quality}
+													<span class="text-white/30">({model})</span></span
+												>
+												<span class="text-white/50">{info.ram} RAM · {info.storage} opslag</span>
+											</div>
+										{/each}
+										<p class="text-xs text-white/40 mt-2">Ollama zelf: ~500 MB opslag</p>
+									</div>
+									<p class="text-xs text-white/50">
+										Check je RAM via Apple menu (\uF8FF) &gt; Over deze Mac.
 									</p>
-								</div>
+								{:else}
+									<div class="rounded-lg bg-white/5 p-3">
+										<p class="text-xs text-white/60">
+											Minimaal <span class="font-semibold text-white/80">8 GB RAM</span> nodig. Meer is
+											beter.
+										</p>
+									</div>
+								{/if}
 								<button
 									onclick={confirmRam}
 									class="w-full rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
 								>
-									Ik heb genoeg RAM
+									Ik heb genoeg
 								</button>
+							{/if}
+
+							{#if step.hasDownloadLink}
+								<a
+									href="https://ollama.com/download"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+								>
+									<img src="/ollama.png" alt="" class="h-5 w-5" />
+									Download Ollama
+								</a>
+								<p class="text-xs text-white/40">
+									Open na het downloaden de Ollama app. Het icoontje verschijnt bovenin je menubalk.
+								</p>
+								<p class="flex items-center gap-1.5 text-xs text-white/45">
+									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
+									></span>
+									Wacht tot Ollama draait...
+								</p>
+							{/if}
+
+							{#if step.hasModelDownload}
+								<div class="space-y-2">
+									{#each ollamaModels as { quality, model }}
+										{@const isInstalled = w.status.ollamaModels[model] ?? false}
+										{@const isDownloading = w.modelDownloading && w.modelDownloadingName === model}
+										{@const info = modelInfo[quality] ?? { storage: '?', ram: '?' }}
+										<div class="rounded-lg bg-white/5 p-3">
+											<div class="flex items-center justify-between">
+												<div>
+													<span class="text-sm font-medium text-white/80"
+														>{qualityLabels[quality] ?? quality}</span
+													>
+													<span class="ml-2 text-xs text-white/30">{info.storage}</span>
+												</div>
+												{#if isInstalled}
+													<span
+														class="flex items-center gap-1 text-xs font-medium text-emerald-400"
+													>
+														<svg
+															class="h-3.5 w-3.5"
+															fill="none"
+															stroke="currentColor"
+															viewBox="0 0 24 24"
+														>
+															<path
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2.5"
+																d="M5 13l4 4L19 7"
+															/>
+														</svg>
+														Geinstalleerd
+													</span>
+												{:else if isDownloading}
+													<span class="text-xs text-neon/70">
+														{w.modelDownloadProgress != null
+															? `${w.modelDownloadProgress}%`
+															: 'Bezig...'}
+													</span>
+												{:else}
+													<button
+														onclick={() => downloadModel(model)}
+														disabled={w.modelDownloading}
+														class="rounded-lg bg-neon/15 px-3 py-1.5 text-xs font-medium text-neon transition-all hover:bg-neon/25 disabled:opacity-30 disabled:cursor-not-allowed"
+													>
+														Download
+													</button>
+												{/if}
+											</div>
+											{#if isDownloading && w.modelDownloadProgress != null}
+												<div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+													<div
+														class="h-full rounded-full bg-neon transition-all duration-300"
+														style="width: {w.modelDownloadProgress}%"
+													></div>
+												</div>
+											{/if}
+										</div>
+									{/each}
+								</div>
+								{#if w.modelDownloadError}
+									<p class="text-xs text-red-400">{w.modelDownloadError}</p>
+								{/if}
+							{/if}
+
+							{#if step.hasWhisperDownload}
+								{#if w.status.whisperModelCached}
+									<div class="flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3">
+										<svg
+											class="h-4 w-4 text-emerald-400"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2.5"
+												d="M5 13l4 4L19 7"
+											/>
+										</svg>
+										<span class="text-sm text-emerald-400">Whisper model gedownload</span>
+									</div>
+								{:else if w.status.whisperDownloading}
+									<div class="rounded-lg bg-white/5 p-3">
+										<div class="flex items-center gap-2">
+											<span
+												class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-neon/30 border-t-neon"
+											></span>
+											<span class="text-sm text-neon/70">Whisper model wordt gedownload...</span>
+										</div>
+									</div>
+								{:else}
+									<button
+										onclick={downloadWhisper}
+										class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+									>
+										<img src="/openai.png" alt="" class="h-5 w-5 rounded-full" />
+										Download Whisper model
+									</button>
+								{/if}
+								<p class="flex items-center gap-1.5 text-xs text-white/45">
+									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
+									></span>
+									Checkt automatisch...
+								</p>
 							{/if}
 
 							{#each step.commands as { label, cmd }}
@@ -268,7 +437,7 @@
 							{/each}
 
 							<!-- Polling indicator (only for auto-detected steps) -->
-							{#if !step.hasRamCheck}
+							{#if !step.hasRamCheck && !step.hasDownloadLink && !step.hasModelDownload}
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>

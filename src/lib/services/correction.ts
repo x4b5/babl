@@ -64,8 +64,7 @@ export function handleErrorEvent(
 	if (isRetryable(eventErrorType) && event.retry_after) {
 		startCountdown(event.retry_after, refs, callbacks);
 	} else {
-		const detail = event.message ? ` (${event.message})` : '';
-		setError(getUserMessage(eventErrorType) + detail);
+		setError(event.message || getUserMessage(eventErrorType));
 	}
 }
 

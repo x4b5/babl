@@ -237,3 +237,14 @@
 | 2026-06-06 | 21:05     | 21:06    | 0           | `e277c89`   | chore: update logbook with session entries                                                                                      |
 | 2026-06-06 | 21:06     | 21:21    | .26         | `9d30422`   | feat: add fixed back button to privacy, voorwaarden, cookies and DPA pages                                                      |
 | 2026-06-06 | 21:21     | 21:23    | .02         | `a6f2b5e`   | refactor: centralize model configuration with backend as source of truth                                                        |
+| 2026-06-06 | 21:23     | 21:24    | .02         | `ec99409`   | chore: update logbook with session entries                                                                                      |
+| 2026-06-06 | 21:24     | 21:30    | .09         | `9ea6886`   | feat: add conversation usage and business compliance section to about page                                                      |
+| 2026-06-06 | 21:30     | 21:31    | .01         | `c14b8f9`   | fix: use Europe/Amsterdam timezone for build date display                                                                       |
+| 2026-06-06 | 21:31     | 21:48    | .28         | `df24887`   | perf: quick optimization wins for build, bundle and API efficiency                                                              |
+| 2026-06-06 | 21:48     | 21:53    | .09         | `28602fd`   | perf: optimize backend for memory, startup and concurrency                                                                      |
+| 2026-06-06 | 21:53     | 22:05    | .19         | `9b04ece`   | fix: align correction mode toggle with transcription toggle style                                                               |
+| 2026-06-06 | 22:05     | 22:10    | .08         | `06a8c17`   | fix: match correction toggle logic with transcription toggle                                                                    |
+| 2026-06-06 | 22:10     | 22:16    | .10         | `86f0b32`   | refactor: split backend/main.py into modular route files                                                                        |
+| 2026-06-06 | 22:16     | 22:17    | 0           | `8b89c6e`   | feat: context-aware setup wizard for Ollama installation                                                                        |
+| 2026-06-06 | 22:17     | 22:22    | .09         | `8fae777`   | fix: show all 3 Ollama models in setup wizard download step                                                                     |
+| 2026-06-06 | 22:22     | 22:35    | .20         | `ff98e3c`   | fix: prevent record button from being disabled during recording                                                                 |
