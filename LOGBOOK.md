@@ -251,3 +251,7 @@
 | 2026-06-06 | 22:35     | 22:51    | .27         | `94cc4a0`   | fix: replace false 'overbelast' error with proper Ollama diagnostics                                                            |
 | 2026-06-06 | 22:51     | 22:55    | .06         | `9100464`   | fix: add setup wizard button to Ollama error messages                                                                           |
 | 2026-06-06 | 22:55     | 23:01    | .11         | `13d1214`   | fix: auto-fallback to available Ollama model when requested one is missing                                                      |
+| 2026-06-06 | 23:01     | 23:27    | .42         | `f8d9d13`   | refactor: rename Correction → Polishing across full stack                                                                       |
+| 2026-06-06 | 23:27     | 23:37    | .17         | `d17662d`   | refactor: split large files and extract dialect data to JSON                                                                    |
+| 2026-06-06 | 23:37     | 23:38    | .01         | `8ccbc4a`   | feat: complete polishing rename in UI pages + add Qwen 3 model family                                                           |
+| 2026-06-06 | 23:38     | 23:45    | .11         | `ed26251`   | feat: split Whisper setup into install + start with clickable .command file                                                     |
