@@ -53,4 +53,4 @@ echo "Backend:  http://localhost:8000"
 echo "Frontend: http://localhost:5173/transcribe"
 echo ""
 cd "$ROOT_DIR"
-npx vite dev --open /transcribe
+npx vite dev
