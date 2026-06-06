@@ -271,7 +271,7 @@ async def correct(req: CorrectionRequest):
         try:
             nonlocal text_to_process
 
-            # Pre-check: verify Ollama model exists before streaming
+            # Pre-check: verify Ollama model exists, fallback to any available gemma3 model
             if req.mode != "api":
                 ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
                 try:
@@ -280,8 +280,19 @@ async def correct(req: CorrectionRequest):
                         if tags_resp.status_code == 200:
                             available = [m["name"] for m in tags_resp.json().get("models", [])]
                             if ollama_model not in available:
-                                yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': f'Model {ollama_model} is niet geïnstalleerd. Download het via de installatiewizard.'})}\n\n"
-                                return
+                                # Fallback: try configured models from heavy to light
+                                fallback = None
+                                for q in ("heavy", "medium", "light"):
+                                    candidate = OLLAMA_MODELS.get(q, "")
+                                    if candidate in available:
+                                        fallback = candidate
+                                        break
+                                if fallback:
+                                    print(f"Model {ollama_model} not found, falling back to {fallback}")
+                                    ollama_model = fallback
+                                else:
+                                    yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': f'Geen taalmodel geïnstalleerd. Download er een via de installatiewizard.'})}\n\n"
+                                    return
                         else:
                             yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Ollama reageert niet. Is de app gestart?'})}\n\n"
                             return
@@ -305,7 +316,6 @@ async def correct(req: CorrectionRequest):
                                 ):
                                     chunk_tokens.append(token)
                             else:
-                                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
                                 async for token in correct_chunk_stream(
                                     client, chunk, req.language, ollama_model, None, req.temperature, CLEANUP_PROMPT
                                 ):
@@ -351,7 +361,6 @@ async def correct(req: CorrectionRequest):
                         validated = parse_correction_output(accumulated, chunk)
                         yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
             else:
-                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
                 print(f"Streaming final pass via Ollama {ollama_model}...")
                 json_schema = CorrectionOutput.model_json_schema() if use_json else None
 
