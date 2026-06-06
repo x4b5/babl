@@ -48,10 +48,10 @@
 				onclick={onOpenSetupWizard}
 				class="underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
 			>
-				Je moet dit nog installeren op je apparaat.
+				Klik hier om te installeren op je apparaat.
 			</button>
 		{:else if transcribeMode === 'local' && !localAvailable}
-			Je moet dit nog installeren op je apparaat.
+			Klik hier om te installeren op je apparaat.
 		{:else}
 			Audio wordt verwerkt via EU-servers (AssemblyAI).
 		{/if}

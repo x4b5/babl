@@ -20,8 +20,8 @@
 			class="inline-block hover:animate-letter-bounce">L</span
 		>
 	</h1>
-	<p class="mb-3 sm:mb-4 text-sm sm:text-lg text-white/50">
-		Van spraak naar tekst,<br />
-		<em class="italic">mit un good geveul veur Limburgs.</em>
-	</p>
+	<div class="mb-3 sm:mb-4 text-white/50 text-center">
+		<p class="text-lg sm:text-2xl tracking-widest">Van spraak naar tekst,</p>
+		<p class="text-sm sm:text-lg italic">mit un good geveul veur Limburgs.</p>
+	</div>
 </header>
