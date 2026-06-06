@@ -4,13 +4,9 @@
 		closeWizard,
 		setStep,
 		copyCommand,
-		setSelectedModel,
 		confirmRam,
-		downloadModel,
 		downloadWhisper
 	} from '$lib/stores/setup-wizard.svelte';
-	import { setQuality } from '$lib/stores/transcribe.svelte';
-	import type { Quality } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		onClose?: () => void;
@@ -25,52 +21,12 @@
 		onClose?.();
 	}
 
-	interface ModelOption {
-		label: string;
-		model: string;
-		quality: Quality;
-		ram: string;
-		description: string;
-	}
-
-	const modelOptions: ModelOption[] = [
-		{
-			label: 'Compact',
-			model: 'gemma3:1b',
-			quality: 'light',
-			ram: '~1 GB',
-			description: 'Basis — geschikt voor korte notities'
-		},
-		{
-			label: 'Standaard',
-			model: 'gemma3:4b',
-			quality: 'medium',
-			ram: '~3 GB',
-			description: 'Goed — geschikt voor de meeste verslagen'
-		},
-		{
-			label: 'Uitgebreid',
-			model: 'gemma3:12b',
-			quality: 'heavy',
-			ram: '~8 GB',
-			description: 'Beste kwaliteit — vereist krachtige laptop'
-		}
-	];
-
-	function selectModel(opt: ModelOption) {
-		setSelectedModel(opt.model);
-		setQuality(opt.quality);
-	}
-
 	interface Step {
 		title: string;
 		done: boolean;
 		commands: { label: string; cmd: string }[];
 		description: string;
-		hasModelChoice?: boolean;
 		hasRamCheck?: boolean;
-		hasOllamaDownload?: boolean;
-		hasModelDownload?: boolean;
 		hasWhisperDownload?: boolean;
 	}
 
@@ -79,26 +35,9 @@
 			title: 'Controleer je werkgeheugen (RAM)',
 			done: w.ramConfirmed,
 			description:
-				'AI-modellen draaien in het werkgeheugen (RAM) van je computer. Hoe meer RAM, hoe beter het model dat je kunt gebruiken. Check je RAM via Apple menu (\uF8FF) > Over deze Mac.',
+				'Whisper heeft minimaal 8 GB werkgeheugen nodig. Check je RAM via Apple menu (\uF8FF) > Over deze Mac.',
 			commands: [],
 			hasRamCheck: true
-		},
-		{
-			title: 'Ollama installeren',
-			done: w.status.ollamaRunning,
-			description:
-				"Ollama is een gratis programma dat AI-modellen op jouw computer draait. Download het, open het bestand, en sleep het naar je Programma's map. Ollama start daarna automatisch op de achtergrond.",
-			commands: [],
-			hasOllamaDownload: true
-		},
-		{
-			title: 'Verslagmodel downloaden',
-			done: w.ollamaModelReady,
-			description:
-				'Dit model zet de getranscribeerde tekst om naar een netjes verslag. Kies een grootte die past bij jouw RAM.',
-			commands: [],
-			hasModelChoice: true,
-			hasModelDownload: true
 		},
 		{
 			title: 'BABL-server starten',
@@ -219,28 +158,10 @@
 
 							{#if step.hasRamCheck}
 								<div class="rounded-lg bg-white/5 p-3">
-									<table class="w-full text-xs">
-										<thead>
-											<tr class="text-white/50">
-												<th class="pb-2 text-left font-medium">RAM</th>
-												<th class="pb-2 text-left font-medium">Model</th>
-											</tr>
-										</thead>
-										<tbody class="text-white/70">
-											<tr>
-												<td class="py-1">8 GB</td>
-												<td class="py-1">Compact (gemma3:1b)</td>
-											</tr>
-											<tr>
-												<td class="py-1">16 GB</td>
-												<td class="py-1">Standaard (gemma3:4b)</td>
-											</tr>
-											<tr>
-												<td class="py-1">32+ GB</td>
-												<td class="py-1">Uitgebreid (gemma3:12b)</td>
-											</tr>
-										</tbody>
-									</table>
+									<p class="text-xs text-white/60">
+										Minimaal <span class="font-semibold text-white/80">8 GB RAM</span> nodig. Meer is
+										beter.
+									</p>
 								</div>
 								<button
 									onclick={confirmRam}
@@ -248,104 +169,6 @@
 								>
 									Ik heb genoeg RAM
 								</button>
-							{/if}
-
-							{#if step.hasOllamaDownload}
-								<a
-									href="https://ollama.com/download"
-									target="_blank"
-									rel="noopener noreferrer"
-									class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
-								>
-									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-										/>
-									</svg>
-									Download Ollama (gratis)
-								</a>
-								<p class="text-xs text-white/40">
-									Na installatie start Ollama automatisch. Deze stap wordt groen zodra Ollama
-									draait.
-								</p>
-							{/if}
-
-							{#if step.hasModelChoice}
-								<div class="grid grid-cols-3 gap-2">
-									{#each modelOptions as opt}
-										{@const isSelected = w.selectedModel === opt.model}
-										{@const isDownloaded = w.status.ollamaModels[opt.model] ?? false}
-										<button
-											onclick={() => selectModel(opt)}
-											class="rounded-xl p-3 text-left transition-all {isSelected
-												? 'bg-neon/15 ring-1 ring-neon/40'
-												: 'bg-white/5 hover:bg-white/10'}"
-										>
-											<div class="flex items-center justify-between">
-												<span
-													class="text-xs font-semibold {isSelected ? 'text-neon' : 'text-white/80'}"
-													>{opt.label}</span
-												>
-												{#if isDownloaded}
-													<svg
-														class="h-3.5 w-3.5 text-emerald-400"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2.5"
-															d="M5 13l4 4L19 7"
-														/>
-													</svg>
-												{/if}
-											</div>
-											<span class="mt-1 block text-[10px] text-white/40">{opt.ram} RAM</span>
-											<span class="mt-0.5 block text-[10px] text-white/30 leading-tight"
-												>{opt.description}</span
-											>
-										</button>
-									{/each}
-								</div>
-							{/if}
-
-							{#if step.hasModelDownload}
-								{#if w.modelDownloading}
-									<div class="space-y-2">
-										<div class="h-2 overflow-hidden rounded-full bg-white/10">
-											<div
-												class="h-full rounded-full bg-neon/60 transition-all duration-300"
-												style="width: {w.modelDownloadProgress ?? 0}%"
-											></div>
-										</div>
-										<p class="text-xs text-white/50 text-center">
-											Downloaden... {w.modelDownloadProgress ?? 0}%
-										</p>
-									</div>
-								{:else}
-									<button
-										onclick={downloadModel}
-										class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
-									>
-										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-											/>
-										</svg>
-										Download {w.selectedModel}
-									</button>
-								{/if}
-								{#if w.modelDownloadError}
-									<p class="text-xs text-red-400">{w.modelDownloadError}</p>
-								{/if}
 							{/if}
 
 							{#if step.hasWhisperDownload}
