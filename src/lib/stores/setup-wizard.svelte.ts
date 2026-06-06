@@ -25,7 +25,10 @@ export interface SetupStatus {
 
 // ── Reactive state ────────────────────────────────────────────
 
+export type WizardContext = 'full' | 'ollama';
+
 let open = $state(false);
+let wizardContext = $state<WizardContext>('full');
 let currentStep = $state(0);
 let status = $state<SetupStatus>({
 	backendRunning: false,
@@ -48,12 +51,21 @@ let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined)
 
 const ollamaModelReady = $derived(status.ollamaModels[selectedModel] ?? false);
 
-const allReady = $derived(status.backendRunning);
+const allReady = $derived(
+	wizardContext === 'ollama'
+		? status.ollamaRunning && (status.ollamaModels[selectedModel] ?? false)
+		: status.backendRunning
+);
 
 const recommendedStep = $derived.by(() => {
+	if (wizardContext === 'ollama') {
+		if (!status.ollamaRunning) return 0;
+		if (!(status.ollamaModels[selectedModel] ?? false)) return 1;
+		return 1;
+	}
 	if (!ramConfirmed) return 0;
 	if (!status.backendRunning) return 1;
-	return 1; // All done
+	return 1;
 });
 
 // ── Polling ──────────────────────────────────────────────────
@@ -135,8 +147,9 @@ function stopPolling(): void {
 
 // ── Actions ──────────────────────────────────────────────────
 
-export function openWizard(): void {
+export function openWizard(context: WizardContext = 'full'): void {
 	open = true;
+	wizardContext = context;
 	ramConfirmed = false;
 	currentStep = 0;
 	startPolling();
@@ -240,6 +253,9 @@ export function getSetupWizardState() {
 	return {
 		get open() {
 			return open;
+		},
+		get wizardContext() {
+			return wizardContext;
 		},
 		get currentStep() {
 			return currentStep;

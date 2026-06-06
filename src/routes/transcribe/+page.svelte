@@ -337,7 +337,11 @@
 	}
 
 	function handleOpenSetupWizard() {
-		openWizard();
+		openWizard('full');
+	}
+
+	function handleOpenOllamaWizard() {
+		openWizard('ollama');
 	}
 </script>
 
@@ -408,7 +412,7 @@
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
 						onGenerate={onStartCorrection}
-						onOpenSetupWizard={handleOpenSetupWizard}
+						onOpenSetupWizard={handleOpenOllamaWizard}
 					/>
 				{/if}
 

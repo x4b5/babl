@@ -28,7 +28,7 @@
 		hasRamCheck?: boolean;
 	}
 
-	const steps: Step[] = $derived([
+	const fullSteps: Step[] = $derived([
 		{
 			title: 'Controleer je werkgeheugen (RAM)',
 			done: w.ramConfirmed,
@@ -50,6 +50,35 @@
 			]
 		}
 	]);
+
+	const ollamaSteps: Step[] = $derived([
+		{
+			title: 'Installeer Ollama',
+			done: w.status.ollamaRunning,
+			description:
+				'Ollama draait AI-modellen lokaal op je computer. Open de Terminal app en plak onderstaand commando.',
+			commands: [
+				{
+					label: 'Kopieer en plak in Terminal',
+					cmd: 'brew install ollama && ollama serve'
+				}
+			]
+		},
+		{
+			title: 'Download het taalmodel',
+			done: w.ollamaModelReady,
+			description:
+				'Nu moet het taalmodel gedownload worden. Dit is eenmalig en duurt een paar minuten.',
+			commands: [
+				{
+					label: 'Kopieer en plak in Terminal',
+					cmd: `ollama pull ${w.selectedModel}`
+				}
+			]
+		}
+	]);
+
+	const steps: Step[] = $derived(w.wizardContext === 'ollama' ? ollamaSteps : fullSteps);
 </script>
 
 {#if w.open}
@@ -66,7 +95,9 @@
 	>
 		<!-- Header -->
 		<div class="mb-3 flex items-center justify-between">
-			<h2 class="text-lg font-semibold text-white">Hoe te installeren</h2>
+			<h2 class="text-lg font-semibold text-white">
+				{w.wizardContext === 'ollama' ? 'Ollama installeren' : 'Hoe te installeren'}
+			</h2>
 			<button
 				onclick={handleClose}
 				class="rounded-lg p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white/80"
@@ -85,8 +116,13 @@
 
 		<!-- Intro -->
 		<p class="mb-5 text-sm text-white/50 leading-relaxed">
-			Met de privé-modus wordt alle verwerking op jouw eigen computer gedaan. Er wordt niets naar
-			het internet verstuurd. Volg de stappen hieronder.
+			{#if w.wizardContext === 'ollama'}
+				Ollama draait AI-modellen lokaal op je computer, zodat de verslaglegging volledig privé
+				blijft. Volg de stappen hieronder.
+			{:else}
+				Met de privé-modus wordt alle verwerking op jouw eigen computer gedaan. Er wordt niets naar
+				het internet verstuurd. Volg de stappen hieronder.
+			{/if}
 		</p>
 
 		<!-- Steps -->
