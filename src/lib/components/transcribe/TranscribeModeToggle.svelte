@@ -18,8 +18,8 @@
 	}: Props = $props();
 </script>
 
-<div class="mb-4 flex flex-col items-center gap-3 animate-fade-in w-full sm:w-auto">
-	<div class="text-sm text-white/40 text-center max-w-xs">
+<div class="mb-6 flex flex-col items-center gap-4 animate-fade-in w-full sm:w-auto">
+	<div class="text-sm text-white/40 text-center">
 		{#if transcribeMode === 'local' && localAvailable}
 			<p>
 				Verwerking via <img

@@ -35,14 +35,14 @@
 	];
 </script>
 
-<div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
-	<h3 class="mb-3 sm:mb-4 text-base font-semibold text-white/70">Verslaglegging</h3>
+<div class="glass rounded-2xl p-5 sm:p-6 animate-fade-in">
+	<h3 class="mb-4 sm:mb-5 text-base font-semibold text-white/70">Verslaglegging</h3>
 
-	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-5">
 		<!-- Mode toggle -->
-		<div class="flex flex-col gap-1">
+		<div class="flex flex-col gap-2">
 			<span class="text-xs uppercase tracking-wider text-white/30">Verwerking</span>
-			<div class="text-sm text-white/40 mt-1">
+			<div class="text-sm text-white/40">
 				{#if mode === 'local'}
 					<p>
 						Correctie via <img src="/ollama.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
@@ -89,7 +89,7 @@
 			</div>
 			<a
 				href="/about#voor-en-nadelen"
-				class="text-sm text-white/30 hover:text-white/50 transition-colors underline mt-1"
+				class="text-sm text-white/30 hover:text-white/50 transition-colors underline mt-2"
 			>
 				Voor- en nadelen van beide opties
 			</a>
@@ -107,7 +107,7 @@
 		</div>
 
 		<!-- Report length toggle -->
-		<div class="flex flex-col gap-1">
+		<div class="flex flex-col gap-2">
 			<span class="text-xs uppercase tracking-wider text-white/30">Omvang</span>
 			<div class="glass flex rounded-full p-1">
 				{#each reportLengthOptions as opt}
@@ -126,7 +126,7 @@
 	</div>
 
 	{#if mode === 'api'}
-		<p class="mb-3 text-sm text-amber-400/70">
+		<p class="mb-4 text-sm text-amber-400/70">
 			Tekst wordt verwerkt via Mistral (Europese servers)
 			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 		</p>
@@ -135,7 +135,7 @@
 	<!-- Generate button -->
 	<button
 		onclick={onGenerate}
-		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
 	>
 		Genereren
 	</button>
