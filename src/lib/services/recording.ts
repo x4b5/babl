@@ -155,6 +155,7 @@ export async function acquireMicrophone(): Promise<{
 		const s = getTranscribeState();
 		if (s.status !== 'preparing') return null; // User cancelled
 	}
+	setCountdown(0);
 
 	try {
 		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
