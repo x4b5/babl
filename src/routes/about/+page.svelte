@@ -194,6 +194,10 @@
 								<li class="flex items-start gap-2">
 									<span class="text-neon/60">+</span> Werkt op elk apparaat
 								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Ingebouwde PII-redactie: namen, telefoonnummers
+									en medische gegevens worden automatisch verwijderd uit de transcriptie
+								</li>
 							</ul>
 						</div>
 						<div class="mb-3 space-y-1.5 text-xs">
@@ -352,8 +356,10 @@
 						<p class="mt-1 text-xs text-white/40">
 							Professionele spraakherkenningsdienst met SOC 2 Type 2 certificering — dat betekent
 							dat een onafhankelijke auditor heeft gecontroleerd dat AssemblyAI je data veilig
-							verwerkt en opslaat. Datacenter in Dublin, Ierland (EU Data Residency). Wordt gebruikt
-							in API-modus voor transcriptie.
+							verwerkt en opslaat. Datacenter in Dublin, Ierland (EU Data Residency). PII-redactie
+							is standaard ingeschakeld: persoonsnamen, telefoonnummers, e-mailadressen,
+							geboortedatums en medische gegevens worden automatisch uit de transcriptie verwijderd.
+							Wordt gebruikt in API-modus voor transcriptie.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">

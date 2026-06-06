@@ -693,6 +693,16 @@ async def transcribe_api(
                     "speaker_labels": True,
                     "language_detection": lang == "auto",
                     "speech_models": ["universal-3-pro", "universal-2"],
+                    "redact_pii": True,
+                    "redact_pii_policies": [
+                        aai.PIIRedactionPolicy.person_name,
+                        aai.PIIRedactionPolicy.phone_number,
+                        aai.PIIRedactionPolicy.email_address,
+                        aai.PIIRedactionPolicy.date_of_birth,
+                        aai.PIIRedactionPolicy.medical_process,
+                        aai.PIIRedactionPolicy.medical_condition,
+                    ],
+                    "redact_pii_sub": aai.PIISubstitutionPolicy.entity_name,
                 }
                 if lang != "auto":
                     lang_map = {"nl": "nl", "li": "nl", "en": "en"}
