@@ -166,3 +166,7 @@
 | 2026-06-06 | 09:36     | 10:14    | .62         | `ca7d248`   | refactor: extract realtime stream, recording, and live transcription from page                                                  |
 | 2026-06-06 | 10:14     | 10:33    | .31         | `812e664`   | chore: remove unused store exports and dead code                                                                                |
 | 2026-06-06 | 10:33     | 10:34    | .02         | `bcc7e87`   | chore: deduplicate Google Fonts and gitignore eval logs                                                                         |
+| 2026-06-06 | 10:34     | 10:43    | .15         | `5b2bb6b`   | fix: resolve Prettier formatting issues failing CI                                                                              |
+| 2026-06-06 | 10:43     | 10:45    | .02         | `465268e`   | fix: add dummy env for CI type check                                                                                            |
+| 2026-06-06 | 10:45     | 11:28    | .72         | `1656c72`   | refactor: split RecordButton, fix store access, extract utilities                                                               |
+| 2026-06-06 | 11:28     | 11:39    | .17         | `3440b48`   | refactor: extract live transcription and consolidate error handling                                                             |

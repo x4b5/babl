@@ -27,6 +27,7 @@
 		<h2 class="text-base sm:text-sm font-semibold text-white/70">Ruwe transcriptie</h2>
 		<button
 			onclick={() => copyText(raw, 'raw')}
+			aria-label={copiedRaw ? 'Transcriptie gekopieerd' : 'Kopieer transcriptie'}
 			class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
 				{copiedRaw
 				? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
@@ -71,7 +72,7 @@
 		{:else}
 			{raw}
 			{#if transcribeMode === 'local' && raw}
-				<p class="mt-2 text-[10px] italic text-white/30">
+				<p class="mt-2 text-[10px] italic text-white/50">
 					Woordzekerheid niet beschikbaar in lokale modus
 				</p>
 			{/if}

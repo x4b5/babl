@@ -17,7 +17,6 @@ export const GET: RequestHandler = async () => {
 	return json({
 		status: 'ok',
 		mistral_available: !!env.MISTRAL_API_KEY,
-		mistral_key_length: env.MISTRAL_API_KEY?.length ?? 0,
 		mistral_test: mistralTest,
 		assemblyai_available: !!env.ASSEMBLYAI_API_KEY
 	});

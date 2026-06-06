@@ -60,7 +60,7 @@ export async function deleteRecording(id: string): Promise<void> {
 	});
 }
 
-export async function pruneRecordings(maxCount: number = 3): Promise<void> {
+export async function pruneRecordings(maxCount: number = 5): Promise<void> {
 	const db = await openDb();
 	const all: SavedRecording[] = await new Promise((resolve, reject) => {
 		const tx = db.transaction(STORE_NAME, 'readonly');

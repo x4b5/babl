@@ -883,7 +883,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 	}
 
-	const body = await request.json();
+	let body: Record<string, unknown>;
+	try {
+		body = await request.json();
+	} catch {
+		return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+			status: 400,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
+
 	const {
 		text,
 		language = 'nl',
@@ -891,12 +900,30 @@ export const POST: RequestHandler = async ({ request }) => {
 		temperature = 0.5,
 		report_length = 'middellang',
 		region = 'limburgs'
-	} = body;
+	} = body as {
+		text?: string;
+		language?: string;
+		quality?: string;
+		temperature?: number;
+		report_length?: string;
+		region?: string;
+	};
 
-	if (!text) {
+	if (!text || typeof text !== 'string' || text.trim().length === 0) {
 		return new Response(JSON.stringify({ corrected: '' }), {
 			headers: { 'Content-Type': 'application/json' }
 		});
+	}
+
+	const MAX_TEXT_LENGTH = 50_000;
+	if (text.length > MAX_TEXT_LENGTH) {
+		return new Response(
+			JSON.stringify({
+				error: `Tekst te lang (${text.length} tekens, max ${MAX_TEXT_LENGTH})`,
+				error_type: 'server_error'
+			}),
+			{ status: 400, headers: { 'Content-Type': 'application/json' } }
+		);
 	}
 
 	let systemPrompt = SYSTEM_PROMPTS[report_length] || SYSTEM_PROMPTS['middellang'];

@@ -230,7 +230,7 @@
 
 	$effect(() => {
 		checkBackendHealth();
-		pruneRecordings(3).catch(() => {});
+		pruneRecordings(5).catch(() => {});
 	});
 
 	$effect(() => {
@@ -295,7 +295,7 @@
 
 		const { stream: micStream, mimeType } = result;
 		stream = micStream;
-		mediaRecorder = new MediaRecorder(stream, { mimeType });
+		mediaRecorder = new MediaRecorder(stream, { mimeType, audioBitsPerSecond: 32000 });
 		chunks = [];
 		waveformRefs = startWaveform(stream, waveformRefs);
 		const useRealtimeStream = s.transcribeMode === 'api' && s.apiStreamMode === 'realtime';

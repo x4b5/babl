@@ -51,6 +51,7 @@
 			</div>
 			<button
 				onclick={() => copyText(corrected, 'corrected')}
+				aria-label={copiedCorrected ? 'Correctie gekopieerd' : 'Kopieer correctie'}
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
 					{copiedCorrected
 					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
@@ -102,6 +103,7 @@
 		</div>
 		<button
 			onclick={onToggleExpand}
+			aria-label={expanded ? 'Tekst inklappen' : 'Volledige tekst tonen'}
 			class="mt-2 w-full text-center text-xs text-white/40 hover:text-white/70 transition-colors duration-200"
 		>
 			{expanded ? 'Inklappen' : 'Lees meer...'}

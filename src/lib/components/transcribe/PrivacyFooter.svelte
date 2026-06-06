@@ -10,6 +10,8 @@
 <div class="mt-12 sm:mt-16 animate-fade-in">
 	<button
 		onclick={onToggle}
+		aria-expanded={open}
+		aria-label={open ? 'Privacy-informatie verbergen' : 'Privacy-informatie tonen'}
 		class="glass w-full rounded-2xl px-4 py-3 sm:px-5 sm:py-4 text-left transition-all duration-300 hover:bg-white/8"
 	>
 		<div class="flex items-center justify-between">
@@ -37,13 +39,13 @@
 						>Privacy-bewuste verwerking</span
 					>
 					<span
-						class="sm:ml-2 text-[10px] text-white/30 uppercase tracking-tighter sm:normal-case sm:tracking-normal"
+						class="sm:ml-2 text-[10px] text-white/50 uppercase tracking-tighter sm:normal-case sm:tracking-normal"
 						>AVG & EU Act compliant</span
 					>
 				</div>
 			</div>
 			<svg
-				class="h-4 w-4 text-white/30 transition-transform duration-300 {open ? 'rotate-180' : ''}"
+				class="h-4 w-4 text-white/50 transition-transform duration-300 {open ? 'rotate-180' : ''}"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
