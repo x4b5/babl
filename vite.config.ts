@@ -3,7 +3,12 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { execSync } from 'child_process';
 
-const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+let commitHash: string;
+try {
+	commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+} catch {
+	commitHash = 'dev';
+}
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
