@@ -10,6 +10,7 @@ from config import (
     ASSEMBLYAI_API_KEY,
     MISTRAL_API_KEY,
     MISTRAL_MODELS,
+    OLLAMA_MODEL_FAMILIES,
     OLLAMA_MODELS,
     WHISPER_MODEL_PATH,
 )
@@ -53,6 +54,7 @@ async def health():
             "mistral": MISTRAL_MODELS,
             "whisper": WHISPER_MODEL_PATH,
         },
+        "ollama_families": OLLAMA_MODEL_FAMILIES,
     }
 
 

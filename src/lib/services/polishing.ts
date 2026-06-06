@@ -1,6 +1,6 @@
 /**
- * Correction service — sends transcribed text to Ollama (local) or Mistral (API)
- * for Limburgse dialect correction. Handles SSE token streaming and rate limiting.
+ * Polishing service — sends transcribed text to Ollama (local) or Mistral (API)
+ * for Limburgse dialect polishing. Handles SSE token streaming and rate limiting.
  */
 
 import { readSSEStream } from '$lib/utils/sse-reader';
@@ -24,11 +24,11 @@ import {
 	setCountdownSeconds,
 	setRetryCount,
 	appendCorrected,
-	resetForCorrection
+	resetForPolishing
 } from '$lib/stores/transcribe.svelte';
 
 /** Build disclaimer with current date/time stamp. */
-function buildCorrectionDisclaimer(): string {
+function buildPolishingDisclaimer(): string {
 	const now = new Date();
 	const stamp = now.toLocaleString('nl-NL', {
 		dateStyle: 'long',
@@ -43,21 +43,21 @@ function buildCorrectionDisclaimer(): string {
 	);
 }
 
-interface CorrectionRefs {
-	correctionController: AbortController | undefined;
+export interface PolishingRefs {
+	polishingController: AbortController | undefined;
 	countdownInterval: ReturnType<typeof setInterval> | undefined;
 }
 
-interface CorrectionCallbacks {
-	setCorrectionController: (v: AbortController | undefined) => void;
+export interface PolishingCallbacks {
+	setPolishingController: (v: AbortController | undefined) => void;
 	setCountdownInterval: (v: ReturnType<typeof setInterval> | undefined) => void;
 }
 
-/** Handle a typed error event from SSE stream (shared between transcription and correction). */
+/** Handle a typed error event from SSE stream (shared between transcription and polishing). */
 export function handleErrorEvent(
 	event: { error_type?: string; retry_after?: number; message?: string },
-	refs: CorrectionRefs,
-	callbacks: CorrectionCallbacks
+	refs: PolishingRefs,
+	callbacks: PolishingCallbacks
 ): void {
 	const eventErrorType = (event.error_type || 'server_error') as ErrorType;
 	setErrorType(eventErrorType);
@@ -69,11 +69,7 @@ export function handleErrorEvent(
 }
 
 /** Start a rate-limit countdown with auto-retry. */
-function startCountdown(
-	seconds: number,
-	refs: CorrectionRefs,
-	callbacks: CorrectionCallbacks
-): void {
+function startCountdown(seconds: number, refs: PolishingRefs, callbacks: PolishingCallbacks): void {
 	if (refs.countdownInterval) clearInterval(refs.countdownInterval);
 	setCountdownSeconds(seconds);
 	setError(rateLimitMessage(seconds));
@@ -91,7 +87,7 @@ function startCountdown(
 			setErrorType('');
 			setRetryCount(s.retryCount + 1);
 			if (s.retryCount + 1 <= MAX_AUTO_RETRIES) {
-				fetchCorrection(s.raw, s.lang, s.quality, refs, callbacks);
+				fetchPolishing(s.raw, s.lang, s.quality, refs, callbacks);
 			} else {
 				setError(RATE_LIMIT_EXHAUSTED);
 				setErrorType('rate_limit');
@@ -102,25 +98,25 @@ function startCountdown(
 	callbacks.setCountdownInterval(interval);
 }
 
-/** Start correction flow. */
-export function startCorrection(refs: CorrectionRefs, callbacks: CorrectionCallbacks): void {
+/** Start polishing flow. */
+export function startPolishing(refs: PolishingRefs, callbacks: PolishingCallbacks): void {
 	const s = getTranscribeState();
 	if (!s.raw) return;
-	resetForCorrection();
+	resetForPolishing();
 	if (refs.countdownInterval) {
 		clearInterval(refs.countdownInterval);
 		callbacks.setCountdownInterval(undefined);
 	}
-	fetchCorrection(s.raw, s.lang, s.quality, refs, callbacks);
+	fetchPolishing(s.raw, s.lang, s.quality, refs, callbacks);
 }
 
-/** Fetch correction via SSE streaming from local Ollama or Mistral API. */
-async function fetchCorrection(
+/** Fetch polishing via SSE streaming from local Ollama or Mistral API. */
+async function fetchPolishing(
 	text: string,
 	corrLang: string,
 	qual: string,
-	refs: CorrectionRefs,
-	callbacks: CorrectionCallbacks
+	refs: PolishingRefs,
+	callbacks: PolishingCallbacks
 ): Promise<void> {
 	const s = getTranscribeState();
 	const body = {
@@ -130,14 +126,15 @@ async function fetchCorrection(
 		mode: s.mode,
 		temperature: s.temperature,
 		report_length: s.reportLength,
-		keep_dialect: s.keepDialect
+		keep_dialect: s.keepDialect,
+		model_family: s.modelFamily
 	};
-	const correctUrl = body.mode === 'api' ? '/api/correct' : `${LOCAL_BACKEND_URL}/correct`;
+	const polishUrl = body.mode === 'api' ? '/api/polish' : `${LOCAL_BACKEND_URL}/polish`;
 	const controller = new AbortController();
-	callbacks.setCorrectionController(controller);
+	callbacks.setPolishingController(controller);
 
 	try {
-		const resp = await fetch(correctUrl, {
+		const resp = await fetch(polishUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
@@ -184,17 +181,17 @@ async function fetchCorrection(
 
 		if (!s.corrected) setCorrected(text);
 		if (s.corrected && !streamError) {
-			appendCorrected(buildCorrectionDisclaimer());
+			appendCorrected(buildPolishingDisclaimer());
 		}
 	} catch (e) {
 		if (isAbortError(e)) {
-			callbacks.setCorrectionController(undefined);
+			callbacks.setPolishingController(undefined);
 			return;
 		}
 		handleCaughtError(e);
 		setCorrected('');
 	} finally {
-		callbacks.setCorrectionController(undefined);
+		callbacks.setPolishingController(undefined);
 		setStatus('idle');
 	}
 }

@@ -248,3 +248,6 @@
 | 2026-06-06 | 22:16     | 22:17    | 0           | `8b89c6e`   | feat: context-aware setup wizard for Ollama installation                                                                        |
 | 2026-06-06 | 22:17     | 22:22    | .09         | `8fae777`   | fix: show all 3 Ollama models in setup wizard download step                                                                     |
 | 2026-06-06 | 22:22     | 22:35    | .20         | `ff98e3c`   | fix: prevent record button from being disabled during recording                                                                 |
+| 2026-06-06 | 22:35     | 22:51    | .27         | `94cc4a0`   | fix: replace false 'overbelast' error with proper Ollama diagnostics                                                            |
+| 2026-06-06 | 22:51     | 22:55    | .06         | `9100464`   | fix: add setup wizard button to Ollama error messages                                                                           |
+| 2026-06-06 | 22:55     | 23:01    | .11         | `13d1214`   | fix: auto-fallback to available Ollama model when requested one is missing                                                      |

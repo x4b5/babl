@@ -35,7 +35,7 @@
 				<h2 class="mb-3 text-lg font-semibold text-white">1. Inleiding</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					BABL is een spraak-naar-tekst tool die audio opneemt, transcribeert en Limburgs dialect
-					corrigeert naar standaard Nederlands. Deze privacyverklaring beschrijft welke gegevens we
+					polijst naar standaard Nederlands. Deze privacyverklaring beschrijft welke gegevens we
 					verwerken, hoe we dat doen en welke rechten je hebt.
 				</p>
 				<div class="mt-4 rounded-xl border border-neon/20 bg-neon/5 p-4 text-sm text-white/60">
@@ -92,7 +92,7 @@
 					3. Hoe verwerken we gegevens — twee modi
 				</h2>
 				<p class="mb-4 text-sm text-white/70">
-					Je kiest zelf per stap (transcriptie en correctie) of verwerking lokaal of via API
+					Je kiest zelf per stap (transcriptie en polijsten) of verwerking lokaal of via API
 					plaatsvindt.
 				</p>
 				<div class="grid gap-4 sm:grid-cols-2">
@@ -100,7 +100,7 @@
 						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokale modus</h3>
 						<ul class="space-y-1.5 text-sm text-white/60">
 							<li>Whisper (spraakherkenning) draait op je eigen apparaat</li>
-							<li>Ollama/Gemma (tekstcorrectie) draait op je eigen apparaat</li>
+							<li>Ollama/Gemma (polijsten) draait op je eigen apparaat</li>
 							<li class="font-medium text-neon/60">Geen data verlaat je computer</li>
 						</ul>
 					</div>
@@ -115,7 +115,7 @@
 								automatisch persoonsnamen, telefoonnummers, e-mailadressen, geboortedatums en
 								medische gegevens uit de transcriptie. Deze worden vervangen door labels zoals
 								<code class="rounded bg-white/10 px-1.5 py-0.5 text-xs">[PERSON_NAME]</code>. Zo
-								worden persoonsgegevens niet doorgestuurd naar de correctiestap (Mistral).
+								worden persoonsgegevens niet doorgestuurd naar de polijststap (Mistral).
 							</li>
 						</ul>
 					</div>
@@ -212,7 +212,7 @@
 							</tr>
 							<tr class="border-b border-white/5">
 								<td class="py-2 pr-4 font-medium text-white/70">Mistral AI</td>
-								<td class="py-2 pr-4">Tekstcorrectie</td>
+								<td class="py-2 pr-4">Tekst polijsten</td>
 								<td class="py-2 pr-4">EU-servers</td>
 								<td class="py-2">—</td>
 							</tr>
@@ -349,8 +349,8 @@
 						<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500/60"></span>
 						<div>
 							<span class="font-medium text-white/80">Gebruikte modellen</span> — Whisper large-v3 (spraakherkenning),
-							Ollama/Gemma3 (lokale correctie), AssemblyAI Universal-2 (API transcriptie), Mistral (API
-							correctie)
+							Ollama/Gemma3 (lokaal polijsten), AssemblyAI Universal-2 (API transcriptie), Mistral (API
+							polijsten)
 						</div>
 					</li>
 					<li class="flex items-start gap-3">

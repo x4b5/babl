@@ -11,13 +11,13 @@ class TestPromptVersioning:
 
     def test_prompt_version_exists(self):
         """There should be a PROMPT_VERSION constant."""
-        from correction import PROMPT_VERSION
+        from polishing import PROMPT_VERSION
         assert isinstance(PROMPT_VERSION, str)
         assert len(PROMPT_VERSION) > 0
 
     def test_prompt_version_format(self):
         """Version should be semantic (e.g., 'v1.0')."""
-        from correction import PROMPT_VERSION
+        from polishing import PROMPT_VERSION
         assert PROMPT_VERSION.startswith("v")
         parts = PROMPT_VERSION[1:].split(".")
         assert len(parts) >= 2
@@ -25,15 +25,15 @@ class TestPromptVersioning:
 
     def test_get_prompt_version_returns_current(self):
         """get_prompt_version() should return current version."""
-        from correction import get_prompt_version
+        from polishing import get_prompt_version
         version = get_prompt_version()
         assert isinstance(version, str)
         assert version.startswith("v")
 
-    def test_build_correction_prompt_unchanged_interface(self):
-        """build_correction_prompt should still return (system_prompt, json_instruction)."""
-        from correction import build_correction_prompt
-        result = build_correction_prompt("limburgs", "samenvatting")
+    def test_build_polishing_prompt_unchanged_interface(self):
+        """build_polishing_prompt should still return (system_prompt, json_instruction)."""
+        from polishing import build_polishing_prompt
+        result = build_polishing_prompt("limburgs", "samenvatting")
         assert isinstance(result, tuple)
         assert len(result) == 2
 

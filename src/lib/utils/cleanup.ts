@@ -52,14 +52,14 @@ export function cleanupMediaResources(refs: {
  */
 export function cleanupNetworkResources(refs: {
 	transcribeController: AbortController | undefined;
-	correctionController: AbortController | undefined;
+	polishingController: AbortController | undefined;
 	liveChunkController: AbortController | undefined;
 	apiPollController: AbortController | undefined;
 	streamSocket: { close: () => void } | undefined;
 }): void {
 	// Abort all active AbortControllers
 	refs.transcribeController?.abort();
-	refs.correctionController?.abort();
+	refs.polishingController?.abort();
 	refs.liveChunkController?.abort();
 	refs.apiPollController?.abort();
 

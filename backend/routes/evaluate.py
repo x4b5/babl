@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException
 
-from correction import get_prompt_version
+from polishing import get_prompt_version
 from evaluation.logger import log_correction, log_evaluation, read_corrections, read_evaluations, get_wer_summary
 from evaluation.metrics import calculate_metrics
 from evaluation.patterns import extract_error_patterns

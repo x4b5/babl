@@ -9,8 +9,8 @@ import httpx
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB
 
 # --- Concurrency ---
-MAX_PARALLEL_CORRECTIONS = 3
-_correction_semaphore = asyncio.Semaphore(MAX_PARALLEL_CORRECTIONS)
+MAX_PARALLEL_POLISHING = 3
+_polishing_semaphore = asyncio.Semaphore(MAX_PARALLEL_POLISHING)
 
 # --- WebSocket heartbeat ---
 HEARTBEAT_INTERVAL = 15  # Send ping every 15 seconds
@@ -18,11 +18,11 @@ HEARTBEAT_TIMEOUT = 30  # Close if no pong within 30 seconds
 
 # --- Ollama ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODELS = {
-    "light": "gemma3:1b",
-    "medium": "gemma3:4b",
-    "heavy": "gemma3:12b",
+OLLAMA_MODEL_FAMILIES = {
+    "gemma3": {"light": "gemma3:1b", "medium": "gemma3:4b", "heavy": "gemma3:12b"},
+    "qwen3": {"light": "qwen3:1.7b", "medium": "qwen3:4b", "heavy": "qwen3:14b"},
 }
+OLLAMA_MODELS = OLLAMA_MODEL_FAMILIES["gemma3"]
 
 # --- Whisper ---
 WHISPER_MODEL_PATH = "mlx-community/whisper-large-v3-mlx"

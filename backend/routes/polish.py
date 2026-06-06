@@ -1,4 +1,4 @@
-"""Dialect correction endpoint: /correct with chunk streaming helpers."""
+"""Dialect polishing endpoint: /polish with chunk streaming helpers."""
 
 import asyncio
 import json
@@ -14,22 +14,23 @@ from fastapi.responses import StreamingResponse
 from config import (
     MISTRAL_API_KEY,
     MISTRAL_MODELS,
+    OLLAMA_MODEL_FAMILIES,
     OLLAMA_MODELS,
     OLLAMA_URL,
-    _correction_semaphore,
+    _polishing_semaphore,
     get_mistral_client,
 )
-from correction import (
+from polishing import (
     CLEANUP_PROMPT,
     DIALECT_RETENTION_PROMPT,
     SYSTEM_PROMPT,
     SYSTEM_PROMPTS,
     CorrectionOutput,
-    build_correction_prompt,
-    parse_correction_output,
+    build_polishing_prompt,
+    parse_polishing_output,
 )
 from dialects import get_dialect_config
-from models import CorrectionRequest
+from models import PolishingRequest
 
 router = APIRouter()
 
@@ -68,7 +69,7 @@ def parse_retry_after(response_or_headers) -> int:
 
 
 def _build_ollama_prompt(chunk: str, detected_lang: str, full_context: str | None = None) -> str:
-    """Build the prompt for Ollama correction."""
+    """Build the prompt for Ollama polishing."""
     if full_context and full_context != chunk:
         return (
             f"[Taal: {detected_lang}]\n\n"
@@ -78,7 +79,7 @@ def _build_ollama_prompt(chunk: str, detected_lang: str, full_context: str | Non
     return f"[Taal: {detected_lang}]\n\n{chunk}"
 
 
-async def correct_chunk_stream(
+async def polish_chunk_stream(
     client: httpx.AsyncClient,
     chunk: str,
     detected_lang: str,
@@ -122,7 +123,7 @@ async def correct_chunk_stream(
 
 
 def _build_mistral_prompt(chunk: str, detected_lang: str, full_context: str | None = None) -> str:
-    """Build the user prompt for Mistral correction."""
+    """Build the user prompt for Mistral polishing."""
     if full_context and full_context != chunk:
         return (
             f"[Taal: {detected_lang}]\n\n"
@@ -132,7 +133,7 @@ def _build_mistral_prompt(chunk: str, detected_lang: str, full_context: str | No
     return f"[Taal: {detected_lang}]\n\n{chunk}"
 
 
-async def correct_chunk_mistral_stream(
+async def polish_chunk_mistral_stream(
     chunk: str,
     detected_lang: str,
     mistral_model: str,
@@ -246,15 +247,18 @@ def split_into_chunks(text: str, max_words: int = 400, overlap_words: int = 75) 
 # --- Endpoint ---
 
 
-@router.post("/correct")
-async def correct(req: CorrectionRequest):
-    """Step 2: Dialect correction via Ollama (local) or Mistral (API) -- streams tokens as SSE."""
+@router.post("/polish")
+async def polish(req: PolishingRequest):
+    """Step 2: Dialect polishing via Ollama (local) or Mistral (API) -- streams tokens as SSE."""
     if not req.text:
         return {"corrected": ""}
 
+    # Resolve model family for Ollama
+    family_models = OLLAMA_MODEL_FAMILIES.get(req.model_family, OLLAMA_MODELS)
+
     dialect_config = get_dialect_config(req.region)
     if req.language == "li":
-        system_prompt, json_instr = build_correction_prompt(req.region, req.report_length)
+        system_prompt, json_instr = build_polishing_prompt(req.region, req.report_length)
     else:
         system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["samenvatting"])
         json_instr = ""
@@ -271,9 +275,9 @@ async def correct(req: CorrectionRequest):
         try:
             nonlocal text_to_process
 
-            # Pre-check: verify Ollama model exists, fallback to any available gemma3 model
+            # Pre-check: verify Ollama model exists, fallback to any available model in family
             if req.mode != "api":
-                ollama_model = OLLAMA_MODELS.get(req.quality, OLLAMA_MODELS["light"])
+                ollama_model = family_models.get(req.quality, family_models["light"])
                 try:
                     async with httpx.AsyncClient(timeout=10.0) as check_client:
                         tags_resp = await check_client.get("http://localhost:11434/api/tags")
@@ -283,7 +287,7 @@ async def correct(req: CorrectionRequest):
                                 # Fallback: try configured models from heavy to light
                                 fallback = None
                                 for q in ("heavy", "medium", "light"):
-                                    candidate = OLLAMA_MODELS.get(q, "")
+                                    candidate = family_models.get(q, "")
                                     if candidate in available:
                                         fallback = candidate
                                         break
@@ -300,7 +304,7 @@ async def correct(req: CorrectionRequest):
                     yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_unavailable', 'message': 'Ollama is niet bereikbaar. Start de Ollama app.'})}\n\n"
                     return
 
-            # PHASE 3: Two-step correction for Limburgish
+            # PHASE 3: Two-step polishing for Limburgish
             if req.language == "li":
                 print("[Phase 3] Starting cleanup pass for Limburgish...")
                 cleaned_chunks = []
@@ -308,15 +312,15 @@ async def correct(req: CorrectionRequest):
                     for i, chunk in enumerate(chunks):
                         print(f"  Cleaning chunk {i+1}/{len(chunks)}...")
                         chunk_tokens = []
-                        async with _correction_semaphore:
+                        async with _polishing_semaphore:
                             if req.mode == "api":
                                 mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
-                                async for token in correct_chunk_mistral_stream(
+                                async for token in polish_chunk_mistral_stream(
                                     chunk, req.language, mistral_model, None, req.temperature, CLEANUP_PROMPT
                                 ):
                                     chunk_tokens.append(token)
                             else:
-                                async for token in correct_chunk_stream(
+                                async for token in polish_chunk_stream(
                                     client, chunk, req.language, ollama_model, None, req.temperature, CLEANUP_PROMPT
                                 ):
                                     chunk_tokens.append(token)
@@ -348,8 +352,8 @@ async def correct(req: CorrectionRequest):
                 for i, chunk in enumerate(final_chunks):
                     chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
                     chunk_tokens: list[str] = []
-                    async with _correction_semaphore:
-                        async for token in correct_chunk_mistral_stream(
+                    async with _polishing_semaphore:
+                        async for token in polish_chunk_mistral_stream(
                             chunk_input, req.language, mistral_model, full_context, req.temperature, final_system_prompt
                         ):
                             if use_json:
@@ -358,7 +362,7 @@ async def correct(req: CorrectionRequest):
                                 yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
                     if use_json and chunk_tokens:
                         accumulated = "".join(chunk_tokens)
-                        validated = parse_correction_output(accumulated, chunk)
+                        validated = parse_polishing_output(accumulated, chunk)
                         yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
             else:
                 print(f"Streaming final pass via Ollama {ollama_model}...")
@@ -368,8 +372,8 @@ async def correct(req: CorrectionRequest):
                     for i, chunk in enumerate(final_chunks):
                         chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
                         chunk_tokens: list[str] = []
-                        async with _correction_semaphore:
-                            async for token in correct_chunk_stream(
+                        async with _polishing_semaphore:
+                            async for token in polish_chunk_stream(
                                 client,
                                 chunk_input,
                                 req.language,
@@ -385,12 +389,12 @@ async def correct(req: CorrectionRequest):
                                     yield f"data: {json.dumps({'type': 'token', 'text': token})}\n\n"
                         if use_json and chunk_tokens:
                             accumulated = "".join(chunk_tokens)
-                            validated = parse_correction_output(accumulated, chunk)
+                            validated = parse_polishing_output(accumulated, chunk)
                             yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
 
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
-            print(f"Correction streaming failed: {e}")
+            print(f"Polishing streaming failed: {e}")
             traceback.print_exc()
             error_str = str(e)
 

@@ -15,15 +15,15 @@
 	import RecordButton from '$lib/components/transcribe/RecordButton.svelte';
 	import ErrorAlert from '$lib/components/transcribe/ErrorAlert.svelte';
 	import RawTranscriptionCard from '$lib/components/transcribe/RawTranscriptionCard.svelte';
-	import CorrectionControls from '$lib/components/transcribe/CorrectionControls.svelte';
-	import CorrectedResultCard from '$lib/components/transcribe/CorrectedResultCard.svelte';
+	import PolishingControls from '$lib/components/transcribe/PolishingControls.svelte';
+	import PolishedResultCard from '$lib/components/transcribe/PolishedResultCard.svelte';
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 	import SetupWizard from '$lib/components/transcribe/SetupWizard.svelte';
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
 	import { stopLiveTranscription } from '$lib/services/live-transcription';
-	import { startCorrection, handleErrorEvent } from '$lib/services/correction';
+	import { startPolishing, handleErrorEvent } from '$lib/services/polishing';
 	import {
 		startRealtimeStream,
 		stopRealtimeStream,
@@ -72,7 +72,7 @@
 	let processingTimerInterval: ReturnType<typeof setInterval> | undefined;
 	let countdownInterval: ReturnType<typeof setInterval> | undefined;
 	let transcribeController: AbortController | undefined;
-	let correctionController: AbortController | undefined;
+	let polishingController: AbortController | undefined;
 	let liveChunkController: AbortController | undefined;
 	let apiPollController: AbortController | undefined;
 	let waveformRefs: WaveformRefs = {
@@ -95,23 +95,23 @@
 			retry_after?: number;
 			message?: string;
 		}) => {
-			handleErrorEvent(event, correctionRefs, correctionCallbacks);
+			handleErrorEvent(event, polishingRefs, polishingCallbacks);
 		}
 	};
 
-	const correctionCallbacks = {
-		setCorrectionController: (v: AbortController | undefined) => {
-			correctionController = v;
+	const polishingCallbacks = {
+		setPolishingController: (v: AbortController | undefined) => {
+			polishingController = v;
 		},
 		setCountdownInterval: (v: ReturnType<typeof setInterval> | undefined) => {
 			countdownInterval = v;
 		}
 	};
 
-	// Lazy refs so correction service always reads current values
-	const correctionRefs = {
-		get correctionController() {
-			return correctionController;
+	// Lazy refs so polishing service always reads current values
+	const polishingRefs = {
+		get polishingController() {
+			return polishingController;
 		},
 		get countdownInterval() {
 			return countdownInterval;
@@ -217,7 +217,7 @@
 
 	$effect(() => {
 		function handleBeforeUnload(e: BeforeUnloadEvent) {
-			if (s.status === 'recording' || s.status === 'processing' || s.status === 'correcting') {
+			if (s.status === 'recording' || s.status === 'processing' || s.status === 'polishing') {
 				e.preventDefault();
 				e.returnValue = '';
 			}
@@ -239,7 +239,7 @@
 	function cleanupAllResources() {
 		cleanupNetworkResources({
 			transcribeController,
-			correctionController,
+			polishingController,
 			liveChunkController,
 			apiPollController,
 			streamSocket: getStreamSocket()
@@ -261,7 +261,7 @@
 		stopRealtimeStream();
 		stream = undefined;
 		transcribeController = undefined;
-		correctionController = undefined;
+		polishingController = undefined;
 		liveChunkController = undefined;
 		apiPollController = undefined;
 		waveformRefs = { audioContext: undefined, analyser: undefined, animationFrameId: undefined };
@@ -332,8 +332,8 @@
 		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
 
-	function onStartCorrection() {
-		startCorrection(correctionRefs, correctionCallbacks);
+	function onStartPolishing() {
+		startPolishing(polishingRefs, polishingCallbacks);
 	}
 
 	function handleOpenSetupWizard() {
@@ -402,22 +402,22 @@
 					copiedRaw={s.copiedRaw}
 				/>
 
-				{#if s.status !== 'correcting' && s.status !== 'processing'}
-					<CorrectionControls
+				{#if s.status !== 'polishing' && s.status !== 'processing'}
+					<PolishingControls
 						mode={s.mode}
 						reportLength={s.reportLength}
 						localAvailable={s.localAvailable}
 						ollamaAvailable={s.ollamaAvailable}
 						mistralAvailable={s.mistralAvailable}
-						estimatedCorrectionCost={s.estimatedCorrectionCost}
+						estimatedPolishingCost={s.estimatedPolishingCost}
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
-						onGenerate={onStartCorrection}
+						onGenerate={onStartPolishing}
 						onOpenSetupWizard={handleOpenOllamaWizard}
 					/>
 				{/if}
 
-				<CorrectedResultCard
+				<PolishedResultCard
 					corrected={s.corrected}
 					status={s.status}
 					expanded={s.correctedExpanded}

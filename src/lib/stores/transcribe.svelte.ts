@@ -7,7 +7,7 @@ import type { ErrorType } from '$lib/utils/error-types';
 
 // ── Type definitions ──────────────────────────────────────────
 
-export type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'correcting';
+export type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'polishing';
 export type Quality = 'light' | 'medium' | 'heavy';
 export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
@@ -79,6 +79,7 @@ let reportLength = $state<ReportLength>('samenvatting');
 let transcribeMode = $state<Mode>('api');
 let apiStreamMode = $state<ApiStreamMode>('accurate');
 let temperature = $state(0.2);
+let modelFamily = $state('gemma3');
 let reconnecting = $state(false);
 let reconnectStatus = $state('');
 let mistralAvailable = $state(false);
@@ -139,7 +140,7 @@ const estimatedTranscribeCost = $derived.by(() => {
 	return (seconds * ASSEMBLYAI_COST_PER_SECOND).toFixed(4);
 });
 
-const estimatedCorrectionCost = $derived.by(() => {
+const estimatedPolishingCost = $derived.by(() => {
 	const wordCount = raw ? raw.split(/\s+/).length : 0;
 	const costPerWord = MISTRAL_COST_PER_WORD[quality] ?? MISTRAL_COST_PER_WORD['light'];
 	const lengthFactor = REPORT_LENGTH_FACTOR[reportLength] ?? 1;
@@ -298,8 +299,11 @@ export function getTranscribeState() {
 		get estimatedTranscribeCost() {
 			return estimatedTranscribeCost;
 		},
-		get estimatedCorrectionCost() {
-			return estimatedCorrectionCost;
+		get estimatedPolishingCost() {
+			return estimatedPolishingCost;
+		},
+		get modelFamily() {
+			return modelFamily;
 		}
 	};
 }
@@ -353,6 +357,9 @@ export function setReportLength(v: ReportLength) {
 }
 export function setTranscribeMode(v: Mode) {
 	transcribeMode = v;
+}
+export function setModelFamily(v: string) {
+	modelFamily = v;
 }
 export function setReconnecting(v: boolean) {
 	reconnecting = v;
@@ -442,15 +449,15 @@ export async function copyText(text: string, which: 'raw' | 'corrected') {
 	}
 }
 
-/** Reset correction state for a new correction attempt. */
-export function resetForCorrection() {
+/** Reset polishing state for a new polishing attempt. */
+export function resetForPolishing() {
 	corrected = '';
 	correctedExpanded = false;
 	error = '';
 	errorType = '';
 	retryCount = 0;
 	countdownSeconds = 0;
-	status = 'correcting';
+	status = 'polishing';
 }
 
 /** Reset transcription results for a new audio send. */

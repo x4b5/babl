@@ -7,7 +7,7 @@
 		localAvailable: boolean;
 		ollamaAvailable: boolean;
 		mistralAvailable: boolean;
-		estimatedCorrectionCost: string;
+		estimatedPolishingCost: string;
 		onModeChange: (mode: Mode) => void;
 		onReportLengthChange: (length: ReportLength) => void;
 		onGenerate: () => void;
@@ -20,14 +20,14 @@
 		localAvailable,
 		ollamaAvailable,
 		mistralAvailable,
-		estimatedCorrectionCost,
+		estimatedPolishingCost,
 		onModeChange,
 		onReportLengthChange,
 		onGenerate,
 		onOpenSetupWizard
 	}: Props = $props();
 
-	const localCorrectionAvailable = $derived(localAvailable && ollamaAvailable);
+	const localPolishingAvailable = $derived(localAvailable && ollamaAvailable);
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
 		{ value: 'samenvatting', label: 'Samenvatting' },
@@ -68,7 +68,7 @@
 					>
 				</button>
 			</div>
-			{#if mode === 'local' && !localCorrectionAvailable && onOpenSetupWizard}
+			{#if mode === 'local' && !localPolishingAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
 					class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
@@ -106,14 +106,14 @@
 	{#if mode === 'api'}
 		<p class="mb-4 text-sm text-amber-400/70">
 			Tekst wordt verwerkt via Mistral (Europese servers)
-			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
+			<span class="font-mono">— geschat ${estimatedPolishingCost}</span>
 		</p>
 	{/if}
 
 	<!-- Generate button -->
 	<button
 		onclick={onGenerate}
-		disabled={mode === 'local' && !localCorrectionAvailable}
+		disabled={mode === 'local' && !localPolishingAvailable}
 		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
 	>
 		Genereren

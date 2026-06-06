@@ -15,7 +15,7 @@ from routes.health import router as health_router  # noqa: E402
 from routes.transcribe import router as transcribe_router  # noqa: E402
 from routes.transcribe_api import router as transcribe_api_router  # noqa: E402
 from routes.transcribe_ws import router as transcribe_ws_router  # noqa: E402
-from routes.correct import router as correct_router  # noqa: E402
+from routes.polish import router as polish_router  # noqa: E402
 from routes.evaluate import router as evaluate_router  # noqa: E402
 
 
@@ -39,5 +39,5 @@ app.include_router(health_router)
 app.include_router(transcribe_router)
 app.include_router(transcribe_api_router)
 app.include_router(transcribe_ws_router)
-app.include_router(correct_router)
+app.include_router(polish_router)
 app.include_router(evaluate_router)

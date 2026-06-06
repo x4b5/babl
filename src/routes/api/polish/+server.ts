@@ -712,7 +712,7 @@ function formatFewShotExamples(region: string): string {
 	return formatted;
 }
 
-function parseCorrectionOutput(rawText: string): string {
+function parsePolishingOutput(rawText: string): string {
 	// Attempt 1: Direct JSON parse
 	try {
 		const parsed = JSON.parse(rawText);
@@ -794,7 +794,7 @@ function buildMistralPrompt(
 	return `[Taal: ${detectedLang}]\n\n${chunk}`;
 }
 
-async function* correctChunkMistralStream(
+async function* polishChunkMistralStream(
 	apiKey: string,
 	chunk: string,
 	detectedLang: string,
@@ -928,7 +928,7 @@ export const POST: RequestHandler = async ({ request }) => {
 					if (useJson) {
 						// JSON mode: accumulate all tokens, parse, emit corrected text
 						let accumulated = '';
-						for await (const token of correctChunkMistralStream(
+						for await (const token of polishChunkMistralStream(
 							apiKey,
 							chunk,
 							language,
@@ -939,11 +939,11 @@ export const POST: RequestHandler = async ({ request }) => {
 						)) {
 							accumulated += token;
 						}
-						const corrected = parseCorrectionOutput(accumulated);
+						const corrected = parsePolishingOutput(accumulated);
 						send({ type: 'token', text: corrected });
 					} else {
 						// Standard mode: stream tokens directly
-						for await (const token of correctChunkMistralStream(
+						for await (const token of polishChunkMistralStream(
 							apiKey,
 							chunk,
 							language,
@@ -959,7 +959,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				send({ type: 'done' });
 			} catch (e) {
 				const errMsg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-				console.error('[correct] Mistral error:', errMsg);
+				console.error('[polish] Mistral error:', errMsg);
 				const classified = classifyError(e);
 				send({
 					type: 'error',

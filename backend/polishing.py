@@ -1,4 +1,4 @@
-"""Correction output schema and parsing utilities for Phase 6 LLM consistency."""
+"""Polishing output schema and parsing utilities for Phase 6 LLM consistency."""
 
 import json
 import re
@@ -124,7 +124,7 @@ def _format_few_shot_examples(examples: list[dict]) -> str:
     return formatted
 
 
-def build_correction_prompt(region: str, report_length: str) -> tuple[str, str]:
+def build_polishing_prompt(region: str, report_length: str) -> tuple[str, str]:
     """Build system prompt with glossary + few-shot examples.
 
     Args:
@@ -157,7 +157,7 @@ def build_correction_prompt(region: str, report_length: str) -> tuple[str, str]:
     return (system, JSON_INSTRUCTION)
 
 
-def parse_correction_output(raw_text: str, original_input: str) -> CorrectionOutput:
+def parse_polishing_output(raw_text: str, original_input: str) -> CorrectionOutput:
     """
     Parse LLM output to CorrectionOutput with 3-tier fallback strategy.
 

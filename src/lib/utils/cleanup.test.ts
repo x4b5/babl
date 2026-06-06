@@ -142,7 +142,7 @@ describe('cleanupNetworkResources', () => {
 
 		cleanupNetworkResources({
 			transcribeController: controller1,
-			correctionController: controller2,
+			polishingController: controller2,
 			liveChunkController: controller3,
 			apiPollController: controller4,
 			streamSocket: undefined
@@ -161,7 +161,7 @@ describe('cleanupNetworkResources', () => {
 
 		cleanupNetworkResources({
 			transcribeController: undefined,
-			correctionController: undefined,
+			polishingController: undefined,
 			liveChunkController: undefined,
 			apiPollController: undefined,
 			streamSocket: mockSocket
@@ -174,7 +174,7 @@ describe('cleanupNetworkResources', () => {
 		expect(() => {
 			cleanupNetworkResources({
 				transcribeController: undefined,
-				correctionController: undefined,
+				polishingController: undefined,
 				liveChunkController: undefined,
 				apiPollController: undefined,
 				streamSocket: undefined

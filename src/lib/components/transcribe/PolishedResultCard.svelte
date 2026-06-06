@@ -13,10 +13,10 @@
 	let { corrected, status, onToggleExpand, expanded, copiedCorrected }: Props = $props();
 </script>
 
-{#if status === 'correcting' && !corrected}
+{#if status === 'polishing' && !corrected}
 	<div class="gradient-border-card p-5 animate-fade-in">
 		<div class="mb-3">
-			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gecorrigeerd Nederlands</h2>
+			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
 		</div>
 		<div class="flex items-center gap-3">
 			<div class="flex gap-1">
@@ -33,7 +33,7 @@
 					style="animation: dot-bounce 1.4s ease-in-out 0.4s infinite;"
 				></span>
 			</div>
-			<span class="shimmer-text text-sm">Corrigeren...</span>
+			<span class="shimmer-text text-sm">Polijsten...</span>
 		</div>
 	</div>
 {/if}
@@ -44,14 +44,14 @@
 	>
 		<div class="mb-3 flex items-center justify-between">
 			<div class="flex items-center gap-2">
-				<h2 class="text-base sm:text-sm font-semibold text-white/80">Gecorrigeerd Nederlands</h2>
-				{#if status === 'correcting'}
+				<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
+				{#if status === 'polishing'}
 					<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
 				{/if}
 			</div>
 			<button
 				onclick={() => copyText(corrected, 'corrected')}
-				aria-label={copiedCorrected ? 'Correctie gekopieerd' : 'Kopieer correctie'}
+				aria-label={copiedCorrected ? 'Gepolijst gekopieerd' : 'Kopieer gepolijst'}
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
 					{copiedCorrected
 					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'

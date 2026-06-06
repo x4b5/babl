@@ -72,13 +72,13 @@ class TestGlossary:
 
 
 class TestPromptBuilder:
-    """CORR-01+CORR-03: build_correction_prompt integrates examples + glossary."""
+    """CORR-01+CORR-03: build_polishing_prompt integrates examples + glossary."""
 
     @pytest.mark.parametrize("region", REGIONS)
     def test_glossary_injection(self, region):
-        """build_correction_prompt must include glossary terms in output."""
-        from correction import build_correction_prompt
-        system, json_instr = build_correction_prompt(region, "samenvatting")
+        """build_polishing_prompt must include glossary terms in output."""
+        from polishing import build_polishing_prompt
+        system, json_instr = build_polishing_prompt(region, "samenvatting")
         profile = REGIONAL_PROFILES[region]
         # Check that at least 5 glossary terms appear in the system prompt
         glossary = profile["glossary"]
@@ -87,7 +87,7 @@ class TestPromptBuilder:
 
     @pytest.mark.parametrize("region", REGIONS)
     def test_few_shot_in_prompt(self, region):
-        """build_correction_prompt must include few-shot examples."""
-        from correction import build_correction_prompt
-        system, json_instr = build_correction_prompt(region, "samenvatting")
+        """build_polishing_prompt must include few-shot examples."""
+        from polishing import build_polishing_prompt
+        system, json_instr = build_polishing_prompt(region, "samenvatting")
         assert "VOORBEELDEN" in system or "Voorbeeld" in system

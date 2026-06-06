@@ -455,7 +455,7 @@
 			<div class="mt-4 rounded-xl bg-emerald-500/10 p-4 text-center">
 				<p class="text-sm font-medium text-emerald-400">Alles is klaar!</p>
 				<p class="mt-1 text-sm text-emerald-400/60">
-					Je kunt nu lokaal transcriberen en corrigeren.
+					Je kunt nu lokaal transcriberen en polijsten.
 				</p>
 				<button
 					onclick={handleClose}

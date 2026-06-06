@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 
 
-class CorrectionRequest(BaseModel):
+class PolishingRequest(BaseModel):
     text: str
     language: str
     region: str = "limburgs"
@@ -13,6 +13,7 @@ class CorrectionRequest(BaseModel):
     report_length: str = "samenvatting"
     keep_dialect: bool = False
     target_lang: str = "nl"
+    model_family: str = "gemma3"
 
 
 class EvaluateRequest(BaseModel):

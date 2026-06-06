@@ -91,7 +91,7 @@
 {#if !feedbackGiven}
 	<div class="glass animate-fade-in rounded-xl p-4">
 		<h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">Beoordeling</h3>
-		<p class="mb-3 text-xs text-white/50">Was de transcriptie/correctie goed?</p>
+		<p class="mb-3 text-xs text-white/50">Was de transcriptie/het polijsten goed?</p>
 		<div class="flex gap-3">
 			<button
 				onclick={() => submitFeedback('thumbs_up')}

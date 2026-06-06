@@ -78,7 +78,7 @@
 				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
-					: status === 'idle' || status === 'correcting'
+					: status === 'idle' || status === 'polishing'
 						? 'hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
 						: ''}"
 			>
@@ -148,7 +148,7 @@
 	<!-- Upload button -->
 	<button
 		onclick={() => fileInput.click()}
-		disabled={(status !== 'idle' && status !== 'correcting') || localUnavailable}
+		disabled={(status !== 'idle' && status !== 'polishing') || localUnavailable}
 		class="upload-btn glass rounded-full border border-neon/10 px-5 py-2 text-sm text-neon/50 transition-all duration-200 hover:text-neon/80 hover:border-neon/30 hover:bg-neon/5 disabled:opacity-30 disabled:cursor-not-allowed"
 	>
 		<span class="flex items-center gap-2">

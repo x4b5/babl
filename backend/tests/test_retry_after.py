@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 # Import from parent
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from routes.correct import parse_retry_after
+from routes.polish import parse_retry_after
 
 
 class TestParseRetryAfter:

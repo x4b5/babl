@@ -79,9 +79,9 @@
 							2
 						</div>
 						<div>
-							<p class="text-sm font-medium text-white/70">Dialectcorrectie</p>
+							<p class="text-sm font-medium text-white/70">Polijsten</p>
 							<p class="text-xs text-white/50">
-								De ruwe transcriptie wordt vervolgens gecorrigeerd: Limburgse woorden en zinsbouw
+								De ruwe transcriptie wordt vervolgens gepolijst: Limburgse woorden en zinsbouw
 								worden omgezet naar standaard Nederlands. Je ziet beide versies en kunt het
 								resultaat bewerken.
 							</p>
@@ -431,7 +431,7 @@
 						<p class="mt-1 text-xs text-white/40">
 							Open-source taalmodel dat lokaal draait via Ollama (een tool die AI-modellen op je
 							eigen computer laat draaien). Gemma is een compact maar krachtig model van Google,
-							geschikt voor tekstcorrectie.
+							geschikt voor het polijsten van tekst.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
@@ -467,7 +467,7 @@
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
 							Europees AI-bedrijf gevestigd in Parijs. Alle servers staan in de EU. Wordt gebruikt
-							in API-modus voor dialectcorrectie.
+							in API-modus voor het polijsten van dialect.
 						</p>
 					</div>
 				</div>
