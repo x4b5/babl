@@ -22,6 +22,18 @@ export function initAnalytics(): void {
 	}
 }
 
+/** Shut down PostHog and clear its cookies/storage. */
+export function shutdownAnalytics(): void {
+	if (!initialized) return;
+	try {
+		posthog.opt_out_capturing();
+		posthog.reset();
+		initialized = false;
+	} catch {
+		// Silent fail
+	}
+}
+
 function capture(event: string, properties?: Record<string, unknown>): void {
 	if (!initialized) return;
 	try {

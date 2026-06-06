@@ -89,12 +89,19 @@
 			</button>
 		</form>
 
-		<p class="mt-6 text-center">
+		<p class="mt-6 text-center text-xs text-white/50">
 			<a
 				href="/privacy"
-				class="text-xs text-white/50 underline decoration-white/20 underline-offset-2 hover:text-white/70 transition-colors"
+				class="underline decoration-white/20 underline-offset-2 hover:text-white/70 transition-colors"
 			>
 				Privacyverklaring
+			</a>
+			<span class="mx-2 text-white/20">|</span>
+			<a
+				href="/voorwaarden"
+				class="underline decoration-white/20 underline-offset-2 hover:text-white/70 transition-colors"
+			>
+				Voorwaarden
 			</a>
 		</p>
 	</div>

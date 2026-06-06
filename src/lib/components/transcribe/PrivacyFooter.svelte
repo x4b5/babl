@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { deleteAllLocalData, exportLocalData } from '$lib/utils/data-management';
+	import { resetConsent } from '$lib/stores/consent.svelte';
+
 	interface Props {
 		open: boolean;
 		onToggle: () => void;
@@ -8,6 +11,14 @@
 
 	const version = __APP_VERSION__;
 	const buildDate = __APP_BUILD_DATE__;
+
+	let confirmingDelete = $state(false);
+
+	async function handleDelete() {
+		await deleteAllLocalData();
+		confirmingDelete = false;
+		window.location.reload();
+	}
 </script>
 
 <div class="mt-12 sm:mt-16 animate-fade-in">
@@ -126,6 +137,49 @@
 					>
 						Lees de volledige privacyverklaring &rarr;
 					</a>
+				</div>
+
+				<!-- Data management (AVG rechten) -->
+				<div class="mt-4 border-t border-white/10 pt-4">
+					<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">Jouw data</p>
+					<div class="flex flex-wrap gap-2">
+						<button
+							onclick={() => exportLocalData()}
+							class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white/70"
+						>
+							Exporteer mijn data
+						</button>
+						{#if confirmingDelete}
+							<div class="flex items-center gap-2">
+								<span class="text-xs text-red-400">Weet je het zeker?</span>
+								<button
+									onclick={handleDelete}
+									class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-400 transition-colors hover:bg-red-500/20"
+								>
+									Ja, wis alles
+								</button>
+								<button
+									onclick={() => (confirmingDelete = false)}
+									class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10"
+								>
+									Annuleren
+								</button>
+							</div>
+						{:else}
+							<button
+								onclick={() => (confirmingDelete = true)}
+								class="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs text-red-400/70 transition-colors hover:bg-red-500/10 hover:text-red-400"
+							>
+								Wis mijn data
+							</button>
+						{/if}
+						<button
+							onclick={() => resetConsent()}
+							class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white/70"
+						>
+							Cookie-instellingen
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

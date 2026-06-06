@@ -1,16 +1,33 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { loadConsent, getConsentState } from '$lib/stores/consent.svelte';
+	import CookieConsent from '$lib/components/CookieConsent.svelte';
 
 	let { children } = $props();
 
-	onMount(async () => {
-		const { setupAbandonmentTracking } = await import('$lib/utils/analytics');
-		const { getTranscribeState } = await import('$lib/stores/transcribe.svelte');
-		const s = getTranscribeState();
-		setupAbandonmentTracking(() => ({
-			status: s.status
-		}));
+	const consent = getConsentState();
+
+	onMount(() => {
+		loadConsent();
+	});
+
+	$effect(() => {
+		if (consent.isGranted) {
+			import('$lib/utils/analytics').then(({ initAnalytics, setupAbandonmentTracking }) => {
+				initAnalytics();
+				import('$lib/stores/transcribe.svelte').then(({ getTranscribeState }) => {
+					const s = getTranscribeState();
+					setupAbandonmentTracking(() => ({
+						status: s.status
+					}));
+				});
+			});
+		} else if (consent.isDenied) {
+			import('$lib/utils/analytics').then(({ shutdownAnalytics }) => {
+				shutdownAnalytics();
+			});
+		}
 	});
 </script>
 
@@ -25,3 +42,7 @@
 </svelte:head>
 
 {@render children()}
+
+{#if consent.isPending}
+	<CookieConsent />
+{/if}

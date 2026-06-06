@@ -134,6 +134,16 @@
 			<!-- 5. Cookies -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">5. Cookies</h2>
+				<p class="mb-3 text-sm text-white/60">
+					Lees ons volledige
+					<a
+						href="/cookies"
+						class="text-neon/70 underline decoration-neon/30 underline-offset-2 hover:text-neon transition-colors"
+					>
+						cookiebeleid
+					</a>
+					voor meer details.
+				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full text-sm">
 						<thead>
@@ -281,7 +291,14 @@
 						>
 					</li>
 				</ul>
-				<div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/50">
+				<div class="mt-4 rounded-xl border border-neon/20 bg-neon/5 p-4 text-sm text-white/50">
+					<p class="mb-1 font-medium text-neon/80">Zelf-service</p>
+					<p>
+						Je kunt je lokale data direct exporteren of verwijderen via de knoppen in de
+						privacy-sectie onderaan de transcriptiepagina. Geen account of contactverzoek nodig.
+					</p>
+				</div>
+				<div class="mt-3 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/50">
 					<p>
 						Neem contact op via <span class="text-white/40">[CONTACT EMAIL]</span> om je rechten uit te
 						oefenen.
@@ -348,15 +365,24 @@
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
-			<a
-				href="/"
-				class="inline-flex items-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors"
-			>
-				<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-				</svg>
-				Terug naar BABL
-			</a>
+			<div class="flex items-center justify-center gap-4 text-sm text-white/30">
+				<a href="/" class="inline-flex items-center gap-2 hover:text-white/60 transition-colors">
+					<svg
+						class="h-4 w-4"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+					</svg>
+					Terug naar BABL
+				</a>
+				<span class="text-white/10">|</span>
+				<a href="/cookies" class="hover:text-white/60 transition-colors"> Cookiebeleid </a>
+				<span class="text-white/10">|</span>
+				<a href="/voorwaarden" class="hover:text-white/60 transition-colors"> Voorwaarden </a>
+			</div>
 		</footer>
 	</div>
 </div>
