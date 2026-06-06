@@ -34,14 +34,19 @@
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">Wat is BABL?</h2>
 				<p class="text-sm leading-relaxed text-white/60">
-					BABL is een spraak-naar-tekst tool die Limburgs dialect omzet naar standaard Nederlands.
-					Of je nu een interview, vergadering of persoonlijke notitie opneemt in dialect — BABL
-					herkent de spraak en vertaalt het naar begrijpelijk Nederlands.
+					BABL draait om één woord: <span class="text-white/80 font-medium">lokaal</span>. Lokaal,
+					omdat je spraak zo veel mogelijk op je eigen apparaat wordt verwerkt — zonder dat je data
+					de deur uit gaat. En lokaal, omdat BABL is gebouwd voor de lokale taal: het Limburgs.
 				</p>
 				<p class="mt-3 text-sm leading-relaxed text-white/60">
-					BABL is gemaakt voor iedereen die in het Limburgs spreekt maar in het Nederlands wil
-					schrijven: journalisten, studenten, onderzoekers, mantelzorgers die verslagen maken, of
-					gewoon iemand die een gesproken notitie wil omzetten naar tekst.
+					Spreek in dialect, en BABL zet het om naar leesbaar Nederlands. Of het nu een interview
+					is, een vergadering, een persoonlijke notitie of een verslag — jij praat zoals je praat,
+					BABL doet de rest.
+				</p>
+				<p class="mt-3 text-sm leading-relaxed text-white/60">
+					Gemaakt voor iedereen die in het Limburgs spreekt maar in het Nederlands wil schrijven:
+					journalisten, studenten, onderzoekers, mantelzorgers, of gewoon iemand die een gesproken
+					notitie wil omzetten naar tekst.
 				</p>
 			</section>
 
@@ -82,6 +87,27 @@
 							</p>
 						</div>
 					</div>
+				</div>
+
+				<div class="mt-4 border-t border-white/10 pt-4">
+					<h3 class="mb-2 text-sm font-medium text-white/70">Waarom werkt dit voor Limburgs?</h3>
+					<p class="text-xs leading-relaxed text-white/50">
+						Whisper is getraind op miljoenen uren spraak in meer dan 90 talen, maar kent het
+						Limburgs niet als aparte taal. BABL lost dit slim op: Whisper staat ingesteld op
+						Nederlands, zodat het Limburgse spraak direct probeert om te zetten naar Nederlandse
+						woorden. Iemand zegt "naor de merret" en Whisper schrijft "naar de markt". Daarnaast
+						krijgt Whisper voorbeeldzinnen in dialect mee en een lijst van honderden Limburgse
+						woorden, zodat het de dialectuitspraak beter herkent en naar het juiste Nederlandse
+						woord kan mappen.
+					</p>
+					<p class="mt-2 text-xs leading-relaxed text-white/50">
+						Het resultaat is een ruwe transcriptie die al grotendeels in het Nederlands staat — maar
+						nog niet perfect is. Gesproken taal bevat herhalingen, halve zinnen en soms woorden die
+						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel (Gemma of
+						Mistral) leest de ruwe tekst en maakt er vloeiend, correct Nederlands van. Het
+						verwijdert herhalingen, herstelt zinsbouw en corrigeert eventuele fouten — zodat je een
+						leesbaar verslag overhoudt van wat er gezegd is.
+					</p>
 				</div>
 			</section>
 
@@ -324,8 +350,10 @@
 							>
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Professionele spraakherkenningsdienst met SOC 2 Type 2 certificering. Datacenter in
-							Dublin, Ierland (EU Data Residency). Wordt gebruikt in API-modus voor transcriptie.
+							Professionele spraakherkenningsdienst met SOC 2 Type 2 certificering — dat betekent
+							dat een onafhankelijke auditor heeft gecontroleerd dat AssemblyAI je data veilig
+							verwerkt en opslaat. Datacenter in Dublin, Ierland (EU Data Residency). Wordt gebruikt
+							in API-modus voor transcriptie.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
