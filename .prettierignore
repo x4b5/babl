@@ -8,3 +8,5 @@ build
 
 # Generated
 .vercel
+.claude/settings.local.json
+backend/.pytest_cache/

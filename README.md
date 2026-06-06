@@ -20,6 +20,7 @@ npm run dev
 ## Wat zit erin?
 
 ### Techstack
+
 - **SvelteKit 5** + **Svelte 5 runes** (`$state`, `$derived`, `$effect`)
 - **TypeScript strict mode**
 - **Tailwind CSS 4** (via Vite plugin)
@@ -28,6 +29,7 @@ npm run dev
 - **Vitest** voor tests
 
 ### Agentic Architectuur
+
 ```
 CLAUDE.md                    → Root kompas: doel, techstack, werkregels
 .claude/skills/              → Task-specifieke instructies per taaktype
@@ -38,6 +40,7 @@ docs/                        → Architectuur, ADRs, analytics plan
 ```
 
 ### Source Structuur
+
 ```
 src/lib/engine/     → Pure functies (geen side effects)
 src/lib/stores/     → Single source of truth (Svelte 5 runes)

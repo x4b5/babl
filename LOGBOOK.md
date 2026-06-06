@@ -163,3 +163,6 @@
 | 2026-06-04 | 23:28     | 23:37    | .14         | `8eecd51`   | fix: detect auth redirects and improve error handling in transcription flow                                                     |
 | 2026-06-04 | 23:37     | 23:41    | .05         | `8c43a22`   | fix: skip WAV conversion in API mode to stay under Vercel body limit                                                            |
 | 2026-06-06 | 23:41     | 09:36    | 4.00        | `d0890b6`   | refactor: extract services and utils from transcribe page                                                                       |
+| 2026-06-06 | 09:36     | 10:14    | .62         | `ca7d248`   | refactor: extract realtime stream, recording, and live transcription from page                                                  |
+| 2026-06-06 | 10:14     | 10:33    | .31         | `812e664`   | chore: remove unused store exports and dead code                                                                                |
+| 2026-06-06 | 10:33     | 10:34    | .02         | `bcc7e87`   | chore: deduplicate Google Fonts and gitignore eval logs                                                                         |
