@@ -1,6 +1,6 @@
 /**
  * Shared SSE stream reader with stall detection and JSON error recovery.
- * Eliminates duplicated SSE parsing across transcription and correction flows.
+ * Eliminates duplicated SSE parsing across transcription and polishing flows.
  */
 
 export interface SSEEvent {

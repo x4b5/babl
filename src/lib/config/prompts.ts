@@ -1,5 +1,5 @@
 /**
- * System prompts for polishing/correction — shared between API route and potential future uses.
+ * System prompts for polishing — shared between API route and potential future uses.
  * Single source of truth for prompt content in the frontend.
  */
 

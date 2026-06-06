@@ -40,7 +40,7 @@ def hallucination_test_strings():
 
 
 @pytest.fixture
-def sample_correction_output():
+def sample_polishing_output():
     """Sample CorrectionOutput instance for testing."""
     return CorrectionOutput(
         original="Iech bin gister nao de maat gegange.",

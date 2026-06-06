@@ -105,7 +105,7 @@
 						nog niet perfect is. Gesproken taal bevat herhalingen, halve zinnen en soms woorden die
 						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel (Gemma of
 						Mistral) leest de ruwe tekst en maakt er vloeiend, correct Nederlands van. Het
-						verwijdert herhalingen, herstelt zinsbouw en corrigeert eventuele fouten — zodat je een
+						verwijdert herhalingen, herstelt zinsbouw en polijst eventuele fouten — zodat je een
 						leesbaar verslag overhoudt van wat er gezegd is.
 					</p>
 				</div>
