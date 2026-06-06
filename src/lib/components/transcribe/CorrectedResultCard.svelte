@@ -16,7 +16,7 @@
 {#if status === 'correcting' && !corrected}
 	<div class="gradient-border-card p-5 animate-fade-in">
 		<div class="mb-3">
-			<h2 class="text-base sm:text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gecorrigeerd Nederlands</h2>
 		</div>
 		<div class="flex items-center gap-3">
 			<div class="flex gap-1">
@@ -44,7 +44,7 @@
 	>
 		<div class="mb-3 flex items-center justify-between">
 			<div class="flex items-center gap-2">
-				<h2 class="text-base sm:text-sm font-semibold text-white/70">Gecorrigeerd Nederlands</h2>
+				<h2 class="text-base sm:text-sm font-semibold text-white/80">Gecorrigeerd Nederlands</h2>
 				{#if status === 'correcting'}
 					<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
 				{/if}
@@ -55,7 +55,7 @@
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
 					{copiedCorrected
 					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
-					: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
+					: 'text-white/55 hover:text-white/80 hover:bg-white/5'}"
 			>
 				{#if copiedCorrected}
 					<svg
@@ -90,7 +90,7 @@
 		</div>
 		<div class="relative">
 			<div
-				class="whitespace-pre-wrap text-white/90 leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
+				class="whitespace-pre-wrap text-white leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
 				style="max-height: {expanded ? 'none' : '12rem'}"
 			>
 				{corrected}
@@ -104,7 +104,7 @@
 		<button
 			onclick={onToggleExpand}
 			aria-label={expanded ? 'Tekst inklappen' : 'Volledige tekst tonen'}
-			class="mt-2 w-full text-center text-xs text-white/40 hover:text-white/70 transition-colors duration-200"
+			class="mt-2 w-full text-center text-xs text-white/55 hover:text-white/80 transition-colors duration-200"
 		>
 			{expanded ? 'Inklappen' : 'Lees meer...'}
 		</button>

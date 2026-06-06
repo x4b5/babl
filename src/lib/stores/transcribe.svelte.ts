@@ -82,6 +82,7 @@ let reconnectStatus = $state('');
 let mistralAvailable = $state(false);
 let assemblyAvailable = $state(false);
 let localAvailable = $state(false);
+let ollamaAvailable = $state(false);
 let privacyOpen = $state(false);
 let keepDialect = $state(false);
 let confidenceWords = $state<WordWithConfidence[]>([]);
@@ -222,6 +223,9 @@ export function getTranscribeState() {
 		get localAvailable() {
 			return localAvailable;
 		},
+		get ollamaAvailable() {
+			return ollamaAvailable;
+		},
 		get privacyOpen() {
 			return privacyOpen;
 		},
@@ -359,6 +363,9 @@ export function setAssemblyAvailable(v: boolean) {
 }
 export function setLocalAvailable(v: boolean) {
 	localAvailable = v;
+}
+export function setOllamaAvailable(v: boolean) {
+	ollamaAvailable = v;
 }
 export function setPrivacyOpen(v: boolean) {
 	privacyOpen = v;

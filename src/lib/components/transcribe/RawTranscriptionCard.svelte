@@ -15,8 +15,8 @@
 </script>
 
 {#if language}
-	<div class="text-center text-base sm:text-sm text-white/40">
-		Gedetecteerde taal: <span class="font-medium text-white/70">{language}</span>
+	<div class="text-center text-base sm:text-sm text-white/55">
+		Gedetecteerde taal: <span class="font-medium text-white/80">{language}</span>
 	</div>
 {/if}
 
@@ -24,14 +24,14 @@
 	class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
 >
 	<div class="mb-3 flex items-center justify-between">
-		<h2 class="text-base sm:text-sm font-semibold text-white/70">Ruwe transcriptie</h2>
+		<h2 class="text-base sm:text-sm font-semibold text-white/80">Ruwe transcriptie</h2>
 		<button
 			onclick={() => copyText(raw, 'raw')}
 			aria-label={copiedRaw ? 'Transcriptie gekopieerd' : 'Kopieer transcriptie'}
 			class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
 				{copiedRaw
 				? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
-				: 'text-white/40 hover:text-white/70 hover:bg-white/5'}"
+				: 'text-white/55 hover:text-white/80 hover:bg-white/5'}"
 		>
 			{#if copiedRaw}
 				<svg
@@ -65,14 +65,14 @@
 		</button>
 	</div>
 	<div
-		class="max-h-48 overflow-y-auto whitespace-pre-wrap text-white/90 leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
+		class="max-h-48 overflow-y-auto whitespace-pre-wrap text-white leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
 	>
 		{#if confidenceWords.length > 0 && transcribeMode === 'api'}
 			<ConfidenceHighlight words={confidenceWords} />
 		{:else}
 			{raw}
 			{#if transcribeMode === 'local' && raw}
-				<p class="mt-2 text-[10px] italic text-white/50">
+				<p class="mt-2 text-xs italic text-white/60">
 					Woordzekerheid niet beschikbaar in lokale modus
 				</p>
 			{/if}

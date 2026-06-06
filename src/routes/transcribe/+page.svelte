@@ -56,7 +56,6 @@
 		setElapsed,
 		incrementElapsed,
 		setCorrectedExpanded,
-		setPrivacyOpen,
 		setEvalResult,
 		setProcessingElapsed,
 		incrementProcessingElapsed,
@@ -465,7 +464,7 @@
 			</div>
 		{/if}
 
-		<PrivacyFooter open={s.privacyOpen} onToggle={() => setPrivacyOpen(!s.privacyOpen)} />
+		<PrivacyFooter />
 	</div>
 
 	<SetupWizard onClose={() => checkBackendHealth()} />

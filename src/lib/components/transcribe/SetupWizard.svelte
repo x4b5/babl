@@ -77,7 +77,7 @@
 			<h2 class="text-lg font-semibold text-white">Lokaal instellen</h2>
 			<button
 				onclick={handleClose}
-				class="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70"
+				class="rounded-lg p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white/80"
 				aria-label="Sluiten"
 			>
 				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@
 							<div
 								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5"
 							>
-								<span class="text-xs font-medium text-white/30">{i + 1}</span>
+								<span class="text-xs font-medium text-white/50">{i + 1}</span>
 							</div>
 						{/if}
 
@@ -138,7 +138,7 @@
 								? 'text-emerald-400/70'
 								: isActive
 									? 'text-white'
-									: 'text-white/40'}"
+									: 'text-white/55'}"
 						>
 							{step.title}
 						</span>
@@ -151,11 +151,11 @@
 					<!-- Expanded content (active step) -->
 					{#if isActive}
 						<div class="mt-3 space-y-3">
-							<p class="text-xs text-white/50 leading-relaxed">{step.description}</p>
+							<p class="text-sm text-white/60 leading-relaxed">{step.description}</p>
 
 							{#each step.commands as { label, cmd }}
 								<div>
-									<span class="mb-1 block text-[10px] uppercase tracking-wider text-white/30"
+									<span class="mb-1 block text-xs uppercase tracking-wider text-white/50"
 										>{label}</span
 									>
 									<div class="flex items-center gap-2">
@@ -166,7 +166,7 @@
 										</code>
 										<button
 											onclick={() => copyCommand(cmd)}
-											class="shrink-0 rounded-lg bg-white/5 p-2 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70"
+											class="shrink-0 rounded-lg bg-white/5 p-2 text-white/55 transition-colors hover:bg-white/10 hover:text-white/80"
 											aria-label="Kopieer commando"
 										>
 											{#if w.copiedCommand === cmd}
@@ -199,7 +199,7 @@
 							{/each}
 
 							<!-- Polling indicator -->
-							<p class="flex items-center gap-1.5 text-[10px] text-white/25">
+							<p class="flex items-center gap-1.5 text-xs text-white/45">
 								<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"></span>
 								Checkt automatisch elke 3 seconden...
 							</p>
@@ -213,7 +213,7 @@
 		{#if w.allReady}
 			<div class="mt-4 rounded-xl bg-emerald-500/10 p-4 text-center">
 				<p class="text-sm font-medium text-emerald-400">Alles is klaar!</p>
-				<p class="mt-1 text-xs text-emerald-400/60">
+				<p class="mt-1 text-sm text-emerald-400/60">
 					Je kunt nu lokaal transcriberen en corrigeren.
 				</p>
 				<button

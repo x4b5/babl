@@ -23,7 +23,7 @@
 	<div class="w-full max-w-sm px-4 animate-fade-in">
 		<header class="mb-10 text-center">
 			<h1 class="gradient-text mb-3 text-7xl font-normal tracking-tighter select-none">BABL</h1>
-			<p class="text-sm text-white/40">Voer het wachtwoord in om door te gaan</p>
+			<p class="text-sm text-white/55">Voer het wachtwoord in om door te gaan</p>
 		</header>
 
 		<form
@@ -46,7 +46,7 @@
 				</div>
 			{/if}
 
-			<label for="password" class="mb-2 block text-xs font-medium text-white/50">Wachtwoord</label>
+			<label for="password" class="mb-2 block text-xs font-medium text-white/60">Wachtwoord</label>
 			<input
 				bind:this={passwordInput}
 				id="password"
@@ -89,17 +89,17 @@
 			</button>
 		</form>
 
-		<p class="mt-6 text-center text-xs text-white/50">
+		<p class="mt-6 text-center text-xs text-white/60">
 			<a
 				href="/privacy"
-				class="underline decoration-white/20 underline-offset-2 hover:text-white/70 transition-colors"
+				class="underline decoration-white/20 underline-offset-2 hover:text-white/80 transition-colors"
 			>
 				Privacyverklaring
 			</a>
-			<span class="mx-2 text-white/20">|</span>
+			<span class="mx-2 text-white/40">|</span>
 			<a
 				href="/voorwaarden"
-				class="underline decoration-white/20 underline-offset-2 hover:text-white/70 transition-colors"
+				class="underline decoration-white/20 underline-offset-2 hover:text-white/80 transition-colors"
 			>
 				Voorwaarden
 			</a>

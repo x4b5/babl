@@ -26,7 +26,7 @@
 		<div class="flex items-center gap-3">
 			{#if reconnecting}
 				<svg
-					class="h-4 w-4 animate-spin text-white/70"
+					class="h-4 w-4 animate-spin text-white/80"
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
 					viewBox="0 0 24 24"
@@ -41,7 +41,7 @@
 					></path>
 				</svg>
 			{/if}
-			<span class="text-sm text-white/80">
+			<span class="text-sm text-white/90">
 				{reconnectStatus ||
 					'Verbinding verloren. Je opname is bewaard — gebruik Bestand Upload om alsnog te transcriberen.'}
 			</span>
@@ -54,9 +54,9 @@
 	<div class="glass rounded-2xl p-4 w-full max-w-xl animate-fade-in">
 		<div class="flex items-center gap-2 mb-2">
 			<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
-			<span class="text-xs font-medium text-white/50">Live transcriptie</span>
+			<span class="text-xs font-medium text-white/60">Live transcriptie</span>
 		</div>
-		<p class="text-sm text-white/70 leading-relaxed max-h-32 overflow-y-auto">
+		<p class="text-sm text-white/80 leading-relaxed max-h-32 overflow-y-auto">
 			{partialText}
 		</p>
 	</div>
