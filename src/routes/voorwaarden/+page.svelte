@@ -153,15 +153,26 @@
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
-			<a
-				href="/"
-				class="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white/70 transition-colors"
-			>
-				<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-				</svg>
-				Terug naar BABL
-			</a>
+			<div class="flex items-center justify-center gap-4 text-sm text-white/50">
+				<a href="/" class="inline-flex items-center gap-2 hover:text-white/70 transition-colors">
+					<svg
+						class="h-4 w-4"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+					</svg>
+					Terug naar BABL
+				</a>
+				<span class="text-white/10">|</span>
+				<a href="/privacy" class="hover:text-white/70 transition-colors"> Privacy </a>
+				<span class="text-white/10">|</span>
+				<a href="/cookies" class="hover:text-white/70 transition-colors"> Cookies </a>
+				<span class="text-white/10">|</span>
+				<a href="/about" class="hover:text-white/70 transition-colors"> Over BABL </a>
+			</div>
 		</footer>
 	</div>
 </div>
