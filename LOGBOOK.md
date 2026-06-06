@@ -189,3 +189,4 @@
 | 2026-06-06 | 16:27     | 16:27    | 0           | `7188b35`   | feat: check Ollama model availability via /health/setup endpoint                                                                |
 | 2026-06-06 | 16:27     | 16:28    | 0           | `ef5f42e`   | chore: update logbook                                                                                                           |
 | 2026-06-06 | 16:28     | 16:30    | .04         | `a3ef465`   | feat: split local availability into transcription and correction checks                                                         |
+| 2026-06-06 | 16:30     | 16:37    | .11         | `b1541fb`   | chore: formatting and logbook sync                                                                                              |
