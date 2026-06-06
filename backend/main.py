@@ -499,10 +499,15 @@ async def transcribe(
                 word_count = 0
                 detected_lang = "nl"
                 
+                total_chunks = max(1, -(-int(duration) // int(segment_duration)))  # ceil division
                 for start in range(0, int(duration), int(segment_duration)):
+                    chunk_index = start // int(segment_duration)
+                    # Send progress event to keep SSE connection alive during long Whisper processing
+                    loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'progress', 'chunk': chunk_index + 1, 'total_chunks': total_chunks})}\n\n")
+
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as chunk_tmp:
                         chunk_path = chunk_tmp.name
-                    
+
                     try:
                         extract_audio_segment(tmp_path, chunk_path, float(start), segment_duration)
                         

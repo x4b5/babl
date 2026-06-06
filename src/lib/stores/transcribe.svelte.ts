@@ -36,6 +36,7 @@ export const MAX_AUTO_RETRIES = 3;
 export const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 export const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
 export const SSE_STALL_TIMEOUT_MS = 30000; // 30s: abort SSE stream if no data received
+export const LOCAL_SSE_STALL_TIMEOUT_MS = 120000; // 120s: local Whisper needs more time per chunk
 export const RECORDING_MAX_SECONDS = 2 * 60 * 60; // 120 minuten max
 export const RECORDING_WARN_SECONDS = 110 * 60; // waarschuwing bij 110 minuten
 

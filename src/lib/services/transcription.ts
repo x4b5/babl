@@ -10,6 +10,7 @@ import type { ErrorType } from '$lib/utils/error-types';
 import {
 	LOCAL_BACKEND_URL,
 	SSE_STALL_TIMEOUT_MS,
+	LOCAL_SSE_STALL_TIMEOUT_MS,
 	setRaw,
 	setLanguage,
 	setError,
@@ -109,7 +110,7 @@ async function sendAudioLocal(
 		}
 		await readSSEStream(resp, {
 			controller,
-			stallTimeoutMs: SSE_STALL_TIMEOUT_MS,
+			stallTimeoutMs: LOCAL_SSE_STALL_TIMEOUT_MS,
 			onEvent: (event) => handleTranscriptionEvent(event, s, callbacks)
 		});
 		finalizeRaw();
