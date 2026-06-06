@@ -76,7 +76,7 @@
 			</section>
 
 			<!-- 3. Lokaal vs API -->
-			<section class="glass-strong rounded-2xl p-6">
+			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">Lokaal vs API — jij kiest</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Het bijzondere aan BABL is dat je per stap zelf kiest hoe de verwerking gebeurt. Twee
@@ -84,53 +84,102 @@
 				</p>
 				<div class="grid gap-4 sm:grid-cols-2">
 					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
-						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokaal</h3>
+						<h3 class="mb-2 text-sm font-semibold text-neon/80">Op dit apparaat</h3>
 						<p class="mb-3 text-xs text-white/50">
-							Vergelijk het met een rekenmachine op je bureau — alles gebeurt op je eigen computer,
-							niets verlaat je huis.
+							Alles gebeurt op je eigen computer, niets verlaat je huis.
 						</p>
-						<ul class="space-y-1.5 text-xs text-white/40">
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Spraakherkenning via <span class="text-white/60">Whisper</span> (open-source model)
-							</li>
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Correctie via <span class="text-white/60">Ollama/Gemma</span> (open-source taalmodel)
-							</li>
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								<span class="font-medium text-neon/60">Geen data verlaat je computer</span>
-							</li>
-						</ul>
-						<p class="mt-3 text-[10px] text-white/30">
-							Vereist: Whisper en Ollama lokaal geinstalleerd
-						</p>
+						<div class="mb-3 space-y-1.5 text-xs">
+							<p class="font-medium text-neon/70">Voordelen</p>
+							<ul class="space-y-1 text-white/50">
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Maximale privacy — geen data naar buiten
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Geen kosten per gebruik
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Werkt zonder internet
+								</li>
+							</ul>
+						</div>
+						<div class="mb-3 space-y-1.5 text-xs">
+							<p class="font-medium text-amber-400/70">Nadelen</p>
+							<ul class="space-y-1 text-white/50">
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Langzamer (afhankelijk van je hardware)
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Vereist installatie (Whisper + Ollama)
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Vereist minimaal 8 GB werkgeheugen
+								</li>
+							</ul>
+						</div>
+						<div class="space-y-1.5 text-xs border-t border-white/10 pt-3">
+							<p class="font-medium text-white/50">AVG & AI Act</p>
+							<ul class="space-y-1 text-white/40">
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+									Geen derden betrokken, geen verwerkersovereenkomst nodig
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+									Geen extra AI Act-verplichtingen
+								</li>
+							</ul>
+						</div>
 					</div>
 					<div class="rounded-xl border border-indigo-500/15 bg-indigo-500/5 p-4">
-						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">API</h3>
+						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">Via internet</h3>
 						<p class="mb-3 text-xs text-white/50">
-							Vergelijk het met een brief naar een vertaalbureau sturen — de verwerking gebeurt door
-							externe servers, maar die staan in de EU.
+							Verwerking door externe servers, maar uitsluitend binnen de EU.
 						</p>
-						<ul class="space-y-1.5 text-xs text-white/40">
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								Spraakherkenning via <span class="text-white/60">AssemblyAI</span> (datacenter Dublin,
-								Ierland)
-							</li>
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								Correctie via <span class="text-white/60">Mistral AI</span> (EU-servers)
-							</li>
-							<li class="flex items-start gap-2">
-								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								<span class="font-medium text-indigo-400/60">Uitsluitend EU-servers</span>
-							</li>
-						</ul>
-						<p class="mt-3 text-[10px] text-white/30">
-							Werkt direct, geen lokale installatie nodig
-						</p>
+						<div class="mb-3 space-y-1.5 text-xs">
+							<p class="font-medium text-neon/70">Voordelen</p>
+							<ul class="space-y-1 text-white/50">
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Sneller en nauwkeuriger
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Geen installatie nodig, werkt direct
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-neon/60">+</span> Werkt op elk apparaat
+								</li>
+							</ul>
+						</div>
+						<div class="mb-3 space-y-1.5 text-xs">
+							<p class="font-medium text-amber-400/70">Nadelen</p>
+							<ul class="space-y-1 text-white/50">
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Kost geld per gebruik
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Audio/tekst wordt naar EU-servers gestuurd
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Vereist internetverbinding
+								</li>
+							</ul>
+						</div>
+						<div class="space-y-1.5 text-xs border-t border-white/10 pt-3">
+							<p class="font-medium text-white/50">AVG & AI Act</p>
+							<ul class="space-y-1 text-white/40">
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+									Verwerkers in EU: AssemblyAI (Dublin), Mistral (Parijs)
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+									Verwerkersovereenkomsten van toepassing
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+									AI Act: AI-gegenereerde output, transparantie gewaarborgd
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</section>

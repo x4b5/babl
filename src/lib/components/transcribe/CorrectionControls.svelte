@@ -42,6 +42,29 @@
 		<!-- Mode toggle -->
 		<div class="flex flex-col gap-1">
 			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Verwerking</span>
+			<div class="text-xs text-white/40 mt-1">
+				{#if mode === 'local'}
+					<p>
+						Correctie via <img src="/ollama.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
+						<a
+							href="https://ollama.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline text-white/60 hover:text-white/80 transition-colors">Ollama</a
+						> op jouw computer.
+					</p>
+				{:else}
+					<p>
+						Correctie via <img src="/mistral.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
+						<a
+							href="https://mistral.ai"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline text-white/60 hover:text-white/80 transition-colors">Mistral</a
+						> (EU-servers).
+					</p>
+				{/if}
+			</div>
 			<div class="glass flex rounded-full p-1">
 				<button
 					onclick={() => onModeChange('local')}
@@ -64,46 +87,12 @@
 					Via internet
 				</button>
 			</div>
-			<div class="text-xs text-white/40 mt-1">
-				{#if mode === 'local'}
-					<p>
-						Correctie via <img src="/ollama.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
-						<a
-							href="https://ollama.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline text-white/60 hover:text-white/80 transition-colors">Ollama</a
-						> op jouw computer.
-					</p>
-					<p class="mt-1">
-						<span class="text-neon/60">+</span> Privé, geen kosten
-						<span class="mx-1 text-white/20">|</span>
-						<span class="text-amber-400/60">−</span> Langzamer
-					</p>
-					<p class="mt-0.5 text-white/25">
-						AVG: geen derden, geen verwerkersovereenkomst nodig. AI Act: geen extra verplichtingen.
-					</p>
-				{:else}
-					<p>
-						Correctie via <img src="/mistral.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
-						<a
-							href="https://mistral.ai"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline text-white/60 hover:text-white/80 transition-colors">Mistral</a
-						> (EU-servers).
-					</p>
-					<p class="mt-1">
-						<span class="text-neon/60">+</span> Sneller, betere kwaliteit
-						<span class="mx-1 text-white/20">|</span>
-						<span class="text-amber-400/60">−</span> Kost geld, data via EU-servers
-					</p>
-					<p class="mt-0.5 text-white/25">
-						AVG: verwerker in EU (Parijs), verwerkersovereenkomst van toepassing. AI Act:
-						AI-gegenereerde output.
-					</p>
-				{/if}
-			</div>
+			<a
+				href="/about#voor-en-nadelen"
+				class="text-xs text-white/30 hover:text-white/50 transition-colors underline mt-1"
+			>
+				Voor- en nadelen van beide opties
+			</a>
 			{#if !localCorrectionAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
