@@ -21,6 +21,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Create env for type generation
+        run: echo "ACCESS_PASSWORD=ci-placeholder" > .env
+
       - name: Formatting
         run: npm run format:check
 
