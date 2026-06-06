@@ -423,6 +423,7 @@
 						mode={s.mode}
 						reportLength={s.reportLength}
 						localAvailable={s.localAvailable}
+						ollamaAvailable={s.ollamaAvailable}
 						mistralAvailable={s.mistralAvailable}
 						estimatedCorrectionCost={s.estimatedCorrectionCost}
 						onModeChange={(v) => setMode(v)}

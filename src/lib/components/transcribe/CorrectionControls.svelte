@@ -45,7 +45,7 @@
 			<div class="glass flex rounded-full p-1">
 				<button
 					onclick={() => onModeChange('local')}
-					disabled={!localAvailable}
+					disabled={!localCorrectionAvailable}
 					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
@@ -64,7 +64,7 @@
 					API
 				</button>
 			</div>
-			{#if !localAvailable && onOpenSetupWizard}
+			{#if !localCorrectionAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
 					class="mt-1 text-xs text-neon/40 transition-colors hover:text-neon/70"
