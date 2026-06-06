@@ -5,8 +5,12 @@
 		setStep,
 		copyCommand,
 		confirmRam,
+		confirmInstall,
 		downloadModel,
-		downloadWhisper
+		downloadWhisper,
+		setSelectedFamily,
+		MODEL_FAMILIES,
+		MODEL_FAMILY_LABELS
 	} from '$lib/stores/setup-wizard.svelte';
 
 	interface Props {
@@ -31,6 +35,8 @@
 		hasDownloadLink?: boolean;
 		hasModelDownload?: boolean;
 		hasWhisperDownload?: boolean;
+		hasInstallStep?: boolean;
+		hasStartStep?: boolean;
 	}
 
 	const fullSteps: Step[] = $derived([
@@ -43,16 +49,19 @@
 			hasRamCheck: true
 		},
 		{
-			title: 'Installeren en starten',
+			title: 'Download BABL',
+			done: w.installConfirmed || w.status.backendRunning,
+			description: 'Download het programma naar je computer. Dit hoef je maar een keer te doen.',
+			commands: [],
+			hasInstallStep: true
+		},
+		{
+			title: 'Start de server',
 			done: w.status.backendRunning,
 			description:
-				'Open de Terminal app (zoek "Terminal" in Spotlight) en plak onderstaand commando. Dit downloadt en start alles automatisch.',
-			commands: [
-				{
-					label: 'Kopieer en plak in Terminal',
-					cmd: '(test -d ~/babl || git clone https://github.com/x4b5/babl.git ~/babl) && cd ~/babl && npm install && npm run transcribe'
-				}
-			]
+				'Start de server elke keer als je BABL wilt gebruiken. Open de Terminal app en plak het commando.',
+			commands: [],
+			hasStartStep: true
 		},
 		{
 			title: 'Download Whisper taalmodel',
@@ -77,15 +86,11 @@
 	};
 
 	const ollamaModels = $derived.by(() => {
-		const config = w.status.modelConfig?.ollama;
-		if (config && Object.keys(config).length > 0) {
-			return Object.entries(config).map(([quality, model]) => ({ quality, model }));
+		const familyModels = MODEL_FAMILIES[w.selectedFamily];
+		if (familyModels) {
+			return Object.entries(familyModels).map(([quality, model]) => ({ quality, model }));
 		}
-		return [
-			{ quality: 'light', model: 'gemma3:1b' },
-			{ quality: 'medium', model: 'gemma3:4b' },
-			{ quality: 'heavy', model: 'gemma3:12b' }
-		];
+		return [];
 	});
 
 	const anyModelInstalled = $derived(
@@ -283,7 +288,102 @@
 								</p>
 							{/if}
 
+							{#if step.hasInstallStep}
+								{@const installCmd =
+									'(test -d ~/babl || git clone https://github.com/x4b5/babl.git ~/babl) && cd ~/babl && npm install'}
+								<button
+									onclick={() => copyCommand(installCmd)}
+									class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(212,255,0,0.3)]"
+								>
+									{#if w.copiedCommand === installCmd}
+										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2.5"
+												d="M5 13l4 4L19 7"
+											/>
+										</svg>
+										Gekopieerd! Plak in Terminal
+									{:else}
+										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+											/>
+										</svg>
+										Kopieer installeercommando
+									{/if}
+								</button>
+								<p class="text-xs text-white/40 text-center">
+									Open Terminal en plak het commando met <kbd
+										class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
+									>
+								</p>
+								<button
+									onclick={confirmInstall}
+									class="w-full rounded-xl bg-white/5 px-4 py-2.5 text-sm font-medium text-white/60 transition-all hover:bg-white/10 hover:text-white/80"
+								>
+									Al geinstalleerd? Sla over
+								</button>
+							{/if}
+
+							{#if step.hasStartStep}
+								{@const startCmd = 'cd ~/babl && npm run transcribe'}
+								<button
+									onclick={() => copyCommand(startCmd)}
+									class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(212,255,0,0.3)]"
+								>
+									{#if w.copiedCommand === startCmd}
+										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2.5"
+												d="M5 13l4 4L19 7"
+											/>
+										</svg>
+										Gekopieerd! Plak in Terminal
+									{:else}
+										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+											/>
+										</svg>
+										Kopieer startcommando
+									{/if}
+								</button>
+								<p class="text-xs text-white/40 text-center">
+									Open Terminal en plak het commando met <kbd
+										class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
+									>
+								</p>
+								<p class="flex items-center gap-1.5 text-xs text-white/45">
+									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
+									></span>
+									Wacht tot de server draait...
+								</p>
+							{/if}
+
 							{#if step.hasModelDownload}
+								<!-- Model family toggle -->
+								<div class="flex gap-1 rounded-lg bg-white/5 p-1">
+									{#each Object.entries(MODEL_FAMILY_LABELS) as [family, label]}
+										<button
+											onclick={() => setSelectedFamily(family)}
+											class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all
+												{w.selectedFamily === family ? 'bg-neon/20 text-neon' : 'text-white/50 hover:text-white/70'}"
+										>
+											{label}
+										</button>
+									{/each}
+								</div>
+
 								<div class="space-y-2">
 									{#each ollamaModels as { quality, model }}
 										{@const isInstalled = w.status.ollamaModels[model] ?? false}
@@ -436,8 +536,8 @@
 								</div>
 							{/each}
 
-							<!-- Polling indicator (only for auto-detected steps) -->
-							{#if !step.hasRamCheck && !step.hasDownloadLink && !step.hasModelDownload}
+							<!-- Polling indicator (only for steps that need generic auto-check) -->
+							{#if !step.hasRamCheck && !step.hasDownloadLink && !step.hasModelDownload && !step.hasInstallStep && !step.hasStartStep && !step.hasWhisperDownload}
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>

@@ -3,7 +3,7 @@
  * Polls /health/setup every 3s when open, auto-advances steps.
  */
 
-import { LOCAL_BACKEND_URL } from '$lib/stores/transcribe.svelte';
+import { LOCAL_BACKEND_URL, setModelFamily } from '$lib/stores/transcribe.svelte';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -23,12 +23,25 @@ export interface SetupStatus {
 	modelConfig: ModelConfig | null;
 }
 
+// ── Model families ──────────────────────────────────────────
+
+export const MODEL_FAMILIES: Record<string, Record<string, string>> = {
+	gemma3: { light: 'gemma3:1b', medium: 'gemma3:4b', heavy: 'gemma3:12b' },
+	qwen3: { light: 'qwen3:1.7b', medium: 'qwen3:4b', heavy: 'qwen3:14b' }
+};
+
+export const MODEL_FAMILY_LABELS: Record<string, string> = {
+	gemma3: 'Gemma 3',
+	qwen3: 'Qwen 3'
+};
+
 // ── Reactive state ────────────────────────────────────────────
 
 export type WizardContext = 'full' | 'ollama';
 
 let open = $state(false);
 let wizardContext = $state<WizardContext>('full');
+let selectedFamily = $state('gemma3');
 let currentStep = $state(0);
 let status = $state<SetupStatus>({
 	backendRunning: false,
@@ -41,6 +54,7 @@ let status = $state<SetupStatus>({
 });
 let selectedModel = $state('gemma3:4b');
 let ramConfirmed = $state(false);
+let installConfirmed = $state(false);
 let copiedCommand = $state('');
 let modelDownloading = $state(false);
 let modelDownloadingName = $state('');
@@ -51,17 +65,19 @@ let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined)
 // ── Derived ──────────────────────────────────────────────────
 
 const ollamaModelReady = $derived.by(() => {
-	const config = status.modelConfig?.ollama;
-	if (config && Object.keys(config).length > 0) {
-		return Object.values(config).every((model) => status.ollamaModels[model] ?? false);
+	const familyModels = MODEL_FAMILIES[selectedFamily];
+	if (familyModels) {
+		return Object.values(familyModels).every((model) => status.ollamaModels[model] ?? false);
 	}
 	return status.ollamaModels[selectedModel] ?? false;
 });
 
 const anyOllamaModelReady = $derived.by(() => {
-	const config = status.modelConfig?.ollama;
-	const models = config && Object.keys(config).length > 0 ? Object.values(config) : [selectedModel];
-	return models.some((model) => status.ollamaModels[model] ?? false);
+	const familyModels = MODEL_FAMILIES[selectedFamily];
+	if (familyModels) {
+		return Object.values(familyModels).some((model) => status.ollamaModels[model] ?? false);
+	}
+	return status.ollamaModels[selectedModel] ?? false;
 });
 
 const allReady = $derived(
@@ -78,9 +94,10 @@ const recommendedStep = $derived.by(() => {
 		return 2;
 	}
 	if (!ramConfirmed) return 0;
-	if (!status.backendRunning) return 1;
-	if (!status.whisperModelCached) return 2;
-	return 2;
+	if (!installConfirmed && !status.backendRunning) return 1;
+	if (!status.backendRunning) return 2;
+	if (!status.whisperModelCached) return 3;
+	return 3;
 });
 
 // ── Polling ──────────────────────────────────────────────────
@@ -105,9 +122,10 @@ async function fetchSetupStatus(): Promise<void> {
 			whisperDownloading: data.whisper_downloading ?? false,
 			modelConfig
 		};
-		// Update selectedModel to the medium Ollama model from config
-		if (modelConfig?.ollama?.medium) {
-			selectedModel = modelConfig.ollama.medium;
+		// Update selectedModel to the medium Ollama model from selected family
+		const familyModels = MODEL_FAMILIES[selectedFamily];
+		if (familyModels?.medium) {
+			selectedModel = familyModels.medium;
 		}
 	} catch {
 		// Backend not running — check Ollama directly
@@ -166,6 +184,7 @@ export function openWizard(context: WizardContext = 'full'): void {
 	open = true;
 	wizardContext = context;
 	ramConfirmed = false;
+	installConfirmed = false;
 	currentStep = 0;
 	startPolling();
 }
@@ -183,8 +202,22 @@ export function setSelectedModel(model: string): void {
 	selectedModel = model;
 }
 
+export function setSelectedFamily(family: string): void {
+	selectedFamily = family;
+	setModelFamily(family);
+	const familyModels = MODEL_FAMILIES[family];
+	if (familyModels?.medium) {
+		selectedModel = familyModels.medium;
+	}
+}
+
 export function confirmRam(): void {
 	ramConfirmed = true;
+	currentStep = recommendedStep;
+}
+
+export function confirmInstall(): void {
+	installConfirmed = true;
 	currentStep = recommendedStep;
 }
 
@@ -292,11 +325,17 @@ export function getSetupWizardState() {
 		get ollamaModelReady() {
 			return ollamaModelReady;
 		},
+		get selectedFamily() {
+			return selectedFamily;
+		},
 		get selectedModel() {
 			return selectedModel;
 		},
 		get ramConfirmed() {
 			return ramConfirmed;
+		},
+		get installConfirmed() {
+			return installConfirmed;
 		},
 		get modelDownloading() {
 			return modelDownloading;

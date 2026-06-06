@@ -62,7 +62,10 @@ async def health():
 async def health_setup():
     """Detailed setup status for the setup wizard. Checks Ollama and Whisper availability."""
     ollama_running = False
-    ollama_models: dict[str, bool] = {model: False for model in OLLAMA_MODELS.values()}
+    all_model_names: set[str] = set()
+    for family_models in OLLAMA_MODEL_FAMILIES.values():
+        all_model_names.update(family_models.values())
+    ollama_models: dict[str, bool] = {model: False for model in all_model_names}
 
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
@@ -71,7 +74,7 @@ async def health_setup():
                 ollama_running = True
                 data = resp.json()
                 available = {m.get("name", "") for m in data.get("models", [])}
-                for model in OLLAMA_MODELS.values():
+                for model in all_model_names:
                     ollama_models[model] = model in available
     except Exception:
         pass

@@ -57,8 +57,8 @@
 				<h2 class="mb-3 text-lg font-semibold text-white">2. Doel van de verwerking</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					BABL verwerkt persoonsgegevens uitsluitend voor het omzetten van gesproken taal
-					(spraakopnames) naar geschreven tekst, met correctie van Limburgs dialect naar standaard
-					Nederlands.
+					(spraakopnames) naar geschreven tekst, met het polijsten van Limburgs dialect naar
+					standaard Nederlands.
 				</p>
 				<div class="mt-4 grid gap-3 sm:grid-cols-2">
 					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
@@ -66,9 +66,9 @@
 						<p class="text-sm text-white/60">Spraakopname omzetten naar ruwe tekst</p>
 					</div>
 					<div class="rounded-xl border border-indigo-500/15 bg-indigo-500/5 p-4">
-						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">Stap 2: Correctie</h3>
+						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">Stap 2: Polijsten</h3>
 						<p class="text-sm text-white/60">
-							Ruwe tekst corrigeren van dialect naar standaard Nederlands
+							Ruwe tekst polijsten van dialect naar standaard Nederlands
 						</p>
 					</div>
 				</div>
@@ -98,8 +98,8 @@
 								<td class="py-2">Sessieduur</td>
 							</tr>
 							<tr>
-								<td class="py-2 pr-4 font-medium text-white/70">Gecorrigeerde tekst</td>
-								<td class="py-2 pr-4">Resultaat van dialectcorrectie</td>
+								<td class="py-2 pr-4 font-medium text-white/70">Gepolijste tekst</td>
+								<td class="py-2 pr-4">Resultaat van het polijsten van dialect</td>
 								<td class="py-2">Sessieduur</td>
 							</tr>
 						</tbody>
@@ -121,7 +121,7 @@
 						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokale modus</h3>
 						<ul class="space-y-1.5 text-sm text-white/60">
 							<li>Whisper (transcriptie) op eigen apparaat</li>
-							<li>Ollama/Gemma3 (correctie) op eigen apparaat</li>
+							<li>Ollama/Gemma3 (polijsten) op eigen apparaat</li>
 							<li class="font-medium text-neon/60">Geen data verlaat je computer</li>
 						</ul>
 					</div>
@@ -210,7 +210,7 @@
 							</tr>
 							<tr>
 								<td class="py-2 pr-4 font-medium text-white/70">Mistral AI</td>
-								<td class="py-2 pr-4">Dialectcorrectie</td>
+								<td class="py-2 pr-4">Dialect polijsten</td>
 								<td class="py-2 pr-4">Parijs, Frankrijk</td>
 								<td class="py-2 pr-4">
 									<a

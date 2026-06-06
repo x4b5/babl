@@ -35,7 +35,7 @@
 				<h2 class="mb-3 text-lg font-semibold text-white">1. Toepasselijkheid</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					Deze gebruiksvoorwaarden zijn van toepassing op het gebruik van BABL, een
-					spraak-naar-tekst tool met Limburgse dialectcorrectie. Door BABL te gebruiken ga je
+					spraak-naar-tekst tool met Limburgs dialect polijsten. Door BABL te gebruiken ga je
 					akkoord met deze voorwaarden. Als je niet akkoord gaat, gebruik BABL dan niet.
 				</p>
 			</section>
@@ -45,8 +45,8 @@
 				<h2 class="mb-3 text-lg font-semibold text-white">2. Beschrijving van de dienst</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					BABL neemt audio op via je microfoon of bestandsupload, transcribeert de spraak naar tekst
-					en corrigeert Limburgs dialect naar standaard Nederlands. Verwerking kan lokaal (op je
-					eigen apparaat) of via API-diensten (AssemblyAI en Mistral AI, beide op EU-servers)
+					en polijst Limburgs dialect naar standaard Nederlands. Verwerking kan lokaal (op je eigen
+					apparaat) of via API-diensten (AssemblyAI en Mistral AI, beide op EU-servers)
 					plaatsvinden. Je kiest zelf per stap welke verwerkingsmodus je gebruikt.
 				</p>
 			</section>
@@ -59,9 +59,9 @@
 				>
 					<p class="mb-2 font-medium text-amber-400/80">Belangrijke disclaimer</p>
 					<p>
-						BABL maakt gebruik van kunstmatige intelligentie (AI) voor spraakherkenning en
-						tekstcorrectie. AI-output kan fouten bevatten. De gegenereerde tekst is een hulpmiddel
-						en geen vervanging voor menselijke controle.
+						BABL maakt gebruik van kunstmatige intelligentie (AI) voor spraakherkenning en het
+						polijsten van tekst. AI-output kan fouten bevatten. De gegenereerde tekst is een
+						hulpmiddel en geen vervanging voor menselijke controle.
 					</p>
 				</div>
 				<ul class="space-y-2 text-sm text-white/70">
@@ -72,7 +72,7 @@
 					</li>
 					<li class="flex items-start gap-3">
 						<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500/60"></span>
-						BABL garandeert niet dat transcripties of correcties foutloos zijn.
+						BABL garandeert niet dat transcripties of gepolijste teksten foutloos zijn.
 					</li>
 					<li class="flex items-start gap-3">
 						<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500/60"></span>
@@ -92,7 +92,7 @@
 				<ul class="mt-3 space-y-1.5 text-sm text-white/60">
 					<li class="flex items-start gap-2">
 						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/30"></span>
-						Onjuiste of onvolledige transcripties of correcties
+						Onjuiste of onvolledige transcripties of gepolijste teksten
 					</li>
 					<li class="flex items-start gap-2">
 						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/30"></span>

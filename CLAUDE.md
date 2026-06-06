@@ -2,7 +2,7 @@
 
 ## Doel
 
-BABL is een privacy-first spraak-naar-tekst tool met Limburgse dialectcorrectie. Het neemt audio op via de microfoon (of bestandsupload), transcribeert en corrigeert Limburgs dialect naar standaard Nederlands. Verwerking kan lokaal (Whisper + Ollama) of via API (AssemblyAI + Mistral) — gebruiker kiest per stap. GDPR en EU AI Act compliant.
+BABL is een privacy-first spraak-naar-tekst tool die Limburgs dialect polijst naar standaard Nederlands. Het neemt audio op via de microfoon (of bestandsupload), transcribeert en polijst Limburgs dialect naar standaard Nederlands. Verwerking kan lokaal (Whisper + Ollama) of via API (AssemblyAI + Mistral) — gebruiker kiest per stap. GDPR en EU AI Act compliant.
 
 ## Techstack
 
@@ -13,7 +13,7 @@ BABL is een privacy-first spraak-naar-tekst tool met Limburgse dialectcorrectie.
 - Vercel deployment via `@sveltejs/adapter-vercel` (alleen frontend)
 - Vitest voor tests
 - **Backend lokaal**: Python FastAPI + mlx-whisper (Apple Silicon) + Ollama (Gemma3)
-- **Backend API**: AssemblyAI (transcriptie, EU datacenter Dublin) + Mistral AI (correctie, EU servers)
+- **Backend API**: AssemblyAI (transcriptie, EU datacenter Dublin) + Mistral AI (polijsten, EU servers)
 - **Node**: v24 (zie `.nvmrc`)
 
 ## Repo Map
@@ -26,10 +26,10 @@ src/lib/data/            -> Statische data (beschermd, niet wijzigen zonder opdr
 src/lib/components/      -> UI-componenten (Svelte 5, geen eigen state voor game-data)
 src/lib/utils/           -> analytics.ts, a11y.ts, helpers
 src/routes/              -> +layout.svelte (analytics), +page.svelte (template phase router)
-src/routes/transcribe/   -> +page.svelte = HOOFD-APP (opname, transcriptie, correctie)
+src/routes/transcribe/   -> +page.svelte = HOOFD-APP (opname, transcriptie, polijsten)
 backend/                 -> Python FastAPI server (Whisper + Ollama endpoints)
-backend/main.py          -> /health, /transcribe, /transcribe-live, /correct, /ws/transcribe-stream
-src/routes/api/          -> SvelteKit API routes (AssemblyAI submit+poll, Mistral correctie)
+backend/main.py          -> /health, /transcribe, /transcribe-live, /polish, /ws/transcribe-stream
+src/routes/api/          -> SvelteKit API routes (AssemblyAI submit+poll, Mistral polijsten)
 scripts/                 -> start-transcribe.sh (full stack), log-hours.sh (tijdregistratie)
 docs/                    -> Architectuur, ADRs, analytics-plan
 .claude/skills/          -> Build-instructies per domein (SKILL.md met YAML frontmatter)
@@ -44,26 +44,26 @@ docs/                    -> Architectuur, ADRs, analytics-plan
 ### App Flow
 
 ```
-idle → recording → processing (transcriptie) → correcting (verslaglegging) → idle
+idle → recording → processing (transcriptie) → polishing (polijsten) → idle
                                                     ↓
-                                        toont ruwe tekst + gecorrigeerde tekst
+                                        toont ruwe tekst + gepolijste tekst
 ```
 
 ### Verwerkingsmodi
 
-Gebruiker kiest per stap (transcriptie en correctie) tussen lokaal of API:
+Gebruiker kiest per stap (transcriptie en polijsten) tussen lokaal of API:
 
 | Stap         | Lokaal                                | API                                 |
 | ------------ | ------------------------------------- | ----------------------------------- |
 | Transcriptie | mlx-whisper (large-v3, Apple Silicon) | AssemblyAI (Universal-2, EU Dublin) |
-| Correctie    | Ollama/Gemma3                         | Mistral AI (EU servers)             |
+| Polijsten    | Ollama/Gemma3                         | Mistral AI (EU servers)             |
 
 ### Backend Endpoints (FastAPI, poort 8000)
 
 - `GET /health` — Health check + beschikbaarheid lokaal/API
 - `POST /transcribe` — Audio → Whisper (30s segmenten, SSE stream)
 - `POST /transcribe-live` — Audio → Whisper (incrementeel, met offset filtering)
-- `POST /correct` — Tekst → Ollama of Mistral (SSE token stream)
+- `POST /polish` — Tekst → Ollama of Mistral (SSE token stream)
 - `WS /ws/transcribe-stream` — Real-time WebSocket streaming via AssemblyAI
 
 ### Kwaliteitsmodi
@@ -96,9 +96,9 @@ Gebruiker kiest per stap (transcriptie en correctie) tussen lokaal of API:
 4. **Data is heilig**: Data bestanden NIET wijzigen zonder expliciete opdracht.
 5. **Analytics via wrapper**: Altijd via `src/lib/utils/analytics.ts`, nooit direct PostHog. Try/catch verplicht.
 6. **Privacy first**: Geen PII loggen. `person_profiles: 'never'`. Lokale modus = geen data naar buiten. API modus = alleen EU-servers (AssemblyAI Dublin, Mistral EU).
-7. **App flow**: idle → recording → processing → correcting → idle. Geen stappen overslaan.
-8. **Dual mode**: Gebruiker kiest per stap (transcriptie/correctie) tussen lokaal en API. FastAPI backend draait lokaal voor beide modi.
-9. **Twee-staps verwerking**: Altijd eerst Whisper (ruwe transcriptie tonen), dan Ollama (correctie tonen). Gebruiker ziet progressie.
+7. **App flow**: idle → recording → processing → polishing → idle. Geen stappen overslaan.
+8. **Dual mode**: Gebruiker kiest per stap (transcriptie/polijsten) tussen lokaal en API. FastAPI backend draait lokaal voor beide modi.
+9. **Twee-staps verwerking**: Altijd eerst Whisper (ruwe transcriptie tonen), dan Ollama (polijsten tonen). Gebruiker ziet progressie.
 10. **Spacebar shortcut**: Spacebar start/stopt opname. Niet conflicteren met andere keyboard handlers.
 
 ## Commando's
