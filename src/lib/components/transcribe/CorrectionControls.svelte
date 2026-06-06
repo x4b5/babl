@@ -68,7 +68,13 @@
 				{#if mode === 'local'}
 					Correctie via Ollama op jouw computer.
 				{:else}
-					Correctie via Mistral (EU-servers).
+					Correctie via <img src="/mistral.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
+					<a
+						href="https://mistral.ai"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="underline text-white/60 hover:text-white/80 transition-colors">Mistral</a
+					> (EU-servers).
 				{/if}
 			</p>
 			{#if !localCorrectionAvailable && onOpenSetupWizard}

@@ -241,7 +241,16 @@
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
-						<h3 class="text-sm font-medium text-white/70">Mistral AI</h3>
+						<h3 class="text-sm font-medium text-white/70 flex items-center gap-1.5">
+							<img src="/mistral.png" alt="" class="h-4 w-4" />
+							<a
+								href="https://mistral.ai"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/50 transition-colors"
+								>Mistral AI</a
+							>
+						</h3>
 						<p class="mt-1 text-xs text-white/40">
 							Europees AI-bedrijf gevestigd in Parijs. Alle servers staan in de EU. Wordt gebruikt
 							in API-modus voor dialectcorrectie.
