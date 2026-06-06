@@ -3,7 +3,6 @@
  * file uploads, and microphone permissions.
  */
 
-import { downsampleToWav } from '$lib/utils/audio';
 import { saveRecording } from '$lib/utils/recording-db';
 import { sendAudio } from '$lib/services/transcription';
 import type { TranscriptionRefs, TranscriptionCallbacks } from '$lib/services/transcription';
@@ -20,8 +19,6 @@ import {
 	setSavedRecordingMimeType,
 	getTranscribeState
 } from '$lib/stores/transcribe.svelte';
-
-const MAX_DOWNSAMPLE_BYTES = 50 * 1024 * 1024;
 
 export { type TranscriptionRefs, type TranscriptionCallbacks };
 
@@ -45,6 +42,14 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 		onClearSavedRecording
 	} = args;
 	const s = getTranscribeState();
+
+	console.log('[BABL DEBUG] processRecording called', {
+		chunksLen: chunks.length,
+		mimeType,
+		transcribeMode: s.transcribeMode,
+		useRealtimeStream,
+		elapsed: s.elapsed
+	});
 
 	setRecordingDuration(s.elapsed);
 
@@ -72,23 +77,19 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 		return;
 	}
 
-	// Send full audio for transcription via SSE streaming (30s chunks with progress events)
-	if (s.transcribeMode === 'api') {
-		const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
-		await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
-	} else {
-		try {
-			const wav = await downsampleToWav(blob);
-			await sendAudio(wav, 'recording.wav', transcriptionRefs, transcriptionCallbacks);
-		} catch {
-			const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
-			await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
-		}
-	}
+	// Send original blob directly — backend uses ffmpeg for audio conversion
+	// (browser downsampleToWav can produce corrupted audio that Whisper can't read)
+	const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
+	console.log('[BABL DEBUG] Sending ORIGINAL blob (no downsample)', {
+		ext,
+		blobSize: blob.size,
+		blobType: blob.type
+	});
+	await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
 	setPartialText('');
 }
 
-/** Handle file upload — downsample if needed, then send for transcription. */
+/** Handle file upload — send directly, backend handles conversion. */
 export async function handleFileUpload(
 	e: Event,
 	transcriptionRefs: TranscriptionRefs,
@@ -100,19 +101,7 @@ export async function handleFileUpload(
 	setError('');
 	setStatus('processing');
 
-	const s = getTranscribeState();
-	if (s.transcribeMode === 'api') {
-		await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-	} else if (file.size > MAX_DOWNSAMPLE_BYTES) {
-		await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-	} else {
-		try {
-			const wav = await downsampleToWav(file);
-			await sendAudio(wav, 'upload.wav', transcriptionRefs, transcriptionCallbacks);
-		} catch {
-			await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
-		}
-	}
+	await sendAudio(file, file.name, transcriptionRefs, transcriptionCallbacks);
 	input.value = '';
 }
 

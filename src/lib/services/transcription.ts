@@ -81,6 +81,13 @@ export async function sendAudio(
 	const formData = new FormData();
 	formData.append('file', blob, filename);
 	formData.append('lang', s.lang);
+	console.log('[BABL DEBUG] sendAudio', {
+		filename,
+		blobSize: blob.size,
+		blobType: blob.type,
+		transcribeMode: s.transcribeMode,
+		lang: s.lang
+	});
 	if (s.transcribeMode === 'api') {
 		await sendAudioApi(formData, refs, callbacks);
 	} else {
@@ -99,11 +106,13 @@ async function sendAudioLocal(
 	callbacks.setTranscribeController(controller);
 
 	try {
+		console.log('[BABL DEBUG] sendAudioLocal: fetching', LOCAL_BACKEND_URL + '/transcribe');
 		const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe`, {
 			method: 'POST',
 			body: formData,
 			signal: controller.signal
 		});
+		console.log('[BABL DEBUG] sendAudioLocal: response', resp.status, resp.ok);
 		if (!resp.ok) {
 			handleHttpError(resp);
 			return;
@@ -111,12 +120,17 @@ async function sendAudioLocal(
 		await readSSEStream(resp, {
 			controller,
 			stallTimeoutMs: LOCAL_SSE_STALL_TIMEOUT_MS,
-			onEvent: (event) => handleTranscriptionEvent(event, s, callbacks)
+			onEvent: (event) => {
+				console.log('[BABL DEBUG] SSE event:', event.type, event);
+				return handleTranscriptionEvent(event, s, callbacks);
+			}
 		});
+		console.log('[BABL DEBUG] SSE stream complete, raw:', s.raw?.substring(0, 100));
 		finalizeRaw();
 		await callbacks.onClearSavedRecording();
 		setStatus('idle');
 	} catch (e) {
+		console.error('[BABL DEBUG] sendAudioLocal error:', e);
 		if (isAbortError(e)) return;
 		handleCaughtError(e);
 	} finally {

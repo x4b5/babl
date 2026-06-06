@@ -130,16 +130,36 @@ def filter_segments_by_offset(segments: list[dict], offset: float, tolerance: fl
 
 
 def get_audio_duration(path: str) -> float:
-    """Get duration of audio file in seconds using ffprobe."""
+    """Get duration of audio file in seconds.
+
+    Uses ffprobe first (fast). Falls back to ffmpeg decoding for formats
+    without duration metadata (e.g. WebM from MediaRecorder).
+    """
+    # Try ffprobe (fast, works for formats with duration in header)
     try:
         cmd = [
             "ffprobe", "-v", "error", "-show_entries", "format=duration",
             "-of", "default=noprint_wrappers=1:nokey=1", path
         ]
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return float(result.stdout.strip())
+        duration = float(result.stdout.strip())
+        if duration > 0:
+            return duration
     except Exception:
-        return 0.0
+        pass
+
+    # Fallback: decode with ffmpeg to get duration (handles streaming WebM etc.)
+    try:
+        cmd = ["ffmpeg", "-i", path, "-f", "null", "-"]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        match = re.search(r'time=(\d+):(\d+):(\d+\.\d+)', result.stderr)
+        if match:
+            h, m, s = match.groups()
+            return int(h) * 3600 + int(m) * 60 + float(s)
+    except Exception:
+        pass
+
+    return 0.0
 
 def extract_audio_segment(input_path: str, output_path: str, start: float, duration: float):
     """Extract and transcode a segment of audio using ffmpeg."""
