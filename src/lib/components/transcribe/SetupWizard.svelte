@@ -28,27 +28,27 @@
 
 	const steps: Step[] = $derived([
 		{
-			title: 'Ollama installeren',
+			title: 'AI-software installeren',
 			done: w.status.ollamaRunning,
 			description:
-				'Ollama is een tool om AI-modellen lokaal te draaien. Installeer het en start de server.',
+				'Ollama is een programma dat AI-modellen op jouw eigen computer kan draaien — zonder dat er iets naar het internet wordt gestuurd. Je installeert het via de terminal (opdrachtregel).',
 			commands: [
 				{ label: 'Installeer Ollama', cmd: 'brew install ollama' },
 				{ label: 'Start de server', cmd: 'ollama serve' }
 			]
 		},
 		{
-			title: 'Model downloaden',
+			title: 'Taalmodel downloaden',
 			done: w.ollamaModelReady,
 			description:
-				'Download het Gemma 3 model (2.3 GB). Dit is het AI-model dat je tekst corrigeert.',
+				'Download het taalmodel Gemma 3 (2.3 GB). Dit is de AI die jouw tekst leest en corrigeert. Het downloaden kan even duren afhankelijk van je internetsnelheid.',
 			commands: [{ label: 'Download model', cmd: 'ollama pull gemma3:4b' }]
 		},
 		{
-			title: 'Backend starten',
+			title: 'BABL-server starten',
 			done: w.status.backendRunning,
 			description:
-				'Start de BABL backend server. Dit verbindt Whisper (spraak) met Ollama (correctie).',
+				'Start de BABL-server op jouw computer. Deze server verbindt de spraakherkenning (Whisper) met de tekstcorrectie (Ollama) zodat alles samenwerkt.',
 			commands: [
 				{ label: 'Alles-in-een', cmd: 'npm run transcribe' },
 				{
@@ -73,8 +73,8 @@
 		class="fixed inset-x-4 bottom-4 top-auto z-50 mx-auto max-w-lg glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2"
 	>
 		<!-- Header -->
-		<div class="mb-5 flex items-center justify-between">
-			<h2 class="text-lg font-semibold text-white">Lokaal instellen</h2>
+		<div class="mb-3 flex items-center justify-between">
+			<h2 class="text-lg font-semibold text-white">Privé-modus activeren</h2>
 			<button
 				onclick={handleClose}
 				class="rounded-lg p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white/80"
@@ -90,6 +90,16 @@
 				</svg>
 			</button>
 		</div>
+
+		<!-- Intro -->
+		<p class="mb-4 text-sm text-white/50 leading-relaxed">
+			Met de privé-modus wordt alle verwerking op jouw eigen computer gedaan. Er wordt niets naar
+			het internet verstuurd.
+		</p>
+		<p class="mb-5 text-xs text-amber-400/60 leading-relaxed">
+			Je hebt een terminal (opdrachtregel) nodig voor de stappen hieronder. Vraag hulp als je hier
+			niet bekend mee bent.
+		</p>
 
 		<!-- Steps -->
 		<div class="space-y-3">

@@ -41,7 +41,7 @@
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
 		<!-- Mode toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Model</span>
+			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Verwerking</span>
 			<div class="glass flex rounded-full p-1">
 				<button
 					onclick={() => onModeChange('local')}
@@ -51,7 +51,7 @@
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
-					Lokaal
+					Op dit apparaat
 				</button>
 				<button
 					onclick={() => onModeChange('api')}
@@ -61,15 +61,25 @@
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 				>
-					API
+					Via internet
 				</button>
 			</div>
+			<p class="text-xs text-white/40 mt-1">
+				{#if mode === 'local'}
+					Correctie via Ollama op jouw computer.
+				{:else}
+					Correctie via Mistral (EU-servers).
+				{/if}
+			</p>
 			{#if !localCorrectionAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
-					class="mt-1 text-xs text-neon/40 transition-colors hover:text-neon/70"
+					class="mt-2 glass rounded-xl px-4 py-3 text-left transition-all hover:bg-white/10 w-full"
 				>
-					Lokaal instellen &rsaquo;
+					<span class="block text-sm font-medium text-neon">Privé-modus activeren</span>
+					<span class="block text-xs text-white/40 mt-0.5"
+						>Installeer de software om alles op je eigen computer te draaien</span
+					>
 				</button>
 			{/if}
 		</div>
