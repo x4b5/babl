@@ -16,7 +16,7 @@
 				BABL
 			</a>
 			<h1 class="text-2xl font-semibold text-white">Privacyverklaring</h1>
-			<p class="mt-2 text-sm text-white/55">Laatste update: juni 2025</p>
+			<p class="mt-2 text-sm text-white/55">Laatste update: juni 2026</p>
 		</header>
 
 		<div class="space-y-6 animate-fade-in">
@@ -389,6 +389,10 @@
 				<a href="/cookies" class="hover:text-white/70 transition-colors"> Cookiebeleid </a>
 				<span class="text-white/10">|</span>
 				<a href="/voorwaarden" class="hover:text-white/70 transition-colors"> Voorwaarden </a>
+				<span class="text-white/10">|</span>
+				<a href="/verwerkingsovereenkomst" class="hover:text-white/70 transition-colors">
+					Verwerkingsovereenkomst
+				</a>
 				<span class="text-white/10">|</span>
 				<a href="/about" class="hover:text-white/70 transition-colors"> Over BABL </a>
 			</div>

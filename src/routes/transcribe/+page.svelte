@@ -221,7 +221,6 @@
 				e.preventDefault();
 				e.returnValue = '';
 			}
-			cleanupAllResources();
 		}
 		function handlePageHide() {
 			cleanupAllResources();
