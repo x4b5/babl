@@ -21,6 +21,7 @@
 		>
 	</h1>
 	<p class="mb-3 sm:mb-4 text-sm sm:text-lg text-white/50">
-		Van spraak naar tekst, met een goed gevoel voor Limburgs.
+		Van spraak naar tekst,<br />
+		<em class="italic">mit un good geveul veur Limburgs.</em>
 	</p>
 </header>
