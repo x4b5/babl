@@ -77,7 +77,7 @@
 
 			<!-- 3. Lokaal vs API -->
 			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Lokaal vs API — jij kiest</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90">Op dit apparaat vs via internet</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Het bijzondere aan BABL is dat je per stap zelf kiest hoe de verwerking gebeurt. Twee
 					opties, elk met eigen voor- en nadelen:
