@@ -40,13 +40,12 @@ let pollInterval = $state<ReturnType<typeof setInterval> | undefined>(undefined)
 
 const ollamaModelReady = $derived(status.ollamaModels[selectedModel] ?? false);
 
-const allReady = $derived(status.backendRunning && status.whisperModelCached);
+const allReady = $derived(status.backendRunning);
 
 const recommendedStep = $derived.by(() => {
 	if (!ramConfirmed) return 0;
 	if (!status.backendRunning) return 1;
-	if (!status.whisperModelCached) return 2;
-	return 2; // All done
+	return 1; // All done
 });
 
 // ── Polling ──────────────────────────────────────────────────

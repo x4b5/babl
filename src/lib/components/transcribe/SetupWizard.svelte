@@ -4,8 +4,7 @@
 		closeWizard,
 		setStep,
 		copyCommand,
-		confirmRam,
-		downloadWhisper
+		confirmRam
 	} from '$lib/stores/setup-wizard.svelte';
 
 	interface Props {
@@ -27,7 +26,6 @@
 		commands: { label: string; cmd: string }[];
 		description: string;
 		hasRamCheck?: boolean;
-		hasWhisperDownload?: boolean;
 	}
 
 	const steps: Step[] = $derived([
@@ -40,24 +38,16 @@
 			hasRamCheck: true
 		},
 		{
-			title: 'BABL-server starten',
+			title: 'Installeren en starten',
 			done: w.status.backendRunning,
 			description:
-				'Open de Terminal app (zoek "Terminal" in Spotlight) en plak onderstaand commando. Dit start alles wat nodig is.',
+				'Open de Terminal app (zoek "Terminal" in Spotlight) en plak onderstaand commando. Dit downloadt en start alles automatisch.',
 			commands: [
 				{
 					label: 'Kopieer en plak in Terminal',
 					cmd: 'git clone https://github.com/x4b5/babl.git ~/babl && cd ~/babl && npm install && npm run transcribe'
 				}
 			]
-		},
-		{
-			title: 'Spraakmodel downloaden (Whisper)',
-			done: w.status.whisperModelCached,
-			description:
-				'Whisper zet je gesproken woorden om naar tekst. Het model is ~3 GB groot en wordt eenmalig gedownload.',
-			commands: [],
-			hasWhisperDownload: true
 		}
 	]);
 </script>
@@ -176,32 +166,6 @@
 								</button>
 							{/if}
 
-							{#if step.hasWhisperDownload}
-								{#if w.status.whisperDownloading}
-									<div class="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-3">
-										<span
-											class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-neon/30 border-t-neon"
-										></span>
-										<span class="text-sm text-white/60">Whisper wordt gedownload...</span>
-									</div>
-								{:else}
-									<button
-										onclick={downloadWhisper}
-										class="flex w-full items-center justify-center gap-2 rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
-									>
-										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-											/>
-										</svg>
-										Download Whisper spraakmodel
-									</button>
-								{/if}
-							{/if}
-
 							{#each step.commands as { label, cmd }}
 								<div>
 									<span class="mb-1 block text-xs uppercase tracking-wider text-white/50"
@@ -248,7 +212,7 @@
 							{/each}
 
 							<!-- Polling indicator (only for auto-detected steps) -->
-							{#if !step.hasRamCheck && !step.hasWhisperDownload}
+							{#if !step.hasRamCheck}
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>
