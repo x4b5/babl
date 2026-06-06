@@ -5,6 +5,7 @@
 		mode: Mode;
 		reportLength: ReportLength;
 		localAvailable: boolean;
+		ollamaAvailable: boolean;
 		mistralAvailable: boolean;
 		estimatedCorrectionCost: string;
 		onModeChange: (mode: Mode) => void;
@@ -17,6 +18,7 @@
 		mode,
 		reportLength,
 		localAvailable,
+		ollamaAvailable,
 		mistralAvailable,
 		estimatedCorrectionCost,
 		onModeChange,
@@ -24,6 +26,8 @@
 		onGenerate,
 		onOpenSetupWizard
 	}: Props = $props();
+
+	const localCorrectionAvailable = $derived(localAvailable && ollamaAvailable);
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
 		{ value: 'samenvatting', label: 'Samenvatting' },
