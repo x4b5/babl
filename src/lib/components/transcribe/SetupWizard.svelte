@@ -44,7 +44,12 @@
 			done: w.status.backendRunning,
 			description:
 				'Open de Terminal app (zoek "Terminal" in Spotlight) en plak onderstaand commando. Dit start alles wat nodig is.',
-			commands: [{ label: 'Kopieer en plak in Terminal', cmd: 'npm run transcribe' }]
+			commands: [
+				{
+					label: 'Kopieer en plak in Terminal',
+					cmd: 'cd ~/Dev/experiments/babl && npm run transcribe'
+				}
+			]
 		},
 		{
 			title: 'Spraakmodel downloaden (Whisper)',
