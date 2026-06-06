@@ -4,6 +4,7 @@
  */
 
 import { readSSEStream } from '$lib/utils/sse-reader';
+import { encodeWav } from '$lib/utils/audio';
 import { getUserMessage, isAbortError, handleCaughtError } from '$lib/utils/error-classifier';
 import type { ErrorType } from '$lib/utils/error-types';
 import {
@@ -279,6 +280,9 @@ async function sendAudioApiViaLocal(
 /** Max segment size: leave room for FormData overhead. */
 const MAX_SEGMENT_BYTES = MAX_VERCEL_BODY_BYTES - 512 * 1024;
 
+/** Max source file size for WAV conversion (non-WebM). Beyond this, memory usage is too high. */
+const MAX_WAV_CONVERT_BYTES = 20 * 1024 * 1024;
+
 /**
  * Split a WebM blob at Cluster element boundaries so each segment
  * is a valid WebM file (init header + clusters) under maxSize bytes.
@@ -330,6 +334,50 @@ async function splitAudioBlob(blob: Blob, maxSize: number): Promise<Blob[]> {
 	);
 
 	return segments;
+}
+
+/**
+ * Convert non-WebM audio to 16kHz WAV and split into chunks.
+ * Each chunk is a valid WAV file with its own header.
+ * Returns [blob] unchanged if conversion fails or file is too large.
+ */
+async function splitAsWavChunks(blob: Blob, maxSize: number): Promise<Blob[]> {
+	if (blob.size > MAX_WAV_CONVERT_BYTES) return [blob];
+
+	try {
+		const TARGET_RATE = 16000;
+		const arrayBuffer = await blob.arrayBuffer();
+		const tempCtx = new OfflineAudioContext(1, 1, TARGET_RATE);
+		const decoded = await tempCtx.decodeAudioData(arrayBuffer);
+
+		const totalSamples = Math.ceil(decoded.duration * TARGET_RATE);
+		const offline = new OfflineAudioContext(1, totalSamples, TARGET_RATE);
+		const source = offline.createBufferSource();
+		source.buffer = decoded;
+		source.connect(offline.destination);
+		source.start();
+		const rendered = await offline.startRendering();
+
+		const pcm = rendered.getChannelData(0);
+
+		// WAV header = 44 bytes, each sample = 2 bytes (16-bit mono)
+		const maxPcmBytes = maxSize - 44 - 1024;
+		const samplesPerChunk = Math.floor(maxPcmBytes / 2);
+
+		if (pcm.length <= samplesPerChunk) {
+			return [new Blob([encodeWav(pcm, TARGET_RATE)], { type: 'audio/wav' })];
+		}
+
+		const chunks: Blob[] = [];
+		for (let i = 0; i < pcm.length; i += samplesPerChunk) {
+			const chunkSamples = pcm.subarray(i, Math.min(i + samplesPerChunk, pcm.length));
+			chunks.push(new Blob([encodeWav(chunkSamples, TARGET_RATE)], { type: 'audio/wav' }));
+		}
+
+		return chunks;
+	} catch {
+		return [blob];
+	}
 }
 
 /** Upload a single segment and poll until transcription completes. */
@@ -392,14 +440,22 @@ async function sendAudioApiSegmented(
 	callbacks: TranscriptionCallbacks
 ): Promise<void> {
 	const s = getTranscribeState();
-	const segments = await splitAudioBlob(file, MAX_SEGMENT_BYTES);
+
+	setApiStatus('Audio voorbereiden...');
+
+	const segments = file.type.includes('webm')
+		? await splitAudioBlob(file, MAX_SEGMENT_BYTES)
+		: await splitAsWavChunks(file, MAX_SEGMENT_BYTES);
 
 	if (segments.length <= 1) {
-		// Can't split (non-WebM or single oversized cluster)
 		const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+		const isNonWebm = !file.type.includes('webm');
 		setError(
-			`Bestand te groot (${sizeMB} MB) voor cloud-upload. ` +
-				'Start de lokale backend voor grote bestanden.'
+			isNonWebm
+				? `Bestand te groot (${sizeMB} MB) voor conversie in deze browser. ` +
+						'Gebruik Chrome/Firefox of start de lokale backend.'
+				: `Bestand te groot (${sizeMB} MB) voor cloud-upload. ` +
+						'Start de lokale backend voor grote bestanden.'
 		);
 		setApiStatus('');
 		setStatus('idle');
@@ -419,7 +475,8 @@ async function sendAudioApiSegmented(
 			setApiStatus(`Deel ${i + 1}/${segments.length}: uploaden...`);
 
 			const segFormData = new FormData();
-			segFormData.append('file', segments[i], `segment-${i}.webm`);
+			const ext = segments[i].type.includes('wav') ? 'wav' : 'webm';
+			segFormData.append('file', segments[i], `segment-${i}.${ext}`);
 			segFormData.append('lang', s.lang);
 
 			const submitResp = await fetch('/api/transcribe-api', {
@@ -464,17 +521,14 @@ async function sendAudioApiSegmented(
 				allWords.push(...result.words);
 			}
 			totalLowConf += result.lowConfidenceCount;
+
+			// Show partial results after each segment
+			setRaw(fullText);
+			if (detectedLanguage) setLanguage(detectedLanguage);
+			setConfidenceWords([...allWords]);
+			setLowConfidenceCount(totalLowConf);
 		}
 
-		setRaw(fullText);
-		if (detectedLanguage) setLanguage(detectedLanguage);
-		if (allWords.length > 0) {
-			setConfidenceWords(allWords);
-			setLowConfidenceCount(totalLowConf);
-		} else {
-			setConfidenceWords([]);
-			setLowConfidenceCount(0);
-		}
 		setApiStatus('');
 		await callbacks.onClearSavedRecording();
 		setStatus('idle');

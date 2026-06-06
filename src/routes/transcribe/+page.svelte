@@ -412,7 +412,7 @@
 					copiedRaw={s.copiedRaw}
 				/>
 
-				{#if s.status !== 'correcting'}
+				{#if s.status !== 'correcting' && s.status !== 'processing'}
 					<CorrectionControls
 						mode={s.mode}
 						reportLength={s.reportLength}
