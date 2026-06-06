@@ -19,7 +19,11 @@ export default defineConfig({
 	define: {
 		__APP_VERSION__: JSON.stringify(commitHash),
 		__APP_BUILD_DATE__: JSON.stringify(
-			new Date().toLocaleString('nl-NL', { dateStyle: 'short', timeStyle: 'short' })
+			new Date().toLocaleString('nl-NL', {
+				dateStyle: 'short',
+				timeStyle: 'short',
+				timeZone: 'Europe/Amsterdam'
+			})
 		)
 	},
 	test: {
