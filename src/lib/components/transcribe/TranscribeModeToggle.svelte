@@ -19,7 +19,7 @@
 </script>
 
 <div class="mb-4 flex flex-col items-center gap-3 animate-fade-in w-full sm:w-auto">
-	<div class="text-xs text-white/40 text-center max-w-xs">
+	<div class="text-sm text-white/40 text-center max-w-xs">
 		{#if transcribeMode === 'local' && localAvailable}
 			<p>
 				Verwerking via <img
@@ -62,7 +62,7 @@
 	<div class="glass flex rounded-full p-1 w-full sm:w-auto">
 		<button
 			onclick={() => onTranscribeModeChange('local')}
-			class="flex-1 sm:flex-none rounded-full px-4 py-2 text-xs sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+			class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
 			'local'
 				? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 				: 'text-white/60 hover:text-white/80 scale-100'}"
@@ -72,7 +72,7 @@
 		<button
 			onclick={() => onTranscribeModeChange('api')}
 			disabled={!assemblyAvailable}
-			class="flex-1 sm:flex-none rounded-full px-4 py-2 text-xs sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
+			class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {transcribeMode ===
 			'api'
 				? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 				: 'text-white/60 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -82,7 +82,7 @@
 	</div>
 	<a
 		href="/about#voor-en-nadelen"
-		class="text-xs text-white/30 hover:text-white/50 transition-colors underline"
+		class="text-sm text-white/30 hover:text-white/50 transition-colors underline"
 	>
 		Voor- en nadelen van beide opties
 	</a>

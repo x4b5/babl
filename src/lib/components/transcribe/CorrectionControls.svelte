@@ -36,13 +36,13 @@
 </script>
 
 <div class="glass rounded-2xl p-4 sm:p-5 animate-fade-in">
-	<h3 class="mb-3 sm:mb-4 text-base sm:text-sm font-semibold text-white/70">Verslaglegging</h3>
+	<h3 class="mb-3 sm:mb-4 text-base font-semibold text-white/70">Verslaglegging</h3>
 
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
 		<!-- Mode toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Verwerking</span>
-			<div class="text-xs text-white/40 mt-1">
+			<span class="text-xs uppercase tracking-wider text-white/30">Verwerking</span>
+			<div class="text-sm text-white/40 mt-1">
 				{#if mode === 'local'}
 					<p>
 						Correctie via <img src="/ollama.png" alt="" class="inline h-3.5 w-3.5 -mt-0.5" />
@@ -69,7 +69,7 @@
 				<button
 					onclick={() => onModeChange('local')}
 					disabled={!localCorrectionAvailable}
-					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'local'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -79,7 +79,7 @@
 				<button
 					onclick={() => onModeChange('api')}
 					disabled={!mistralAvailable}
-					class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+					class="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
 					'api'
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-neon/40 hover:text-neon/70 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
@@ -89,7 +89,7 @@
 			</div>
 			<a
 				href="/about#voor-en-nadelen"
-				class="text-xs text-white/30 hover:text-white/50 transition-colors underline mt-1"
+				class="text-sm text-white/30 hover:text-white/50 transition-colors underline mt-1"
 			>
 				Voor- en nadelen van beide opties
 			</a>
@@ -108,12 +108,12 @@
 
 		<!-- Report length toggle -->
 		<div class="flex flex-col gap-1">
-			<span class="text-xs sm:text-[10px] uppercase tracking-wider text-white/30">Omvang</span>
+			<span class="text-xs uppercase tracking-wider text-white/30">Omvang</span>
 			<div class="glass flex rounded-full p-1">
 				{#each reportLengthOptions as opt}
 					<button
 						onclick={() => onReportLengthChange(opt.value)}
-						class="flex-1 rounded-full px-4 py-1.5 text-sm sm:text-xs font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
+						class="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {reportLength ===
 						opt.value
 							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 							: 'text-neon/40 hover:text-neon/70 scale-100'}"
@@ -126,7 +126,7 @@
 	</div>
 
 	{#if mode === 'api'}
-		<p class="mb-3 text-sm sm:text-xs text-amber-400/70">
+		<p class="mb-3 text-sm text-amber-400/70">
 			Tekst wordt verwerkt via Mistral (Europese servers)
 			<span class="font-mono">— geschat ${estimatedCorrectionCost}</span>
 		</p>
