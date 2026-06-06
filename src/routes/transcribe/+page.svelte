@@ -18,6 +18,7 @@
 	import CorrectionControls from '$lib/components/transcribe/CorrectionControls.svelte';
 	import CorrectedResultCard from '$lib/components/transcribe/CorrectedResultCard.svelte';
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
+	import SetupWizard from '$lib/components/transcribe/SetupWizard.svelte';
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
@@ -34,6 +35,7 @@
 		getStreamSocket,
 		getStreamStallTimer
 	} from '$lib/services/realtime-stream';
+	import { openWizard, closeWizard as closeSetupWizard } from '$lib/stores/setup-wizard.svelte';
 	import { startWaveform, stopWaveform, type WaveformRefs } from '$lib/services/waveform';
 	import {
 		processRecording,
@@ -356,6 +358,10 @@
 	function onStartCorrection() {
 		startCorrection(correctionRefs, correctionCallbacks);
 	}
+
+	function handleOpenSetupWizard() {
+		openWizard();
+	}
 </script>
 
 <div class="bg-dark-gradient min-h-screen">
@@ -372,6 +378,7 @@
 			localAvailable={s.localAvailable}
 			assemblyAvailable={s.assemblyAvailable}
 			onTranscribeModeChange={(v) => setTranscribeMode(v)}
+			onOpenSetupWizard={handleOpenSetupWizard}
 		/>
 
 		<RecordButton
@@ -422,6 +429,7 @@
 						onModeChange={(v) => setMode(v)}
 						onReportLengthChange={(v) => setReportLength(v)}
 						onGenerate={onStartCorrection}
+						onOpenSetupWizard={handleOpenSetupWizard}
 					/>
 				{/if}
 
@@ -459,4 +467,6 @@
 
 		<PrivacyFooter open={s.privacyOpen} onToggle={() => setPrivacyOpen(!s.privacyOpen)} />
 	</div>
+
+	<SetupWizard onClose={() => checkBackendHealth()} />
 </div>

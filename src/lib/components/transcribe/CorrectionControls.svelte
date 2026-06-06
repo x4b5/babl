@@ -10,6 +10,7 @@
 		onModeChange: (mode: Mode) => void;
 		onReportLengthChange: (length: ReportLength) => void;
 		onGenerate: () => void;
+		onOpenSetupWizard?: () => void;
 	}
 
 	let {
@@ -20,7 +21,8 @@
 		estimatedCorrectionCost,
 		onModeChange,
 		onReportLengthChange,
-		onGenerate
+		onGenerate,
+		onOpenSetupWizard
 	}: Props = $props();
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
@@ -58,6 +60,14 @@
 					API
 				</button>
 			</div>
+			{#if !localAvailable && onOpenSetupWizard}
+				<button
+					onclick={onOpenSetupWizard}
+					class="mt-1 text-xs text-neon/40 transition-colors hover:text-neon/70"
+				>
+					Lokaal instellen &rsaquo;
+				</button>
+			{/if}
 		</div>
 
 		<!-- Report length toggle -->

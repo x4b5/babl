@@ -6,10 +6,16 @@
 		localAvailable: boolean;
 		assemblyAvailable: boolean;
 		onTranscribeModeChange: (mode: Mode) => void;
+		onOpenSetupWizard?: () => void;
 	}
 
-	let { transcribeMode, localAvailable, assemblyAvailable, onTranscribeModeChange }: Props =
-		$props();
+	let {
+		transcribeMode,
+		localAvailable,
+		assemblyAvailable,
+		onTranscribeModeChange,
+		onOpenSetupWizard
+	}: Props = $props();
 </script>
 
 <div class="mb-4 flex flex-col items-center gap-2 animate-fade-in w-full sm:w-auto">
@@ -35,4 +41,12 @@
 			API
 		</button>
 	</div>
+	{#if !localAvailable && onOpenSetupWizard}
+		<button
+			onclick={onOpenSetupWizard}
+			class="text-xs text-neon/40 transition-colors hover:text-neon/70"
+		>
+			Lokaal instellen &rsaquo;
+		</button>
+	{/if}
 </div>
