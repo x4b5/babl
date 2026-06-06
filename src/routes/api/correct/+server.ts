@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 import type { ErrorType } from '$lib/utils/error-types';
+import { MISTRAL_MODELS } from '$lib/config/models';
 
 export const config = {
 	maxDuration: 300
@@ -69,11 +70,6 @@ function parseRetryAfter(headers: unknown): number {
 		return 3;
 	}
 }
-
-const MISTRAL_MODELS: Record<string, string> = {
-	light: 'mistral-small-latest',
-	medium: 'mistral-large-latest'
-};
 
 const SYSTEM_PROMPTS: Record<string, string> = {
 	samenvatting:

@@ -176,9 +176,14 @@ def extract_audio_segment(input_path: str, output_path: str, start: float, durat
 async def health():
     return {
         "status": "ok",
-        "whisper_model": "large-v3-mlx",
+        "whisper_model": WHISPER_MODEL_PATH,
         "mistral_available": bool(MISTRAL_API_KEY),
         "assemblyai_available": bool(ASSEMBLYAI_API_KEY),
+        "model_config": {
+            "ollama": OLLAMA_MODELS,
+            "mistral": MISTRAL_MODELS,
+            "whisper": WHISPER_MODEL_PATH,
+        },
     }
 
 
@@ -232,6 +237,11 @@ async def health_setup():
         "whisper_available": whisper_available,
         "whisper_model_cached": is_whisper_model_cached(),
         "whisper_downloading": _whisper_downloading,
+        "model_config": {
+            "ollama": OLLAMA_MODELS,
+            "mistral": MISTRAL_MODELS,
+            "whisper": WHISPER_MODEL_PATH,
+        },
     }
 
 
@@ -510,15 +520,25 @@ async def transcribe(
         queue: asyncio.Queue[str | None] = asyncio.Queue()
 
         def _transcribe_worker():
+            wav_path = None
             try:
-                duration = get_audio_duration(tmp_path)
+                # Pre-convert to WAV for reliable duration detection and seeking
+                # (MediaRecorder WebM lacks seekable index and duration metadata)
+                wav_path = tmp_path + ".wav"
+                subprocess.run([
+                    "ffmpeg", "-y", "-i", tmp_path,
+                    "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
+                    wav_path
+                ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                duration = get_audio_duration(wav_path)
                 segment_duration = 30.0  # seconds
-                
+
                 print(f"Transcribing {duration:.2f}s audio in {segment_duration}s segments...")
-                
+
                 word_count = 0
                 detected_lang = "nl"
-                
+
                 total_chunks = max(1, -(-int(duration) // int(segment_duration)))  # ceil division
                 for start in range(0, int(duration), int(segment_duration)):
                     chunk_index = start // int(segment_duration)
@@ -529,7 +549,7 @@ async def transcribe(
                         chunk_path = chunk_tmp.name
 
                     try:
-                        extract_audio_segment(tmp_path, chunk_path, float(start), segment_duration)
+                        extract_audio_segment(wav_path, chunk_path, float(start), segment_duration)
                         
                         transcribe_kwargs = {
                             "path_or_hf_repo": WHISPER_MODEL_PATH,
@@ -572,6 +592,8 @@ async def transcribe(
                 loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n")
             finally:
                 os.unlink(tmp_path)
+                if wav_path and os.path.exists(wav_path):
+                    os.unlink(wav_path)
                 loop.call_soon_threadsafe(queue.put_nowait, None)
 
         loop.run_in_executor(None, _transcribe_worker)

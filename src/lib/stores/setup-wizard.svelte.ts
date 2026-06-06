@@ -7,6 +7,12 @@ import { LOCAL_BACKEND_URL } from '$lib/stores/transcribe.svelte';
 
 // ── Types ────────────────────────────────────────────────────
 
+export interface ModelConfig {
+	ollama: Record<string, string>; // quality level -> model name
+	mistral: Record<string, string>;
+	whisper: string;
+}
+
 export interface SetupStatus {
 	backendRunning: boolean;
 	ollamaRunning: boolean;
@@ -14,6 +20,7 @@ export interface SetupStatus {
 	whisperAvailable: boolean;
 	whisperModelCached: boolean;
 	whisperDownloading: boolean;
+	modelConfig: ModelConfig | null;
 }
 
 // ── Reactive state ────────────────────────────────────────────
@@ -26,7 +33,8 @@ let status = $state<SetupStatus>({
 	ollamaModels: {},
 	whisperAvailable: false,
 	whisperModelCached: false,
-	whisperDownloading: false
+	whisperDownloading: false,
+	modelConfig: null
 });
 let selectedModel = $state('gemma3:4b');
 let ramConfirmed = $state(false);
@@ -54,31 +62,45 @@ async function fetchSetupStatus(): Promise<void> {
 	try {
 		const resp = await fetch(`${LOCAL_BACKEND_URL}/health/setup`);
 		const data = await resp.json();
+		const modelConfig: ModelConfig | null = data.model_config
+			? {
+					ollama: data.model_config.ollama ?? {},
+					mistral: data.model_config.mistral ?? {},
+					whisper: data.model_config.whisper ?? ''
+				}
+			: null;
 		status = {
 			backendRunning: data.backend_running ?? false,
 			ollamaRunning: data.ollama_running ?? false,
 			ollamaModels: data.ollama_models ?? {},
 			whisperAvailable: data.whisper_available ?? false,
 			whisperModelCached: data.whisper_model_cached ?? false,
-			whisperDownloading: data.whisper_downloading ?? false
+			whisperDownloading: data.whisper_downloading ?? false,
+			modelConfig
 		};
+		// Update selectedModel to the medium Ollama model from config
+		if (modelConfig?.ollama?.medium) {
+			selectedModel = modelConfig.ollama.medium;
+		}
 	} catch {
 		// Backend not running — check Ollama directly
 		try {
 			const ollamaResp = await fetch('http://localhost:11434/api/tags');
 			const ollamaData = await ollamaResp.json();
-			const available = new Set((ollamaData.models ?? []).map((m: { name: string }) => m.name));
+			const available: string[] = (ollamaData.models ?? []).map((m: { name: string }) => m.name);
+			// Build ollamaModels from whatever Ollama has installed
+			const ollamaModels: Record<string, boolean> = {};
+			for (const name of available) {
+				ollamaModels[name] = true;
+			}
 			status = {
 				backendRunning: false,
 				ollamaRunning: true,
-				ollamaModels: {
-					'gemma3:1b': available.has('gemma3:1b'),
-					'gemma3:4b': available.has('gemma3:4b'),
-					'gemma3:12b': available.has('gemma3:12b')
-				},
+				ollamaModels,
 				whisperAvailable: false,
 				whisperModelCached: false,
-				whisperDownloading: false
+				whisperDownloading: false,
+				modelConfig: null
 			};
 		} catch {
 			status = {
@@ -87,7 +109,8 @@ async function fetchSetupStatus(): Promise<void> {
 				ollamaModels: {},
 				whisperAvailable: false,
 				whisperModelCached: false,
-				whisperDownloading: false
+				whisperDownloading: false,
+				modelConfig: null
 			};
 		}
 	}
