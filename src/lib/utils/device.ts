@@ -10,3 +10,18 @@ export function isMobile(): boolean {
 		(navigator.maxTouchPoints > 0 && window.matchMedia('(max-width: 768px)').matches)
 	);
 }
+
+export type OS = 'mac' | 'windows' | 'linux';
+
+/**
+ * Detect the user's operating system from the browser.
+ * Used in the setup wizard to show platform-specific instructions.
+ */
+export function getOS(): OS {
+	if (typeof navigator === 'undefined') return 'mac';
+
+	const ua = navigator.userAgent.toLowerCase();
+	if (ua.includes('win')) return 'windows';
+	if (ua.includes('mac')) return 'mac';
+	return 'linux';
+}

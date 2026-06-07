@@ -275,3 +275,4 @@
 | 2026-06-07 | 22:08     | 22:12    | .07         | `80c3426`   | feat: begrippenlijst uitgebreid van 15 naar 30 begrippen                                                                        |
 | 2026-06-07 | 22:12     | 22:14    | .03         | `53c7d39`   | feat: fase 9 — drie extra agents (test, performance, docs)                                                                      |
 | 2026-06-07 | 22:14     | 22:15    | .01         | `4f0c7f1`   | feat: begrippenlijst uitgebreid met dialect- en architectuursecties                                                             |
+| 2026-06-07 | 22:15     | 22:15    | 0           | `6bc5960`   | chore: update LOGBOOK with latest session entry                                                                                 |

@@ -14,6 +14,7 @@
 		MODEL_FAMILY_DESCRIPTIONS,
 		MODEL_RAM_INFO
 	} from '$lib/stores/setup-wizard.svelte';
+	import { getOS, type OS } from '$lib/utils/device';
 
 	interface Props {
 		onClose?: () => void;
@@ -22,6 +23,9 @@
 	let { onClose }: Props = $props();
 
 	const w = getSetupWizardState();
+	const os: OS = getOS();
+
+	let showAllModels = $state(false);
 
 	function handleClose() {
 		closeWizard();
@@ -45,8 +49,7 @@
 		{
 			title: 'Controleer je werkgeheugen (RAM)',
 			done: w.ramConfirmed,
-			description:
-				'Whisper heeft minimaal 8 GB werkgeheugen nodig. Check je RAM via Apple menu (\uF8FF) > Over deze Mac.',
+			description: 'Whisper heeft minimaal 8 GB werkgeheugen nodig. Controleer of je genoeg hebt.',
 			commands: [],
 			hasRamCheck: true
 		},
@@ -60,7 +63,7 @@
 		{
 			title: 'Start de server',
 			done: w.status.backendRunning,
-			description: 'Dubbelklik op het bestand "start-babl" in de babl map om de server te starten.',
+			description: 'Start de lokale server vanuit de babl map.',
 			commands: [],
 			hasStartStep: true
 		},
@@ -145,7 +148,9 @@
 		<!-- Header -->
 		<div class="mb-3 flex items-center justify-between">
 			<h2 class="text-lg font-semibold text-white">
-				{w.wizardContext === 'ollama' ? 'Ollama installeren' : 'Hoe te installeren'}
+				{w.wizardContext === 'ollama'
+					? 'Ollama installeren'
+					: 'Lokale modus installeren (voor gevorderden)'}
 			</h2>
 			<button
 				onclick={handleClose}
@@ -173,6 +178,15 @@
 				het internet verstuurd. Volg de stappen hieronder.
 			{/if}
 		</p>
+
+		{#if w.wizardContext !== 'ollama'}
+			<div class="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
+				<p class="text-xs text-amber-300/80">
+					Dit is voor gevorderden. Gebruik de <strong class="text-amber-200">API-modus</strong> als je
+					snel wilt starten zonder installatie.
+				</p>
+			</div>
+		{/if}
 
 		<!-- Steps -->
 		<div class="space-y-3">
@@ -237,32 +251,31 @@
 							<p class="text-sm text-white/60 leading-relaxed">{step.description}</p>
 
 							{#if step.hasRamCheck}
-								{#if w.wizardContext === 'ollama'}
-									<div class="space-y-1.5 rounded-lg bg-white/5 p-3">
-										<p class="text-xs font-medium text-white/70 mb-2">Benodigdheden per model:</p>
-										{#each ollamaModels as { quality, model }}
-											{@const info = modelInfo[quality] ?? { storage: '?', ram: '?' }}
-											<div class="flex items-center justify-between text-xs">
-												<span class="text-white/60"
-													>{qualityLabels[quality] ?? quality}
-													<span class="text-white/30">({model})</span></span
-												>
-												<span class="text-white/50">{info.ram} RAM · {info.storage} opslag</span>
-											</div>
-										{/each}
-										<p class="text-xs text-white/40 mt-2">Ollama zelf: ~500 MB opslag</p>
-									</div>
-									<p class="text-xs text-white/50">
-										Check je RAM via Apple menu (\uF8FF) &gt; Over deze Mac.
-									</p>
-								{:else}
-									<div class="rounded-lg bg-white/5 p-3">
-										<p class="text-xs text-white/60">
+								<div class="rounded-lg bg-white/5 p-3">
+									<p class="text-xs text-white/60">
+										{#if w.wizardContext === 'ollama'}
+											Je hebt minimaal <span class="font-semibold text-white/80"
+												>4 GB werkgeheugen (RAM)</span
+											> nodig. Hoe meer, hoe beter de kwaliteit.
+										{:else}
 											Minimaal <span class="font-semibold text-white/80">8 GB RAM</span> nodig. Meer is
 											beter.
-										</p>
-									</div>
-								{/if}
+										{/if}
+									</p>
+								</div>
+								<p class="text-xs text-white/50">
+									{#if os === 'mac'}
+										Check via Apple menu (\uF8FF) &gt; Over deze Mac.
+									{:else if os === 'windows'}
+										Check via <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>Ctrl+Shift+Esc</kbd
+										> (Taakbeheer) &gt; tabblad Prestaties.
+									{:else}
+										Check via <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>free -h</kbd
+										> in een terminal.
+									{/if}
+								</p>
 								<button
 									onclick={confirmRam}
 									class="w-full rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
@@ -282,7 +295,13 @@
 									Download Ollama
 								</a>
 								<p class="text-xs text-white/40">
-									Open na het downloaden de Ollama app. Het icoontje verschijnt bovenin je menubalk.
+									{#if os === 'windows'}
+										Open na het downloaden de Ollama app. Het icoontje verschijnt rechtsonder in je
+										systeemvak.
+									{:else}
+										Open na het downloaden de Ollama app. Het icoontje verschijnt bovenin je
+										menubalk.
+									{/if}
 								</p>
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
@@ -321,9 +340,20 @@
 									{/if}
 								</button>
 								<p class="text-xs text-white/40 text-center">
-									Open Terminal en plak het commando met <kbd
-										class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
-									>
+									{#if os === 'mac'}
+										Open Terminal en plak het commando met <kbd
+											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
+										>
+									{:else if os === 'windows'}
+										Open PowerShell en plak het commando met <kbd
+											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Ctrl+V</kbd
+										>
+									{:else}
+										Open een terminal en plak het commando met <kbd
+											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>Ctrl+Shift+V</kbd
+										>
+									{/if}
 								</p>
 								<button
 									onclick={confirmInstall}
@@ -334,10 +364,29 @@
 							{/if}
 
 							{#if step.hasStartStep}
-								{@const openCmd = 'open ~/babl'}
+								{@const openCmd =
+									os === 'mac'
+										? 'open ~/babl'
+										: os === 'windows'
+											? 'explorer %USERPROFILE%\\babl'
+											: 'xdg-open ~/babl'}
+								{@const startFile =
+									os === 'mac'
+										? 'start-babl.command'
+										: os === 'windows'
+											? 'start-babl.bat'
+											: './start-babl.sh'}
+								{@const fileManager =
+									os === 'mac' ? 'Finder' : os === 'windows' ? 'Verkenner' : 'bestandsbeheerder'}
 								<div class="rounded-lg bg-white/5 p-3 text-center">
-									<p class="text-sm text-white/70 mb-1">Open de babl map en dubbelklik op:</p>
-									<p class="font-mono text-sm font-semibold text-neon/90">start-babl.command</p>
+									<p class="text-sm text-white/70 mb-1">
+										{#if os === 'linux'}
+											Voer het volgende uit in een terminal:
+										{:else}
+											Open de babl map en dubbelklik op:
+										{/if}
+									</p>
+									<p class="font-mono text-sm font-semibold text-neon/90">{startFile}</p>
 								</div>
 								<button
 									onclick={() => copyCommand(openCmd)}
@@ -352,7 +401,7 @@
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										Gekopieerd! Plak in Terminal om map te openen
+										Gekopieerd!
 									{:else}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
@@ -362,16 +411,17 @@
 												d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
 											/>
 										</svg>
-										Open babl map in Finder
+										Open babl map in {fileManager}
 									{/if}
 								</button>
 								<p class="text-xs text-white/40 text-center">
-									Plak
-									<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
-										>open ~/babl</kbd
-									>
-									in Terminal, dubbelklik dan op
-									<strong class="text-white/60">start-babl</strong>
+									{#if os === 'linux'}
+										Voer <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>{startFile}</kbd
+										> uit in de babl map
+									{:else}
+										Dubbelklik op <strong class="text-white/60">{startFile}</strong> in {fileManager}
+									{/if}
 								</p>
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
@@ -381,84 +431,163 @@
 							{/if}
 
 							{#if step.hasModelDownload}
-								<!-- Model family toggle -->
-								<div class="flex flex-wrap gap-1 rounded-lg bg-white/5 p-1">
-									{#each Object.entries(MODEL_FAMILY_LABELS) as [family, label]}
-										<button
-											onclick={() => setSelectedFamily(family)}
-											class="rounded-md px-3 py-1.5 text-xs font-medium transition-all
-												{w.selectedFamily === family ? 'bg-neon/20 text-neon' : 'text-white/50 hover:text-white/70'}"
-										>
-											{label}
-										</button>
-									{/each}
+								<!-- Recommended model (qwen3:4b) -->
+								{@const recommendedModel = 'qwen3:4b'}
+								{@const recommendedInstalled = w.status.ollamaModels[recommendedModel] ?? false}
+								{@const recommendedDownloading =
+									w.modelDownloading && w.modelDownloadingName === recommendedModel}
+								<div class="rounded-lg bg-white/5 p-3">
+									<div class="flex items-center justify-between">
+										<div>
+											<span class="text-sm font-medium text-white/80">Standaard</span>
+											<span class="ml-2 text-xs text-neon/60">Aanbevolen</span>
+										</div>
+										{#if recommendedInstalled}
+											<span class="flex items-center gap-1 text-xs font-medium text-emerald-400">
+												<svg
+													class="h-3.5 w-3.5"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2.5"
+														d="M5 13l4 4L19 7"
+													/>
+												</svg>
+												Geinstalleerd
+											</span>
+										{:else if recommendedDownloading}
+											<span class="text-xs text-neon/70">
+												{w.modelDownloadProgress != null
+													? `${w.modelDownloadProgress}%`
+													: 'Bezig...'}
+											</span>
+										{:else}
+											<button
+												onclick={() => downloadModel(recommendedModel)}
+												disabled={w.modelDownloading}
+												class="rounded-lg bg-neon/15 px-3 py-1.5 text-xs font-medium text-neon transition-all hover:bg-neon/25 disabled:opacity-30 disabled:cursor-not-allowed"
+											>
+												Download
+											</button>
+										{/if}
+									</div>
+									{#if recommendedDownloading && w.modelDownloadProgress != null}
+										<div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+											<div
+												class="h-full rounded-full bg-neon transition-all duration-300"
+												style="width: {w.modelDownloadProgress}%"
+											></div>
+										</div>
+									{/if}
 								</div>
-								{#if MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
-									<p class="text-xs text-white/45 -mt-1">
-										{MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
-									</p>
-								{/if}
 
-								<div class="space-y-2">
-									{#each ollamaModels as { quality, model }}
-										{@const isInstalled = w.status.ollamaModels[model] ?? false}
-										{@const isDownloading = w.modelDownloading && w.modelDownloadingName === model}
-										{@const info = modelInfo[quality] ?? { storage: '?', ram: '?' }}
-										<div class="rounded-lg bg-white/5 p-3">
-											<div class="flex items-center justify-between">
-												<div>
-													<span class="text-sm font-medium text-white/80"
-														>{qualityLabels[quality] ?? quality}</span
-													>
-													<span class="ml-2 text-xs text-white/30">{info.storage}</span>
-													<span class="ml-1 text-xs text-neon/40">RAM {info.ram}</span>
-												</div>
-												{#if isInstalled}
-													<span
-														class="flex items-center gap-1 text-xs font-medium text-emerald-400"
-													>
-														<svg
-															class="h-3.5 w-3.5"
-															fill="none"
-															stroke="currentColor"
-															viewBox="0 0 24 24"
+								<!-- Expandable: all models -->
+								<button
+									onclick={() => (showAllModels = !showAllModels)}
+									class="flex w-full items-center gap-2 text-xs text-white/45 transition-colors hover:text-white/65"
+								>
+									<svg
+										class="h-3.5 w-3.5 transition-transform {showAllModels ? 'rotate-90' : ''}"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M9 5l7 7-7 7"
+										/>
+									</svg>
+									Andere modellen
+								</button>
+
+								{#if showAllModels}
+									<!-- Model family toggle -->
+									<div class="flex flex-wrap gap-1 rounded-lg bg-white/5 p-1">
+										{#each Object.entries(MODEL_FAMILY_LABELS) as [family, label]}
+											<button
+												onclick={() => setSelectedFamily(family)}
+												class="rounded-md px-3 py-1.5 text-xs font-medium transition-all
+													{w.selectedFamily === family ? 'bg-neon/20 text-neon' : 'text-white/50 hover:text-white/70'}"
+											>
+												{label}
+											</button>
+										{/each}
+									</div>
+									{#if MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
+										<p class="text-xs text-white/45 -mt-1">
+											{MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
+										</p>
+									{/if}
+
+									<div class="space-y-2">
+										{#each ollamaModels as { quality, model }}
+											{@const isInstalled = w.status.ollamaModels[model] ?? false}
+											{@const isDownloading =
+												w.modelDownloading && w.modelDownloadingName === model}
+											{@const info = modelInfo[quality] ?? { storage: '?', ram: '?' }}
+											<div class="rounded-lg bg-white/5 p-3">
+												<div class="flex items-center justify-between">
+													<div>
+														<span class="text-sm font-medium text-white/80"
+															>{qualityLabels[quality] ?? quality}</span
 														>
-															<path
-																stroke-linecap="round"
-																stroke-linejoin="round"
-																stroke-width="2.5"
-																d="M5 13l4 4L19 7"
-															/>
-														</svg>
-														Geinstalleerd
-													</span>
-												{:else if isDownloading}
-													<span class="text-xs text-neon/70">
-														{w.modelDownloadProgress != null
-															? `${w.modelDownloadProgress}%`
-															: 'Bezig...'}
-													</span>
-												{:else}
-													<button
-														onclick={() => downloadModel(model)}
-														disabled={w.modelDownloading}
-														class="rounded-lg bg-neon/15 px-3 py-1.5 text-xs font-medium text-neon transition-all hover:bg-neon/25 disabled:opacity-30 disabled:cursor-not-allowed"
-													>
-														Download
-													</button>
+														<span class="ml-2 text-xs text-white/30">{info.storage}</span>
+														<span class="ml-1 text-xs text-neon/40">RAM {info.ram}</span>
+													</div>
+													{#if isInstalled}
+														<span
+															class="flex items-center gap-1 text-xs font-medium text-emerald-400"
+														>
+															<svg
+																class="h-3.5 w-3.5"
+																fill="none"
+																stroke="currentColor"
+																viewBox="0 0 24 24"
+															>
+																<path
+																	stroke-linecap="round"
+																	stroke-linejoin="round"
+																	stroke-width="2.5"
+																	d="M5 13l4 4L19 7"
+																/>
+															</svg>
+															Geinstalleerd
+														</span>
+													{:else if isDownloading}
+														<span class="text-xs text-neon/70">
+															{w.modelDownloadProgress != null
+																? `${w.modelDownloadProgress}%`
+																: 'Bezig...'}
+														</span>
+													{:else}
+														<button
+															onclick={() => downloadModel(model)}
+															disabled={w.modelDownloading}
+															class="rounded-lg bg-neon/15 px-3 py-1.5 text-xs font-medium text-neon transition-all hover:bg-neon/25 disabled:opacity-30 disabled:cursor-not-allowed"
+														>
+															Download
+														</button>
+													{/if}
+												</div>
+												{#if isDownloading && w.modelDownloadProgress != null}
+													<div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+														<div
+															class="h-full rounded-full bg-neon transition-all duration-300"
+															style="width: {w.modelDownloadProgress}%"
+														></div>
+													</div>
 												{/if}
 											</div>
-											{#if isDownloading && w.modelDownloadProgress != null}
-												<div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
-													<div
-														class="h-full rounded-full bg-neon transition-all duration-300"
-														style="width: {w.modelDownloadProgress}%"
-													></div>
-												</div>
-											{/if}
-										</div>
-									{/each}
-								</div>
+										{/each}
+									</div>
+								{/if}
+
 								{#if w.modelDownloadError}
 									<p class="text-xs text-red-400">{w.modelDownloadError}</p>
 								{/if}
