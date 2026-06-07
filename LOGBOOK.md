@@ -296,3 +296,6 @@
 | 2026-06-07 | 22:54     | 22:55    | 0           | `90f6512`   | fix: ollama wizard bereikbaar zonder eerst te transcriberen                                                                     |
 | 2026-06-07 | 22:55     | 22:56    | .01         | `8888f98`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 22:56     | 22:56    | 0           | `798b983`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:56     | 22:56    | 0           | `f40403d`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:56     | 22:57    | .01         | `a785046`   | chore: about-pagina wijzigingen meenemen                                                                                        |
+| 2026-06-07 | 22:57     | 22:59    | .04         | `1e74c77`   | fix: verwijder dubbele grote logo's uit flow-diagram                                                                            |
