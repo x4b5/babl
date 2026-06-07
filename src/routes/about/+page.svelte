@@ -114,7 +114,7 @@
 			<!-- 3. Lokaal vs API -->
 			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">
-					Op dit apparaat (<img
+					Op de computer (<img
 						src="/openai.png"
 						alt=""
 						class="inline h-4 w-4 -mt-0.5 rounded-full"
@@ -131,7 +131,7 @@
 				</p>
 				<div class="grid gap-4 sm:grid-cols-2">
 					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
-						<h3 class="mb-2 text-sm font-semibold text-neon/80">Op dit apparaat</h3>
+						<h3 class="mb-2 text-sm font-semibold text-neon/80">Op de computer</h3>
 						<p class="mb-3 text-xs text-white/50">
 							Alles gebeurt op je eigen computer, niets verlaat je huis.
 						</p>
@@ -160,6 +160,9 @@
 								</li>
 								<li class="flex items-start gap-2">
 									<span class="text-amber-400/60">−</span> Vereist minimaal 8 GB werkgeheugen
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-amber-400/60">−</span> Werkt niet op telefoon of tablet
 								</li>
 							</ul>
 						</div>

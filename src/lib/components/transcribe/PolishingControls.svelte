@@ -49,7 +49,7 @@
 						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
 						: 'text-white/60 hover:text-white/80 scale-100'}"
 				>
-					<span class="block">Op dit apparaat</span>
+					<span class="block">Op de computer</span>
 					<span class="block text-xs opacity-70"
 						><img src="/ollama.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Ollama</span
 					>
@@ -68,12 +68,17 @@
 					>
 				</button>
 			</div>
+			{#if mode === 'local'}
+				<p class="text-xs text-white/40 mt-1">
+					Vereist minimaal 8 GB RAM. Niet beschikbaar op mobiel.
+				</p>
+			{/if}
 			{#if mode === 'local' && !localPolishingAvailable && onOpenSetupWizard}
 				<button
 					onclick={onOpenSetupWizard}
 					class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
 				>
-					Installeren op je apparaat
+					Installeren op je computer
 				</button>
 			{/if}
 			<a
