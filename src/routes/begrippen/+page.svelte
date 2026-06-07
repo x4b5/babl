@@ -82,6 +82,23 @@
 							buiten gestuurd.
 						</dd>
 					</div>
+					<div id="eu-ai-act">
+						<dt class="text-sm font-medium text-white/80">EU AI Act</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							De Europese wet die regelt hoe AI-systemen mogen worden ingezet. Vergelijkbaar met de
+							AVG, maar dan voor kunstmatige intelligentie. BABL valt in de categorie "minimaal
+							risico" omdat het geen beslissingen neemt over personen — het vertaalt alleen spraak
+							naar tekst.
+						</dd>
+					</div>
+					<div id="data-residency">
+						<dt class="text-sm font-medium text-white/80">Data residency (datalocatie)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							De fysieke plek waar je data wordt opgeslagen en verwerkt. BABL in API-modus gebruikt
+							alleen servers in de EU (Dublin voor transcriptie, EU-regio voor polijsten). In lokale
+							modus verlaat je data je computer niet.
+						</dd>
+					</div>
 				</dl>
 			</section>
 
@@ -153,10 +170,104 @@
 							herschrijven. Kan in de toekomst worden gebruikt om BABL beter Limburgs te leren.
 						</dd>
 					</div>
+					<div id="websocket">
+						<dt class="text-sm font-medium text-white/80">WebSocket</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een open verbinding tussen je browser en een server waardoor ze continu heen en weer
+							kunnen praten. Vergelijk het met een telefoongesprek (altijd verbonden) in plaats van
+							brieven sturen (steeds opnieuw verbinding maken). BABL gebruikt dit voor real-time
+							live transcriptie.
+						</dd>
+					</div>
+					<div id="wav">
+						<dt class="text-sm font-medium text-white/80">WAV (audioformaat)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een ongecomprimeerd audioformaat — alle geluidsinformatie blijft bewaard, niets wordt
+							weggegooid. BABL converteert je microfoon-opname naar WAV (16kHz, mono) omdat
+							spraakherkenning daar het beste mee werkt.
+						</dd>
+					</div>
+					<div id="apple-silicon">
+						<dt class="text-sm font-medium text-white/80">Apple Silicon / MLX</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Apple Silicon is de chip in nieuwere Macs (M1, M2, M3, M4). MLX is een rekenprogramma
+							van Apple dat AI-modellen snel laat draaien op die chip. BABL gebruikt mlx-whisper
+							zodat transcriptie lokaal snel werkt op een Mac.
+						</dd>
+					</div>
 				</dl>
 			</section>
 
-			<!-- 4. Kwaliteitsmeting -->
+			<!-- 4. Spraak & AI -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-4 text-lg font-semibold text-white/90">Spraak & AI</h2>
+				<dl class="space-y-4">
+					<div id="stt">
+						<dt class="text-sm font-medium text-white/80">STT (Speech-to-Text)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het omzetten van gesproken woorden naar geschreven tekst. De kern van wat BABL doet:
+							je spreekt Limburgs, en het systeem maakt er leesbare tekst van.
+						</dd>
+					</div>
+					<div id="transcriptie">
+						<dt class="text-sm font-medium text-white/80">Transcriptie</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Stap 1 in BABL: je spraak wordt letterlijk omgezet naar tekst. Dit is nog "ruw" —
+							dialectwoorden staan er precies in zoals je ze uitspreekt. Whisper doet dit werk.
+						</dd>
+					</div>
+					<div id="polijsten">
+						<dt class="text-sm font-medium text-white/80">Polijsten</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Stap 2 in BABL: de ruwe transcriptie wordt herschreven naar standaard Nederlands.
+							Dialectwoorden worden vertaald, grammatica wordt gecorrigeerd. Een AI-taalmodel
+							(Ollama of Mistral) doet dit werk.
+						</dd>
+					</div>
+					<div id="whisper">
+						<dt class="text-sm font-medium text-white/80">Whisper</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een spraakherkenningsmodel van OpenAI dat audio omzet naar tekst. Het "luistert" naar
+							je opname en schrijft op wat het hoort. BABL gebruikt het large-v3 model voor de beste
+							kwaliteit bij dialect.
+						</dd>
+					</div>
+					<div id="llm">
+						<dt class="text-sm font-medium text-white/80">LLM (Large Language Model)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een groot taalmodel — een AI die is getraind op enorme hoeveelheden tekst en daardoor
+							taal "begrijpt". BABL gebruikt een LLM (Gemma of Mistral) om dialecttekst om te zetten
+							naar standaard Nederlands.
+						</dd>
+					</div>
+					<div id="token">
+						<dt class="text-sm font-medium text-white/80">Token</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een stukje tekst waar een AI-model mee werkt — meestal een woord of woorddeel. Het
+							woord "fietsenstalling" kan bijvoorbeeld 3 tokens zijn: "fietsen", "stal", "ling".
+							BABL toont de polijsting token voor token zodat je het resultaat ziet verschijnen.
+						</dd>
+					</div>
+					<div id="prompt">
+						<dt class="text-sm font-medium text-white/80">Prompt</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							De instructie die je aan een AI-model geeft. Bij BABL is dat bijvoorbeeld: "Vertaal
+							deze Limburgse tekst naar standaard Nederlands, behoud de betekenis." Je ziet de
+							prompt niet, maar het stuurt het polijstresultaat.
+						</dd>
+					</div>
+					<div id="few-shot">
+						<dt class="text-sm font-medium text-white/80">Few-shot learning</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een techniek waarbij je de AI een paar voorbeelden geeft van wat je wilt. "Als ik
+							'sjoen' zeg, bedoel ik 'mooi'." BABL stuurt dialectvoorbeelden mee zodat het model
+							beter begrijpt hoe het moet vertalen.
+						</dd>
+					</div>
+				</dl>
+			</section>
+
+			<!-- 5. Kwaliteitsmeting -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-4 text-lg font-semibold text-white/90">Kwaliteitsmeting</h2>
 				<dl class="space-y-4">
@@ -172,6 +283,23 @@
 						<dd class="mt-1 text-xs leading-relaxed text-white/50">
 							Hetzelfde als WER, maar dan per letter in plaats van per woord. Nuttig bij talen met
 							samengestelde woorden, waar een fout woord soms maar een letter verschil heeft.
+						</dd>
+					</div>
+					<div id="hallucinatie">
+						<dt class="text-sm font-medium text-white/80">Hallucinatie</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Wanneer een AI-model iets verzint dat niet in de bron staat. Bij spraakherkenning:
+							woorden "horen" die er niet zijn. Bij polijsten: tekst toevoegen die je niet hebt
+							gezegd. BABL toont altijd de ruwe transcriptie naast het gepolijste resultaat zodat je
+							dit kunt controleren.
+						</dd>
+					</div>
+					<div id="confidence-score">
+						<dt class="text-sm font-medium text-white/80">Confidence score (betrouwbaarheid)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een getal (0–100%) dat aangeeft hoe zeker het model is van zijn resultaat. AssemblyAI
+							geeft per woord een confidence score. Hoe hoger, hoe waarschijnlijker dat het woord
+							correct is herkend.
 						</dd>
 					</div>
 				</dl>
