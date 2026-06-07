@@ -282,3 +282,4 @@
 | 2026-06-07 | 22:21     | 22:24    | .05         | `d36fa8e`   | feat: FAQ uitgebreid van 7 naar 14 vragen                                                                                       |
 | 2026-06-07 | 22:24     | 22:25    | .01         | `387c509`   | feat: research-agent voor model- en technologie-updates                                                                         |
 | 2026-06-07 | 22:25     | 22:26    | .01         | `8aed75d`   | feat: about-pagina uitgebreid met dialecten, tips en toegankelijkheid                                                           |
+| 2026-06-07 | 22:26     | 22:27    | .02         | `b2450c7`   | feat: setup wizard teksten vereenvoudigd voor beginners                                                                         |
