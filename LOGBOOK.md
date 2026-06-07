@@ -299,3 +299,4 @@
 | 2026-06-07 | 22:56     | 22:56    | 0           | `f40403d`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 22:56     | 22:57    | .01         | `a785046`   | chore: about-pagina wijzigingen meenemen                                                                                        |
 | 2026-06-07 | 22:57     | 22:59    | .04         | `1e74c77`   | fix: verwijder dubbele grote logo's uit flow-diagram                                                                            |
+| 2026-06-07 | 22:59     | 23:00    | .01         | `d091cae`   | chore: update LOGBOOK with latest session entry                                                                                 |
