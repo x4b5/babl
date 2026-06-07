@@ -6,6 +6,7 @@
 	} from '$lib/utils/cleanup';
 	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
 	import { checkBackendHealth } from '$lib/utils/health-check';
+	import { isMobile } from '$lib/utils/device';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
