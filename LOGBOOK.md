@@ -300,3 +300,6 @@
 | 2026-06-07 | 22:56     | 22:57    | .01         | `a785046`   | chore: about-pagina wijzigingen meenemen                                                                                        |
 | 2026-06-07 | 22:57     | 22:59    | .04         | `1e74c77`   | fix: verwijder dubbele grote logo's uit flow-diagram                                                                            |
 | 2026-06-07 | 22:59     | 23:00    | .01         | `d091cae`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 23:00     | 23:00    | 0           | `681f876`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 23:00     | 23:01    | 0           | `8ffbb29`   | fix: about-pagina Ollama-sectie veralgemeend (niet meer Gemma-specifiek)                                                        |
+| 2026-06-07 | 23:01     | 23:09    | .13         | `92cc021`   | feat: modellen-pagina met favicons & verwijder Gemma-specifieke referenties                                                     |
