@@ -1112,31 +1112,27 @@
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70">Mestreechs</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Het dialect van Maastricht en directe omgeving. Kenmerken: "iech" (ik), "sjoen"
-							(mooi), "kalle" (praten), "dök" (vaak). Sterk beïnvloed door het Frans en Waals.
+							Het dialect van Maastricht en directe omgeving. Beïnvloed door het Frans en Waals.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70">Zittesj</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Het dialect van Sittard en omgeving. Kenmerken: "richtig" (juist), "zusamme" (samen),
-							"bitte" (alsjeblieft), "plötzlich" (plotseling). Meer Duits-georiënteerd dan
-							zuidelijker varianten.
+							Het dialect van Sittard en omgeving. Meer Duits-georiënteerd dan zuidelijker
+							varianten.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70">Venloos</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Het dialect van Venlo en Noord-Limburg. Kenmerken: "gans" (heel), "ouch" (ook),
-							"mótte" (moeten), "drök" (druk). Meer verwant aan het Brabants en Kleefs.
+							Het dialect van Venlo en Noord-Limburg. Meer verwant aan het Brabants en Kleefs.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70">Kirchroeadsj</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Het dialect van Kerkrade en de Oostelijke Mijnstreek. Kenmerken: "d'r" (de/het),
-							"junt" (gaan), "tsimmer" (kamer), "uvver" (over). Sterk Ripuarisch (verwant aan het
-							Kölsch). Het meest afwijkend van standaard Nederlands.
+							Het dialect van Kerkrade en de Oostelijke Mijnstreek. Sterk Ripuarisch (verwant aan
+							het Kölsch). Het meest afwijkend van standaard Nederlands.
 						</p>
 					</div>
 				</div>
