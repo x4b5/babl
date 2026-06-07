@@ -32,7 +32,22 @@
 		<div class="space-y-6 animate-fade-in">
 			<!-- 1. Privacy & wetgeving -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Privacy & wetgeving</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+						/>
+					</svg>
+					Privacy & wetgeving
+				</h2>
 				<dl class="space-y-4">
 					<div id="avg">
 						<dt class="text-sm font-medium text-white/80">AVG / GDPR</dt>
@@ -104,7 +119,22 @@
 
 			<!-- 2. Certificeringen -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Certificeringen</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+						/>
+					</svg>
+					Certificeringen
+				</h2>
 				<dl class="space-y-4">
 					<div id="soc2">
 						<dt class="text-sm font-medium text-white/80">SOC 2 Type II</dt>
@@ -126,7 +156,22 @@
 
 			<!-- 3. Technologie -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Technologie</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+						/>
+					</svg>
+					Technologie
+				</h2>
 				<dl class="space-y-4">
 					<div id="indexeddb">
 						<dt class="text-sm font-medium text-white/80">IndexedDB</dt>
@@ -200,7 +245,22 @@
 
 			<!-- 4. Spraak & AI -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Spraak & AI</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+						/>
+					</svg>
+					Spraak & AI
+				</h2>
 				<dl class="space-y-4">
 					<div id="stt">
 						<dt class="text-sm font-medium text-white/80">STT (Speech-to-Text)</dt>
@@ -269,7 +329,22 @@
 
 			<!-- 5. Kwaliteitsmeting -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Kwaliteitsmeting</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+						/>
+					</svg>
+					Kwaliteitsmeting
+				</h2>
 				<dl class="space-y-4">
 					<div id="wer">
 						<dt class="text-sm font-medium text-white/80">WER (Word Error Rate)</dt>
@@ -307,7 +382,22 @@
 
 			<!-- 6. Dialect & taal -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Dialect & taal</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+						/>
+					</svg>
+					Dialect & taal
+				</h2>
 				<dl class="space-y-4">
 					<div id="dialect">
 						<dt class="text-sm font-medium text-white/80">Dialect</dt>
@@ -362,7 +452,27 @@
 
 			<!-- 7. Verwerking & architectuur -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-4 text-lg font-semibold text-white/90">Verwerking & architectuur</h2>
+				<h2 class="mb-4 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+						/>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+						/>
+					</svg>
+					Verwerking & architectuur
+				</h2>
 				<dl class="space-y-4">
 					<div id="lokale-modus">
 						<dt class="text-sm font-medium text-white/80">Lokale modus</dt>

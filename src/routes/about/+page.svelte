@@ -1242,7 +1242,23 @@
 
 			<!-- 9. Toegankelijkheid -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Toegankelijkheid</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="12" cy="12" r="10" />
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 8a1 1 0 100-2 1 1 0 000 2zm-2 3h4m-2 0v5m-2 0h4"
+						/>
+					</svg>
+					Toegankelijkheid
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					BABL is ontworpen om voor zo veel mogelijk mensen bruikbaar te zijn:
 				</p>
@@ -1287,7 +1303,22 @@
 
 			<!-- 10. Open source & contact -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Open source & contact</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+						/>
+					</svg>
+					Open source & contact
+				</h2>
 				<p class="text-sm leading-relaxed text-white/60">
 					BABL is een experimenteel project. Heb je vragen, suggesties of wil je bijdragen? Neem
 					contact op:

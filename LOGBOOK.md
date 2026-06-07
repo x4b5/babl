@@ -291,3 +291,4 @@
 | 2026-06-07 | 22:33     | 22:37    | .06         | `7409ee3`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 22:37     | 22:38    | .02         | `6ea848d`   | fix: stap 3 vereenvoudigd — kopieer+plak in Terminal i.p.v. Finder                                                              |
 | 2026-06-07 | 22:38     | 22:51    | .20         | `29d70d0`   | feat: UX-verbeteringen transcriptie-flow                                                                                        |
+| 2026-06-07 | 22:51     | 22:53    | .03         | `4c3b194`   | feat: about-pagina visuele verbeteringen                                                                                        |
