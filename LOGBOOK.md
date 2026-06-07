@@ -268,3 +268,4 @@
 | 2026-06-07 | 21:51     | 21:54    | .03         | `edc9d6d`   | feat: Fase 4 — begrippenlijst & uitleg in de app                                                                                |
 | 2026-06-07 | 21:54     | 21:56    | .03         | `83ec1b6`   | feat: Fase 5 — mobiele UX & responsiviteit                                                                                      |
 | 2026-06-07 | 21:56     | 21:59    | .06         | `3aea208`   | feat: Fase 7 — FAQ-pagina met 7 veelgestelde vragen                                                                             |
+| 2026-06-07 | 21:59     | 21:59    | 0           | `8cad85c`   | feat: fase 6.1 — uitbreiding naar 5 modelfamilies met RAM-labels                                                                |
