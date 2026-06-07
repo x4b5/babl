@@ -305,3 +305,10 @@
 | 2026-06-07 | 23:01     | 23:09    | .13         | `92cc021`   | feat: modellen-pagina met favicons & verwijder Gemma-specifieke referenties                                                     |
 | 2026-06-07 | 23:09     | 23:10    | .01         | `202d1d8`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 23:10     | 23:21    | .19         | `af239a6`   | feat: modelbeschrijvingen uitgebreid met maker en taalkwaliteit                                                                 |
+| 2026-06-07 | 23:21     | 23:23    | .02         | `e527255`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 23:23     | 23:24    | .02         | `3e57fef`   | fix: disable Genereren button when API mode without Mistral configured                                                          |
+| 2026-06-07 | 23:24     | 23:28    | .06         | `6838d74`   | feat: duidelijkere 3-stappen flow in transcriptieproces                                                                         |
+| 2026-06-07 | 23:28     | 23:28    | 0           | `3b2d9aa`   | fix: dialectvoorbeelden verwijderd van about-pagina                                                                             |
+| 2026-06-07 | 23:28     | 23:30    | .03         | `f99b104`   | feat: stappenbalk sticky gemaakt zodat hij meescrollt                                                                           |
+| 2026-06-07 | 23:30     | 23:31    | .01         | `03aaa7e`   | fix: verwijder dubbele Ollama-link boven opnameknop                                                                             |
+| 2026-06-07 | 23:31     | 23:32    | .02         | `4356226`   | fix: stappenbalk sticky — overflow-x i.p.v. overflow op bg-dark-gradient                                                        |
