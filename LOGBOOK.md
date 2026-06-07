@@ -276,3 +276,5 @@
 | 2026-06-07 | 22:12     | 22:14    | .03         | `53c7d39`   | feat: fase 9 — drie extra agents (test, performance, docs)                                                                      |
 | 2026-06-07 | 22:14     | 22:15    | .01         | `4f0c7f1`   | feat: begrippenlijst uitgebreid met dialect- en architectuursecties                                                             |
 | 2026-06-07 | 22:15     | 22:15    | 0           | `6bc5960`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:15     | 22:18    | .05         | `0cd467f`   | feat: setup wizard OS-aware met vereenvoudigde modelkeuze                                                                       |
+| 2026-06-07 | 22:18     | 22:20    | .02         | `4c50697`   | feat: fase 9 — drie extra agents (a11y, api-contract, compliance)                                                               |
