@@ -436,7 +436,47 @@
 				</div>
 			</section>
 
-			<!-- 5. Technologie onder de motorkap -->
+			<!-- 5. Waar blijft je data? -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90">Waar blijft je data?</h2>
+				<p class="mb-4 text-sm text-white/60">
+					Korte versie: nergens. BABL slaat niets op op een server.
+				</p>
+				<div class="space-y-3">
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Tijdens het gebruik</h3>
+						<p class="mt-1 text-xs leading-relaxed text-white/50">
+							Opnames en tekst bestaan alleen in je browsersessie — het tijdelijke werkgeheugen van
+							je browser. Technisch heet dit
+							<a
+								href="/begrippen#indexeddb"
+								class="text-neon/60 underline decoration-neon/20 underline-offset-2 hover:text-neon transition-colors"
+							>
+								IndexedDB</a
+							>: een soort kladblok dat alleen op jouw computer staat.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Na het sluiten</h3>
+						<p class="mt-1 text-xs leading-relaxed text-white/50">
+							Sluit je de browsertab? Dan is alles definitief verdwenen. Audio, transcriptie,
+							gepolijste tekst — niets blijft bewaard. Er is geen account, geen cloud-opslag, geen
+							manier om het terug te halen.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Lokaal vs API</h3>
+						<p class="mt-1 text-xs leading-relaxed text-white/50">
+							<span class="text-neon/70">Lokale modus:</span> data verlaat je computer niet. Alles
+							wordt verwerkt door programma's die op jouw machine draaien.<br />
+							<span class="text-indigo-400/70">API-modus:</span> audio wordt naar EU-servers gestuurd
+							voor verwerking en direct daarna verwijderd door de aanbieder. Er wordt niets bewaard.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 6. Technologie onder de motorkap -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">Technologie onder de motorkap</h2>
 				<p class="mb-4 text-sm text-white/60">
@@ -472,9 +512,22 @@
 							> / Gemma
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Open-source taalmodel dat lokaal draait via Ollama (een tool die AI-modellen op je
-							eigen computer laat draaien). Gemma is een compact maar krachtig model van Google,
-							geschikt voor het polijsten van tekst.
+							Ollama is een programma dat AI-modellen op je eigen computer laat draaien, zonder
+							internet. Vergelijk het met een rekenmachine die op je bureau staat in plaats van in
+							de cloud. Gemma is het taalmodel dat via Ollama draait — compact genoeg voor een
+							gewone laptop (8 GB werkgeheugen volstaat).
+						</p>
+						<p class="mt-1.5 text-xs text-white/40">
+							Ollama is optioneel: als je API-modus kiest, heb je het niet nodig. Dan polijst
+							Mistral AI (op EU-servers) je tekst in plaats van Gemma op je computer.
+						</p>
+						<p class="mt-1.5">
+							<a
+								href="/begrippen#ollama"
+								class="text-xs text-neon/60 underline decoration-neon/20 underline-offset-2 hover:text-neon transition-colors"
+							>
+								Meer uitleg &rarr;
+							</a>
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
@@ -572,6 +625,8 @@
 				<a href="/cookies" class="hover:text-white/60 transition-colors">Cookies</a>
 				<span class="text-white/10">|</span>
 				<a href="/voorwaarden" class="hover:text-white/60 transition-colors">Voorwaarden</a>
+				<span class="text-white/10">|</span>
+				<a href="/begrippen" class="hover:text-white/60 transition-colors">Begrippen</a>
 			</div>
 		</footer>
 	</div>
