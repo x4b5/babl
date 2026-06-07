@@ -5,10 +5,12 @@ import {
 	setLocalAvailable,
 	setOllamaAvailable
 } from '$lib/stores/transcribe.svelte';
+import { isMobile } from './device';
 
 /**
  * Check availability of API and local backends.
  * Called once on page mount — not a reactive effect.
+ * On mobile: skips localhost check (unreachable anyway).
  */
 export function checkBackendHealth(): void {
 	fetch('/api/health')
@@ -21,6 +23,12 @@ export function checkBackendHealth(): void {
 			setMistralAvailable(false);
 			setAssemblyAvailable(false);
 		});
+
+	if (isMobile()) {
+		setLocalAvailable(false);
+		setOllamaAvailable(false);
+		return;
+	}
 
 	fetch(`${LOCAL_BACKEND_URL}/health`)
 		.then((r) => r.json())

@@ -4,6 +4,7 @@
  */
 
 import type { ErrorType } from '$lib/utils/error-types';
+import { isMobile } from '$lib/utils/device';
 
 // ── Type definitions ──────────────────────────────────────────
 
@@ -362,6 +363,7 @@ export function setReportLength(v: ReportLength) {
 	reportLength = v;
 }
 export function setTranscribeMode(v: Mode) {
+	if (v === 'local' && isMobile()) return;
 	transcribeMode = v;
 }
 export function setModelFamily(v: string) {
