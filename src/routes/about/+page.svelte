@@ -41,7 +41,7 @@
 				<p class="mt-3 text-sm leading-relaxed text-white/60">
 					Spreek in dialect, en BABL zet het om naar leesbaar Nederlands. Of het nu een interview
 					is, een vergadering, een persoonlijke notitie of een verslag — jij praat zoals je praat,
-					BABL doet de rest.
+					BABL probeert de rest te doen.
 				</p>
 				<p class="mt-3 text-sm leading-relaxed text-white/60">
 					Gemaakt voor iedereen die in het Limburgs spreekt maar in het Nederlands wil schrijven:
@@ -93,7 +93,7 @@
 					<h3 class="mb-2 text-sm font-medium text-white/70">Waarom werkt dit voor Limburgs?</h3>
 					<p class="text-xs leading-relaxed text-white/50">
 						Whisper is getraind op miljoenen uren spraak in meer dan 90 talen, maar kent het
-						Limburgs niet als aparte taal. BABL lost dit slim op: Whisper staat ingesteld op
+						Limburgs niet als aparte taal. BABL werkt hier omheen: Whisper staat ingesteld op
 						Nederlands, zodat het Limburgse spraak direct probeert om te zetten naar Nederlandse
 						woorden. Iemand zegt "naor de merret" en Whisper schrijft "naar de markt". Daarnaast
 						krijgt Whisper voorbeeldzinnen in dialect mee en een lijst van honderden Limburgse
@@ -104,10 +104,33 @@
 						Het resultaat is een ruwe transcriptie die al grotendeels in het Nederlands staat — maar
 						nog niet perfect is. Gesproken taal bevat herhalingen, halve zinnen en soms woorden die
 						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel (Gemma of
-						Mistral) leest de ruwe tekst en maakt er vloeiend, correct Nederlands van. Het
+						Mistral) leest de ruwe tekst en probeert er leesbaar Nederlands van te maken. Het
 						verwijdert herhalingen, herstelt zinsbouw en polijst eventuele fouten — zodat je een
 						leesbaar verslag overhoudt van wat er gezegd is.
 					</p>
+				</div>
+
+				<div class="mt-4 border-t border-white/10 pt-4">
+					<h3 class="mb-2 text-sm font-medium text-amber-400/80">Wat BABL niet goed kan</h3>
+					<ul class="space-y-1.5 text-xs text-white/50">
+						<li class="flex items-start gap-2">
+							<span class="text-amber-400/60">!</span> Whisper kent het Limburgs niet als aparte taal
+							— het valt terug op Nederlands met dialecthints. Bij sterk accent, snel spreken of veel
+							achtergrondlawaai maakt het fouten.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="text-amber-400/60">!</span> De polijststap kan woorden verkeerd vertalen of
+							betekenis veranderen. Controleer het resultaat altijd.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="text-amber-400/60">!</span> Korte opnames (&lt;5 seconden) geven onbetrouwbare
+							resultaten.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="text-amber-400/60">!</span> BABL is experimenteel en geen vervanging voor professionele
+							transcriptie.
+						</li>
+					</ul>
 				</div>
 			</section>
 
@@ -189,7 +212,7 @@
 							<p class="font-medium text-neon/70">Voordelen</p>
 							<ul class="space-y-1 text-white/50">
 								<li class="flex items-start gap-2">
-									<span class="text-neon/60">+</span> Sneller en nauwkeuriger
+									<span class="text-neon/60">+</span> Doorgaans sneller (verwerking op krachtige servers)
 								</li>
 								<li class="flex items-start gap-2">
 									<span class="text-neon/60">+</span> Geen installatie nodig, werkt direct
@@ -216,6 +239,23 @@
 									<span class="text-amber-400/60">−</span> Vereist internetverbinding
 								</li>
 							</ul>
+						</div>
+						<div class="mb-3 space-y-1.5 text-xs border-t border-white/10 pt-3">
+							<p class="font-medium text-indigo-400/70">Waarom uitsluitend EU-servers?</p>
+							<ul class="space-y-1 text-white/50">
+								<li class="flex items-start gap-2">
+									<span class="text-indigo-400/60">1.</span> De AVG (GDPR) geldt volledig binnen de EU
+									— je data valt onder Europese privacywetgeving.
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="text-indigo-400/60">2.</span> De Amerikaanse CLOUD Act geeft de VS toegang
+									tot data bij Amerikaanse aanbieders, ook als die fysiek in Europa staat. Door Europese
+									diensten te kiezen (AssemblyAI Dublin, Mistral Parijs) vermijden we dit risico.
+								</li>
+							</ul>
+							<p class="mt-1.5 text-white/40 italic">
+								Als de data de deur verlaat, blijft het in de EU.
+							</p>
 						</div>
 						<div class="space-y-1.5 text-xs border-t border-white/10 pt-3">
 							<p class="font-medium text-white/50">AVG & AI Act</p>
@@ -349,7 +389,7 @@
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Audio wordt direct na transcriptie verwijderd
+								Audio wordt na verwerking verwijderd door de dienstverlener (zie AssemblyAI DPA)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
@@ -456,6 +496,31 @@
 							geboortedatums en medische gegevens worden automatisch uit de transcriptie verwijderd.
 							Wordt gebruikt in API-modus voor transcriptie.
 						</p>
+						<p class="mt-1.5 text-xs text-white/30">
+							<a
+								href="https://www.assemblyai.com/security"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
+								>EU Data Residency & Security</a
+							>
+							·
+							<a
+								href="https://www.assemblyai.com/legal/data-processing-addendum"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
+								>DPA</a
+							>
+							·
+							<a
+								href="https://www.assemblyai.com/docs/speech-to-text/pii-redaction"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
+								>PII-redactie docs</a
+							>
+						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70 flex items-center gap-1.5">
@@ -471,6 +536,15 @@
 						<p class="mt-1 text-xs text-white/40">
 							Europees AI-bedrijf gevestigd in Parijs. Alle servers staan in de EU. Wordt gebruikt
 							in API-modus voor het polijsten van dialect.
+						</p>
+						<p class="mt-1.5 text-xs text-white/30">
+							<a
+								href="https://mistral.ai/trust/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
+								>Privacy & Trust</a
+							>
 						</p>
 					</div>
 				</div>

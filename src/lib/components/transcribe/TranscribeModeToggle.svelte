@@ -48,6 +48,8 @@
 	</div>
 	{#if transcribeMode === 'local'}
 		<p class="text-xs text-white/40 mt-1">Vereist minimaal 8 GB RAM. Niet beschikbaar op mobiel.</p>
+	{:else if transcribeMode === 'api'}
+		<p class="text-xs text-white/40 mt-1">EU-servers (Dublin + Parijs). Geen data naar de VS.</p>
 	{/if}
 	{#if !localAvailable && onOpenSetupWizard}
 		<button

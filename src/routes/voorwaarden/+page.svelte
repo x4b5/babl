@@ -146,9 +146,93 @@
 				</p>
 			</section>
 
-			<!-- 8. Contact -->
+			<!-- 8. Begrippenlijst -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white">8. Contact</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white">8. Begrippenlijst</h2>
+				<p class="mb-4 text-sm text-white/70">
+					Hieronder leggen we juridische termen uit die in deze voorwaarden voorkomen, in gewone
+					taal.
+				</p>
+
+				<h3 class="mb-2 text-sm font-semibold text-white/80">Juridische termen</h3>
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="border-b border-white/10 text-left text-xs text-white/55">
+								<th class="pb-2 pr-4 font-medium">Term</th>
+								<th class="pb-2 font-medium">Uitleg</th>
+							</tr>
+						</thead>
+						<tbody class="text-white/60">
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-4 font-medium text-white/70">"As is"</td>
+								<td class="py-2">
+									De software wordt geleverd zoals die is, zonder garanties dat alles altijd
+									foutloos werkt
+								</td>
+							</tr>
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-4 font-medium text-white/70">ToS (Terms of Service)</td>
+								<td class="py-2">
+									De gebruiksvoorwaarden van externe diensten — in dit geval van AssemblyAI en
+									Mistral AI
+								</td>
+							</tr>
+							<tr>
+								<td class="py-2 pr-4 font-medium text-white/70">Opt-in</td>
+								<td class="py-2">
+									Je moet expliciet toestemming geven voordat iets wordt ingeschakeld — het staat
+									niet standaard aan
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<h3 class="mb-2 mt-5 text-sm font-semibold text-white/80">Rollen in de context van BABL</h3>
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="border-b border-white/10 text-left text-xs text-white/55">
+								<th class="pb-2 pr-4 font-medium">Rol</th>
+								<th class="pb-2 font-medium">Wie is dat bij BABL</th>
+							</tr>
+						</thead>
+						<tbody class="text-white/60">
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-4 font-medium text-white/70">Verwerkingsverantwoordelijke</td>
+								<td class="py-2">
+									De organisatie die BABL inzet (bijv. een zorginstelling die BABL gebruikt voor
+									verslaglegging)
+								</td>
+							</tr>
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-4 font-medium text-white/70">Verwerker</td>
+								<td class="py-2">
+									De exploitant van BABL die de software aanbiedt en technisch beheert
+								</td>
+							</tr>
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-4 font-medium text-white/70">Subverwerker</td>
+								<td class="py-2">
+									AssemblyAI en Mistral AI — externe diensten die in API-modus namens de verwerker
+									data verwerken
+								</td>
+							</tr>
+							<tr>
+								<td class="py-2 pr-4 font-medium text-white/70">Eindgebruiker</td>
+								<td class="py-2">
+									De persoon die daadwerkelijk met BABL werkt (opnames maakt, tekst genereert)
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<!-- 9. Contact -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white">9. Contact</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					Heb je vragen over deze voorwaarden? Neem contact met ons op:
 				</p>

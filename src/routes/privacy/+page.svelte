@@ -208,13 +208,13 @@
 								<td class="py-2 pr-4 font-medium text-white/70">AssemblyAI</td>
 								<td class="py-2 pr-4">Spraaktranscriptie + PII-redactie</td>
 								<td class="py-2 pr-4">Dublin, Ierland</td>
-								<td class="py-2">SOC 2 Type 2</td>
+								<td class="py-2">SOC 2 Type 2, ISO 27001</td>
 							</tr>
 							<tr class="border-b border-white/5">
 								<td class="py-2 pr-4 font-medium text-white/70">Mistral AI</td>
 								<td class="py-2 pr-4">Tekst polijsten</td>
 								<td class="py-2 pr-4">EU-servers</td>
-								<td class="py-2">—</td>
+								<td class="py-2">SOC 2 Type II, ISO 27001</td>
 							</tr>
 							<tr class="border-b border-white/5">
 								<td class="py-2 pr-4 font-medium text-white/70">PostHog</td>
@@ -231,9 +231,18 @@
 						</tbody>
 					</table>
 				</div>
+				<div class="mt-4 rounded-xl border border-neon/20 bg-neon/5 p-4 text-sm text-white/60">
+					<p class="mb-1 font-medium text-neon/80">Wat betekent SOC 2 Type II?</p>
+					<p>
+						SOC 2 Type II is een onafhankelijke audit die aantoont dat een dienst gedurende een
+						langere periode (minimaal 6 maanden) veilig, beschikbaar en vertrouwelijk opereert. Een
+						externe auditor controleert of de beveiligingsmaatregelen niet alleen bestaan, maar ook
+						daadwerkelijk werken in de praktijk.
+					</p>
+				</div>
 				<p class="mt-3 text-xs text-white/50">
 					Derde partijen worden alleen ingeschakeld in API-modus. In lokale modus verlaat geen data
-					je apparaat.
+					je computer.
 				</p>
 			</section>
 
@@ -341,8 +350,8 @@
 					<li class="flex items-start gap-3">
 						<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500/60"></span>
 						<div>
-							<span class="font-medium text-white/80">Risicoklasse</span> — Minimaal risico. BABL valt
-							niet onder de categorie hoog-risico of verboden AI-toepassingen.
+							<span class="font-medium text-white/80">Risicoklasse</span> — Beperkt risico (limited risk).
+							BABL valt niet onder de categorie hoog-risico of verboden AI-toepassingen.
 						</div>
 					</li>
 					<li class="flex items-start gap-3">
@@ -368,6 +377,30 @@
 						</div>
 					</li>
 				</ul>
+				<div
+					class="mt-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-sm text-white/60"
+				>
+					<p class="mb-2 font-medium text-indigo-400/80">Onderbouwing risicoklasse</p>
+					<ul class="space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+							Geen geautomatiseerde besluitvorming over personen
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+							Geen inzet in kritieke infrastructuur
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+							Geen hoogrisico-toepassing (artikel 6 en bijlage III van Verordening 2024/1689)
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+							BABL valt onder de transparantieverplichting: gebruikers worden geïnformeerd dat ze met
+							AI werken
+						</li>
+					</ul>
+				</div>
 			</section>
 
 			<!-- 10. Wijzigingen -->

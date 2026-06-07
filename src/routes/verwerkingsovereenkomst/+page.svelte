@@ -438,17 +438,148 @@
 				</ul>
 			</section>
 
+			<!-- Verwerkingsregister -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white">Verwerkingsregister</h2>
+				<p class="mb-3 text-sm leading-relaxed text-white/70">
+					Een verwerkingsregister is een overzicht van alle verwerkingsactiviteiten: welke
+					persoonsgegevens je verwerkt, met welk doel, op welke grondslag en hoe lang je ze bewaart.
+					Onder de AVG (artikel 30) is dit verplicht voor organisaties met meer dan 250 medewerkers,
+					of bij structurele verwerking van persoonsgegevens.
+				</p>
+				<div class="mb-4 rounded-xl border border-neon/20 bg-neon/5 p-4 text-sm text-white/60">
+					<p class="mb-1 font-medium text-neon/80">Is dit verplicht voor mij?</p>
+					<p>
+						Als je BABL incidenteel gebruikt (bijv. als individuele gebruiker) is een register niet
+						verplicht. Maar als je BABL structureel inzet binnen een organisatie (bijv. dagelijks in
+						een zorginstelling), is het sterk aan te raden om een verwerkingsregister bij te houden.
+					</p>
+				</div>
+				<h3 class="mb-2 text-sm font-semibold text-white/80">Minimaal sjabloon voor BABL</h3>
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="border-b border-white/10 text-left text-xs text-white/55">
+								<th class="pb-2 pr-3 font-medium">Verwerkingsactiviteit</th>
+								<th class="pb-2 pr-3 font-medium">Categorieën gegevens</th>
+								<th class="pb-2 pr-3 font-medium">Grondslag</th>
+								<th class="pb-2 pr-3 font-medium">Bewaartermijn</th>
+								<th class="pb-2 font-medium">Beveiliging</th>
+							</tr>
+						</thead>
+						<tbody class="text-white/60">
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-3 font-medium text-white/70">Spraaktranscriptie</td>
+								<td class="py-2 pr-3">Audio-opnames, spraak</td>
+								<td class="py-2 pr-3">Toestemming (art. 6.1a)</td>
+								<td class="py-2 pr-3">Alleen tijdens verwerking</td>
+								<td class="py-2">HTTPS, geen opslag</td>
+							</tr>
+							<tr class="border-b border-white/5">
+								<td class="py-2 pr-3 font-medium text-white/70">Tekst polijsten</td>
+								<td class="py-2 pr-3">Getranscribeerde tekst</td>
+								<td class="py-2 pr-3">Toestemming (art. 6.1a)</td>
+								<td class="py-2 pr-3">Sessieduur</td>
+								<td class="py-2">HTTPS, PII-redactie</td>
+							</tr>
+							<tr>
+								<td class="py-2 pr-3 font-medium text-white/70">Lokale opslag (fallback)</td>
+								<td class="py-2 pr-3">Audio (max 3 opnames)</td>
+								<td class="py-2 pr-3">Gerechtvaardigd belang (art. 6.1f)</td>
+								<td class="py-2 pr-3">Tot verwijdering door gebruiker</td>
+								<td class="py-2">IndexedDB, alleen lokaal</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<!-- Geheimhoudingsverklaring -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white">Geheimhoudingsverklaring</h2>
+				<p class="mb-3 text-sm leading-relaxed text-white/70">
+					Een geheimhoudingsverklaring (NDA) is niet voor alle situaties wettelijk verplicht, maar
+					sterk aan te raden als medewerkers of beheerders toegang hebben tot de BABL-server of
+					-infrastructuur. De verwerkingsovereenkomst (artikel 6.3) verplicht geheimhouding voor
+					alle personen met toegang tot persoonsgegevens.
+				</p>
+				<div
+					class="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-white/60"
+				>
+					<p class="mb-1 font-medium text-amber-400/80">Wanneer heb je dit nodig?</p>
+					<ul class="mt-2 space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500/50"></span>
+							Medewerkers die de BABL-server beheren of configureren
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500/50"></span>
+							IT-beheerders met toegang tot API-sleutels of logs
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500/50"></span>
+							Externe partijen die ondersteuning bieden aan de BABL-installatie
+						</li>
+					</ul>
+				</div>
+				<div class="flex flex-col items-start gap-3">
+					<a
+						href="/geheimhoudingsverklaring.md"
+						download
+						class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent-start)] to-[var(--color-neon)] px-5 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
+					>
+						<svg
+							class="h-4 w-4"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+							/>
+						</svg>
+						Download geheimhoudingsverklaring (.md)
+					</a>
+					<p class="text-xs text-white/50">
+						Invulbaar template — vul de gegevens van je organisatie en medewerker in
+					</p>
+				</div>
+			</section>
+
 			<!-- Volledige versie -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white">Volledige verwerkingsovereenkomst</h2>
 				<p class="text-sm leading-relaxed text-white/70">
 					Dit is een samenvatting van de verwerkingsovereenkomst. De volledige juridische tekst met
-					alle artikelen, definities en ondertekeningsvelden is beschikbaar als download.
+					alle 16 artikelen, definities en ondertekeningsvelden kun je hieronder downloaden als
+					Markdown-bestand. Dit kun je openen in elke teksteditor of converteren naar PDF.
 				</p>
-				<div class="mt-3 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/60">
-					<p>
-						Neem contact op via <span class="text-white/55">[CONTACT EMAIL]</span> voor de volledige verwerkingsovereenkomst
-						of om een getekend exemplaar aan te vragen.
+				<div class="mt-4 flex flex-col items-start gap-3">
+					<a
+						href="/verwerkingsovereenkomst.md"
+						download
+						class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-accent-start)] to-[var(--color-neon)] px-5 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
+					>
+						<svg
+							class="h-4 w-4"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+							/>
+						</svg>
+						Download verwerkingsovereenkomst (.md)
+					</a>
+					<p class="text-xs text-white/50">
+						Markdown-formaat — te openen in elke teksteditor, Word, of te converteren naar PDF
 					</p>
 				</div>
 			</section>
