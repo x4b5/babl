@@ -41,5 +41,5 @@ class UserCorrectionRequest(BaseModel):
     session_id: str
     dialect_region: str = "limburgs"
     original_text: str
-    corrected_text: str
+    polished_text: str
     user_correction: str

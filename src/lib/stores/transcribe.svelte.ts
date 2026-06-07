@@ -13,6 +13,7 @@ export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
 export type ReportLength = 'samenvatting' | 'uitgebreid';
 export type ApiStreamMode = 'realtime' | 'accurate';
+export type Region = 'limburgs' | 'mestreechs' | 'zittesj' | 'venloos' | 'kirchroeadsj';
 
 export interface WordWithConfidence {
 	text: string;
@@ -37,6 +38,7 @@ export const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 export const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice
 export const SSE_STALL_TIMEOUT_MS = 30000; // 30s: abort SSE stream if no data received
 export const LOCAL_SSE_STALL_TIMEOUT_MS = 120000; // 120s: local Whisper needs more time per chunk
+export const RECORDING_MIN_SECONDS = 2; // minimaal 2 seconden voor betrouwbare transcriptie
 export const RECORDING_MAX_SECONDS = 2 * 60 * 60; // 120 minuten max
 export const RECORDING_WARN_SECONDS = 110 * 60; // waarschuwing bij 110 minuten
 
@@ -88,6 +90,7 @@ let localAvailable = $state(false);
 let ollamaAvailable = $state(false);
 let privacyOpen = $state(false);
 let keepDialect = $state(false);
+let region = $state<Region>('limburgs');
 let confidenceWords = $state<WordWithConfidence[]>([]);
 let lowConfidenceCount = $state(0);
 let evalResult = $state<EvalResult | null>(null);
@@ -235,6 +238,9 @@ export function getTranscribeState() {
 		get keepDialect() {
 			return keepDialect;
 		},
+		get region() {
+			return region;
+		},
 		get confidenceWords() {
 			return confidenceWords;
 		},
@@ -381,6 +387,9 @@ export function setOllamaAvailable(v: boolean) {
 }
 export function setPrivacyOpen(v: boolean) {
 	privacyOpen = v;
+}
+export function setRegion(v: Region) {
+	region = v;
 }
 export function setConfidenceWords(v: WordWithConfidence[]) {
 	confidenceWords = v;

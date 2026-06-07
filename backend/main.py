@@ -1,14 +1,22 @@
 """BABL backend — FastAPI app with modular routes."""
 
 import asyncio
+import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(Path(__file__).parent / ".env")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from config import warmup_ollama  # noqa: E402
 from routes.health import router as health_router  # noqa: E402
@@ -28,9 +36,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+_cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[o.strip() for o in _cors_origins.split(",")],
     allow_methods=["*"],
     allow_headers=["*"],
 )

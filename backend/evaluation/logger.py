@@ -102,7 +102,7 @@ def log_correction(
     session_id: str,
     dialect_region: str,
     original_text: str,
-    corrected_text: str,
+    polished_text: str,
     user_correction: str,
     log_dir: Path = DEFAULT_LOG_PATH,
 ) -> Path:
@@ -116,7 +116,7 @@ def log_correction(
         "session_id": session_id,
         "dialect_region": dialect_region,
         "original_text": original_text,
-        "corrected_text": corrected_text,
+        "polished_text": polished_text,
         "user_correction": user_correction,
     }
 

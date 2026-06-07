@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-from polishing import CorrectionOutput
+from polishing import PolishingOutput
 
 
 @pytest.fixture
@@ -41,10 +41,10 @@ def hallucination_test_strings():
 
 @pytest.fixture
 def sample_polishing_output():
-    """Sample CorrectionOutput instance for testing."""
-    return CorrectionOutput(
+    """Sample PolishingOutput instance for testing."""
+    return PolishingOutput(
         original="Iech bin gister nao de maat gegange.",
-        corrected="Ik ben gisteren naar de markt gegaan.",
+        polished="Ik ben gisteren naar de markt gegaan.",
         confidence=0.92,
         applied_rules=["iech->ik", "nao->naar", "maat->markt", "gegange->gegaan"]
     )

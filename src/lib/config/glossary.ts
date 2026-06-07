@@ -375,7 +375,7 @@ const DIALECT_GLOSSARIES: Record<string, Record<string, string>> = {
 
 interface FewShotExample {
 	input: string;
-	output: { original: string; corrected: string; applied_rules?: string[] };
+	output: { original: string; polished: string; applied_rules?: string[] };
 }
 
 const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
@@ -384,7 +384,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'Ich hub gister nao de maat gegange en dao woor het sjoen weer.',
 			output: {
 				original: 'Ich hub gister nao de maat gegange en dao woor het sjoen weer.',
-				corrected: 'Ik heb gisteren naar de markt gegaan en daar was het mooi weer.',
+				polished: 'Ik heb gisteren naar de markt gegaan en daar was het mooi weer.',
 				applied_rules: [
 					'ich=ik',
 					'hub=heb',
@@ -400,14 +400,14 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'De kinjer höbbe vanoavend efkes oet de sjtroat gesjpeelt.',
 			output: {
 				original: 'De kinjer höbbe vanoavend efkes oet de sjtroat gesjpeelt.',
-				corrected: 'De kinderen hebben vanavond even uit de straat gespeeld.'
+				polished: 'De kinderen hebben vanavond even uit de straat gespeeld.'
 			}
 		},
 		{
 			input: 'Wae mótte nao hoes gaon want het is al loat en veer zeen moe.',
 			output: {
 				original: 'Wae mótte nao hoes gaon want het is al loat en veer zeen moe.',
-				corrected: 'Wij moeten naar huis gaan want het is al laat en wij zijn moe.'
+				polished: 'Wij moeten naar huis gaan want het is al laat en wij zijn moe.'
 			}
 		}
 	],
@@ -417,14 +417,14 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			output: {
 				original:
 					'Iech bin vaan de mörge nao de Vrijthof gegange en hub dao mien vrundin getroffe.',
-				corrected: 'Ik ben vanmorgen naar de Vrijthof gegaan en heb daar mijn vriendin getroffen.'
+				polished: 'Ik ben vanmorgen naar de Vrijthof gegaan en heb daar mijn vriendin getroffen.'
 			}
 		},
 		{
 			input: 'Uuch mót dees sjampetter sjnel oppe trottoir pakke vuur et kapot geit.',
 			output: {
 				original: 'Uuch mót dees sjampetter sjnel oppe trottoir pakke vuur et kapot geit.',
-				corrected:
+				polished:
 					'Jullie moeten deze champignons snel op het trottoir pakken voordat het kapot gaat.',
 				applied_rules: [
 					'uuch=jullie',
@@ -441,14 +441,14 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'Mien heur kalle good Mestreechs en ziech waere dök aan de Maas te vinje.',
 			output: {
 				original: 'Mien heur kalle good Mestreechs en ziech waere dök aan de Maas te vinje.',
-				corrected: 'Mijn haar spreekt goed Maastrichts en zij zijn vaak aan de Maas te vinden.'
+				polished: 'Mijn haar spreekt goed Maastrichts en zij zijn vaak aan de Maas te vinden.'
 			}
 		},
 		{
 			input: 'Iech höbbe gisteraovend mit de paraplu geloupe vaan Sjlaansen nao hoes toe.',
 			output: {
 				original: 'Iech höbbe gisteraovend mit de paraplu geloupe vaan Sjlaansen nao hoes toe.',
-				corrected: 'Ik heb gisteravond met de paraplu gelopen van Schlaensen naar huis toe.'
+				polished: 'Ik heb gisteravond met de paraplu gelopen van Schlaensen naar huis toe.'
 			}
 		}
 	],
@@ -457,7 +457,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'Ich han dat richtig zusamme mit de kinjer gedoon bitte.',
 			output: {
 				original: 'Ich han dat richtig zusamme mit de kinjer gedoon bitte.',
-				corrected: 'Ik heb dat goed samen met de kinderen gedaan alsjeblieft.',
+				polished: 'Ik heb dat goed samen met de kinderen gedaan alsjeblieft.',
 				applied_rules: [
 					'ich=ik',
 					'han=heb',
@@ -473,7 +473,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'Ós uur höb plötzlich geseen dat wirklich neet good woor.',
 			output: {
 				original: 'Ós uur höb plötzlich geseen dat wirklich neet good woor.',
-				corrected: 'Onze jullie hebben plotseling gezien dat werkelijk niet goed was.'
+				polished: 'Onze jullie hebben plotseling gezien dat werkelijk niet goed was.'
 			}
 		},
 		{
@@ -481,7 +481,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			output: {
 				original:
 					'De vrouw kump vaan Zitterd en sjpraoke altied Zittesj mit heur kinjer inne kirchof.',
-				corrected:
+				polished:
 					'De vrouw komt van Sittard en spreekt altijd Sittards met haar kinderen in het kerkhof.'
 			}
 		}
@@ -491,14 +491,14 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'Ik mótte gans gauw nao Venlo toe want de Maas is ouch sjoen vandaag.',
 			output: {
 				original: 'Ik mótte gans gauw nao Venlo toe want de Maas is ouch sjoen vandaag.',
-				corrected: 'Ik moet heel gauw naar Venlo toe want de Maas is ook mooi vandaag.'
+				polished: 'Ik moet heel gauw naar Venlo toe want de Maas is ook mooi vandaag.'
 			}
 		},
 		{
 			input: 'Mich en dich höbbe gister inne sjtad geloupe en dao waas het drök.',
 			output: {
 				original: 'Mich en dich höbbe gister inne sjtad geloupe en dao waas het drök.',
-				corrected: 'Mij en jou hebben gisteren in de stad gelopen en daar was het druk.',
+				polished: 'Mij en jou hebben gisteren in de stad gelopen en daar was het druk.',
 				applied_rules: [
 					'mich=mij',
 					'dich=jou',
@@ -515,7 +515,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: 'De kènk zeen hiej veur de kirk en sjpele ouch aan de sjtroat.',
 			output: {
 				original: 'De kènk zeen hiej veur de kirk en sjpele ouch aan de sjtroat.',
-				corrected: 'De kinderen zijn hier voor de kerk en spelen ook aan de straat.'
+				polished: 'De kinderen zijn hier voor de kerk en spelen ook aan de straat.'
 			}
 		}
 	],
@@ -524,7 +524,7 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: "Iech han mure d'r wasser uvver inne tsimmer gegosse want het woor zo hoeëg.",
 			output: {
 				original: "Iech han mure d'r wasser uvver inne tsimmer gegosse want het woor zo hoeëg.",
-				corrected: 'Ik heb morgen het water over in de kamer gegoten want het was zo hoog.',
+				polished: 'Ik heb morgen het water over in de kamer gegoten want het was zo hoog.',
 				applied_rules: [
 					'iech=ik',
 					'han=heb',
@@ -544,21 +544,21 @@ const FEW_SHOT_EXAMPLES: Record<string, FewShotExample[]> = {
 			input: "De jonge en d'r meëdsje hant inne kirchof gesjpeelt mit plat sjpas.",
 			output: {
 				original: "De jonge en d'r meëdsje hant inne kirchof gesjpeelt mit plat sjpas.",
-				corrected: 'De jongen en het meisje hebben in het kerkhof gespeeld met dialect pret.'
+				polished: 'De jongen en het meisje hebben in het kerkhof gespeeld met dialect pret.'
 			}
 		},
 		{
 			input: 'Ós junt mure nao Kirchröa toe en koame dan wier trök.',
 			output: {
 				original: 'Ós junt mure nao Kirchröa toe en koame dan wier trök.',
-				corrected: 'Ons gaan morgen naar Kerkrade toe en komen dan weer terug.'
+				polished: 'Ons gaan morgen naar Kerkrade toe en komen dan weer terug.'
 			}
 		},
 		{
 			input: "D'r wisse neet wat iech zage uvver de deep sjtraos van Kirchröa.",
 			output: {
 				original: "D'r wisse neet wat iech zage uvver de deep sjtraos van Kirchröa.",
-				corrected: 'Hij wist niet wat ik zeg over de diepe straat van Kerkrade.'
+				polished: 'Hij wist niet wat ik zeg over de diepe straat van Kerkrade.'
 			}
 		}
 	]

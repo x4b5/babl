@@ -2,12 +2,14 @@
 
 import asyncio
 import json
-import traceback
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from config import ASSEMBLYAI_API_KEY, HEARTBEAT_INTERVAL, HEARTBEAT_TIMEOUT
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -39,14 +41,14 @@ async def ws_transcribe_stream(websocket: WebSocket):
             })
 
     def on_error(error):
-        print(f"[AssemblyAI RT] Error: {error}")
+        logger.error("AssemblyAI realtime error: %s", error)
         loop.call_soon_threadsafe(queue.put_nowait, {
             "type": "error",
             "message": str(error),
         })
 
     def on_close():
-        print("[AssemblyAI RT] Connection closed")
+        logger.info("AssemblyAI realtime connection closed")
         loop.call_soon_threadsafe(queue.put_nowait, None)
 
     transcriber = aai.RealtimeTranscriber(
@@ -65,14 +67,14 @@ async def ws_transcribe_stream(websocket: WebSocket):
                 # Check if last pong is too old
                 elapsed = (datetime.now() - last_pong["time"]).total_seconds()
                 if elapsed > HEARTBEAT_TIMEOUT:
-                    print(f"[Heartbeat] No pong for {elapsed:.1f}s, closing connection")
+                    logger.warning("No pong for %.1fs, closing connection", elapsed)
                     await websocket.close(code=1000, reason="Heartbeat timeout")
                     break
 
                 # Send ping
                 await websocket.send_json({"type": "ping"})
             except Exception as e:
-                print(f"[Heartbeat] Error: {e}")
+                logger.warning("Heartbeat error: %s", e)
                 break
 
     try:
@@ -81,11 +83,11 @@ async def ws_transcribe_stream(websocket: WebSocket):
         config = json.loads(config_text)
         lang = config.get("lang", "li")
         region = config.get("region", "limburgs")
-        print(f"[AssemblyAI RT] Config: {config_text}")
+        logger.info("AssemblyAI RT config: %s", config_text)
 
         # Connect to AssemblyAI (blocking, run in thread)
         await asyncio.to_thread(transcriber.connect)
-        print("[AssemblyAI RT] Connected")
+        logger.info("AssemblyAI realtime connected")
 
         async def forward_audio():
             """Read audio chunks from frontend WebSocket, forward to AssemblyAI."""
@@ -103,7 +105,7 @@ async def ws_transcribe_stream(websocket: WebSocket):
             except WebSocketDisconnect:
                 pass
             except Exception as e:
-                print(f"[AssemblyAI RT] Audio forward error: {e}")
+                logger.error("AssemblyAI RT audio forward error: %s", e)
 
         async def send_events():
             """Read transcription events from queue, send to frontend WebSocket."""
@@ -114,7 +116,7 @@ async def ws_transcribe_stream(websocket: WebSocket):
                         break
                     await websocket.send_json(event)
             except Exception as e:
-                print(f"[AssemblyAI RT] Event send error: {e}")
+                logger.error("AssemblyAI RT event send error: %s", e)
 
         # Run all tasks concurrently
         heartbeat_task = asyncio.create_task(heartbeat())
@@ -131,10 +133,9 @@ async def ws_transcribe_stream(websocket: WebSocket):
         await event_task
 
     except WebSocketDisconnect:
-        print("[AssemblyAI RT] Client disconnected")
+        logger.info("AssemblyAI RT client disconnected")
     except Exception as e:
-        print(f"[AssemblyAI RT] Error: {e}")
-        traceback.print_exc()
+        logger.exception("AssemblyAI RT error: %s", e)
         try:
             await websocket.send_json({"type": "error", "message": str(e)})
         except Exception:

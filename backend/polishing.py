@@ -163,7 +163,7 @@ def parse_polishing_output(raw_text: str, original_input: str) -> PolishingOutpu
 
     Attempt 1: Direct JSON parse
     Attempt 2: Regex extract JSON from surrounding text
-    Attempt 3: Fallback to raw text as corrected output
+    Attempt 3: Fallback to raw text as polished output
 
     Args:
         raw_text: Raw LLM output (potentially JSON, potentially prose)

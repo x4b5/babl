@@ -2,12 +2,14 @@
 
 import asyncio
 import json
+import logging
 import re
 import random
-import traceback
 from datetime import datetime, timezone
 
 import httpx
+
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
@@ -25,7 +27,7 @@ from polishing import (
     DIALECT_RETENTION_PROMPT,
     SYSTEM_PROMPT,
     SYSTEM_PROMPTS,
-    CorrectionOutput,
+    PolishingOutput,
     build_polishing_prompt,
     parse_polishing_output,
 )
@@ -74,7 +76,7 @@ def _build_ollama_prompt(chunk: str, detected_lang: str, full_context: str | Non
         return (
             f"[Taal: {detected_lang}]\n\n"
             f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
-            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
+            f"POLIJST DIT FRAGMENT:\n{chunk}"
         )
     return f"[Taal: {detected_lang}]\n\n{chunk}"
 
@@ -128,7 +130,7 @@ def _build_mistral_prompt(chunk: str, detected_lang: str, full_context: str | No
         return (
             f"[Taal: {detected_lang}]\n\n"
             f"VOLLEDIGE CONTEXT (alleen ter referentie):\n{full_context}\n\n"
-            f"CORRIGEER DIT FRAGMENT:\n{chunk}"
+            f"POLIJST DIT FRAGMENT:\n{chunk}"
         )
     return f"[Taal: {detected_lang}]\n\n{chunk}"
 
@@ -189,7 +191,7 @@ async def polish_chunk_mistral_stream(
                 else:
                     wait = min(30, 1 * (2**attempt)) + random.uniform(0, 2)
 
-                print(f"  Retrying in {wait:.1f}s (attempt {attempt + 1}/{max_attempts}): {error_str[:80]}")
+                logger.warning("Retrying in %.1fs (attempt %d/%d): %s", wait, attempt + 1, max_attempts, error_str[:80])
                 await asyncio.sleep(wait)
             else:
                 raise
@@ -251,7 +253,7 @@ def split_into_chunks(text: str, max_words: int = 400, overlap_words: int = 75) 
 async def polish(req: PolishingRequest):
     """Step 2: Dialect polishing via Ollama (local) or Mistral (API) -- streams tokens as SSE."""
     if not req.text:
-        return {"corrected": ""}
+        return {"polished": ""}
 
     # Resolve model family for Ollama
     family_models = OLLAMA_MODEL_FAMILIES.get(req.model_family, OLLAMA_MODELS)
@@ -307,13 +309,13 @@ async def polish(req: PolishingRequest):
                                     else:
                                         error_data = test_resp.json() if test_resp.headers.get("content-type", "").startswith("application/json") else {}
                                         error_msg = error_data.get("error", "")
-                                        print(f"Model {candidate} installed but not loadable: {error_msg}")
+                                        logger.warning("Model %s installed but not loadable: %s", candidate, error_msg)
                                 except Exception as e:
-                                    print(f"Model {candidate} test failed: {e}")
+                                    logger.warning("Model %s test failed: %s", candidate, e)
 
                             if chosen:
                                 if chosen != ollama_model:
-                                    print(f"Model {ollama_model} not usable, falling back to {chosen}")
+                                    logger.info("Model %s not usable, falling back to %s", ollama_model, chosen)
                                 ollama_model = chosen
                             else:
                                 yield f"data: {json.dumps({'type': 'error', 'error_type': 'ollama_model_missing', 'message': 'Geen bruikbaar taalmodel gevonden. Mogelijk onvoldoende geheugen. Probeer een kleiner model via de installatiewizard.'})}\n\n"
@@ -327,11 +329,11 @@ async def polish(req: PolishingRequest):
 
             # PHASE 3: Two-step polishing for Limburgish
             if req.language == "li":
-                print("[Phase 3] Starting cleanup pass for Limburgish...")
+                logger.info("Starting cleanup pass for Limburgish (%d chunks)", len(chunks))
                 cleaned_chunks = []
                 async with httpx.AsyncClient(timeout=600.0) as client:
                     for i, chunk in enumerate(chunks):
-                        print(f"  Cleaning chunk {i+1}/{len(chunks)}...")
+                        logger.debug("Cleaning chunk %d/%d", i + 1, len(chunks))
                         chunk_tokens = []
                         async with _polishing_semaphore:
                             if req.mode == "api":
@@ -348,7 +350,7 @@ async def polish(req: PolishingRequest):
                         cleaned_chunks.append("".join(chunk_tokens))
 
                 text_to_process = " ".join(cleaned_chunks)
-                print("[Phase 3] Cleanup pass complete.")
+                logger.info("Cleanup pass complete")
                 # Re-split cleaned text for the final formatting pass
                 final_chunks = split_into_chunks(text_to_process, max_words=400)
             else:
@@ -362,13 +364,13 @@ async def polish(req: PolishingRequest):
                 if req.report_length == "uitgebreid":
                     final_system_prompt += "\nMaak er een UITGEBREID VERSLAG van met alinea's en kopjes."
 
-            # JSON mode: accumulate tokens, parse JSON, emit corrected text
+            # JSON mode: accumulate tokens, parse JSON, emit polished text
             # Disabled for keep_dialect (raw dialect text output)
             use_json = bool(json_instr) and not req.keep_dialect
 
             if req.mode == "api":
                 mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
-                print(f"Streaming final pass via Mistral {mistral_model}...")
+                logger.info("Streaming final pass via Mistral %s", mistral_model)
 
                 for i, chunk in enumerate(final_chunks):
                     chunk_input = f"{chunk}\n\n{json_instr}" if use_json else chunk
@@ -384,10 +386,10 @@ async def polish(req: PolishingRequest):
                     if use_json and chunk_tokens:
                         accumulated = "".join(chunk_tokens)
                         validated = parse_polishing_output(accumulated, chunk)
-                        yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
+                        yield f"data: {json.dumps({'type': 'token', 'text': validated.polished})}\n\n"
             else:
-                print(f"Streaming final pass via Ollama {ollama_model}...")
-                json_schema = CorrectionOutput.model_json_schema() if use_json else None
+                logger.info("Streaming final pass via Ollama %s", ollama_model)
+                json_schema = PolishingOutput.model_json_schema() if use_json else None
 
                 async with httpx.AsyncClient(timeout=600.0) as client:
                     for i, chunk in enumerate(final_chunks):
@@ -411,12 +413,11 @@ async def polish(req: PolishingRequest):
                         if use_json and chunk_tokens:
                             accumulated = "".join(chunk_tokens)
                             validated = parse_polishing_output(accumulated, chunk)
-                            yield f"data: {json.dumps({'type': 'token', 'text': validated.corrected})}\n\n"
+                            yield f"data: {json.dumps({'type': 'token', 'text': validated.polished})}\n\n"
 
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
-            print(f"Polishing streaming failed: {e}")
-            traceback.print_exc()
+            logger.exception("Polishing streaming failed")
             error_str = str(e)
 
             # Classify error type per EH-01 taxonomy

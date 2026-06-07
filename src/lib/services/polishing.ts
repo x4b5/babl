@@ -127,7 +127,8 @@ async function fetchPolishing(
 		temperature: s.temperature,
 		report_length: s.reportLength,
 		keep_dialect: s.keepDialect,
-		model_family: s.modelFamily
+		model_family: s.modelFamily,
+		region: s.region
 	};
 	const polishUrl = body.mode === 'api' ? '/api/polish' : `${LOCAL_BACKEND_URL}/polish`;
 	const controller = new AbortController();

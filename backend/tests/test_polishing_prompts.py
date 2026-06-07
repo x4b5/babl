@@ -18,7 +18,7 @@ class TestFewShotExamples:
 
     @pytest.mark.parametrize("region", REGIONS)
     def test_few_shot_schema_valid(self, region):
-        """Each example must have 'input' (str) and 'output' dict with 'original' and 'corrected'."""
+        """Each example must have 'input' (str) and 'output' dict with 'original' and 'polished'."""
         profile = REGIONAL_PROFILES[region]
         for i, ex in enumerate(profile["few_shot_examples"]):
             assert "input" in ex, f"{region} example {i} missing 'input'"
@@ -26,7 +26,7 @@ class TestFewShotExamples:
             assert isinstance(ex["input"], str) and len(ex["input"]) > 0
             out = ex["output"]
             assert "original" in out, f"{region} example {i} output missing 'original'"
-            assert "corrected" in out, f"{region} example {i} output missing 'corrected'"
+            assert "polished" in out, f"{region} example {i} output missing 'polished'"
 
     @pytest.mark.parametrize("region", REGIONS)
     def test_few_shot_input_matches_output_original(self, region):

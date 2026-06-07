@@ -90,7 +90,7 @@ async def submit_correction(req: UserCorrectionRequest):
             session_id=req.session_id,
             dialect_region=req.dialect_region,
             original_text=req.original_text,
-            corrected_text=req.corrected_text,
+            polished_text=req.polished_text,
             user_correction=req.user_correction,
         )
         return {"status": "logged", "file": str(log_path)}

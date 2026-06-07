@@ -51,7 +51,7 @@ def suggest_glossary_updates(
     for corr in corrections:
         pairs = extract_correction_pairs(
             original=corr.get("original_text", ""),
-            system_correction=corr.get("corrected_text", ""),
+            system_correction=corr.get("polished_text", ""),
             user_correction=corr.get("user_correction", ""),
         )
         for p in pairs:

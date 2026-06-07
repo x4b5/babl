@@ -36,7 +36,7 @@
 		evalError = '';
 
 		try {
-			// Step 1: Calculate WER/CER (raw = hypothesis, corrected = reference)
+			// Step 1: Calculate WER/CER (raw = hypothesis, polished = reference)
 			const evalResp = await fetch(`${LOCAL_BACKEND_URL}/evaluate`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },

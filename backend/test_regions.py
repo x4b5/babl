@@ -20,7 +20,7 @@ def test_regions():
         try:
             # We don't necessarily need Ollama running to check if the backend parses the region
             # but it helps to see the logs.
-            resp = requests.post(f"{BASE_URL}/correct", json=payload, timeout=5)
+            resp = requests.post(f"{BASE_URL}/polish", json=payload, timeout=5)
             print(f"  Status: {resp.status_code}")
         except Exception as e:
             print(f"  Error: {e}")

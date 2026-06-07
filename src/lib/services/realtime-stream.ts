@@ -48,7 +48,7 @@ export function startRealtimeStream(): void {
 	streamSocket.addEventListener('open', () => {
 		setReconnecting(false);
 		setReconnectStatus('');
-		streamSocket!.send(JSON.stringify({ lang: s.lang }));
+		streamSocket!.send(JSON.stringify({ lang: s.lang, region: s.region }));
 		resetStallTimer();
 	});
 

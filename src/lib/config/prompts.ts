@@ -57,6 +57,6 @@ export const JSON_INSTRUCTION =
 	'Geef je antwoord terug als een JSON object met deze structuur:\n' +
 	'{\n' +
 	'  "original": "<originele tekst>",\n' +
-	'  "corrected": "<gecorrigeerde tekst in standaard Nederlands>"\n' +
+	'  "polished": "<gepolijste tekst in standaard Nederlands>"\n' +
 	'}\n\n' +
 	'Geef ALLEEN het JSON object terug, geen andere tekst.';

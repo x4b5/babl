@@ -81,6 +81,7 @@ export async function sendAudio(
 	const formData = new FormData();
 	formData.append('file', blob, filename);
 	formData.append('lang', s.lang);
+	formData.append('region', s.region);
 	if (s.transcribeMode === 'api') {
 		await sendAudioApi(formData, refs, callbacks);
 	} else {

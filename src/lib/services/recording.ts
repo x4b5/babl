@@ -8,6 +8,7 @@ import { sendAudio } from '$lib/services/transcription';
 import type { TranscriptionRefs, TranscriptionCallbacks } from '$lib/services/transcription';
 import { getSupportedMimeType } from '$lib/utils/audio';
 import {
+	RECORDING_MIN_SECONDS,
 	setRaw,
 	setError,
 	setErrorType,
@@ -46,6 +47,14 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 
 	if (chunks.length === 0) {
 		setError('Geen audio opgenomen. Probeer langer op te nemen.');
+		setStatus('idle');
+		return;
+	}
+
+	if (s.elapsed < RECORDING_MIN_SECONDS) {
+		setError(
+			`Opname te kort (${s.elapsed}s). Neem minstens ${RECORDING_MIN_SECONDS} seconden op voor betrouwbare transcriptie.`
+		);
 		setStatus('idle');
 		return;
 	}

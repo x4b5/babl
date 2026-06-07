@@ -52,6 +52,7 @@ async function sendLiveChunk(
 		const formData = new FormData();
 		formData.append('file', wav, 'live.wav');
 		formData.append('lang', s.lang);
+		formData.append('region', s.region);
 		formData.append('offset', String(overlapSeconds));
 		const resp = await fetch(`${LOCAL_BACKEND_URL}/transcribe-live`, {
 			method: 'POST',
