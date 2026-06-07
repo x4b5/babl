@@ -263,3 +263,4 @@
 | 2026-06-07 | 21:24     | 21:29    | .07         | `feea790`   | fix: complete correctie → polishing rename missed in previous commit                                                            |
 | 2026-06-07 | 21:29     | 21:36    | .11         | `3d07459`   | fix: technical audit — remove debug logs, add logging, fix region flow                                                          |
 | 2026-06-07 | 21:36     | 21:37    | .02         | `5fa88d4`   | refactor: rename corrected_text → polished_text in user correction tests                                                        |
+| 2026-06-07 | 21:37     | 21:50    | .21         | `d45d1d4`   | feat: Fase 2 — eerlijkheid & transparantie in tekst                                                                             |
