@@ -11,6 +11,7 @@
 
 	// Components
 	import AppHeader from '$lib/components/transcribe/AppHeader.svelte';
+	import ProcessSteps from '$lib/components/transcribe/ProcessSteps.svelte';
 	import TranscribeModeToggle from '$lib/components/transcribe/TranscribeModeToggle.svelte';
 	import RecordButton from '$lib/components/transcribe/RecordButton.svelte';
 	import ErrorAlert from '$lib/components/transcribe/ErrorAlert.svelte';
@@ -353,6 +354,8 @@
 
 	<div class="mx-auto max-w-3xl px-4 py-6 sm:py-16">
 		<AppHeader />
+
+		<ProcessSteps status={s.status} />
 
 		<TranscribeModeToggle
 			transcribeMode={s.transcribeMode}

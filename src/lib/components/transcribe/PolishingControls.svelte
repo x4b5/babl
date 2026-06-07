@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Mode, ReportLength } from '$lib/stores/transcribe.svelte';
+	import { isMobile } from '$lib/utils/device';
 
 	interface Props {
 		mode: Mode;
@@ -27,6 +28,12 @@
 		onOpenSetupWizard
 	}: Props = $props();
 
+	let mobile = $state(false);
+
+	$effect(() => {
+		mobile = isMobile();
+	});
+
 	const localPolishingAvailable = $derived(localAvailable && ollamaAvailable);
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
@@ -41,45 +48,57 @@
 	<div class="flex flex-col items-center gap-4 mb-5">
 		<!-- Mode toggle -->
 		<div class="flex flex-col items-center gap-1 w-full sm:w-auto">
-			<div class="glass flex rounded-full p-1 w-full sm:w-auto">
-				<button
-					onclick={() => onModeChange('local')}
-					class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
-					'local'
-						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/60 hover:text-white/80 scale-100'}"
-				>
-					<span class="block">Op de computer</span>
-					<span class="block text-xs opacity-70"
-						><img src="/ollama.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Ollama</span
+			{#if mobile}
+				<!-- Mobile: only API mode available -->
+				<div class="glass rounded-full px-4 py-2 text-sm font-medium text-center">
+					<span class="block text-white/80">Via internet</span>
+					<span class="block text-xs opacity-70">
+						<img src="/mistral.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Mistral
+					</span>
+				</div>
+				<p class="text-xs text-white/40 mt-1">Alleen via internet beschikbaar op mobiel.</p>
+			{:else}
+				<!-- Desktop: full toggle -->
+				<div class="glass flex rounded-full p-1 w-full sm:w-auto">
+					<button
+						onclick={() => onModeChange('local')}
+						class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+						'local'
+							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+							: 'text-white/60 hover:text-white/80 scale-100'}"
 					>
-				</button>
-				<button
-					onclick={() => onModeChange('api')}
-					disabled={!mistralAvailable}
-					class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
-					'api'
-						? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
-						: 'text-white/60 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
-				>
-					<span class="block">Via internet</span>
-					<span class="block text-xs opacity-70"
-						><img src="/mistral.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Mistral</span
+						<span class="block">Op de computer</span>
+						<span class="block text-xs opacity-70"
+							><img src="/ollama.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Ollama</span
+						>
+					</button>
+					<button
+						onclick={() => onModeChange('api')}
+						disabled={!mistralAvailable}
+						class="flex-1 sm:flex-none rounded-full px-4 py-2 text-sm sm:py-1.5 font-medium transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] {mode ===
+						'api'
+							? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20 scale-105'
+							: 'text-white/60 hover:text-white/80 scale-100'} disabled:opacity-30 disabled:cursor-not-allowed"
 					>
-				</button>
-			</div>
-			{#if mode === 'local'}
-				<p class="text-xs text-white/40 mt-1">
-					Vereist minimaal 8 GB RAM. Niet beschikbaar op mobiel.
-				</p>
-			{/if}
-			{#if mode === 'local' && !localPolishingAvailable && onOpenSetupWizard}
-				<button
-					onclick={onOpenSetupWizard}
-					class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
-				>
-					Installeren op je computer
-				</button>
+						<span class="block">Via internet</span>
+						<span class="block text-xs opacity-70"
+							><img src="/mistral.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Mistral</span
+						>
+					</button>
+				</div>
+				{#if mode === 'local'}
+					<p class="text-xs text-white/40 mt-1">
+						Vereist minimaal 8 GB RAM. Niet beschikbaar op mobiel.
+					</p>
+				{/if}
+				{#if mode === 'local' && !localPolishingAvailable && onOpenSetupWizard}
+					<button
+						onclick={onOpenSetupWizard}
+						class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
+					>
+						Installeren op je computer
+					</button>
+				{/if}
 			{/if}
 			<a
 				href="/about#voor-en-nadelen"

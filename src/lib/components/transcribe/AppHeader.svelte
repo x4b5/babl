@@ -25,7 +25,7 @@
 			van spraak naar tekst
 		</p>
 		<p class="text-sm sm:text-lg italic mt-3 max-w-[280px] sm:max-w-none mx-auto">
-			BABL doet zijn best om Limburgs gesproken tekst om te zetten naar Nederlands geschreven tekst.
+			Oog voor privacy met een gevoel voor Limburgs
 		</p>
 	</div>
 </header>
