@@ -26,13 +26,55 @@ export interface SetupStatus {
 // ── Model families ──────────────────────────────────────────
 
 export const MODEL_FAMILIES: Record<string, Record<string, string>> = {
+	qwen3: { light: 'qwen3:1.7b', medium: 'qwen3:4b', heavy: 'qwen3:14b' },
 	gemma3: { light: 'gemma3:1b', medium: 'gemma3:4b', heavy: 'gemma3:12b' },
-	qwen3: { light: 'qwen3:1.7b', medium: 'qwen3:4b', heavy: 'qwen3:14b' }
+	mistral: { light: 'mistral:7b', medium: 'mistral-nemo', heavy: 'mistral-small' },
+	phi4: { light: 'phi4-mini', medium: 'phi4-mini', heavy: 'phi4' },
+	llama3: { light: 'llama3.2:1b', medium: 'llama3.2:3b', heavy: 'llama3.2:3b' }
 };
 
 export const MODEL_FAMILY_LABELS: Record<string, string> = {
+	qwen3: 'Qwen 3',
 	gemma3: 'Gemma 3',
-	qwen3: 'Qwen 3'
+	mistral: 'Mistral',
+	phi4: 'Phi-4',
+	llama3: 'Llama 3.2'
+};
+
+export const MODEL_FAMILY_DESCRIPTIONS: Record<string, string> = {
+	qwen3: 'Aanbevolen — 119 talen, sterk Nederlands',
+	gemma3: 'Goede allrounder voor Europese talen',
+	mistral: 'Europees model, degelijk Nederlands',
+	phi4: 'Sterk in redeneren, matig Nederlands',
+	llama3: 'Nederlands niet officieel ondersteund'
+};
+
+export const MODEL_RAM_INFO: Record<string, Record<string, { storage: string; ram: string }>> = {
+	qwen3: {
+		light: { storage: '~1.5 GB', ram: '~2 GB' },
+		medium: { storage: '~3 GB', ram: '~4 GB' },
+		heavy: { storage: '~9 GB', ram: '~10 GB' }
+	},
+	gemma3: {
+		light: { storage: '~1 GB', ram: '~2 GB' },
+		medium: { storage: '~3 GB', ram: '~4 GB' },
+		heavy: { storage: '~8 GB', ram: '~9 GB' }
+	},
+	mistral: {
+		light: { storage: '~4 GB', ram: '~5 GB' },
+		medium: { storage: '~7 GB', ram: '~8 GB' },
+		heavy: { storage: '~13 GB', ram: '~14 GB' }
+	},
+	phi4: {
+		light: { storage: '~2.5 GB', ram: '~4 GB' },
+		medium: { storage: '~2.5 GB', ram: '~4 GB' },
+		heavy: { storage: '~9 GB', ram: '~10 GB' }
+	},
+	llama3: {
+		light: { storage: '~1 GB', ram: '~2 GB' },
+		medium: { storage: '~2 GB', ram: '~3 GB' },
+		heavy: { storage: '~2 GB', ram: '~3 GB' }
+	}
 };
 
 // ── Reactive state ────────────────────────────────────────────
@@ -41,7 +83,7 @@ export type WizardContext = 'full' | 'ollama';
 
 let open = $state(false);
 let wizardContext = $state<WizardContext>('full');
-let selectedFamily = $state('gemma3');
+let selectedFamily = $state('qwen3');
 let currentStep = $state(0);
 let status = $state<SetupStatus>({
 	backendRunning: false,
@@ -52,7 +94,7 @@ let status = $state<SetupStatus>({
 	whisperDownloading: false,
 	modelConfig: null
 });
-let selectedModel = $state('gemma3:4b');
+let selectedModel = $state('qwen3:4b');
 let ramConfirmed = $state(false);
 let installConfirmed = $state(false);
 let copiedCommand = $state('');

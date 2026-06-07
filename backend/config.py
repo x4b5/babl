@@ -22,10 +22,13 @@ HEARTBEAT_TIMEOUT = 30  # Close if no pong within 30 seconds
 # --- Ollama ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL_FAMILIES = {
-    "gemma3": {"light": "gemma3:1b", "medium": "gemma3:4b", "heavy": "gemma3:12b"},
     "qwen3": {"light": "qwen3:1.7b", "medium": "qwen3:4b", "heavy": "qwen3:14b"},
+    "gemma3": {"light": "gemma3:1b", "medium": "gemma3:4b", "heavy": "gemma3:12b"},
+    "mistral": {"light": "mistral:7b", "medium": "mistral-nemo", "heavy": "mistral-small"},
+    "phi4": {"light": "phi4-mini", "medium": "phi4-mini", "heavy": "phi4"},
+    "llama3": {"light": "llama3.2:1b", "medium": "llama3.2:3b", "heavy": "llama3.2:3b"},
 }
-OLLAMA_MODELS = OLLAMA_MODEL_FAMILIES["gemma3"]
+OLLAMA_MODELS = OLLAMA_MODEL_FAMILIES["qwen3"]
 
 # --- Whisper ---
 WHISPER_MODEL_PATH = "mlx-community/whisper-large-v3-mlx"

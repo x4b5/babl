@@ -264,3 +264,7 @@
 | 2026-06-07 | 21:29     | 21:36    | .11         | `3d07459`   | fix: technical audit — remove debug logs, add logging, fix region flow                                                          |
 | 2026-06-07 | 21:36     | 21:37    | .02         | `5fa88d4`   | refactor: rename corrected_text → polished_text in user correction tests                                                        |
 | 2026-06-07 | 21:37     | 21:50    | .21         | `d45d1d4`   | feat: Fase 2 — eerlijkheid & transparantie in tekst                                                                             |
+| 2026-06-07 | 21:50     | 21:51    | .02         | `1cb6569`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 21:51     | 21:54    | .03         | `edc9d6d`   | feat: Fase 4 — begrippenlijst & uitleg in de app                                                                                |
+| 2026-06-07 | 21:54     | 21:56    | .03         | `83ec1b6`   | feat: Fase 5 — mobiele UX & responsiviteit                                                                                      |
+| 2026-06-07 | 21:56     | 21:59    | .06         | `3aea208`   | feat: Fase 7 — FAQ-pagina met 7 veelgestelde vragen                                                                             |

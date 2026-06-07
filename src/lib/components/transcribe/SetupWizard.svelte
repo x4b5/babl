@@ -10,7 +10,9 @@
 		downloadWhisper,
 		setSelectedFamily,
 		MODEL_FAMILIES,
-		MODEL_FAMILY_LABELS
+		MODEL_FAMILY_LABELS,
+		MODEL_FAMILY_DESCRIPTIONS,
+		MODEL_RAM_INFO
 	} from '$lib/stores/setup-wizard.svelte';
 
 	interface Props {
@@ -78,11 +80,13 @@
 		heavy: 'Groot (best)'
 	};
 
-	const modelInfo: Record<string, { storage: string; ram: string }> = {
-		light: { storage: '~1 GB', ram: '~2 GB' },
-		medium: { storage: '~3 GB', ram: '~5 GB' },
-		heavy: { storage: '~8 GB', ram: '~10 GB' }
-	};
+	const modelInfo = $derived(
+		MODEL_RAM_INFO[w.selectedFamily] ?? {
+			light: { storage: '?', ram: '?' },
+			medium: { storage: '?', ram: '?' },
+			heavy: { storage: '?', ram: '?' }
+		}
+	);
 
 	const ollamaModels = $derived.by(() => {
 		const familyModels = MODEL_FAMILIES[w.selectedFamily];
@@ -378,17 +382,22 @@
 
 							{#if step.hasModelDownload}
 								<!-- Model family toggle -->
-								<div class="flex gap-1 rounded-lg bg-white/5 p-1">
+								<div class="flex flex-wrap gap-1 rounded-lg bg-white/5 p-1">
 									{#each Object.entries(MODEL_FAMILY_LABELS) as [family, label]}
 										<button
 											onclick={() => setSelectedFamily(family)}
-											class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all
+											class="rounded-md px-3 py-1.5 text-xs font-medium transition-all
 												{w.selectedFamily === family ? 'bg-neon/20 text-neon' : 'text-white/50 hover:text-white/70'}"
 										>
 											{label}
 										</button>
 									{/each}
 								</div>
+								{#if MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
+									<p class="text-xs text-white/45 -mt-1">
+										{MODEL_FAMILY_DESCRIPTIONS[w.selectedFamily]}
+									</p>
+								{/if}
 
 								<div class="space-y-2">
 									{#each ollamaModels as { quality, model }}
@@ -402,6 +411,7 @@
 														>{qualityLabels[quality] ?? quality}</span
 													>
 													<span class="ml-2 text-xs text-white/30">{info.storage}</span>
+													<span class="ml-1 text-xs text-neon/40">RAM {info.ram}</span>
 												</div>
 												{#if isInstalled}
 													<span

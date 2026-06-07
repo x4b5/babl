@@ -13,7 +13,7 @@ class PolishingRequest(BaseModel):
     report_length: str = "samenvatting"
     keep_dialect: bool = False
     target_lang: str = "nl"
-    model_family: str = "gemma3"
+    model_family: str = "qwen3"
 
 
 class EvaluateRequest(BaseModel):
