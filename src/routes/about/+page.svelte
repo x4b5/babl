@@ -161,8 +161,12 @@
 							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
 								<img src="/openai.png" alt="Whisper" class="h-5 w-5 rounded-full" />
 							</div>
-							<span class="text-xs text-neon/60">Whisper</span>
-							<span class="text-xs text-indigo-400/60">AssemblyAI</span>
+							<span class="text-xs text-neon/60 flex items-center gap-1"
+								><img src="/openai.png" alt="" class="h-3 w-3 rounded-full" /> Whisper</span
+							>
+							<span class="text-xs text-indigo-400/60 flex items-center gap-1"
+								><img src="/assemblyai.png" alt="" class="h-3 w-3" /> AssemblyAI</span
+							>
 						</div>
 						<svg
 							class="h-4 w-4 shrink-0 text-white/20"
@@ -204,8 +208,12 @@
 							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
 								<img src="/ollama.png" alt="Ollama" class="h-5 w-5" />
 							</div>
-							<span class="text-xs text-neon/60">Ollama</span>
-							<span class="text-xs text-indigo-400/60">Mistral</span>
+							<span class="text-xs text-neon/60 flex items-center gap-1"
+								><img src="/ollama.png" alt="" class="h-3 w-3" /> Ollama</span
+							>
+							<span class="text-xs text-indigo-400/60 flex items-center gap-1"
+								><img src="/mistral.png" alt="" class="h-3 w-3" /> Mistral</span
+							>
 						</div>
 						<svg
 							class="h-4 w-4 shrink-0 text-white/20"
@@ -264,9 +272,14 @@
 							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
 								<img src="/openai.png" alt="Whisper" class="h-4 w-4 rounded-full" />
 							</div>
-							<span class="text-xs"
-								><span class="text-neon/60">Whisper</span> /
-								<span class="text-indigo-400/60">AssemblyAI</span></span
+							<span class="text-xs flex items-center gap-1.5"
+								><img src="/openai.png" alt="" class="h-3 w-3 rounded-full" /><span
+									class="text-neon/60">Whisper</span
+								>
+								<span class="text-white/30">/</span>
+								<img src="/assemblyai.png" alt="" class="h-3 w-3" /><span class="text-indigo-400/60"
+									>AssemblyAI</span
+								></span
 							>
 						</div>
 						<svg
@@ -309,9 +322,14 @@
 							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
 								<img src="/ollama.png" alt="Ollama" class="h-4 w-4" />
 							</div>
-							<span class="text-xs"
-								><span class="text-neon/60">Ollama</span> /
-								<span class="text-indigo-400/60">Mistral</span></span
+							<span class="text-xs flex items-center gap-1.5"
+								><img src="/ollama.png" alt="" class="h-3 w-3" /><span class="text-neon/60"
+									>Ollama</span
+								>
+								<span class="text-white/30">/</span>
+								<img src="/mistral.png" alt="" class="h-3 w-3" /><span class="text-indigo-400/60"
+									>Mistral</span
+								></span
 							>
 						</div>
 						<svg
