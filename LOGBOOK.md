@@ -294,3 +294,4 @@
 | 2026-06-07 | 22:51     | 22:53    | .03         | `4c3b194`   | feat: about-pagina visuele verbeteringen                                                                                        |
 | 2026-06-07 | 22:53     | 22:54    | .02         | `d4a6993`   | feat: sectie-iconen begrippen + Ollama-setup knop transcriptiepagina                                                            |
 | 2026-06-07 | 22:54     | 22:55    | 0           | `90f6512`   | fix: ollama wizard bereikbaar zonder eerst te transcriberen                                                                     |
+| 2026-06-07 | 22:55     | 22:56    | .01         | `8888f98`   | chore: update LOGBOOK with latest session entry                                                                                 |
