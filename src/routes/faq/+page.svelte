@@ -323,6 +323,298 @@
 					</p>
 				</div>
 			</details>
+			<!-- 8. Ondersteunde dialecten -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Welke Limburgse dialecten worden ondersteund?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>BABL ondersteunt momenteel vijf varianten:</p>
+					<ul class="mt-2 space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Algemeen Limburgs</span>
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Mestreechs</span> (Maastricht)
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Zittesj</span> (Sittard)
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Venloos</span> (Venlo)
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Kirchroeadsj</span> (Kerkrade)
+						</li>
+					</ul>
+					<p class="mt-2">
+						Elke variant heeft een eigen woordenlijst en voorbeeldzinnen. Je kiest je dialect vooraf
+						in de instellingen.
+					</p>
+				</div>
+			</details>
+
+			<!-- 9. Browsers -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Welke browsers worden ondersteund?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>BABL werkt het best in:</p>
+					<ul class="mt-2 space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Chrome / Edge</span> — volledige ondersteuning
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<span class="text-white/70">Firefox</span> — volledige ondersteuning
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-400/50"></span>
+							<span class="text-white/70">Safari</span> — werkt, maar microfoon-toegang kan extra bevestiging
+							vragen
+						</li>
+					</ul>
+					<p class="mt-2">
+						Gebruik altijd een recente versie. De browser moet de MediaRecorder API en Web Audio API
+						ondersteunen.
+					</p>
+				</div>
+			</details>
+
+			<!-- 10. Opnameduur -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Hoe lang mag een opname zijn?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>Er is geen harde limiet, maar houd rekening met het volgende:</p>
+					<ul class="mt-2 space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							Korte opnames (&lt;5 seconden) geven onbetrouwbare resultaten — te weinig context.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							De sweet spot is 10 seconden tot 5 minuten.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							Langere opnames worden automatisch in stukken (chunks) verwerkt. Dat werkt, maar de verwerking
+							duurt langer.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-400/50"></span>
+							In lokale modus hangt de snelheid af van je hardware. Langere opnames kosten meer verwerkingstijd.
+						</li>
+					</ul>
+				</div>
+			</details>
+
+			<!-- 11. Bestandsupload -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Kan ik een audiobestand uploaden in plaats van opnemen?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>
+						Ja. Naast live opnemen kun je ook een audiobestand uploaden. Ondersteunde formaten zijn
+						onder andere MP3, WAV, M4A, OGG en WebM.
+					</p>
+					<p class="mt-2">
+						Het bestand wordt op dezelfde manier verwerkt als een microfoon-opname: eerst
+						transcriptie, dan polijsten. Het bestand wordt niet opgeslagen — na verwerking is het
+						weg.
+					</p>
+				</div>
+			</details>
+
+			<!-- 12. Verschil lokaal vs API -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Wat is het verschil tussen lokaal en API?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<div class="overflow-x-auto">
+						<table class="w-full text-xs">
+							<thead>
+								<tr class="border-b border-white/10">
+									<th class="pb-2 text-left font-medium text-white/70"></th>
+									<th class="pb-2 text-left font-medium text-neon/70">Lokaal</th>
+									<th class="pb-2 text-left font-medium text-indigo-400/70">API</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-white/5">
+								<tr>
+									<td class="py-1.5 text-white/60">Privacy</td>
+									<td class="py-1.5">Data verlaat je computer niet</td>
+									<td class="py-1.5">EU-servers, direct verwijderd na verwerking</td>
+								</tr>
+								<tr>
+									<td class="py-1.5 text-white/60">Snelheid</td>
+									<td class="py-1.5">Afhankelijk van je hardware</td>
+									<td class="py-1.5">Snel (krachtige servers)</td>
+								</tr>
+								<tr>
+									<td class="py-1.5 text-white/60">Kwaliteit</td>
+									<td class="py-1.5">Goed (Whisper large-v3)</td>
+									<td class="py-1.5">Zeer goed (AssemblyAI Universal-2)</td>
+								</tr>
+								<tr>
+									<td class="py-1.5 text-white/60">Kosten</td>
+									<td class="py-1.5">Gratis</td>
+									<td class="py-1.5">Betaald per gebruik</td>
+								</tr>
+								<tr>
+									<td class="py-1.5 text-white/60">Vereisten</td>
+									<td class="py-1.5">Mac met 8+ GB RAM</td>
+									<td class="py-1.5">Alleen een browser + internet</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<p class="mt-3">
+						Je kiest per stap (transcriptie en polijsten) apart welke modus je wilt. Je kunt ze ook
+						mixen: bijvoorbeeld lokaal transcriberen en via API polijsten.
+					</p>
+				</div>
+			</details>
+
+			<!-- 13. Resultaat kopiëren -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Kan ik het resultaat kopiëren of exporteren?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>
+						Ja. Na de verwerking kun je zowel de ruwe transcriptie als het gepolijste resultaat
+						kopiëren met een klik op de kopieerknop. De tekst komt dan op je klembord en kun je
+						plakken in elk programma.
+					</p>
+					<p class="mt-2">
+						Vergeet niet: sluit je de tab, dan is de tekst weg. Kopieer of bewaar het resultaat
+						voordat je de pagina verlaat.
+					</p>
+				</div>
+			</details>
+
+			<!-- 14. Transcriptie klinkt vreemd -->
+			<details class="glass-strong rounded-2xl group">
+				<summary
+					class="flex cursor-pointer items-center justify-between p-6 text-sm font-medium text-white/90"
+				>
+					Waarom klinkt de transcriptie soms vreemd of onvolledig?
+					<svg
+						class="h-4 w-4 shrink-0 text-white/40 transition-transform group-open:rotate-180"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</summary>
+				<div class="px-6 pb-6 text-xs leading-relaxed text-white/50">
+					<p>Daar zijn een paar veelvoorkomende oorzaken voor:</p>
+					<ul class="mt-2 space-y-1.5">
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<strong class="text-white/70">Achtergrondlawaai</strong> — neem op in een stille ruimte
+							voor het beste resultaat.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<strong class="text-white/70">Te snel spreken</strong> — spreek rustig en duidelijk, vooral
+							bij dialectwoorden.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<strong class="text-white/70">Hallucinatie</strong> — soms "verzint" het model woorden die
+							niet zijn gezegd. Controleer altijd de ruwe transcriptie naast het gepolijste resultaat.
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+							<strong class="text-white/70">Onbekende woorden</strong> — zeer lokale uitdrukkingen of
+							eigennamen kunnen verkeerd worden herkend.
+						</li>
+					</ul>
+					<p class="mt-2">
+						Tip: gebruik de kwaliteitsmodus "Medium" voor betere resultaten bij moeilijk dialect.
+					</p>
+				</div>
+			</details>
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
