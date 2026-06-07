@@ -51,7 +51,7 @@
 		setErrorType,
 		setElapsed,
 		incrementElapsed,
-		setCorrectedExpanded,
+		setPolishedExpanded,
 		setEvalResult,
 		setProcessingElapsed,
 		incrementProcessingElapsed,
@@ -418,17 +418,17 @@
 				{/if}
 
 				<PolishedResultCard
-					corrected={s.corrected}
+					polished={s.polished}
 					status={s.status}
-					expanded={s.correctedExpanded}
-					copiedCorrected={s.copiedCorrected}
-					onToggleExpand={() => setCorrectedExpanded(!s.correctedExpanded)}
+					expanded={s.polishedExpanded}
+					copiedPolished={s.copiedPolished}
+					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
 				/>
 
-				{#if s.corrected}
+				{#if s.polished}
 					<FeedbackWidget
 						rawText={s.raw}
-						correctedText={s.corrected}
+						polishedText={s.polished}
 						dialectRegion="limburgs"
 						lowConfidenceCount={s.lowConfidenceCount}
 						transcribeMode={s.transcribeMode}

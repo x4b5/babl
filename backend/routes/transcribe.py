@@ -2,13 +2,15 @@
 
 import asyncio
 import json
+import logging
 import os
 import tempfile
-import traceback
 
 import mlx_whisper
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+
+logger = logging.getLogger(__name__)
 
 from audio import extract_audio_segment, filter_segments_by_offset, get_audio_duration
 from config import MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
@@ -54,7 +56,7 @@ async def transcribe(
         raise
 
     size_mb = file_size / (1024 * 1024)
-    print(f"Received file: {file.filename}, size: {size_mb:.1f} MB, lang: {lang}")
+    logger.info("Received file: %s, size: %.1f MB, lang: %s", file.filename, size_mb, lang)
     if file_size == 0:
         os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail="Empty audio file")
@@ -74,7 +76,7 @@ async def transcribe(
                 duration = get_audio_duration(tmp_path)
                 segment_duration = 30.0  # seconds
 
-                print(f"Transcribing {duration:.2f}s audio in {segment_duration}s segments...")
+                logger.info("Transcribing %.2fs audio in %.0fs segments...", duration, segment_duration)
 
                 word_count = 0
                 detected_lang = "nl"
@@ -119,10 +121,10 @@ async def transcribe(
                                 try:
                                     hallucination_result = process_transcription(text)
                                     if hallucination_result["was_modified"]:
-                                        print(f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s) in segment, cleaned")
+                                        logger.info("Hallucination detected: %d issue(s) in segment, cleaned", len(hallucination_result["hallucinations"]))
                                         text = hallucination_result["cleaned_text"]
                                 except Exception as e:
-                                    print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+                                    logger.warning("Hallucination detection failed, using unfiltered text: %s", e)
 
                                 if text:  # Only send if text remains after cleaning
                                     word_count += len(text.split())
@@ -134,10 +136,10 @@ async def transcribe(
                         if os.path.exists(chunk_path):
                             os.unlink(chunk_path)
 
-                print(f"Transcription length: {word_count} words")
+                logger.info("Transcription length: %d words", word_count)
                 loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'done'})}\n\n")
             except Exception as e:
-                traceback.print_exc()
+                logger.exception("Transcription worker error")
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",
@@ -238,16 +240,15 @@ async def transcribe_live(
             try:
                 hallucination_result = process_transcription(seg["text"])
                 if hallucination_result["was_modified"]:
-                    print("[Hallucination] Live segment cleaned")
+                    logger.info("Hallucination detected in live segment, cleaned")
                     seg["text"] = hallucination_result["cleaned_text"]
             except Exception as e:
-                print(f"[Hallucination] Detection failed for segment, using unfiltered: {e}")
+                logger.warning("Hallucination detection failed for segment, using unfiltered: %s", e)
 
         full_text = " ".join(s["text"] for s in segments)
         return {"text": full_text, "language": detected_lang, "segments": segments}
     except Exception as e:
-        print(f"Live transcription error: {e}")
-        traceback.print_exc()
+        logger.exception("Live transcription error: %s", e)
         return {"text": "", "language": "nl", "segments": []}
     finally:
         os.unlink(tmp_path)

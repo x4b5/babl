@@ -42,15 +42,6 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 		onClearSavedRecording
 	} = args;
 	const s = getTranscribeState();
-
-	console.log('[BABL DEBUG] processRecording called', {
-		chunksLen: chunks.length,
-		mimeType,
-		transcribeMode: s.transcribeMode,
-		useRealtimeStream,
-		elapsed: s.elapsed
-	});
-
 	setRecordingDuration(s.elapsed);
 
 	if (chunks.length === 0) {
@@ -80,11 +71,6 @@ export async function processRecording(args: ProcessRecordingArgs): Promise<void
 	// Send original blob directly — backend uses ffmpeg for audio conversion
 	// (browser downsampleToWav can produce corrupted audio that Whisper can't read)
 	const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
-	console.log('[BABL DEBUG] Sending ORIGINAL blob (no downsample)', {
-		ext,
-		blobSize: blob.size,
-		blobType: blob.type
-	});
 	await sendAudio(blob, `recording.${ext}`, transcriptionRefs, transcriptionCallbacks);
 	setPartialText('');
 }

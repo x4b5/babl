@@ -12,7 +12,7 @@ export const config = {
 function parsePolishingOutput(rawText: string): string {
 	try {
 		const parsed = JSON.parse(rawText);
-		if (parsed.corrected) return parsed.corrected;
+		if (parsed.polished) return parsed.polished;
 	} catch {
 		// continue to attempt 2
 	}
@@ -21,7 +21,7 @@ function parsePolishingOutput(rawText: string): string {
 	if (match) {
 		try {
 			const parsed = JSON.parse(match[0]);
-			if (parsed.corrected) return parsed.corrected;
+			if (parsed.polished) return parsed.polished;
 		} catch {
 			// continue to fallback
 		}
@@ -108,7 +108,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	};
 
 	if (!text || typeof text !== 'string' || text.trim().length === 0) {
-		return new Response(JSON.stringify({ corrected: '' }), {
+		return new Response(JSON.stringify({ polished: '' }), {
 			headers: { 'Content-Type': 'application/json' }
 		});
 	}
@@ -165,8 +165,8 @@ export const POST: RequestHandler = async ({ request }) => {
 						)) {
 							accumulated += token;
 						}
-						const corrected = parsePolishingOutput(accumulated);
-						send({ type: 'token', text: corrected });
+						const polished = parsePolishingOutput(accumulated);
+						send({ type: 'token', text: polished });
 					} else {
 						for await (const token of polishChunkMistralStream(
 							apiKey,

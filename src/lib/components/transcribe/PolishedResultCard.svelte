@@ -3,17 +3,17 @@
 	import { copyText } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
-		corrected: string;
+		polished: string;
 		status: Status;
 		onToggleExpand: () => void;
 		expanded: boolean;
-		copiedCorrected: boolean;
+		copiedPolished: boolean;
 	}
 
-	let { corrected, status, onToggleExpand, expanded, copiedCorrected }: Props = $props();
+	let { polished, status, onToggleExpand, expanded, copiedPolished }: Props = $props();
 </script>
 
-{#if status === 'polishing' && !corrected}
+{#if status === 'polishing' && !polished}
 	<div class="gradient-border-card p-5 animate-fade-in">
 		<div class="mb-3">
 			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
@@ -38,7 +38,7 @@
 	</div>
 {/if}
 
-{#if corrected}
+{#if polished}
 	<div
 		class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] animate-slide-up"
 	>
@@ -50,14 +50,14 @@
 				{/if}
 			</div>
 			<button
-				onclick={() => copyText(corrected, 'corrected')}
-				aria-label={copiedCorrected ? 'Gepolijst gekopieerd' : 'Kopieer gepolijst'}
+				onclick={() => copyText(polished, 'polished')}
+				aria-label={copiedPolished ? 'Gepolijst gekopieerd' : 'Kopieer gepolijst'}
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
-					{copiedCorrected
+					{copiedPolished
 					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
 					: 'text-white/55 hover:text-white/80 hover:bg-white/5'}"
 			>
-				{#if copiedCorrected}
+				{#if copiedPolished}
 					<svg
 						class="h-3.5 w-3.5"
 						fill="none"
@@ -93,7 +93,7 @@
 				class="whitespace-pre-wrap text-white leading-relaxed overflow-hidden transition-[max-height] duration-500 ease-in-out"
 				style="max-height: {expanded ? 'none' : '12rem'}"
 			>
-				{corrected}
+				{polished}
 			</div>
 			{#if !expanded}
 				<div

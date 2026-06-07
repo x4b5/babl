@@ -2,13 +2,15 @@
 
 import asyncio
 import json
+import logging
 import os
 import tempfile
-import traceback
 
 import mlx_whisper
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+
+logger = logging.getLogger(__name__)
 
 from audio import extract_audio_segment
 from config import ASSEMBLYAI_API_KEY, MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
@@ -44,7 +46,7 @@ async def transcribe_api(
         raise
 
     size_mb = file_size / (1024 * 1024)
-    print(f"[AssemblyAI] Received file: {file.filename}, size: {size_mb:.1f} MB, lang: {lang}")
+    logger.info("AssemblyAI received file: %s, size: %.1f MB, lang: %s", file.filename, size_mb, lang)
     if file_size == 0:
         os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail="Empty audio file")
@@ -92,7 +94,7 @@ async def transcribe_api(
                 config = aai.TranscriptionConfig(**config_kwargs)
                 transcriber = aai.Transcriber()
 
-                print("[AssemblyAI] Starting transcription...")
+                logger.info("AssemblyAI starting transcription...")
                 transcript = transcriber.transcribe(tmp_path, config=config)
 
                 if transcript.status == aai.TranscriptStatus.error:
@@ -107,7 +109,7 @@ async def transcribe_api(
                     if transcript.json_response
                     else "nl"
                 )
-                print(f"[AssemblyAI] Detected language: {detected_lang}")
+                logger.info("AssemblyAI detected language: %s", detected_lang)
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n",
@@ -141,8 +143,7 @@ async def transcribe_api(
                                     )
                                     text = whisper_res.get("text", "").strip()
                                 except Exception as we:
-                                    print(f"[Hybrid] Whisper error: {we}")
-                                    traceback.print_exc()
+                                    logger.exception("Hybrid Whisper re-transcription error: %s", we)
                                 finally:
                                     if os.path.exists(chunk_path):
                                         os.unlink(chunk_path)
@@ -152,12 +153,10 @@ async def transcribe_api(
                             try:
                                 hallucination_result = process_transcription(text)
                                 if hallucination_result["was_modified"]:
-                                    print(
-                                        f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s) in utterance, cleaned"
-                                    )
+                                    logger.info("Hallucination detected: %d issue(s) in utterance, cleaned", len(hallucination_result["hallucinations"]))
                                     text = hallucination_result["cleaned_text"]
                             except Exception as e:
-                                print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+                                logger.warning("Hallucination detection failed, using unfiltered text: %s", e)
 
                             if text:  # Only send if text remains after cleaning
                                 word_count += len(text.split())
@@ -165,7 +164,7 @@ async def transcribe_api(
                                     queue.put_nowait,
                                     f"data: {json.dumps({'type': 'segment', 'text': text, 'speaker': utterance.speaker})}\n\n",
                                 )
-                    print(f"[Hybrid] Transcription length: {word_count} words, {len(utterances)} utterances")
+                    logger.info("Hybrid transcription: %d words, %d utterances", word_count, len(utterances))
                 else:
                     # Fallback: no utterances, use full text
                     text = (transcript.text or "").strip()
@@ -174,15 +173,13 @@ async def transcribe_api(
                         try:
                             hallucination_result = process_transcription(text)
                             if hallucination_result["was_modified"]:
-                                print(
-                                    f"[Hallucination] Detected {len(hallucination_result['hallucinations'])} hallucination(s), cleaned"
-                                )
+                                logger.info("Hallucination detected: %d issue(s), cleaned", len(hallucination_result["hallucinations"]))
                                 text = hallucination_result["cleaned_text"]
                         except Exception as e:
-                            print(f"[Hallucination] Detection failed, using unfiltered text: {e}")
+                            logger.warning("Hallucination detection failed, using unfiltered text: %s", e)
 
                         if text:  # Only send if text remains after cleaning
-                            print(f"[AssemblyAI] Transcription length: {len(text.split())} words (no diarization)")
+                            logger.info("AssemblyAI transcription: %d words (no diarization)", len(text.split()))
                             loop.call_soon_threadsafe(
                                 queue.put_nowait,
                                 f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n",
@@ -193,8 +190,7 @@ async def transcribe_api(
                     f"data: {json.dumps({'type': 'done'})}\n\n",
                 )
             except Exception as e:
-                print(f"[AssemblyAI] Error: {e}")
-                traceback.print_exc()
+                logger.exception("AssemblyAI worker error: %s", e)
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",

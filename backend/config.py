@@ -1,9 +1,12 @@
 """Centralized configuration: constants, model configs, API keys, clients."""
 
 import asyncio
+import logging
 import os
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 # --- Upload limits ---
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB
@@ -54,14 +57,14 @@ def get_mistral_client():
 async def _warmup_single(client: httpx.AsyncClient, name: str, model: str):
     """Warm up a single Ollama model."""
     try:
-        print(f"Warming up Ollama model: {model}...")
+        logger.info("Warming up Ollama model: %s", model)
         await client.post(
             OLLAMA_URL,
             json={"model": model, "prompt": "hallo", "stream": False, "options": {"num_predict": 1}},
         )
-        print(f"  {model} ready.")
+        logger.info("  %s ready.", model)
     except Exception as e:
-        print(f"  {model} warmup failed (will load on first request): {e}")
+        logger.warning("  %s warmup failed (will load on first request): %s", model, e)
 
 
 async def warmup_ollama():

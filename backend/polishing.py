@@ -15,10 +15,10 @@ def get_prompt_version() -> str:
     return PROMPT_VERSION
 
 
-class CorrectionOutput(BaseModel):
-    """Structured output model for dialect correction (CORR-02)."""
+class PolishingOutput(BaseModel):
+    """Structured output model for dialect polishing (CORR-02)."""
     original: str = Field(description="De originele tekst (ongewijzigd)")
-    corrected: str = Field(description="De gecorrigeerde tekst in standaard Nederlands")
+    polished: str = Field(description="De gepolijste tekst in standaard Nederlands")
     confidence: float | None = Field(default=None, description="Vertrouwen 0.0-1.0")
     applied_rules: list[str] | None = Field(default=None, description="Toegepaste regels")
 
@@ -28,7 +28,7 @@ JSON_INSTRUCTION = (
     "Geef je antwoord terug als een JSON object met deze structuur:\n"
     '{\n'
     '  "original": "<originele tekst>",\n'
-    '  "corrected": "<gecorrigeerde tekst in standaard Nederlands>"\n'
+    '  "polished": "<gepolijste tekst in standaard Nederlands>"\n'
     '}\n\n'
     "Geef ALLEEN het JSON object terug, geen andere tekst."
 )
@@ -157,9 +157,9 @@ def build_polishing_prompt(region: str, report_length: str) -> tuple[str, str]:
     return (system, JSON_INSTRUCTION)
 
 
-def parse_polishing_output(raw_text: str, original_input: str) -> CorrectionOutput:
+def parse_polishing_output(raw_text: str, original_input: str) -> PolishingOutput:
     """
-    Parse LLM output to CorrectionOutput with 3-tier fallback strategy.
+    Parse LLM output to PolishingOutput with 3-tier fallback strategy.
 
     Attempt 1: Direct JSON parse
     Attempt 2: Regex extract JSON from surrounding text
@@ -170,12 +170,12 @@ def parse_polishing_output(raw_text: str, original_input: str) -> CorrectionOutp
         original_input: The original input text (used for fallback)
 
     Returns:
-        CorrectionOutput instance (always succeeds)
+        PolishingOutput instance (always succeeds)
     """
     # Attempt 1: Direct JSON parse
     try:
         data = json.loads(raw_text)
-        return CorrectionOutput(**data)
+        return PolishingOutput(**data)
     except (json.JSONDecodeError, ValidationError):
         pass
 
@@ -186,12 +186,12 @@ def parse_polishing_output(raw_text: str, original_input: str) -> CorrectionOutp
         if match:
             json_str = match.group(0)
             data = json.loads(json_str)
-            return CorrectionOutput(**data)
+            return PolishingOutput(**data)
     except (json.JSONDecodeError, ValidationError):
         pass
 
-    # Attempt 3: Fallback — treat raw text as corrected output
-    return CorrectionOutput(
+    # Attempt 3: Fallback — treat raw text as polished output
+    return PolishingOutput(
         original=original_input,
-        corrected=raw_text.strip()
+        polished=raw_text.strip()
     )

@@ -19,11 +19,11 @@ import {
 	getTranscribeState,
 	setError,
 	setErrorType,
-	setCorrected,
+	setPolished,
 	setStatus,
 	setCountdownSeconds,
 	setRetryCount,
-	appendCorrected,
+	appendPolished,
 	resetForPolishing
 } from '$lib/stores/transcribe.svelte';
 
@@ -143,7 +143,7 @@ async function fetchPolishing(
 
 		if (resp.redirected || resp.url.includes('/login')) {
 			setError('Sessie verlopen — log opnieuw in.');
-			setCorrected('');
+			setPolished('');
 			setStatus('idle');
 			return;
 		}
@@ -155,7 +155,7 @@ async function fetchPolishing(
 			} else {
 				handleCaughtError(new Error(`HTTP ${resp.status}`));
 			}
-			setCorrected('');
+			setPolished('');
 			return;
 		}
 
@@ -165,7 +165,7 @@ async function fetchPolishing(
 			stallTimeoutMs: SSE_STALL_TIMEOUT_MS,
 			onEvent: (event) => {
 				if (event.type === 'token') {
-					appendCorrected(event.text as string);
+					appendPolished(event.text as string);
 				} else if (event.type === 'error') {
 					streamError = true;
 					handleErrorEvent(
@@ -179,9 +179,9 @@ async function fetchPolishing(
 			}
 		});
 
-		if (!s.corrected) setCorrected(text);
-		if (s.corrected && !streamError) {
-			appendCorrected(buildPolishingDisclaimer());
+		if (!s.polished) setPolished(text);
+		if (s.polished && !streamError) {
+			appendPolished(buildPolishingDisclaimer());
 		}
 	} catch (e) {
 		if (isAbortError(e)) {
@@ -189,7 +189,7 @@ async function fetchPolishing(
 			return;
 		}
 		handleCaughtError(e);
-		setCorrected('');
+		setPolished('');
 	} finally {
 		callbacks.setPolishingController(undefined);
 		setStatus('idle');

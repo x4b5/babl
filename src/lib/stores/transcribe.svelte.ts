@@ -62,7 +62,7 @@ const REPORT_LENGTH_FACTOR: Record<string, number> = {
 let status = $state<Status>('idle');
 let countdown = $state(0);
 let raw = $state('');
-let corrected = $state('');
+let polished = $state('');
 let language = $state('');
 let error = $state('');
 let errorType = $state<ErrorType | ''>('');
@@ -70,8 +70,8 @@ let countdownSeconds = $state(0);
 let retryCount = $state(0);
 let elapsed = $state(0);
 let copiedRaw = $state(false);
-let copiedCorrected = $state(false);
-let correctedExpanded = $state(false);
+let copiedPolished = $state(false);
+let polishedExpanded = $state(false);
 let quality = $state<Quality>('medium');
 const lang: Lang = 'li';
 let mode = $state<Mode>('api');
@@ -160,8 +160,8 @@ export function getTranscribeState() {
 		get raw() {
 			return raw;
 		},
-		get corrected() {
-			return corrected;
+		get polished() {
+			return polished;
 		},
 		get language() {
 			return language;
@@ -184,11 +184,11 @@ export function getTranscribeState() {
 		get copiedRaw() {
 			return copiedRaw;
 		},
-		get copiedCorrected() {
-			return copiedCorrected;
+		get copiedPolished() {
+			return copiedPolished;
 		},
-		get correctedExpanded() {
-			return correctedExpanded;
+		get polishedExpanded() {
+			return polishedExpanded;
 		},
 		get quality() {
 			return quality;
@@ -319,8 +319,8 @@ export function setCountdown(v: number) {
 export function setRaw(v: string) {
 	raw = v;
 }
-export function setCorrected(v: string) {
-	corrected = v;
+export function setPolished(v: string) {
+	polished = v;
 }
 export function setLanguage(v: string) {
 	language = v;
@@ -343,8 +343,8 @@ export function setElapsed(v: number) {
 export function incrementElapsed() {
 	elapsed += 1;
 }
-export function setCorrectedExpanded(v: boolean) {
-	correctedExpanded = v;
+export function setPolishedExpanded(v: boolean) {
+	polishedExpanded = v;
 }
 export function setQuality(v: Quality) {
 	quality = v;
@@ -424,8 +424,8 @@ export function setRecordingDuration(v: number) {
 export function setWaveformBars(v: number[]) {
 	waveformBars = v;
 }
-export function appendCorrected(v: string) {
-	corrected += v;
+export function appendPolished(v: string) {
+	polished += v;
 }
 export function appendPartialText(v: string) {
 	partialText = partialText ? `${partialText} ${v}` : v;
@@ -438,21 +438,21 @@ export function setSavedRecordingMimeType(v: string) {
 }
 
 /** Copy text to clipboard and flash the copied indicator. */
-export async function copyText(text: string, which: 'raw' | 'corrected') {
+export async function copyText(text: string, which: 'raw' | 'polished') {
 	await navigator.clipboard.writeText(text);
 	if (which === 'raw') {
 		copiedRaw = true;
 		setTimeout(() => (copiedRaw = false), 1500);
 	} else {
-		copiedCorrected = true;
-		setTimeout(() => (copiedCorrected = false), 1500);
+		copiedPolished = true;
+		setTimeout(() => (copiedPolished = false), 1500);
 	}
 }
 
 /** Reset polishing state for a new polishing attempt. */
 export function resetForPolishing() {
-	corrected = '';
-	correctedExpanded = false;
+	polished = '';
+	polishedExpanded = false;
 	error = '';
 	errorType = '';
 	retryCount = 0;
@@ -463,7 +463,7 @@ export function resetForPolishing() {
 /** Reset transcription results for a new audio send. */
 export function resetForTranscription() {
 	raw = '';
-	corrected = '';
+	polished = '';
 	error = '';
 	apiStatus = '';
 	confidenceWords = [];

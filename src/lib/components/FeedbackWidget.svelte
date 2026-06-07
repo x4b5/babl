@@ -1,7 +1,7 @@
 <script lang="ts">
 	interface Props {
 		rawText: string;
-		correctedText: string;
+		polishedText: string;
 		dialectRegion?: string;
 		lowConfidenceCount?: number;
 		transcribeMode: 'local' | 'api';
@@ -17,7 +17,7 @@
 
 	let {
 		rawText,
-		correctedText,
+		polishedText,
 		dialectRegion = 'limburgs',
 		lowConfidenceCount = 0,
 		transcribeMode,
@@ -41,7 +41,7 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					reference: correctedText,
+					reference: polishedText,
 					hypothesis: rawText,
 					dialect_region: dialectRegion,
 					low_confidence_count: lowConfidenceCount
