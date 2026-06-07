@@ -35,6 +35,9 @@
 	});
 
 	const localPolishingAvailable = $derived(localAvailable && ollamaAvailable);
+	const generateDisabled = $derived(
+		(mode === 'local' && !localPolishingAvailable) || (mode === 'api' && !mistralAvailable)
+	);
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
 		{ value: 'samenvatting', label: 'Samenvatting' },
@@ -137,7 +140,7 @@
 	<!-- Generate button -->
 	<button
 		onclick={onGenerate}
-		disabled={mode === 'local' && !localPolishingAvailable}
+		disabled={generateDisabled}
 		class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
 	>
 		Genereren
