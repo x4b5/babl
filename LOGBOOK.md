@@ -270,3 +270,8 @@
 | 2026-06-07 | 21:56     | 21:59    | .06         | `3aea208`   | feat: Fase 7 — FAQ-pagina met 7 veelgestelde vragen                                                                             |
 | 2026-06-07 | 21:59     | 21:59    | 0           | `8cad85c`   | feat: fase 6.1 — uitbreiding naar 5 modelfamilies met RAM-labels                                                                |
 | 2026-06-07 | 21:59     | 22:00    | 0           | `25522af`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:00     | 22:02    | .03         | `32b77b0`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:02     | 22:08    | .09         | `fcc298a`   | feat: fase 9 — drie onderhoud-agents (update, audit, debug)                                                                     |
+| 2026-06-07 | 22:08     | 22:12    | .07         | `80c3426`   | feat: begrippenlijst uitgebreid van 15 naar 30 begrippen                                                                        |
+| 2026-06-07 | 22:12     | 22:14    | .03         | `53c7d39`   | feat: fase 9 — drie extra agents (test, performance, docs)                                                                      |
+| 2026-06-07 | 22:14     | 22:15    | .01         | `4f0c7f1`   | feat: begrippenlijst uitgebreid met dialect- en architectuursecties                                                             |
