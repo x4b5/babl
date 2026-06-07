@@ -303,3 +303,5 @@
 | 2026-06-07 | 23:00     | 23:00    | 0           | `681f876`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 23:00     | 23:01    | 0           | `8ffbb29`   | fix: about-pagina Ollama-sectie veralgemeend (niet meer Gemma-specifiek)                                                        |
 | 2026-06-07 | 23:01     | 23:09    | .13         | `92cc021`   | feat: modellen-pagina met favicons & verwijder Gemma-specifieke referenties                                                     |
+| 2026-06-07 | 23:09     | 23:10    | .01         | `202d1d8`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 23:10     | 23:21    | .19         | `af239a6`   | feat: modelbeschrijvingen uitgebreid met maker en taalkwaliteit                                                                 |
