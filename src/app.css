@@ -54,7 +54,7 @@ body {
 	background-size: 400% 400%;
 	animation: gradient-shift 15s ease infinite;
 	position: relative;
-	overflow: hidden;
+	overflow-x: hidden;
 }
 
 /* Noise/grain texture overlay */
