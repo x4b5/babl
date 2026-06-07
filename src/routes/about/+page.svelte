@@ -158,9 +158,6 @@
 							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
 						>
 						<div class="flex flex-col items-center gap-1">
-							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
-								<img src="/openai.png" alt="Whisper" class="h-5 w-5 rounded-full" />
-							</div>
 							<span class="text-xs text-neon/60 flex items-center gap-1"
 								><img src="/openai.png" alt="" class="h-3 w-3 rounded-full" /> Whisper</span
 							>
@@ -205,9 +202,6 @@
 							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
 						>
 						<div class="flex flex-col items-center gap-1">
-							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
-								<img src="/ollama.png" alt="Ollama" class="h-5 w-5" />
-							</div>
 							<span class="text-xs text-neon/60 flex items-center gap-1"
 								><img src="/ollama.png" alt="" class="h-3 w-3" /> Ollama</span
 							>
