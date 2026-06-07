@@ -261,3 +261,4 @@
 | 2026-06-06 | 23:53     | 23:53    | 0           | `ffdc501`   | refactor: complete final correctie → polishing rename                                                                           |
 | 2026-06-07 | 23:53     | 21:24    | 4.00        | `9f16a75`   | fix: rename "Op dit apparaat" to "Op de computer" and add system requirements warning                                           |
 | 2026-06-07 | 21:24     | 21:29    | .07         | `feea790`   | fix: complete correctie → polishing rename missed in previous commit                                                            |
+| 2026-06-07 | 21:29     | 21:36    | .11         | `3d07459`   | fix: technical audit — remove debug logs, add logging, fix region flow                                                          |

@@ -22,7 +22,7 @@ class TestCorrectionStorage:
                 session_id="test-session",
                 dialect_region="limburgs",
                 original_text="Ich hub dao geweest",
-                corrected_text="Ik heb daar geweest",
+                polished_text="Ik heb daar geweest",
                 user_correction="Ik ben daar geweest",
                 log_dir=Path(tmpdir),
             )
@@ -32,7 +32,7 @@ class TestCorrectionStorage:
             assert entry["dialect_region"] == "limburgs"
             assert entry["user_correction"] == "Ik ben daar geweest"
             assert entry["original_text"] == "Ich hub dao geweest"
-            assert entry["corrected_text"] == "Ik heb daar geweest"
+            assert entry["polished_text"] == "Ik heb daar geweest"
             assert "timestamp" in entry
 
     def test_log_correction_separate_file(self):
@@ -44,7 +44,7 @@ class TestCorrectionStorage:
                 session_id="test-session",
                 dialect_region="limburgs",
                 original_text="test",
-                corrected_text="test",
+                polished_text="test",
                 user_correction="test corrected",
                 log_dir=Path(tmpdir),
             )
@@ -58,12 +58,12 @@ class TestCorrectionStorage:
             log_dir = Path(tmpdir)
             log_correction(
                 session_id="s1", dialect_region="limburgs",
-                original_text="t1", corrected_text="c1", user_correction="u1",
+                original_text="t1", polished_text="c1", user_correction="u1",
                 log_dir=log_dir,
             )
             log_file = log_correction(
                 session_id="s2", dialect_region="mestreechs",
-                original_text="t2", corrected_text="c2", user_correction="u2",
+                original_text="t2", polished_text="c2", user_correction="u2",
                 log_dir=log_dir,
             )
             lines = [l for l in log_file.read_text().strip().split("\n") if l.strip()]
@@ -82,7 +82,7 @@ class TestCorrectionStorage:
             log_dir = Path(tmpdir)
             log_correction(
                 session_id="s1", dialect_region="limburgs",
-                original_text="Ich hub", corrected_text="Ik heb",
+                original_text="Ich hub", polished_text="Ik heb",
                 user_correction="Ik heb", log_dir=log_dir,
             )
             entries = read_corrections(log_dir=log_dir)
@@ -138,13 +138,13 @@ class TestGlossarySuggestions:
             {
                 "dialect_region": "limburgs",
                 "original_text": "Ich hub dao geweest",
-                "corrected_text": "Ik heb daar geweest",
+                "polished_text": "Ik heb daar geweest",
                 "user_correction": "Ik ben daar geweest",
             },
             {
                 "dialect_region": "limburgs",
                 "original_text": "Ich hub heem gegange",
-                "corrected_text": "Ik heb thuis gegaan",
+                "polished_text": "Ik heb thuis gegaan",
                 "user_correction": "Ik ben naar huis gegaan",
             },
         ]
