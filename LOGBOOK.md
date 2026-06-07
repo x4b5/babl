@@ -284,3 +284,5 @@
 | 2026-06-07 | 22:25     | 22:26    | .01         | `8aed75d`   | feat: about-pagina uitgebreid met dialecten, tips en toegankelijkheid                                                           |
 | 2026-06-07 | 22:26     | 22:27    | .02         | `b2450c7`   | feat: setup wizard teksten vereenvoudigd voor beginners                                                                         |
 | 2026-06-07 | 22:27     | 22:28    | 0           | `15c629f`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:28     | 22:29    | .01         | `0787ada`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:29     | 22:32    | .05         | `246dc24`   | feat: Fase 8 — budget cap, rate limiting & Sentry error tracking                                                                |
