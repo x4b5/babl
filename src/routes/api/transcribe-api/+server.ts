@@ -1,11 +1,27 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
+import { checkBudget, recordUsage } from '$lib/server/budget';
 
 export const config = {
 	maxDuration: 60
 };
 
 export const POST: RequestHandler = async ({ request }) => {
+	const maxTranscriptions = parseInt(env.DAILY_BUDGET_MAX_TRANSCRIPTIONS || '50', 10);
+	const maxPolishing = parseInt(env.DAILY_BUDGET_MAX_POLISHING || '100', 10);
+	const budget = checkBudget('transcription', { maxTranscriptions, maxPolishing });
+
+	if (!budget.allowed) {
+		return new Response(
+			JSON.stringify({
+				error: 'Dagelijks limiet bereikt. Probeer het morgen opnieuw.',
+				error_type: 'rate_limit',
+				remaining: 0
+			}),
+			{ status: 429, headers: { 'Content-Type': 'application/json' } }
+		);
+	}
+
 	const apiKey = env.ASSEMBLYAI_API_KEY;
 	if (!apiKey) {
 		return new Response(JSON.stringify({ error: 'AssemblyAI API key not configured' }), {
@@ -40,6 +56,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			...(lang !== 'auto' && { language_code: langMap[lang] || 'nl' })
 		});
 
+		recordUsage('transcription');
 		return new Response(JSON.stringify({ transcriptId: transcript.id }), {
 			headers: { 'Content-Type': 'application/json' }
 		});

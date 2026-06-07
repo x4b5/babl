@@ -18,11 +18,13 @@
 		"transcribe": "bash scripts/start-transcribe.sh"
 	},
 	"devDependencies": {
+		"@mistralai/mistralai": "^1.15.1",
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/adapter-vercel": "^6.3.2",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.2.0",
+		"assemblyai": "^4.27.0",
 		"husky": "^9.1.7",
 		"jsdom": "^29.0.1",
 		"lint-staged": "^16.3.1",
@@ -33,14 +35,13 @@
 		"tailwindcss": "^4.2.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
-		"vitest": "^4.0.18",
-		"@mistralai/mistralai": "^1.15.1",
-		"assemblyai": "^4.27.0"
+		"vitest": "^4.0.18"
 	},
 	"lint-staged": {
 		"*.{js,ts,svelte,css,md,json}": "prettier --write"
 	},
 	"dependencies": {
+		"@sentry/sveltekit": "^10.56.0",
 		"posthog-js": "^1.352.1",
 		"reconnecting-websocket": "^4.4.0"
 	}

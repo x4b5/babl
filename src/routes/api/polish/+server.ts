@@ -4,6 +4,7 @@ import { MISTRAL_MODELS } from '$lib/config/models';
 import { SYSTEM_PROMPTS, JSON_INSTRUCTION } from '$lib/config/prompts';
 import { formatGlossary, formatFewShotExamples } from '$lib/config/glossary';
 import { classifyError, polishChunkMistralStream } from '$lib/utils/mistral-stream';
+import { checkBudget, recordUsage } from '$lib/server/budget';
 
 export const config = {
 	maxDuration: 300
@@ -73,6 +74,21 @@ function splitIntoChunks(text: string, maxWords = 400, overlapWords = 75): strin
 }
 
 export const POST: RequestHandler = async ({ request }) => {
+	const maxTranscriptions = parseInt(env.DAILY_BUDGET_MAX_TRANSCRIPTIONS || '50', 10);
+	const maxPolishing = parseInt(env.DAILY_BUDGET_MAX_POLISHING || '100', 10);
+	const budget = checkBudget('polishing', { maxTranscriptions, maxPolishing });
+
+	if (!budget.allowed) {
+		return new Response(
+			JSON.stringify({
+				error: 'Dagelijks limiet bereikt. Probeer het morgen opnieuw.',
+				error_type: 'rate_limit',
+				remaining: 0
+			}),
+			{ status: 429, headers: { 'Content-Type': 'application/json' } }
+		);
+	}
+
 	const apiKey = env.MISTRAL_API_KEY;
 	if (!apiKey) {
 		return new Response(JSON.stringify({ error: 'Mistral API key not configured' }), {
@@ -142,6 +158,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	const mistralModel = MISTRAL_MODELS[quality] || MISTRAL_MODELS['light'];
 	const chunks = splitIntoChunks(text, 400);
 	const fullContext = chunks.length > 1 && chunks.length <= 5 ? text : null;
+
+	recordUsage('polishing');
 
 	const stream = new ReadableStream({
 		async start(controller) {
