@@ -47,31 +47,31 @@
 
 	const fullSteps: Step[] = $derived([
 		{
-			title: 'Controleer je werkgeheugen (RAM)',
+			title: 'Check je computer',
 			done: w.ramConfirmed,
-			description: 'Whisper heeft minimaal 8 GB werkgeheugen nodig. Controleer of je genoeg hebt.',
+			description: 'Kijk of je computer krachtig genoeg is.',
 			commands: [],
 			hasRamCheck: true
 		},
 		{
-			title: 'Download BABL',
+			title: 'Installeer BABL',
 			done: w.installConfirmed || w.status.backendRunning,
-			description: 'Download het programma naar je computer. Dit hoef je maar een keer te doen.',
+			description: 'Kopieer het commando hieronder en plak het. Dit hoef je maar een keer te doen.',
 			commands: [],
 			hasInstallStep: true
 		},
 		{
-			title: 'Start de server',
+			title: 'Start BABL',
 			done: w.status.backendRunning,
-			description: 'Start de lokale server vanuit de babl map.',
+			description: 'Open de babl map en start het programma.',
 			commands: [],
 			hasStartStep: true
 		},
 		{
-			title: 'Download Whisper taalmodel',
+			title: 'Download spraakherkenning',
 			done: w.status.whisperModelCached,
 			description:
-				'Het Whisper model zet spraak om naar tekst. Klik hieronder om het te downloaden (eenmalig, ±3 GB).',
+				'Dit onderdeel herkent wat je zegt. Klik op de knop om het te downloaden (eenmalig, ±3 GB).',
 			commands: [],
 			hasWhisperDownload: true
 		}
@@ -105,10 +105,9 @@
 
 	const ollamaSteps: Step[] = $derived([
 		{
-			title: 'Controleer je systeem',
+			title: 'Check je computer',
 			done: w.ramConfirmed,
-			description:
-				'De taalmodellen draaien op je eigen computer. Controleer of je genoeg werkgeheugen (RAM) en opslagruimte hebt.',
+			description: 'Kijk of je computer krachtig genoeg is.',
 			commands: [],
 			hasRamCheck: true
 		},
@@ -116,15 +115,15 @@
 			title: 'Download Ollama',
 			done: w.status.ollamaRunning,
 			description:
-				'Ollama is een gratis app die AI-modellen op je computer draait. Download de app (~500 MB), open het, en het start automatisch.',
+				'Ollama is een gratis programma dat nodig is om teksten te verbeteren op je eigen computer. Download het, open het, klaar.',
 			commands: [],
 			hasDownloadLink: true
 		},
 		{
-			title: 'Download een taalmodel',
+			title: 'Download het taalmodel',
 			done: anyModelInstalled,
 			description:
-				'Kies minstens een model en klik op Download. Ollama draait het model automatisch na het downloaden — je hoeft verder niets te doen.',
+				'Dit is het onderdeel dat je teksten verbetert. Klik op Download en wacht tot het klaar is.',
 			commands: [],
 			hasModelDownload: true
 		}
@@ -149,8 +148,8 @@
 		<div class="mb-3 flex items-center justify-between">
 			<h2 class="text-lg font-semibold text-white">
 				{w.wizardContext === 'ollama'
-					? 'Ollama installeren'
-					: 'Lokale modus installeren (voor gevorderden)'}
+					? 'Tekst verbeteren instellen'
+					: 'Alles op je eigen computer (gevorderden)'}
 			</h2>
 			<button
 				onclick={handleClose}
@@ -171,19 +170,20 @@
 		<!-- Intro -->
 		<p class="mb-5 text-sm text-white/50 leading-relaxed">
 			{#if w.wizardContext === 'ollama'}
-				Ollama draait AI-modellen lokaal op je computer, zodat de verslaglegging volledig privé
-				blijft. Volg de stappen hieronder.
+				We installeren een programma dat teksten verbetert op je eigen computer. Niets verlaat je
+				computer. Volg de drie stappen hieronder.
 			{:else}
-				Met de privé-modus wordt alle verwerking op jouw eigen computer gedaan. Er wordt niets naar
-				het internet verstuurd. Volg de stappen hieronder.
+				Hiermee draait alles op je eigen computer — ook de spraakherkenning. Er wordt niets naar het
+				internet verstuurd.
 			{/if}
 		</p>
 
 		{#if w.wizardContext !== 'ollama'}
 			<div class="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
 				<p class="text-xs text-amber-300/80">
-					Dit is voor gevorderden. Gebruik de <strong class="text-amber-200">API-modus</strong> als je
-					snel wilt starten zonder installatie.
+					Dit is ingewikkeld en bedoeld voor ervaren gebruikers. Wil je gewoon snel beginnen? Sluit
+					dit venster en kies de <strong class="text-amber-200">online modus</strong> — dan hoef je niets
+					te installeren.
 				</p>
 			</div>
 		{/if}
@@ -254,33 +254,36 @@
 								<div class="rounded-lg bg-white/5 p-3">
 									<p class="text-xs text-white/60">
 										{#if w.wizardContext === 'ollama'}
-											Je hebt minimaal <span class="font-semibold text-white/80"
-												>4 GB werkgeheugen (RAM)</span
-											> nodig. Hoe meer, hoe beter de kwaliteit.
+											Je computer heeft minimaal <span class="font-semibold text-white/80"
+												>4 GB geheugen</span
+											> nodig. Hoe meer geheugen, hoe beter het resultaat.
 										{:else}
-											Minimaal <span class="font-semibold text-white/80">8 GB RAM</span> nodig. Meer is
-											beter.
+											Je computer heeft minimaal <span class="font-semibold text-white/80"
+												>8 GB geheugen</span
+											> nodig.
+										{/if}
+									</p>
+									<p class="text-xs text-white/40 mt-2">
+										{#if os === 'mac'}
+											Zo check je het: klik linksboven op het Apple-logo () &gt; Over deze Mac.
+										{:else if os === 'windows'}
+											Zo check je het: druk <kbd
+												class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+												>Ctrl+Shift+Esc</kbd
+											>, klik op het tabblad "Prestaties".
+										{:else}
+											Zo check je het: open een terminal en typ <kbd
+												class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+												>free -h</kbd
+											>.
 										{/if}
 									</p>
 								</div>
-								<p class="text-xs text-white/50">
-									{#if os === 'mac'}
-										Check via Apple menu (\uF8FF) &gt; Over deze Mac.
-									{:else if os === 'windows'}
-										Check via <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
-											>Ctrl+Shift+Esc</kbd
-										> (Taakbeheer) &gt; tabblad Prestaties.
-									{:else}
-										Check via <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
-											>free -h</kbd
-										> in een terminal.
-									{/if}
-								</p>
 								<button
 									onclick={confirmRam}
 									class="w-full rounded-xl bg-neon/15 px-4 py-2.5 text-sm font-medium text-neon transition-all hover:bg-neon/25"
 								>
-									Ik heb genoeg
+									Mijn computer is krachtig genoeg
 								</button>
 							{/if}
 
@@ -296,17 +299,16 @@
 								</a>
 								<p class="text-xs text-white/40">
 									{#if os === 'windows'}
-										Open na het downloaden de Ollama app. Het icoontje verschijnt rechtsonder in je
-										systeemvak.
+										Na het downloaden: open de app. Je ziet een klein icoontje rechtsonder bij de
+										klok.
 									{:else}
-										Open na het downloaden de Ollama app. Het icoontje verschijnt bovenin je
-										menubalk.
+										Na het downloaden: open de app. Je ziet een klein icoontje bovenin je scherm.
 									{/if}
 								</p>
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>
-									Wacht tot Ollama draait...
+									We detecteren automatisch wanneer het draait...
 								</p>
 							{/if}
 
@@ -326,7 +328,7 @@
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										Gekopieerd! Plak in Terminal
+										Gekopieerd! Ga naar stap 2 hieronder
 									{:else}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
@@ -336,23 +338,23 @@
 												d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 											/>
 										</svg>
-										Kopieer installeercommando
+										Stap 1: Kopieer dit commando
 									{/if}
 								</button>
 								<p class="text-xs text-white/40 text-center">
 									{#if os === 'mac'}
-										Open Terminal en plak het commando met <kbd
+										Stap 2: Open het programma "Terminal" en plak met <kbd
 											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Cmd+V</kbd
-										>
+										>, druk dan Enter
 									{:else if os === 'windows'}
-										Open PowerShell en plak het commando met <kbd
+										Stap 2: Open "PowerShell" en plak met <kbd
 											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60">Ctrl+V</kbd
-										>
+										>, druk dan Enter
 									{:else}
-										Open een terminal en plak het commando met <kbd
+										Stap 2: Open een terminal en plak met <kbd
 											class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
 											>Ctrl+Shift+V</kbd
-										>
+										>, druk dan Enter
 									{/if}
 								</p>
 								<button
@@ -609,7 +611,7 @@
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										<span class="text-sm text-emerald-400">Whisper model gedownload</span>
+										<span class="text-sm text-emerald-400">Spraakherkenning gedownload</span>
 									</div>
 								{:else if w.status.whisperDownloading}
 									<div class="rounded-lg bg-white/5 p-3">
@@ -617,7 +619,7 @@
 											<span
 												class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-neon/30 border-t-neon"
 											></span>
-											<span class="text-sm text-neon/70">Whisper model wordt gedownload...</span>
+											<span class="text-sm text-neon/70">Wordt gedownload...</span>
 										</div>
 									</div>
 								{:else}
@@ -626,13 +628,13 @@
 										class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
 									>
 										<img src="/openai.png" alt="" class="h-5 w-5 rounded-full" />
-										Download Whisper model
+										Download spraakherkenning
 									</button>
 								{/if}
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>
-									Checkt automatisch...
+									We detecteren het automatisch...
 								</p>
 							{/if}
 
@@ -686,7 +688,7 @@
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
 									></span>
-									Checkt automatisch elke 3 seconden...
+									We detecteren het automatisch...
 								</p>
 							{/if}
 						</div>
@@ -700,7 +702,7 @@
 			<div class="mt-4 rounded-xl bg-emerald-500/10 p-4 text-center">
 				<p class="text-sm font-medium text-emerald-400">Alles is klaar!</p>
 				<p class="mt-1 text-sm text-emerald-400/60">
-					Je kunt nu lokaal transcriberen en polijsten.
+					Je kunt nu spraak omzetten naar tekst, volledig op je eigen computer.
 				</p>
 				<button
 					onclick={handleClose}

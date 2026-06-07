@@ -278,3 +278,7 @@
 | 2026-06-07 | 22:15     | 22:15    | 0           | `6bc5960`   | chore: update LOGBOOK with latest session entry                                                                                 |
 | 2026-06-07 | 22:15     | 22:18    | .05         | `0cd467f`   | feat: setup wizard OS-aware met vereenvoudigde modelkeuze                                                                       |
 | 2026-06-07 | 22:18     | 22:20    | .02         | `4c50697`   | feat: fase 9 — drie extra agents (a11y, api-contract, compliance)                                                               |
+| 2026-06-07 | 22:20     | 22:21    | .01         | `aa58956`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-07 | 22:21     | 22:24    | .05         | `d36fa8e`   | feat: FAQ uitgebreid van 7 naar 14 vragen                                                                                       |
+| 2026-06-07 | 22:24     | 22:25    | .01         | `387c509`   | feat: research-agent voor model- en technologie-updates                                                                         |
+| 2026-06-07 | 22:25     | 22:26    | .01         | `8aed75d`   | feat: about-pagina uitgebreid met dialecten, tips en toegankelijkheid                                                           |
