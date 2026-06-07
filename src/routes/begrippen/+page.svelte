@@ -304,6 +304,116 @@
 					</div>
 				</dl>
 			</section>
+
+			<!-- 6. Dialect & taal -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-4 text-lg font-semibold text-white/90">Dialect & taal</h2>
+				<dl class="space-y-4">
+					<div id="dialect">
+						<dt class="text-sm font-medium text-white/80">Dialect</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een regionale variant van een taal met eigen woorden, klanken en grammatica. Limburgs
+							is geen "fout Nederlands" maar een erkende streektaal met meerdere varianten
+							(Mestreechs, Zittesj, Venloos, Kirchroeadsj).
+						</dd>
+					</div>
+					<div id="code-switching">
+						<dt class="text-sm font-medium text-white/80">Code-switching</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het wisselen tussen twee talen of dialecten binnen een zin of gesprek. Veel Limburgers
+							doen dit automatisch — een zin begint in dialect en eindigt in Nederlands. BABL kan
+							hiermee omgaan bij het polijsten.
+						</dd>
+					</div>
+					<div id="glossary">
+						<dt class="text-sm font-medium text-white/80">Glossary (woordenlijst)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een vertaallijst van dialectwoorden naar standaard Nederlands. BABL heeft per
+							dialectvariant een glossary ingebouwd (bijv. "sjoen" → "mooi", "hoes" → "huis") zodat
+							het AI-model weet hoe het moet vertalen.
+						</dd>
+					</div>
+					<div id="normalisatie">
+						<dt class="text-sm font-medium text-white/80">Normalisatie</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het omzetten van variërende schrijfwijzen naar een standaardvorm. "Sjoen", "sjön" en
+							"sjun" betekenen allemaal "mooi" — normalisatie zorgt dat ze allemaal als hetzelfde
+							woord worden herkend.
+						</dd>
+					</div>
+					<div id="streektaal">
+						<dt class="text-sm font-medium text-white/80">Streektaal</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Een taal die in een bepaalde regio wordt gesproken en daar historisch geworteld is.
+							Limburgs is sinds 1997 officieel erkend als streektaal onder het Europees Handvest
+							voor regionale talen.
+						</dd>
+					</div>
+					<div id="tonaliteit">
+						<dt class="text-sm font-medium text-white/80">Tonaliteit (sleeptoon / stoottoon)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Limburgs is een van de weinige West-Europese talen met toonverschillen: hetzelfde
+							woord krijgt een andere betekenis door de melodie (sleeptoon vs stoottoon). Dit maakt
+							spraakherkenning extra uitdagend.
+						</dd>
+					</div>
+				</dl>
+			</section>
+
+			<!-- 7. Verwerking & architectuur -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-4 text-lg font-semibold text-white/90">Verwerking & architectuur</h2>
+				<dl class="space-y-4">
+					<div id="lokale-modus">
+						<dt class="text-sm font-medium text-white/80">Lokale modus</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Alles draait op je eigen computer: Whisper voor transcriptie, Ollama voor polijsten.
+							Er gaat geen data het internet op. Ideaal voor gevoelige gesprekken of als je geen
+							internetverbinding hebt.
+						</dd>
+					</div>
+					<div id="api-modus">
+						<dt class="text-sm font-medium text-white/80">API-modus</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Je audio wordt versleuteld naar EU-servers gestuurd (AssemblyAI in Dublin, Mistral in
+							EU) voor verwerking. Sneller en nauwkeuriger dan lokaal, maar vereist internet en
+							vertrouwen in de dienstverlener.
+						</dd>
+					</div>
+					<div id="streaming">
+						<dt class="text-sm font-medium text-white/80">Streaming</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het stukje voor stukje verwerken en tonen van resultaten, in plaats van te wachten tot
+							alles klaar is. Bij BABL zie je woorden verschijnen terwijl ze worden verwerkt — alsof
+							iemand in real-time meetype.
+						</dd>
+					</div>
+					<div id="chunking">
+						<dt class="text-sm font-medium text-white/80">Chunking</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het opdelen van een groot stuk tekst of audio in kleinere blokken voor verwerking.
+							BABL knipt lange teksten in stukken van maximaal 400 woorden zodat het AI-model elk
+							stuk goed kan verwerken.
+						</dd>
+					</div>
+					<div id="downsampling">
+						<dt class="text-sm font-medium text-white/80">Downsampling</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het verlagen van de kwaliteit/frequentie van een audiosignaal. Je microfoon neemt op
+							in hoge kwaliteit (48kHz), maar Whisper werkt het beste met 16kHz mono. BABL
+							converteert automatisch — je merkt er niets van.
+						</dd>
+					</div>
+					<div id="encryptie">
+						<dt class="text-sm font-medium text-white/80">Encryptie (versleuteling)</dt>
+						<dd class="mt-1 text-xs leading-relaxed text-white/50">
+							Het onleesbaar maken van data tijdens verzending, zodat alleen de ontvanger het kan
+							lezen. BABL stuurt audio in API-modus altijd via HTTPS (versleuteld) — alsof je een
+							brief in een kluis verstuurt in plaats van op een briefkaart.
+						</dd>
+					</div>
+				</dl>
+			</section>
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
