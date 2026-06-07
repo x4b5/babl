@@ -63,7 +63,7 @@
 		{
 			title: 'Start BABL',
 			done: w.status.backendRunning,
-			description: 'Open de babl map en start het programma.',
+			description: 'Plak dit commando in dezelfde Terminal als stap 2. Het start de lokale server.',
 			commands: [],
 			hasStartStep: true
 		},
@@ -366,35 +366,12 @@
 							{/if}
 
 							{#if step.hasStartStep}
-								{@const openCmd =
-									os === 'mac'
-										? 'open ~/babl'
-										: os === 'windows'
-											? 'explorer %USERPROFILE%\\babl'
-											: 'xdg-open ~/babl'}
-								{@const startFile =
-									os === 'mac'
-										? 'start-babl.command'
-										: os === 'windows'
-											? 'start-babl.bat'
-											: './start-babl.sh'}
-								{@const fileManager =
-									os === 'mac' ? 'Finder' : os === 'windows' ? 'Verkenner' : 'bestandsbeheerder'}
-								<div class="rounded-lg bg-white/5 p-3 text-center">
-									<p class="text-sm text-white/70 mb-1">
-										{#if os === 'linux'}
-											Voer het volgende uit in een terminal:
-										{:else}
-											Open de babl map en dubbelklik op:
-										{/if}
-									</p>
-									<p class="font-mono text-sm font-semibold text-neon/90">{startFile}</p>
-								</div>
+								{@const startCmd = 'cd ~/babl && npm run transcribe'}
 								<button
-									onclick={() => copyCommand(openCmd)}
+									onclick={() => copyCommand(startCmd)}
 									class="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3 text-sm font-semibold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(212,255,0,0.3)]"
 								>
-									{#if w.copiedCommand === openCmd}
+									{#if w.copiedCommand === startCmd}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
 												stroke-linecap="round"
@@ -403,27 +380,35 @@
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										Gekopieerd!
+										Gekopieerd! Plak in Terminal en druk Enter
 									{:else}
 										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
 												stroke-linecap="round"
 												stroke-linejoin="round"
 												stroke-width="2"
-												d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+												d="M8 5v14l11-7z"
 											/>
 										</svg>
-										Open babl map in {fileManager}
+										Kopieer startcommando
 									{/if}
 								</button>
 								<p class="text-xs text-white/40 text-center">
-									{#if os === 'linux'}
-										Voer <kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
-											>{startFile}</kbd
-										> uit in de babl map
+									Plak in dezelfde Terminal als stap 2 met
+									{#if os === 'mac'}
+										<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>Cmd+V</kbd
+										>
+									{:else if os === 'windows'}
+										<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>Ctrl+V</kbd
+										>
 									{:else}
-										Dubbelklik op <strong class="text-white/60">{startFile}</strong> in {fileManager}
+										<kbd class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-white/60"
+											>Ctrl+Shift+V</kbd
+										>
 									{/if}
+									en druk Enter
 								</p>
 								<p class="flex items-center gap-1.5 text-xs text-white/45">
 									<span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-neon/40"
