@@ -38,7 +38,7 @@
 	}
 </script>
 
-<div class="mb-5" aria-label="Voortgang">
+<div class="sticky top-0 z-30 mb-5" aria-label="Voortgang">
 	<div class="glass rounded-xl px-4 py-3">
 		<div class="flex items-center justify-between gap-1 sm:gap-2">
 			{#each steps as step, i}
