@@ -603,7 +603,201 @@
 				</div>
 			</section>
 
-			<!-- 6. Open source & contact -->
+			<!-- 7. Ondersteunde dialecten -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90">Ondersteunde dialecten</h2>
+				<p class="mb-4 text-sm text-white/60">
+					BABL ondersteunt vijf Limburgse dialectvarianten. Elke variant heeft een eigen
+					woordenlijst (glossary) en voorbeeldzinnen die het AI-model helpen correct te vertalen.
+				</p>
+				<div class="space-y-3">
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Algemeen Limburgs</h3>
+						<p class="mt-1 text-xs text-white/40">
+							De brede variant die de meeste Limburgse sprekers herkennen. Geschikt als je niet
+							precies weet welk lokaal dialect je spreekt, of als je een mix spreekt.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Mestreechs</h3>
+						<p class="mt-1 text-xs text-white/40">
+							Het dialect van Maastricht en directe omgeving. Kenmerken: "iech" (ik), "sjoen"
+							(mooi), "kalle" (praten), "dök" (vaak). Sterk beïnvloed door het Frans en Waals.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Zittesj</h3>
+						<p class="mt-1 text-xs text-white/40">
+							Het dialect van Sittard en omgeving. Kenmerken: "richtig" (juist), "zusamme" (samen),
+							"bitte" (alsjeblieft), "plötzlich" (plotseling). Meer Duits-georiënteerd dan
+							zuidelijker varianten.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Venloos</h3>
+						<p class="mt-1 text-xs text-white/40">
+							Het dialect van Venlo en Noord-Limburg. Kenmerken: "gans" (heel), "ouch" (ook),
+							"mótte" (moeten), "drök" (druk). Meer verwant aan het Brabants en Kleefs.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<h3 class="text-sm font-medium text-white/70">Kirchroeadsj</h3>
+						<p class="mt-1 text-xs text-white/40">
+							Het dialect van Kerkrade en de Oostelijke Mijnstreek. Kenmerken: "d'r" (de/het),
+							"junt" (gaan), "tsimmer" (kamer), "uvver" (over). Sterk Ripuarisch (verwant aan het
+							Kölsch). Het meest afwijkend van standaard Nederlands.
+						</p>
+					</div>
+				</div>
+				<p class="mt-4 text-xs text-white/40">
+					Mis je jouw dialect? BABL is een experimenteel project dat continu wordt uitgebreid.
+					Nieuwe varianten worden toegevoegd op basis van vraag en beschikbare taaldata.
+				</p>
+			</section>
+
+			<!-- 8. Tips voor het beste resultaat -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90">Tips voor het beste resultaat</h2>
+				<p class="mb-4 text-sm text-white/60">
+					BABL is experimenteel — het resultaat hangt af van hoe je het gebruikt. Met deze tips haal
+					je het meeste eruit:
+				</p>
+				<div class="space-y-3">
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							1
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Spreek rustig en duidelijk</p>
+							<p class="text-xs text-white/50">
+								Geef het model de tijd om elk woord te herkennen. Snel spreken of mompelen leidt tot
+								meer fouten — zeker bij dialectwoorden.
+							</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							2
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Neem op in een stille ruimte</p>
+							<p class="text-xs text-white/50">
+								Achtergrondlawaai (TV, verkeer, andere stemmen) verstoort de herkenning. Hoe stiller
+								de omgeving, hoe beter het resultaat.
+							</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							3
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Kies het juiste dialect</p>
+							<p class="text-xs text-white/50">
+								Selecteer de variant die het dichtst bij jouw spraak ligt. "Algemeen Limburgs" is
+								een veilige keuze als je twijfelt.
+							</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							4
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Neem minimaal 10 seconden op</p>
+							<p class="text-xs text-white/50">
+								Korte opnames (&lt;5 sec) geven onbetrouwbare resultaten. Het model heeft context
+								nodig om woorden goed te herkennen.
+							</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							5
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Controleer altijd het resultaat</p>
+							<p class="text-xs text-white/50">
+								BABL toont de ruwe transcriptie naast het gepolijste resultaat. Vergelijk ze — soms
+								vertaalt het model een woord verkeerd of voegt het iets toe. Jij blijft de
+								eindredacteur.
+							</p>
+						</div>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neon/10 text-xs font-bold text-neon/80"
+						>
+							6
+						</div>
+						<div>
+							<p class="text-sm font-medium text-white/70">Gebruik "Medium" bij moeilijk dialect</p>
+							<p class="text-xs text-white/50">
+								De kwaliteitsmodus "Medium" gebruikt een groter AI-model dat beter omgaat met sterk
+								dialect, ongebruikelijke woorden en complexe zinnen. Het is langzamer, maar
+								nauwkeuriger.
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- 9. Toegankelijkheid -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90">Toegankelijkheid</h2>
+				<p class="mb-4 text-sm text-white/60">
+					BABL is ontworpen om voor zo veel mogelijk mensen bruikbaar te zijn:
+				</p>
+				<ul class="space-y-2 text-sm text-white/60">
+					<li class="flex items-start gap-2">
+						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+						<span>
+							<span class="text-white/80">Toetsenbordnavigatie</span> — alle knoppen en elementen zijn
+							bereikbaar met Tab en Enter. De spacebar start en stopt de opname.
+						</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+						<span>
+							<span class="text-white/80">Verminderde beweging</span> — als je in je systeeminstellingen
+							"verminder beweging" hebt aanstaan, worden animaties uitgeschakeld.
+						</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+						<span>
+							<span class="text-white/80">Schermlezers</span> — knoppen en statusmeldingen hebben ARIA-labels
+							zodat schermlezers (zoals VoiceOver) de interface kunnen voorlezen.
+						</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+						<span>
+							<span class="text-white/80">Contrast</span> — tekst en interactieve elementen voldoen aan
+							WCAG AA-contrastvereisten tegen de donkere achtergrond.
+						</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+						<span>
+							<span class="text-white/80">Mobiel</span> — de interface past zich aan voor kleinere schermen.
+							In API-modus werkt BABL volledig op telefoon en tablet.
+						</span>
+					</li>
+				</ul>
+			</section>
+
+			<!-- 10. Open source & contact -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90">Open source & contact</h2>
 				<p class="text-sm leading-relaxed text-white/60">
