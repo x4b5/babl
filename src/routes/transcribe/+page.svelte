@@ -366,17 +366,6 @@
 			onOpenSetupWizard={handleOpenSetupWizard}
 		/>
 
-		{#if !isMobile()}
-			<div class="mb-4 flex justify-center animate-fade-in">
-				<button
-					onclick={handleOpenOllamaWizard}
-					class="text-xs underline text-white/50 hover:text-white/70 transition-colors cursor-pointer"
-				>
-					{s.ollamaAvailable ? 'Ollama modellen beheren' : 'Tekst verbeteren instellen (Ollama)'}
-				</button>
-			</div>
-		{/if}
-
 		<RecordButton
 			status={s.status}
 			countdown={s.countdown}
