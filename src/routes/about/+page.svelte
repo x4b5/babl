@@ -979,24 +979,30 @@
 								rel="noopener noreferrer"
 								class="underline decoration-white/20 hover:decoration-white/50 transition-colors"
 								>Ollama</a
-							> / Gemma
+							>
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
 							Ollama is een programma dat AI-modellen op je eigen computer laat draaien, zonder
 							internet. Vergelijk het met een rekenmachine die op je bureau staat in plaats van in
-							de cloud. Gemma is het taalmodel dat via Ollama draait — compact genoeg voor een
-							gewone laptop (8 GB werkgeheugen volstaat).
+							de cloud. BABL ondersteunt meerdere open-source taalmodellen — je kiest zelf welk
+							model het beste past bij jouw hardware.
 						</p>
 						<p class="mt-1.5 text-xs text-white/40">
 							Ollama is optioneel: als je API-modus kiest, heb je het niet nodig. Dan polijst
-							Mistral AI (op EU-servers) je tekst in plaats van Gemma op je computer.
+							Mistral AI (op EU-servers) je tekst.
 						</p>
-						<p class="mt-1.5">
+						<p class="mt-1.5 flex items-center gap-3">
 							<a
 								href="/begrippen#ollama"
 								class="text-xs text-neon/60 underline decoration-neon/20 underline-offset-2 hover:text-neon transition-colors"
 							>
 								Meer uitleg &rarr;
+							</a>
+							<a
+								href="/modellen"
+								class="text-xs text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+							>
+								Ondersteunde modellen &rarr;
 							</a>
 						</p>
 					</div>
