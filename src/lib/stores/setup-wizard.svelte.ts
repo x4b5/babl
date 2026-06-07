@@ -3,7 +3,7 @@
  * Polls /health/setup every 3s when open, auto-advances steps.
  */
 
-import { LOCAL_BACKEND_URL, setModelFamily } from '$lib/stores/transcribe.svelte';
+import { LOCAL_BACKEND_URL, setModelFamily, setMode } from '$lib/stores/transcribe.svelte';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -42,11 +42,15 @@ export const MODEL_FAMILY_LABELS: Record<string, string> = {
 };
 
 export const MODEL_FAMILY_DESCRIPTIONS: Record<string, string> = {
-	qwen3: 'Aanbevolen — 119 talen, sterk Nederlands',
-	gemma3: 'Goede allrounder voor Europese talen',
-	mistral: 'Europees model, degelijk Nederlands',
-	phi4: 'Sterk in redeneren, matig Nederlands',
-	llama3: 'Nederlands niet officieel ondersteund'
+	qwen3:
+		'Aanbevolen — door Alibaba (China), ondersteunt 119 talen waaronder sterk Nederlands. Beste keuze voor Limburgs dialect.',
+	gemma3:
+		'Door Google, goede allrounder voor Europese talen. Compact en snel, maar iets minder sterk in dialect.',
+	mistral:
+		'Door Mistral AI (Frankrijk), Europees model met degelijk Nederlands. Grotere modellen maar betrouwbaar.',
+	phi4: 'Door Microsoft, sterk in redeneren en logica. Nederlands is beperkt ondersteund, niet ideaal voor dialect.',
+	llama3:
+		'Door Meta (Facebook), populair open model. Nederlands niet officieel ondersteund — alleen geschikt om te experimenteren.'
 };
 
 export const MODEL_RAM_INFO: Record<string, Record<string, { storage: string; ram: string }>> = {
@@ -311,6 +315,8 @@ export async function downloadModel(modelName?: string): Promise<void> {
 
 		// Trigger a status refresh to detect the new model
 		await fetchSetupStatus();
+		// Auto-switch polishing mode to 'local' so the downloaded model gets used
+		setMode('local');
 	} catch {
 		modelDownloadError = 'Download mislukt. Controleer of Ollama draait.';
 	} finally {
