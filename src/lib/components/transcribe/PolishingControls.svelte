@@ -46,7 +46,8 @@
 </script>
 
 <div class="glass rounded-2xl p-5 sm:p-6 animate-fade-in">
-	<h3 class="mb-4 sm:mb-5 text-base font-semibold text-white/70">Verslaglegging</h3>
+	<h3 class="mb-1 text-base font-semibold text-white/70">Polijsten & Verslaglegging</h3>
+	<p class="mb-4 sm:mb-5 text-xs text-white/40">Kies je instellingen en klik Genereren</p>
 
 	<div class="flex flex-col items-center gap-4 mb-5">
 		<!-- Mode toggle -->

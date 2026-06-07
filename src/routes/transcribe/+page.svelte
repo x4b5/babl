@@ -356,7 +356,7 @@
 	<div class="mx-auto max-w-3xl px-4 py-6 sm:py-16">
 		<AppHeader />
 
-		<ProcessSteps status={s.status} />
+		<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
 
 		<TranscribeModeToggle
 			transcribeMode={s.transcribeMode}
