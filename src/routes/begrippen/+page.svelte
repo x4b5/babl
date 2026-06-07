@@ -186,6 +186,8 @@
 				<span class="text-white/10">|</span>
 				<a href="/voorwaarden" class="hover:text-white/60 transition-colors">Voorwaarden</a>
 				<span class="text-white/10">|</span>
+				<a href="/faq" class="hover:text-white/60 transition-colors">FAQ</a>
+				<span class="text-white/10">|</span>
 				<a href="/about" class="hover:text-white/60 transition-colors">Over BABL</a>
 			</div>
 		</footer>
