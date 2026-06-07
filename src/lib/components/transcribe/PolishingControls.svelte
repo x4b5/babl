@@ -91,12 +91,12 @@
 						Vereist minimaal 8 GB RAM. Niet beschikbaar op mobiel.
 					</p>
 				{/if}
-				{#if mode === 'local' && !localPolishingAvailable && onOpenSetupWizard}
+				{#if mode === 'local' && onOpenSetupWizard}
 					<button
 						onclick={onOpenSetupWizard}
 						class="text-xs underline text-white/60 hover:text-white/80 transition-colors cursor-pointer"
 					>
-						Installeren op je computer
+						{localPolishingAvailable ? 'Ollama modellen beheren' : 'Installeren op je computer'}
 					</button>
 				{/if}
 			{/if}

@@ -121,7 +121,7 @@
 						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokale modus</h3>
 						<ul class="space-y-1.5 text-sm text-white/60">
 							<li>Whisper (transcriptie) op eigen apparaat</li>
-							<li>Ollama/Gemma3 (polijsten) op eigen apparaat</li>
+							<li>Ollama (polijsten) op eigen apparaat</li>
 							<li class="font-medium text-neon/60">Geen data verlaat je computer</li>
 						</ul>
 					</div>

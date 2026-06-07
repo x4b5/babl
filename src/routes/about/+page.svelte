@@ -375,10 +375,10 @@
 					<p class="mt-2 text-xs leading-relaxed text-white/50">
 						Het resultaat is een ruwe transcriptie die al grotendeels in het Nederlands staat — maar
 						nog niet perfect is. Gesproken taal bevat herhalingen, halve zinnen en soms woorden die
-						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel (Gemma of
-						Mistral) leest de ruwe tekst en probeert er leesbaar Nederlands van te maken. Het
-						verwijdert herhalingen, herstelt zinsbouw en polijst eventuele fouten — zodat je een
-						leesbaar verslag overhoudt van wat er gezegd is.
+						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel leest de ruwe
+						tekst en probeert er leesbaar Nederlands van te maken. Het verwijdert herhalingen,
+						herstelt zinsbouw en polijst eventuele fouten — zodat je een leesbaar verslag overhoudt
+						van wat er gezegd is.
 					</p>
 				</div>
 
@@ -734,7 +734,7 @@
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								Modellen: Whisper + Ollama/Gemma (lokaal), AssemblyAI + Mistral (EU-servers)
+								Modellen: Whisper + Ollama (lokaal), AssemblyAI + Mistral (EU-servers)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>

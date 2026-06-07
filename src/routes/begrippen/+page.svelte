@@ -296,8 +296,8 @@
 						<dt class="text-sm font-medium text-white/80">LLM (Large Language Model)</dt>
 						<dd class="mt-1 text-xs leading-relaxed text-white/50">
 							Een groot taalmodel — een AI die is getraind op enorme hoeveelheden tekst en daardoor
-							taal "begrijpt". BABL gebruikt een LLM (Gemma of Mistral) om dialecttekst om te zetten
-							naar standaard Nederlands.
+							taal "begrijpt". BABL gebruikt een LLM om dialecttekst om te zetten naar standaard
+							Nederlands.
 						</dd>
 					</div>
 					<div id="token">

@@ -100,7 +100,7 @@
 						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokale modus</h3>
 						<ul class="space-y-1.5 text-sm text-white/60">
 							<li>Whisper (spraakherkenning) draait op je eigen apparaat</li>
-							<li>Ollama/Gemma (polijsten) draait op je eigen apparaat</li>
+							<li>Ollama (polijsten) draait op je eigen apparaat</li>
 							<li class="font-medium text-neon/60">Geen data verlaat je computer</li>
 						</ul>
 					</div>
@@ -358,8 +358,7 @@
 						<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500/60"></span>
 						<div>
 							<span class="font-medium text-white/80">Gebruikte modellen</span> — Whisper large-v3 (spraakherkenning),
-							Ollama/Gemma3 (lokaal polijsten), AssemblyAI Universal-2 (API transcriptie), Mistral (API
-							polijsten)
+							Ollama (lokaal polijsten), AssemblyAI Universal-2 (API transcriptie), Mistral (API polijsten)
 						</div>
 					</li>
 					<li class="flex items-start gap-3">
