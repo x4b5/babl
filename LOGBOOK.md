@@ -269,3 +269,4 @@
 | 2026-06-07 | 21:54     | 21:56    | .03         | `83ec1b6`   | feat: Fase 5 — mobiele UX & responsiviteit                                                                                      |
 | 2026-06-07 | 21:56     | 21:59    | .06         | `3aea208`   | feat: Fase 7 — FAQ-pagina met 7 veelgestelde vragen                                                                             |
 | 2026-06-07 | 21:59     | 21:59    | 0           | `8cad85c`   | feat: fase 6.1 — uitbreiding naar 5 modelfamilies met RAM-labels                                                                |
+| 2026-06-07 | 21:59     | 22:00    | 0           | `25522af`   | chore: update LOGBOOK with latest session entry                                                                                 |
