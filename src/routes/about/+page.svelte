@@ -124,6 +124,231 @@
 					</div>
 				</div>
 
+				<!-- Flow diagram -->
+				<div class="mt-5 rounded-xl border border-white/10 bg-white/5 p-4">
+					<p class="mb-3 text-xs font-medium uppercase tracking-wider text-white/40">
+						Visueel overzicht
+					</p>
+					<!-- Desktop: horizontal flow -->
+					<div class="hidden sm:flex items-center justify-between gap-2">
+						<div class="flex flex-col items-center gap-1">
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-5 w-5 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+									/>
+								</svg>
+							</div>
+							<span class="text-xs text-white/50">Microfoon</span>
+						</div>
+						<svg
+							class="h-4 w-4 shrink-0 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
+						>
+						<div class="flex flex-col items-center gap-1">
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
+								<img src="/openai.png" alt="Whisper" class="h-5 w-5 rounded-full" />
+							</div>
+							<span class="text-xs text-neon/60">Whisper</span>
+							<span class="text-xs text-indigo-400/60">AssemblyAI</span>
+						</div>
+						<svg
+							class="h-4 w-4 shrink-0 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
+						>
+						<div class="flex flex-col items-center gap-1">
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 border border-white/10"
+							>
+								<svg
+									class="h-5 w-5 text-white/50"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+							</div>
+							<span class="text-xs text-white/50">Ruwe tekst</span>
+						</div>
+						<svg
+							class="h-4 w-4 shrink-0 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
+						>
+						<div class="flex flex-col items-center gap-1">
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10">
+								<img src="/ollama.png" alt="Ollama" class="h-5 w-5" />
+							</div>
+							<span class="text-xs text-neon/60">Ollama</span>
+							<span class="text-xs text-indigo-400/60">Mistral</span>
+						</div>
+						<svg
+							class="h-4 w-4 shrink-0 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg
+						>
+						<div class="flex flex-col items-center gap-1">
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-lg bg-neon/10 border border-neon/20"
+							>
+								<svg
+									class="h-5 w-5 text-neon"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+								</svg>
+							</div>
+							<span class="text-xs text-neon/70">Gepolijst</span>
+						</div>
+					</div>
+					<!-- Mobile: vertical flow -->
+					<div class="flex sm:hidden flex-col items-center gap-2">
+						<div class="flex items-center gap-3 w-full">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-4 w-4 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+									/>
+								</svg>
+							</div>
+							<span class="text-xs text-white/50">Microfoon</span>
+						</div>
+						<svg
+							class="h-3 w-3 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7" /></svg
+						>
+						<div class="flex items-center gap-3 w-full">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<img src="/openai.png" alt="Whisper" class="h-4 w-4 rounded-full" />
+							</div>
+							<span class="text-xs"
+								><span class="text-neon/60">Whisper</span> /
+								<span class="text-indigo-400/60">AssemblyAI</span></span
+							>
+						</div>
+						<svg
+							class="h-3 w-3 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7" /></svg
+						>
+						<div class="flex items-center gap-3 w-full">
+							<div
+								class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10"
+							>
+								<svg
+									class="h-4 w-4 text-white/50"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+							</div>
+							<span class="text-xs text-white/50">Ruwe tekst</span>
+						</div>
+						<svg
+							class="h-3 w-3 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7" /></svg
+						>
+						<div class="flex items-center gap-3 w-full">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<img src="/ollama.png" alt="Ollama" class="h-4 w-4" />
+							</div>
+							<span class="text-xs"
+								><span class="text-neon/60">Ollama</span> /
+								<span class="text-indigo-400/60">Mistral</span></span
+							>
+						</div>
+						<svg
+							class="h-3 w-3 text-white/20"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7" /></svg
+						>
+						<div class="flex items-center gap-3 w-full">
+							<div
+								class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10 border border-neon/20"
+							>
+								<svg
+									class="h-4 w-4 text-neon"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+								</svg>
+							</div>
+							<span class="text-xs text-neon/70">Gepolijste tekst</span>
+						</div>
+					</div>
+					<div class="mt-3 flex items-center gap-4 text-xs text-white/30">
+						<span class="flex items-center gap-1"
+							><span class="inline-block h-2 w-2 rounded-full bg-neon/50"></span> Lokaal</span
+						>
+						<span class="flex items-center gap-1"
+							><span class="inline-block h-2 w-2 rounded-full bg-indigo-400/50"></span> API</span
+						>
+					</div>
+				</div>
+
 				<div class="mt-4 border-t border-white/10 pt-4">
 					<h3 class="mb-2 text-sm font-medium text-white/70">Waarom werkt dit voor Limburgs?</h3>
 					<p class="text-xs leading-relaxed text-white/50">
@@ -171,17 +396,32 @@
 
 			<!-- 3. Lokaal vs API -->
 			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">
-					Op de computer (<img
-						src="/openai.png"
-						alt=""
-						class="inline h-4 w-4 -mt-0.5 rounded-full"
-					/>
-					Whisper) vs via internet (<img
-						src="/assemblyai.png"
-						alt=""
-						class="inline h-4 w-4 -mt-0.5"
-					/> AssemblyAI)
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+						/>
+					</svg>
+					<span
+						>Op de computer (<img
+							src="/openai.png"
+							alt=""
+							class="inline h-4 w-4 -mt-0.5 rounded-full"
+						/>
+						Whisper) vs via internet (<img
+							src="/assemblyai.png"
+							alt=""
+							class="inline h-4 w-4 -mt-0.5"
+						/> AssemblyAI)</span
+					>
 				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Het bijzondere aan BABL is dat je per stap zelf kiest hoe de verwerking gebeurt. Twee
@@ -315,7 +555,22 @@
 
 			<!-- 4. BABL in gesprekken -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">BABL gebruiken in gesprekken</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+						/>
+					</svg>
+					BABL gebruiken in gesprekken
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Wil je BABL inzetten tijdens een gesprek met iemand anders? Dan neem je ook de stem van je
 					gesprekspartner op. Dat is persoonsdata — daar horen spelregels bij.
@@ -407,7 +662,22 @@
 
 			<!-- 5. Privacy-bewuste verwerking -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Privacy-bewuste verwerking</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+						/>
+					</svg>
+					Privacy-bewuste verwerking
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					BABL is ontworpen met privacy als uitgangspunt. Hieronder lees je hoe BABL voldoet aan de
 					AVG (GDPR) en de EU AI Act.
@@ -473,7 +743,22 @@
 
 			<!-- 5. Waar blijft je data? -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Waar blijft je data?</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+						/>
+					</svg>
+					Waar blijft je data?
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					Korte versie: nergens. BABL slaat niets op op een server.
 				</p>
@@ -508,12 +793,150 @@
 							voor verwerking en direct daarna verwijderd door de aanbieder. Er wordt niets bewaard.
 						</p>
 					</div>
+
+					<!-- Data flow visual -->
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<p class="mb-3 text-xs font-medium uppercase tracking-wider text-white/40">Dataflow</p>
+						<div class="space-y-3">
+							<!-- Lokaal -->
+							<div class="flex items-center gap-2">
+								<span class="text-xs font-medium text-neon/70 w-14 shrink-0">Lokaal</span>
+								<div class="flex items-center gap-1.5 flex-1">
+									<div class="flex h-7 w-7 items-center justify-center rounded bg-neon/10">
+										<svg
+											class="h-3.5 w-3.5 text-neon/80"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+											/>
+										</svg>
+									</div>
+									<div class="flex-1 h-0.5 bg-neon/20 rounded relative">
+										<div class="absolute inset-0 bg-neon/40 rounded animate-pulse"></div>
+									</div>
+									<div class="flex h-7 w-7 items-center justify-center rounded bg-neon/10">
+										<svg
+											class="h-3.5 w-3.5 text-neon/80"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+											/>
+										</svg>
+									</div>
+								</div>
+								<span class="text-xs text-white/40 ml-1">alles blijft hier</span>
+							</div>
+							<!-- API -->
+							<div class="flex items-center gap-2">
+								<span class="text-xs font-medium text-indigo-400/70 w-14 shrink-0">API</span>
+								<div class="flex items-center gap-1.5 flex-1">
+									<div class="flex h-7 w-7 items-center justify-center rounded bg-indigo-500/10">
+										<svg
+											class="h-3.5 w-3.5 text-indigo-400/80"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+											/>
+										</svg>
+									</div>
+									<svg
+										class="h-3 w-3 shrink-0 text-indigo-400/40"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+										><path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M14 5l7 7m0 0l-7 7m7-7H3"
+										/></svg
+									>
+									<div class="flex h-7 w-7 items-center justify-center rounded bg-indigo-500/10">
+										<span class="text-xs">EU</span>
+									</div>
+									<svg
+										class="h-3 w-3 shrink-0 text-indigo-400/40"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+										><path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M14 5l7 7m0 0l-7 7m7-7H3"
+										/></svg
+									>
+									<div class="flex h-7 w-7 items-center justify-center rounded bg-indigo-500/10">
+										<svg
+											class="h-3.5 w-3.5 text-indigo-400/80"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+											/>
+										</svg>
+									</div>
+									<svg
+										class="h-3 w-3 shrink-0 text-red-400/40"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+										><path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+										/></svg
+									>
+								</div>
+								<span class="text-xs text-white/40 ml-1">verwijderd</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			</section>
 
 			<!-- 6. Technologie onder de motorkap -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Technologie onder de motorkap</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+						/>
+					</svg>
+					Technologie onder de motorkap
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					BABL combineert verschillende AI-modellen. Hier een kort overzicht voor wie meer wil
 					weten:
@@ -640,7 +1063,22 @@
 
 			<!-- 7. Ondersteunde dialecten -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Ondersteunde dialecten</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						/>
+					</svg>
+					Ondersteunde dialecten
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					BABL ondersteunt vijf Limburgse dialectvarianten. Elke variant heeft een eigen
 					woordenlijst (glossary) en voorbeeldzinnen die het AI-model helpen correct te vertalen.
@@ -692,7 +1130,22 @@
 
 			<!-- 8. Tips voor het beste resultaat -->
 			<section class="glass-strong rounded-2xl p-6">
-				<h2 class="mb-3 text-lg font-semibold text-white/90">Tips voor het beste resultaat</h2>
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+						/>
+					</svg>
+					Tips voor het beste resultaat
+				</h2>
 				<p class="mb-4 text-sm text-white/60">
 					BABL is experimenteel — het resultaat hangt af van hoe je het gebruikt. Met deze tips haal
 					je het meeste eruit:
