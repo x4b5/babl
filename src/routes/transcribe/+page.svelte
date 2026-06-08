@@ -525,7 +525,7 @@
 					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
 				/>
 
-				{#if s.raw && !s.polished && s.status === 'idle' && !s.error}
+				{#if s.raw && s.status === 'idle' && !s.error}
 					<div class="flex flex-col items-center gap-3">
 						<div class="glass flex rounded-full p-1">
 							<button
@@ -551,7 +551,11 @@
 							onclick={onStartPolishing}
 							class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
 						>
-							{s.reportLength === 'samenvatting' ? 'Samenvatting genereren' : 'Verslag genereren'}
+							{#if s.polished}
+								{s.reportLength === 'samenvatting' ? 'Samenvatting opnieuw' : 'Verslag opnieuw'}
+							{:else}
+								{s.reportLength === 'samenvatting' ? 'Samenvatting genereren' : 'Verslag genereren'}
+							{/if}
 						</button>
 					</div>
 				{/if}
