@@ -464,6 +464,7 @@
 					confidenceWords={s.confidenceWords}
 					transcribeMode={s.transcribeMode}
 					copiedRaw={s.copiedRaw}
+					savedRecordingId={s.savedRecordingId}
 				/>
 
 				<PolishedResultCard

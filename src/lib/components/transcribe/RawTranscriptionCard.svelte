@@ -2,6 +2,7 @@
 	import ConfidenceHighlight from '$lib/components/ConfidenceHighlight.svelte';
 	import type { WordWithConfidence, Mode } from '$lib/stores/transcribe.svelte';
 	import { copyText, getTranscribeState, setSpeakerLabel } from '$lib/stores/transcribe.svelte';
+	import { getRecording } from '$lib/utils/recording-db';
 
 	interface Props {
 		raw: string;
@@ -9,9 +10,44 @@
 		confidenceWords: WordWithConfidence[];
 		transcribeMode: Mode;
 		copiedRaw: boolean;
+		savedRecordingId?: string | null;
 	}
 
-	let { raw, language, confidenceWords, transcribeMode, copiedRaw }: Props = $props();
+	let {
+		raw,
+		language,
+		confidenceWords,
+		transcribeMode,
+		copiedRaw,
+		savedRecordingId = null
+	}: Props = $props();
+
+	let downloading = $state(false);
+
+	async function downloadRecording() {
+		if (!savedRecordingId || downloading) return;
+		downloading = true;
+		try {
+			const rec = await getRecording(savedRecordingId);
+			if (!rec) return;
+			const ext = rec.mimeType.includes('webm')
+				? 'webm'
+				: rec.mimeType.includes('ogg')
+					? 'ogg'
+					: 'mp4';
+			const date = new Date(rec.createdAt);
+			const pad = (n: number) => String(n).padStart(2, '0');
+			const filename = `opname-${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${pad(date.getHours())}h${pad(date.getMinutes())}.${ext}`;
+			const url = URL.createObjectURL(rec.blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = filename;
+			a.click();
+			URL.revokeObjectURL(url);
+		} finally {
+			downloading = false;
+		}
+	}
 
 	const ts = getTranscribeState();
 
@@ -106,44 +142,70 @@
 >
 	<div class="mb-3 flex items-center justify-between">
 		<h2 class="text-base sm:text-sm font-semibold text-white/80">Ruwe transcriptie</h2>
-		<button
-			onclick={() => copyText(raw, 'raw')}
-			aria-label={copiedRaw ? 'Transcriptie gekopieerd' : 'Kopieer transcriptie'}
-			class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
-				{copiedRaw
-				? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
-				: 'text-white/55 hover:text-white/80 hover:bg-white/5'}"
-		>
-			{#if copiedRaw}
-				<svg
-					class="h-3.5 w-3.5"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-					stroke-width="2"
-					aria-hidden="true"
+		<div class="flex items-center gap-1">
+			{#if savedRecordingId}
+				<button
+					onclick={downloadRecording}
+					disabled={downloading}
+					aria-label="Download audiobestand"
+					class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200 text-white/55 hover:text-white/80 hover:bg-white/5 disabled:opacity-50"
 				>
-					<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-				</svg>
-				Gekopieerd!
-			{:else}
-				<svg
-					class="h-3.5 w-3.5"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-					stroke-width="2"
-					aria-hidden="true"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-					/>
-				</svg>
-				Kopieer
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+						/>
+					</svg>
+					Audio
+				</button>
 			{/if}
-		</button>
+			<button
+				onclick={() => copyText(raw, 'raw')}
+				aria-label={copiedRaw ? 'Transcriptie gekopieerd' : 'Kopieer transcriptie'}
+				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200
+					{copiedRaw
+					? 'text-green-400 glow-green bg-green-500/10 copy-bounce'
+					: 'text-white/55 hover:text-white/80 hover:bg-white/5'}"
+			>
+				{#if copiedRaw}
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+					</svg>
+					Gekopieerd!
+				{:else}
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+						/>
+					</svg>
+					Kopieer
+				{/if}
+			</button>
+		</div>
 	</div>
 
 	<!-- Speaker rename tags -->
