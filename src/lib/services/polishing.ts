@@ -99,6 +99,12 @@ function startCountdown(seconds: number, refs: PolishingRefs, callbacks: Polishi
 	callbacks.setCountdownInterval(interval);
 }
 
+/** Strip the auto-generated disclaimer from raw text before sending to the model. */
+function stripDisclaimer(text: string): string {
+	const idx = text.indexOf('\n\n---\nDit ');
+	return idx === -1 ? text : text.slice(0, idx);
+}
+
 /** Start polishing flow. */
 export function startPolishing(refs: PolishingRefs, callbacks: PolishingCallbacks): void {
 	const s = getTranscribeState();
@@ -108,7 +114,7 @@ export function startPolishing(refs: PolishingRefs, callbacks: PolishingCallback
 		clearInterval(refs.countdownInterval);
 		callbacks.setCountdownInterval(undefined);
 	}
-	fetchPolishing(s.raw, s.lang, s.quality, refs, callbacks);
+	fetchPolishing(stripDisclaimer(s.raw), s.lang, s.quality, refs, callbacks);
 }
 
 /** Fetch polishing via SSE streaming from local Ollama or Mistral API. */
