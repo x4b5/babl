@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { Mode, ReportLength } from '$lib/stores/transcribe.svelte';
+	import type { Mode, ReportLength, ApiStreamMode } from '$lib/stores/transcribe.svelte';
 	import { isMobile } from '$lib/utils/device';
 
 	interface Props {
 		transcribeMode: Mode;
 		polishMode: Mode;
 		reportLength: ReportLength;
+		apiStreamMode: ApiStreamMode;
 		localAvailable: boolean;
 		assemblyAvailable: boolean;
 		ollamaAvailable: boolean;
@@ -13,6 +14,7 @@
 		onTranscribeModeChange: (mode: Mode) => void;
 		onPolishModeChange: (mode: Mode) => void;
 		onReportLengthChange: (length: ReportLength) => void;
+		onApiStreamModeChange: (mode: ApiStreamMode) => void;
 		onOpenSetupWizard?: () => void;
 		onOpenOllamaWizard?: () => void;
 	}
@@ -21,6 +23,7 @@
 		transcribeMode,
 		polishMode,
 		reportLength,
+		apiStreamMode,
 		localAvailable,
 		assemblyAvailable,
 		ollamaAvailable,
@@ -28,6 +31,7 @@
 		onTranscribeModeChange,
 		onPolishModeChange,
 		onReportLengthChange,
+		onApiStreamModeChange,
 		onOpenSetupWizard,
 		onOpenOllamaWizard
 	}: Props = $props();
@@ -130,6 +134,35 @@
 					{/if}
 				{/if}
 			</div>
+
+			<!-- Live transcriptie (alleen bij API modus) -->
+			{#if transcribeMode === 'api'}
+				<div class="mb-5">
+					<h4 class="text-xs uppercase tracking-wider text-white/30 mb-2">Live transcriptie</h4>
+					<div class="glass flex rounded-full p-1">
+						<button
+							onclick={() => onApiStreamModeChange('realtime')}
+							class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 {apiStreamMode ===
+							'realtime'
+								? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20'
+								: 'text-white/60 hover:text-white/80'}"
+						>
+							<span class="block text-xs">Real-time</span>
+							<span class="block text-[10px] opacity-70">Tekst tijdens opname</span>
+						</button>
+						<button
+							onclick={() => onApiStreamModeChange('accurate')}
+							class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 {apiStreamMode ===
+							'accurate'
+								? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20'
+								: 'text-white/60 hover:text-white/80'}"
+						>
+							<span class="block text-xs">Accuraat</span>
+							<span class="block text-[10px] opacity-70">Na opname verwerken</span>
+						</button>
+					</div>
+				</div>
+			{/if}
 
 			<!-- Polijsten modus -->
 			<div class="mb-5">

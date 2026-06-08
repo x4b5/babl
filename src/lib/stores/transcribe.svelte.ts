@@ -381,6 +381,9 @@ export function setTranscribeMode(v: Mode) {
 	if (v === 'local' && isMobile()) return;
 	transcribeMode = v;
 }
+export function setApiStreamMode(v: ApiStreamMode) {
+	apiStreamMode = v;
+}
 export function setModelFamily(v: string) {
 	modelFamily = v;
 }

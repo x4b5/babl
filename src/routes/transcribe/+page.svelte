@@ -68,6 +68,7 @@
 		setMode,
 		setReportLength,
 		setTranscribeMode,
+		setApiStreamMode,
 		setSavedRecordingId,
 		setSavedRecordingMimeType
 	} from '$lib/stores/transcribe.svelte';
@@ -477,6 +478,7 @@
 				transcribeMode={s.transcribeMode}
 				polishMode={s.mode}
 				reportLength={s.reportLength}
+				apiStreamMode={s.apiStreamMode}
 				localAvailable={s.localAvailable}
 				assemblyAvailable={s.assemblyAvailable}
 				ollamaAvailable={s.ollamaAvailable}
@@ -484,6 +486,7 @@
 				onTranscribeModeChange={(v) => setTranscribeMode(v)}
 				onPolishModeChange={(v) => setMode(v)}
 				onReportLengthChange={(v) => setReportLength(v)}
+				onApiStreamModeChange={(v) => setApiStreamMode(v)}
 				onOpenSetupWizard={handleOpenSetupWizard}
 				onOpenOllamaWizard={handleOpenOllamaWizard}
 			/>
