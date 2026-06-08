@@ -33,7 +33,13 @@
 		getStreamStallTimer
 	} from '$lib/services/realtime-stream';
 	import { openWizard, closeWizard as closeSetupWizard } from '$lib/stores/setup-wizard.svelte';
-	import { startWaveform, stopWaveform, type WaveformRefs } from '$lib/services/waveform';
+	import {
+		startWaveform,
+		stopWaveform,
+		pauseWaveform,
+		resumeWaveform,
+		type WaveformRefs
+	} from '$lib/services/waveform';
 	import {
 		processRecording,
 		handleFileUpload,
@@ -106,6 +112,8 @@
 		animationFrameId: undefined
 	};
 	let shouldAutoPolish = false;
+	let lastClickTime = 0;
+	const DOUBLE_CLICK_MS = 400;
 	// ── Service callbacks ─────────────────────────────────────────
 
 	const transcriptionCallbacks = {
@@ -190,8 +198,9 @@
 
 	$effect(() => {
 		if (s.status === 'recording') {
-			setElapsed(0);
-			timerInterval = setInterval(() => incrementElapsed(), 1000);
+			if (!timerInterval) {
+				timerInterval = setInterval(() => incrementElapsed(), 1000);
+			}
 		} else if (timerInterval) {
 			clearInterval(timerInterval);
 			timerInterval = undefined;
@@ -253,7 +262,12 @@
 
 	$effect(() => {
 		function handleBeforeUnload(e: BeforeUnloadEvent) {
-			if (s.status === 'recording' || s.status === 'processing' || s.status === 'polishing') {
+			if (
+				s.status === 'recording' ||
+				s.status === 'paused' ||
+				s.status === 'processing' ||
+				s.status === 'polishing'
+			) {
 				e.preventDefault();
 				e.returnValue = '';
 			}
@@ -340,6 +354,7 @@
 		};
 
 		mediaRecorder.start(CHUNK_INTERVAL_MS);
+		setElapsed(0);
 		setStatus('recording');
 		if (useRealtimeStream) {
 			startRealtimeStream();
@@ -347,16 +362,49 @@
 	}
 
 	function stopRecording() {
-		if (mediaRecorder && mediaRecorder.state === 'recording') {
+		if (
+			mediaRecorder &&
+			(mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')
+		) {
 			mediaRecorder.stop();
 			setStatus('processing');
 			shouldAutoPolish = true;
 		}
 	}
 
+	function pauseRecording() {
+		if (mediaRecorder && mediaRecorder.state === 'recording') {
+			mediaRecorder.pause();
+			waveformRefs = pauseWaveform(waveformRefs);
+			setStatus('paused');
+		}
+	}
+
+	function resumeRecording() {
+		if (mediaRecorder && mediaRecorder.state === 'paused') {
+			mediaRecorder.resume();
+			waveformRefs = resumeWaveform(waveformRefs);
+			setStatus('recording');
+		}
+	}
+
 	function toggleRecording() {
+		const now = Date.now();
+		const isDoubleClick = now - lastClickTime < DOUBLE_CLICK_MS;
+		lastClickTime = now;
+
 		if (s.status === 'recording') {
-			stopRecording();
+			if (isDoubleClick) {
+				stopRecording();
+			} else {
+				pauseRecording();
+			}
+		} else if (s.status === 'paused') {
+			if (isDoubleClick) {
+				stopRecording();
+			} else {
+				resumeRecording();
+			}
 		} else if (s.status === 'idle') {
 			if (needsApiConsent()) {
 				pendingAction = () => startRecording();
@@ -472,6 +520,7 @@
 					status={s.status}
 					expanded={s.polishedExpanded}
 					copiedPolished={s.copiedPolished}
+					polishMode={s.mode}
 					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
 				/>
 

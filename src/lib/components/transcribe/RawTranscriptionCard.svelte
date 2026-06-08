@@ -141,7 +141,12 @@
 	class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
 >
 	<div class="mb-3 flex items-center justify-between">
-		<h2 class="text-base sm:text-sm font-semibold text-white/80">Ruwe transcriptie</h2>
+		<div>
+			<h2 class="text-base sm:text-sm font-semibold text-white/80">Ruwe transcriptie</h2>
+			<p class="text-[11px] text-white/40 mt-0.5">
+				AI-gegenereerd · {transcribeMode === 'local' ? 'Whisper (lokaal)' : 'AssemblyAI (EU)'}
+			</p>
+		</div>
 		<div class="flex items-center gap-1">
 			{#if savedRecordingId}
 				<button

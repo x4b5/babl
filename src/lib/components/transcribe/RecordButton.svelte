@@ -48,7 +48,7 @@
 
 <div class="mb-6 sm:mb-10 flex flex-col items-center gap-4 sm:gap-6 animate-fade-in">
 	<div class="relative">
-		<!-- Pulse rings during recording -->
+		<!-- Pulse rings during recording (not when paused) -->
 		{#if status === 'recording'}
 			<div class="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring"></div>
 			<div
@@ -67,20 +67,26 @@
 				? 'conic-border-preparing'
 				: status === 'recording'
 					? 'conic-border-recording'
-					: status === 'processing'
-						? 'conic-border-processing'
-						: ''}"
+					: status === 'paused'
+						? 'conic-border-recording'
+						: status === 'processing'
+							? 'conic-border-processing'
+							: ''}"
 		>
 			<button
 				onclick={onToggleRecording}
-				disabled={(status === 'processing' || localUnavailable) && status !== 'recording'}
+				disabled={(status === 'processing' || localUnavailable) &&
+					status !== 'recording' &&
+					status !== 'paused'}
 				aria-label="Opname starten of stoppen"
 				class="relative z-10 flex h-24 w-24 sm:h-44 sm:w-44 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
-					: status === 'idle' || status === 'polishing'
-						? 'shadow-[0_0_40px_rgba(16,185,129,0.15)] hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
-						: ''}"
+					: status === 'paused'
+						? 'shadow-[0_0_40px_rgba(234,179,8,0.2)]'
+						: status === 'idle' || status === 'polishing'
+							? 'shadow-[0_0_40px_rgba(16,185,129,0.15)] hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
+							: ''}"
 			>
 				{#if status === 'preparing'}
 					<span class="animate-countdown text-3xl sm:text-4xl font-bold text-amber-400">
@@ -94,6 +100,16 @@
 						aria-hidden="true"
 					>
 						<rect x="6" y="6" width="12" height="12" rx="2" />
+					</svg>
+				{:else if status === 'paused'}
+					<svg
+						class="h-8 w-8 sm:h-14 sm:w-14 text-yellow-400"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
+						<rect x="7" y="5" width="4" height="14" rx="1" />
+						<rect x="13" y="5" width="4" height="14" rx="1" />
 					</svg>
 				{:else if status === 'processing'}
 					<svg
@@ -130,7 +146,7 @@
 		</div>
 	</div>
 
-	{#if status === 'recording'}
+	{#if status === 'recording' || status === 'paused'}
 		<WaveformDisplay {waveformBars} {reconnecting} {reconnectStatus} {partialText} />
 	{/if}
 

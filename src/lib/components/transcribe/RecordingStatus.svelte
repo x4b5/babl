@@ -56,6 +56,12 @@
 			{recordingWarning}
 		</div>
 	{/if}
+{:else if status === 'paused'}
+	<div class="flex items-center gap-2 text-yellow-400 font-medium animate-fade-in">
+		<span class="inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
+		Gepauzeerd — {formattedTime}
+	</div>
+	<p class="text-xs text-white/40 mt-1">Klik om te hervatten, dubbelklik om te stoppen</p>
 {:else if status === 'processing'}
 	<div class="flex flex-col items-center gap-3 animate-fade-in">
 		<div class="flex items-center gap-3">
@@ -98,7 +104,7 @@
 	<div class="flex flex-col items-center gap-2">
 		<p class="text-base sm:text-sm text-white/50">Druk om op te nemen</p>
 		<kbd class="kbd-hint hidden sm:inline-flex"
-			><span class="text-white/55">spatie</span> om te starten/stoppen</kbd
+			><span class="text-white/55">spatie</span> om te starten, dubbelklik om te stoppen</kbd
 		>
 	</div>
 {/if}

@@ -8,7 +8,7 @@ import { isMobile } from '$lib/utils/device';
 
 // ── Type definitions ──────────────────────────────────────────
 
-export type Status = 'idle' | 'preparing' | 'recording' | 'processing' | 'polishing';
+export type Status = 'idle' | 'preparing' | 'recording' | 'paused' | 'processing' | 'polishing';
 export type Quality = 'light' | 'medium' | 'heavy';
 export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
@@ -130,7 +130,7 @@ const processingProgress = $derived(
 );
 
 const recordingWarning = $derived.by(() => {
-	if (status !== 'recording') return '';
+	if (status !== 'recording' && status !== 'paused') return '';
 	if (elapsed >= RECORDING_WARN_SECONDS) {
 		const remaining = Math.max(0, RECORDING_MAX_SECONDS - elapsed);
 		const mins = Math.floor(remaining / 60);
@@ -141,7 +141,7 @@ const recordingWarning = $derived.by(() => {
 });
 
 const estimatedTranscribeCost = $derived.by(() => {
-	const seconds = status === 'recording' ? elapsed : recordingDuration;
+	const seconds = status === 'recording' || status === 'paused' ? elapsed : recordingDuration;
 	return (seconds * ASSEMBLYAI_COST_PER_SECOND).toFixed(4);
 });
 

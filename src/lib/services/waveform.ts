@@ -42,6 +42,39 @@ export function startWaveform(mediaStream: MediaStream, refs: WaveformRefs): Wav
 	return { audioContext, analyser, animationFrameId };
 }
 
+/** Pause waveform animation but keep AudioContext/analyser alive for resume. */
+export function pauseWaveform(refs: WaveformRefs): WaveformRefs {
+	if (refs.animationFrameId !== undefined) {
+		cancelAnimationFrame(refs.animationFrameId);
+	}
+	setWaveformBars(new Array(BAR_COUNT).fill(MIN_BAR_HEIGHT));
+	return { ...refs, animationFrameId: undefined };
+}
+
+/** Resume waveform animation using the existing analyser. */
+export function resumeWaveform(refs: WaveformRefs): WaveformRefs {
+	if (!refs.analyser) return refs;
+	const analyser = refs.analyser;
+	const bufferLength = analyser.frequencyBinCount;
+	const dataArray = new Uint8Array(bufferLength);
+	let animationFrameId: number | undefined;
+
+	function updateBars() {
+		analyser.getByteFrequencyData(dataArray);
+		const step = Math.floor(bufferLength / BAR_COUNT);
+		const bars: number[] = [];
+		for (let i = 0; i < BAR_COUNT; i++) {
+			const value = dataArray[i * step] || 0;
+			bars.push(Math.max(MIN_BAR_HEIGHT, (value / 255) * MAX_BAR_HEIGHT));
+		}
+		setWaveformBars(bars);
+		animationFrameId = requestAnimationFrame(updateBars);
+	}
+	animationFrameId = requestAnimationFrame(updateBars);
+
+	return { ...refs, animationFrameId };
+}
+
 /** Stop waveform visualization and clean up resources. */
 export function stopWaveform(refs: WaveformRefs): WaveformRefs {
 	if (refs.animationFrameId !== undefined) {

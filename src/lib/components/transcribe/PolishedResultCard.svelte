@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Status } from '$lib/stores/transcribe.svelte';
+	import type { Status, Mode } from '$lib/stores/transcribe.svelte';
 	import { copyText } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
@@ -8,15 +8,19 @@
 		onToggleExpand: () => void;
 		expanded: boolean;
 		copiedPolished: boolean;
+		polishMode: Mode;
 	}
 
-	let { polished, status, onToggleExpand, expanded, copiedPolished }: Props = $props();
+	let { polished, status, onToggleExpand, expanded, copiedPolished, polishMode }: Props = $props();
 </script>
 
 {#if status === 'polishing' && !polished}
 	<div class="gradient-border-card p-5 animate-fade-in">
 		<div class="mb-3">
 			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
+			<p class="text-[11px] text-white/40 mt-0.5">
+				AI-gegenereerd · {polishMode === 'local' ? 'Ollama (lokaal)' : 'Mistral AI (EU)'}
+			</p>
 		</div>
 		<div class="flex items-center gap-3">
 			<div class="flex gap-1">
@@ -43,11 +47,16 @@
 		class="gradient-border-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] animate-slide-up"
 	>
 		<div class="mb-3 flex items-center justify-between">
-			<div class="flex items-center gap-2">
-				<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
-				{#if status === 'polishing'}
-					<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
-				{/if}
+			<div>
+				<div class="flex items-center gap-2">
+					<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
+					{#if status === 'polishing'}
+						<span class="inline-block h-2 w-2 rounded-full bg-neon animate-pulse"></span>
+					{/if}
+				</div>
+				<p class="text-[11px] text-white/40 mt-0.5">
+					AI-gegenereerd · {polishMode === 'local' ? 'Ollama (lokaal)' : 'Mistral AI (EU)'}
+				</p>
 			</div>
 			<button
 				onclick={() => copyText(polished, 'polished')}

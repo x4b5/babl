@@ -326,3 +326,4 @@
 | 2026-06-08 | 20:41     | 20:46    | .08         | `78597a2`   | feat: audio download knop in ruwe transcriptiekaart                                                                             |
 | 2026-06-08 | 20:46     | 20:50    | .06         | `b1c3148`   | feat: lage-zekerheid woorden pagineren en context tonen                                                                         |
 | 2026-06-08 | 20:50     | 20:50    | 0           | `1734d36`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 20:50     | 20:53    | .05         | `ee76640`   | chore: logbook bijwerken                                                                                                        |

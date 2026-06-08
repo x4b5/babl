@@ -56,7 +56,7 @@
 		words
 			.map((w, i) => ({ ...w, index: i }))
 			.filter((w) => w.confidence < threshold && !isStopword(w.text))
-			.sort((a, b) => a.confidence - b.confidence)
+			.sort((a, b) => b.confidence - a.confidence)
 	);
 
 	let importantLowConfidence = $derived(allLowConfidence.slice(0, maxVisible));

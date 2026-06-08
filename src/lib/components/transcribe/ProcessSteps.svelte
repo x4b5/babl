@@ -19,7 +19,12 @@
 
 	function getStepState(stepId: string): StepState {
 		if (stepId === 'transcribe') {
-			if (status === 'recording' || status === 'processing' || status === 'preparing')
+			if (
+				status === 'recording' ||
+				status === 'paused' ||
+				status === 'processing' ||
+				status === 'preparing'
+			)
 				return 'active';
 			if (hasRaw) return 'completed';
 			return 'ready';
