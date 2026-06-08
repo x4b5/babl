@@ -352,3 +352,5 @@
 | 2026-06-08 | 22:23     | 22:23    | 0           | `8ef04f3`   | chore: logbook en light mode styling verbeteringen                                                                              |
 | 2026-06-08 | 22:23     | 22:30    | .11         | `f71446a`   | fix: light mode glasskaders meer kleur, iconen en neon-tekst donkerder                                                          |
 | 2026-06-08 | 22:30     | 22:32    | .03         | `2ffb00f`   | fix: amber achtergrond-override beperkt tot volle klassen, subtiele tints behouden                                              |
+| 2026-06-08 | 22:32     | 22:33    | .02         | `79d0226`   | feat: bewijsvoering bij juridische en technische claims op about-pagina                                                         |
+| 2026-06-08 | 22:33     | 22:35    | .03         | `0689e9a`   | fix: light mode overrides voor alle accentkleuren (red, violet, sky, orange, green)                                             |

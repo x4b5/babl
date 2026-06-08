@@ -101,9 +101,9 @@
 						<dt class="text-sm font-medium text-white/80">EU AI Act</dt>
 						<dd class="mt-1 text-xs leading-relaxed text-white/50">
 							De Europese wet die regelt hoe AI-systemen mogen worden ingezet. Vergelijkbaar met de
-							AVG, maar dan voor kunstmatige intelligentie. BABL valt in de categorie "minimaal
-							risico" omdat het geen beslissingen neemt over personen — het vertaalt alleen spraak
-							naar tekst.
+							AVG, maar dan voor kunstmatige intelligentie. BABL valt in de categorie "beperkt
+							risico" (limited risk) omdat het geen autonome beslissingen neemt over personen en
+							niet onder de hoog-risico categorieën valt (Art. 6, Bijlage III).
 						</dd>
 					</div>
 					<div id="data-residency">
@@ -176,9 +176,10 @@
 					<div id="indexeddb">
 						<dt class="text-sm font-medium text-white/80">IndexedDB</dt>
 						<dd class="mt-1 text-xs leading-relaxed text-white/50">
-							Een soort kladblok in je browser waar websites tijdelijk data kunnen bewaren. Het
-							staat alleen op jouw computer, niet op een server. BABL gebruikt dit om audio
-							tijdelijk vast te houden tijdens verwerking. Sluit je de tab? Dan is alles weg.
+							Een database in je browser waar websites lokaal data kunnen bewaren. Het staat alleen
+							op jouw computer, niet op een server. BABL slaat hier maximaal 3 audio-opnames op.
+							IndexedDB blijft bewaard als je de tab sluit — pas als je je browserdata wist of de
+							opnames handmatig verwijdert, zijn ze weg.
 						</dd>
 					</div>
 					<div id="sse">
