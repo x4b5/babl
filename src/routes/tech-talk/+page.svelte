@@ -1,5 +1,66 @@
 <script lang="ts">
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+
+	let contentEl: HTMLDivElement | undefined = $state();
+
+	function extractText(): string {
+		if (!contentEl) return '';
+		const clone = contentEl.cloneNode(true) as HTMLElement;
+		// Remove SVG icons
+		clone.querySelectorAll('svg').forEach((el) => el.remove());
+		// Get text, clean up whitespace
+		return (clone.innerText || clone.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+	}
+
+	function downloadTxt() {
+		const text = `BABL — Tech Talk\nHoe BABL werkt onder de motorkap\n${'='.repeat(50)}\n\n${extractText()}`;
+		const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+		triggerDownload(blob, 'babl-tech-talk.txt');
+	}
+
+	function downloadDoc() {
+		if (!contentEl) return;
+		const html = `
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>BABL — Tech Talk</title>
+<style>
+  body { font-family: Calibri, sans-serif; font-size: 11pt; color: #1e293b; max-width: 700px; margin: 0 auto; padding: 40px; }
+  h1 { font-size: 24pt; color: #059669; margin-bottom: 4px; }
+  h2 { font-size: 14pt; color: #1e293b; margin-top: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+  h3 { font-size: 11pt; color: #374151; margin-top: 12px; }
+  p { line-height: 1.6; margin: 6px 0; }
+  code { font-family: Consolas, monospace; font-size: 10pt; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  td, th { border: 1px solid #e2e8f0; padding: 4px 8px; font-size: 10pt; text-align: left; }
+  th { background: #f1f5f9; }
+  .subtitle { color: #64748b; font-size: 10pt; margin-bottom: 24px; }
+</style>
+</head><body>
+<h1>BABL — Tech Talk</h1>
+<p class="subtitle">Hoe BABL werkt onder de motorkap</p>
+${contentEl.innerHTML
+	.replace(/<svg[\s\S]*?<\/svg>/g, '')
+	.replace(/class="[^"]*"/g, '')
+	.replace(/style="[^"]*"/g, '')}
+</body></html>`;
+		const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+		triggerDownload(blob, 'babl-tech-talk.doc');
+	}
+
+	function downloadPdf() {
+		window.print();
+	}
+
+	function triggerDownload(blob: Blob, filename: string) {
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
 </script>
 
 <svelte:head>
@@ -35,9 +96,70 @@
 			</a>
 			<h1 class="text-2xl font-semibold text-white/90">Tech Talk</h1>
 			<p class="mt-2 text-sm text-white/40">Hoe BABL werkt onder de motorkap</p>
+
+			<!-- Download buttons -->
+			<div class="mt-5 flex items-center justify-center gap-3 print:hidden">
+				<button
+					onclick={downloadDoc}
+					class="glass rounded-full px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+				>
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+					Word
+				</button>
+				<button
+					onclick={downloadPdf}
+					class="glass rounded-full px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+				>
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+						/>
+					</svg>
+					PDF
+				</button>
+				<button
+					onclick={downloadTxt}
+					class="glass rounded-full px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+				>
+					<svg
+						class="h-3.5 w-3.5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+					Tekst
+				</button>
+			</div>
 		</header>
 
-		<div class="space-y-6 animate-fade-in">
+		<div bind:this={contentEl} class="space-y-6 animate-fade-in">
 			<!-- 1. De Pipeline -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
@@ -1403,7 +1525,7 @@
 			</section>
 		</div>
 
-		<footer class="mt-10 text-center animate-fade-in">
+		<footer class="mt-10 text-center animate-fade-in print:hidden">
 			<div class="flex items-center justify-center gap-4 text-sm text-white/30">
 				<a href="/about" class="hover:text-white/60 transition-colors">Over BABL</a>
 				<span class="text-white/10">|</span>
@@ -1414,3 +1536,66 @@
 		</footer>
 	</div>
 </div>
+
+<style>
+	@media print {
+		:global(body) {
+			background: white !important;
+			color: #1e293b !important;
+		}
+		:global(.bg-dark-gradient) {
+			background: white !important;
+		}
+		:global(.bg-dark-gradient::after) {
+			display: none !important;
+		}
+		:global(.floating-orb) {
+			display: none !important;
+		}
+		:global(.glass),
+		:global(.glass-strong) {
+			background: transparent !important;
+			backdrop-filter: none !important;
+			border-color: #e2e8f0 !important;
+		}
+		:global([class*='text-white']) {
+			color: #1e293b !important;
+		}
+		:global([class*='text-emerald']) {
+			color: #047857 !important;
+		}
+		:global([class*='text-indigo']) {
+			color: #3730a3 !important;
+		}
+		:global([class*='text-amber']) {
+			color: #92400e !important;
+		}
+		:global([class*='text-neon']) {
+			color: #047857 !important;
+		}
+		:global([class*='text-red']) {
+			color: #b91c1c !important;
+		}
+		:global([class*='text-purple']) {
+			color: #6b21a8 !important;
+		}
+		:global([class*='bg-white/5']),
+		:global([class*='bg-emerald']),
+		:global([class*='bg-indigo']),
+		:global([class*='bg-amber']),
+		:global([class*='bg-purple']) {
+			background: #f8fafc !important;
+		}
+		:global([class*='border-white']),
+		:global([class*='border-emerald']),
+		:global([class*='border-indigo']),
+		:global([class*='border-amber']) {
+			border-color: #e2e8f0 !important;
+		}
+		:global(.gradient-text) {
+			background: none !important;
+			-webkit-text-fill-color: #047857 !important;
+			filter: none !important;
+		}
+	}
+</style>
