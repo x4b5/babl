@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ConfidenceHighlight from '$lib/components/ConfidenceHighlight.svelte';
 	import type { WordWithConfidence, Mode } from '$lib/stores/transcribe.svelte';
-	import { copyText } from '$lib/stores/transcribe.svelte';
+	import { copyText, getTranscribeState, setSpeakerLabel } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
 		raw: string;
@@ -12,6 +12,87 @@
 	}
 
 	let { raw, language, confidenceWords, transcribeMode, copiedRaw }: Props = $props();
+
+	const ts = getTranscribeState();
+
+	/** Speaker color classes — cycles if more than defined */
+	const SPEAKER_COLORS: Record<string, { text: string; border: string; bg: string }> = {
+		A: { text: 'text-emerald-400', border: 'border-emerald-400/30', bg: 'bg-emerald-400/10' },
+		B: { text: 'text-orange-400', border: 'border-orange-400/30', bg: 'bg-orange-400/10' },
+		C: { text: 'text-violet-400', border: 'border-violet-400/30', bg: 'bg-violet-400/10' },
+		D: { text: 'text-sky-400', border: 'border-sky-400/30', bg: 'bg-sky-400/10' }
+	};
+	const FALLBACK_COLORS = {
+		text: 'text-white/70',
+		border: 'border-white/20',
+		bg: 'bg-white/5'
+	};
+
+	function getSpeakerColors(speaker: string) {
+		return SPEAKER_COLORS[speaker] ?? FALLBACK_COLORS;
+	}
+
+	interface SpeakerBlock {
+		speaker: string;
+		text: string;
+	}
+
+	/** Parse raw text into speaker blocks. Handles "Spreker X: tekst" format. */
+	function parseSpeakerBlocks(text: string): SpeakerBlock[] {
+		const lines = text.split('\n');
+		const blocks: SpeakerBlock[] = [];
+		const speakerRegex = /^Spreker\s+([A-Z0-9]+):\s*(.*)$/;
+
+		for (const line of lines) {
+			const match = line.match(speakerRegex);
+			if (match) {
+				const speaker = match[1];
+				const content = match[2];
+				// Merge with previous block if same speaker
+				if (blocks.length > 0 && blocks[blocks.length - 1].speaker === speaker) {
+					blocks[blocks.length - 1].text += ' ' + content;
+				} else {
+					blocks.push({ speaker, text: content });
+				}
+			} else if (line.trim()) {
+				// Non-speaker line: append to last block or create anonymous block
+				if (blocks.length > 0) {
+					blocks[blocks.length - 1].text += '\n' + line;
+				} else {
+					blocks.push({ speaker: '', text: line });
+				}
+			}
+		}
+		return blocks;
+	}
+
+	/** Check if the raw text contains speaker labels */
+	let hasSpeakers = $derived(raw.includes('Spreker '));
+	let speakerBlocks = $derived(hasSpeakers ? parseSpeakerBlocks(raw) : []);
+	let uniqueSpeakers = $derived([...new Set(speakerBlocks.map((b) => b.speaker).filter(Boolean))]);
+
+	// Inline rename state
+	let editingSpeaker = $state<string | null>(null);
+	let editValue = $state('');
+
+	function startRename(speaker: string) {
+		editingSpeaker = speaker;
+		editValue = ts.speakerLabels[speaker] ?? `Spreker ${speaker}`;
+	}
+
+	function finishRename(speaker: string) {
+		const trimmed = editValue.trim();
+		if (trimmed && trimmed !== `Spreker ${speaker}`) {
+			setSpeakerLabel(speaker, trimmed);
+		} else {
+			setSpeakerLabel(speaker, '');
+		}
+		editingSpeaker = null;
+	}
+
+	function getSpeakerDisplayName(speaker: string): string {
+		return ts.speakerLabels[speaker] || `Spreker ${speaker}`;
+	}
 </script>
 
 {#if language}
@@ -64,13 +145,60 @@
 			{/if}
 		</button>
 	</div>
+
+	<!-- Speaker rename tags -->
+	{#if hasSpeakers && uniqueSpeakers.length > 0}
+		<div class="mb-2 flex flex-wrap gap-1.5">
+			{#each uniqueSpeakers as speaker}
+				{@const colors = getSpeakerColors(speaker)}
+				{#if editingSpeaker === speaker}
+					<input
+						type="text"
+						class="rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} focus:outline-none focus:ring-1 focus:ring-white/30 w-28"
+						bind:value={editValue}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') finishRename(speaker);
+							if (e.key === 'Escape') editingSpeaker = null;
+						}}
+						onblur={() => finishRename(speaker)}
+						autofocus
+					/>
+				{:else}
+					<button
+						class="rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} hover:brightness-125 transition-all cursor-pointer"
+						onclick={() => startRename(speaker)}
+						title="Klik om te hernoemen"
+					>
+						{getSpeakerDisplayName(speaker)}
+					</button>
+				{/if}
+			{/each}
+		</div>
+	{/if}
+
 	<div
-		class="max-h-48 overflow-y-auto whitespace-pre-wrap text-white leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
+		class="max-h-48 overflow-y-auto text-white leading-relaxed rounded-lg border border-white/10 bg-white/5 p-3"
 	>
 		{#if confidenceWords.length > 0 && transcribeMode === 'api'}
 			<ConfidenceHighlight words={confidenceWords} />
+		{:else if hasSpeakers && speakerBlocks.length > 0}
+			<div class="space-y-2">
+				{#each speakerBlocks as block, i}
+					{@const colors = getSpeakerColors(block.speaker)}
+					{#if block.speaker}
+						<div class="border-l-2 pl-3 {colors.border}">
+							<span class="text-xs font-semibold {colors.text}">
+								{getSpeakerDisplayName(block.speaker)}
+							</span>
+							<p class="text-white/90 mt-0.5 whitespace-pre-wrap">{block.text}</p>
+						</div>
+					{:else}
+						<p class="whitespace-pre-wrap text-white/90">{block.text}</p>
+					{/if}
+				{/each}
+			</div>
 		{:else}
-			{raw}
+			<p class="whitespace-pre-wrap">{raw}</p>
 			{#if transcribeMode === 'local' && raw}
 				<p class="mt-2 text-xs italic text-white/60">
 					Woordzekerheid niet beschikbaar in lokale modus

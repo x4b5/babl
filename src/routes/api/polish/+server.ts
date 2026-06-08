@@ -1,7 +1,12 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 import { MISTRAL_MODELS } from '$lib/config/models';
-import { SYSTEM_PROMPTS, JSON_INSTRUCTION } from '$lib/config/prompts';
+import {
+	SYSTEM_PROMPTS,
+	JSON_INSTRUCTION,
+	getSystemPrompt,
+	buildSpeakerContext
+} from '$lib/config/prompts';
 import { formatGlossary, formatFewShotExamples } from '$lib/config/glossary';
 import { classifyError, polishChunkMistralStream } from '$lib/utils/mistral-stream';
 import { checkBudget, recordUsage } from '$lib/server/budget';
@@ -113,7 +118,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		quality = 'light',
 		temperature = 0.5,
 		report_length = 'samenvatting',
-		region = 'limburgs'
+		region = 'limburgs',
+		speaker_labels
 	} = body as {
 		text?: string;
 		language?: string;
@@ -121,6 +127,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		temperature?: number;
 		report_length?: string;
 		region?: string;
+		speaker_labels?: Record<string, string>;
 	};
 
 	if (!text || typeof text !== 'string' || text.trim().length === 0) {
@@ -140,7 +147,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		);
 	}
 
-	let systemPrompt = SYSTEM_PROMPTS[report_length] || SYSTEM_PROMPTS['samenvatting'];
+	let systemPrompt = getSystemPrompt(report_length, speaker_labels);
 	let jsonInstr = '';
 	if (language === 'li') {
 		const glossaryText = formatGlossary(region);

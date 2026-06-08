@@ -11,3 +11,5 @@ pytest-asyncio
 tenacity>=9.0.0
 jiwer>=3.1.0,<4.0.0
 python-json-logger==3.2.1
+pyannote.audio>=3.1
+torch>=2.0

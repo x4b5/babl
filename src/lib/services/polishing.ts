@@ -119,7 +119,11 @@ async function fetchPolishing(
 	callbacks: PolishingCallbacks
 ): Promise<void> {
 	const s = getTranscribeState();
-	const body = {
+	// Only include speaker_labels if there are active custom labels
+	const activeSpeakerLabels = Object.fromEntries(
+		Object.entries(s.speakerLabels).filter(([, v]) => v)
+	);
+	const body: Record<string, unknown> = {
 		text,
 		language: corrLang,
 		quality: qual,
@@ -130,6 +134,9 @@ async function fetchPolishing(
 		model_family: s.modelFamily,
 		region: s.region
 	};
+	if (Object.keys(activeSpeakerLabels).length > 0) {
+		body.speaker_labels = activeSpeakerLabels;
+	}
 	const polishUrl = body.mode === 'api' ? '/api/polish' : `${LOCAL_BACKEND_URL}/polish`;
 	const controller = new AbortController();
 	callbacks.setPolishingController(controller);

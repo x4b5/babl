@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 from audio import extract_audio_segment, filter_segments_by_offset, get_audio_duration
 from config import MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
+from diarization import diarize, merge_transcription_with_diarization, is_diarization_available
 from dialects import get_dialect_config
 from hallucination import process_transcription
 from evaluation.logger import log_processing_event
@@ -27,6 +28,7 @@ async def transcribe(
     file: UploadFile = File(...),
     lang: str = Form("li"),
     region: str = Form("limburgs"),
+    num_speakers: int | None = Form(None),
 ):
     """Step 1: Whisper transcription -- streams segments as SSE."""
     if lang not in ("auto", "nl", "li", "en"):
@@ -82,6 +84,18 @@ async def transcribe(
 
                 logger.info("Transcribing %.2fs audio in %.0fs segments...", duration, segment_duration)
 
+                # Run speaker diarization on full audio (if available)
+                diarization_segments = []
+                if is_diarization_available():
+                    loop.call_soon_threadsafe(
+                        queue.put_nowait,
+                        f"data: {json.dumps({'type': 'progress', 'message': 'Sprekerherkenning...'})}\n\n",
+                    )
+                    diarization_segments = diarize(tmp_path, num_speakers=num_speakers)
+                    if diarization_segments:
+                        speaker_count = len(set(s["speaker"] for s in diarization_segments))
+                        logger.info("Diarization found %d speakers", speaker_count)
+
                 word_count = 0
                 detected_lang = "nl"
 
@@ -118,7 +132,16 @@ async def transcribe(
                                 f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n",
                             )
 
-                        for segment in result.get("segments", []):
+                        # Merge Whisper segments with diarization (offset by chunk start)
+                        raw_segments = result.get("segments", [])
+                        if diarization_segments:
+                            merged = merge_transcription_with_diarization(
+                                raw_segments, diarization_segments, time_offset=float(start)
+                            )
+                        else:
+                            merged = raw_segments
+
+                        for segment in merged:
                             text = segment.get("text", "").strip()
                             if text:
                                 # Apply hallucination detection (TRANS-03)
@@ -132,9 +155,12 @@ async def transcribe(
 
                                 if text:  # Only send if text remains after cleaning
                                     word_count += len(text.split())
+                                    event_data = {'type': 'segment', 'text': text}
+                                    if 'speaker' in segment:
+                                        event_data['speaker'] = segment['speaker']
                                     loop.call_soon_threadsafe(
                                         queue.put_nowait,
-                                        f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n",
+                                        f"data: {json.dumps(event_data)}\n\n",
                                     )
                     finally:
                         if os.path.exists(chunk_path):

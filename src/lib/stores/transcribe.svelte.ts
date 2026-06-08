@@ -107,6 +107,7 @@ let recordingDuration = $state(0);
 let waveformBars = $state<number[]>(new Array(40).fill(3));
 let savedRecordingId = $state<string | null>(null);
 let savedRecordingMimeType = $state('');
+let speakerLabels = $state<Record<string, string>>({});
 
 // ── Derived values ────────────────────────────────────────────
 
@@ -287,6 +288,9 @@ export function getTranscribeState() {
 		get savedRecordingMimeType() {
 			return savedRecordingMimeType;
 		},
+		get speakerLabels() {
+			return speakerLabels;
+		},
 		// Derived
 		get formattedTime() {
 			return formattedTime;
@@ -447,6 +451,12 @@ export function setSavedRecordingId(v: string | null) {
 export function setSavedRecordingMimeType(v: string) {
 	savedRecordingMimeType = v;
 }
+export function setSpeakerLabel(speaker: string, label: string) {
+	speakerLabels = { ...speakerLabels, [speaker]: label };
+}
+export function setSpeakerLabels(v: Record<string, string>) {
+	speakerLabels = v;
+}
 
 /** Copy text to clipboard and flash the copied indicator. */
 export async function copyText(text: string, which: 'raw' | 'polished') {
@@ -480,4 +490,5 @@ export function resetForTranscription() {
 	confidenceWords = [];
 	lowConfidenceCount = 0;
 	evalResult = null;
+	speakerLabels = {};
 }

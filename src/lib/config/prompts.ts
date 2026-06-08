@@ -52,6 +52,46 @@ export const SYSTEM_PROMPTS: Record<string, string> = {
 		'- Wees volledig: beschrijf het proces, de argumenten en de conclusies.'
 };
 
+const SPEAKER_INSTRUCTION_SAMENVATTING =
+	'\n\nMEERDERE SPREKERS:\n' +
+	'De transcriptie bevat meerdere sprekers. Behoud de spreker-attributie:\n' +
+	'- Geef per spreker aan wat zij zeiden.\n' +
+	'- Gebruik de sprekerlabels uit de transcriptie.\n' +
+	'- Formaat: begin elk sprekergedeelte met het label gevolgd door een dubbele punt.\n';
+
+const SPEAKER_INSTRUCTION_UITGEBREID =
+	'\n\nMEERDERE SPREKERS:\n' +
+	'De transcriptie bevat meerdere sprekers. Structureer het verslag als volgt:\n' +
+	'- Geef bij elk punt aan wie wat zei, met de sprekerlabels.\n' +
+	'- Structureer per gespreksonderwerp.\n' +
+	'- Gebruik de sprekerlabels uit de transcriptie.\n';
+
+/** Build speaker context string for the system prompt. */
+export function buildSpeakerContext(speakerLabels: Record<string, string>): string {
+	const active = Object.entries(speakerLabels).filter(([, v]) => v);
+	if (active.length === 0) return '';
+	const lines = active
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([k, v]) => `Spreker ${k} = ${v}`);
+	return '\nSPREKERLABELS:\n' + lines.join('\n') + '\n';
+}
+
+/** Get system prompt with optional speaker instructions. */
+export function getSystemPrompt(
+	reportLength: string,
+	speakerLabels?: Record<string, string>
+): string {
+	let prompt = SYSTEM_PROMPTS[reportLength] || SYSTEM_PROMPTS['samenvatting'];
+	if (speakerLabels && Object.values(speakerLabels).some(Boolean)) {
+		prompt +=
+			reportLength === 'uitgebreid'
+				? SPEAKER_INSTRUCTION_UITGEBREID
+				: SPEAKER_INSTRUCTION_SAMENVATTING;
+		prompt += buildSpeakerContext(speakerLabels);
+	}
+	return prompt;
+}
+
 export const JSON_INSTRUCTION =
 	'OUTPUT FORMAT:\n' +
 	'Geef je antwoord terug als een JSON object met deze structuur:\n' +

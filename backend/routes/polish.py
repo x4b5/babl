@@ -264,9 +264,19 @@ async def polish(req: PolishingRequest):
 
     dialect_config = get_dialect_config(req.region)
     if req.language == "li":
-        system_prompt, json_instr = build_polishing_prompt(req.region, req.report_length)
+        system_prompt, json_instr = build_polishing_prompt(
+            req.region, req.report_length, speaker_labels=req.speaker_labels
+        )
     else:
         system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["samenvatting"])
+        # Add speaker instructions for non-Limburgish too
+        if req.speaker_labels:
+            from polishing import SPEAKER_INSTRUCTION_SAMENVATTING, SPEAKER_INSTRUCTION_UITGEBREID, build_speaker_context
+            if req.report_length == "uitgebreid":
+                system_prompt += SPEAKER_INSTRUCTION_UITGEBREID
+            else:
+                system_prompt += SPEAKER_INSTRUCTION_SAMENVATTING
+            system_prompt += build_speaker_context(req.speaker_labels)
         json_instr = ""
 
     chunks = split_into_chunks(req.text, max_words=400)

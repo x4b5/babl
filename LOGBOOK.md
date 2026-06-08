@@ -317,3 +317,7 @@
 | 2026-06-08 | 18:30     | 18:37    | .12         | `f94961d`   | fix: favicons toevoegen aan SettingsPanel toggles                                                                               |
 | 2026-06-08 | 18:37     | 19:43    | 1.10        | `4f26d5e`   | fix: verberg stappenbalk in idle status                                                                                         |
 | 2026-06-08 | 19:43     | 19:56    | .21         | `d202742`   | fix: footer opruimen — uitloggen en data-knoppen naar compacte footer                                                           |
+| 2026-06-08 | 19:56     | 19:56    | 0           | `5ba577f`   | feat: workflow skills toevoegen — preflight, nieuw-component, debug                                                             |
+| 2026-06-08 | 19:56     | 20:09    | .20         | `a135e7b`   | feat: AVG/AI Act fase 1 — API consent modal, audit logging, hybrid privacy docs                                                 |
+| 2026-06-08 | 20:09     | 20:10    | .01         | `7368093`   | feat: interface visueel aantrekkelijker — grotere knop, betere hiërarchie                                                       |
+| 2026-06-08 | 20:10     | 20:10    | 0           | `7bcb9be`   | fix: geüploade .webm bestanden kunnen nu getranscribeerd worden                                                                 |

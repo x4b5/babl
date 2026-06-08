@@ -109,7 +109,43 @@ CLEANUP_PROMPT = (
     f"{DIALECT_TRANSLATION_KEY}"
 )
 
+SPEAKER_INSTRUCTION_SAMENVATTING = (
+    "\n\nMEERDERE SPREKERS:\n"
+    "De transcriptie bevat meerdere sprekers. Behoud de spreker-attributie:\n"
+    "- Geef per spreker aan wat zij zeiden.\n"
+    "- Gebruik de sprekerlabels uit de transcriptie.\n"
+    "- Formaat: begin elk sprekergedeelte met het label gevolgd door een dubbele punt.\n"
+)
+
+SPEAKER_INSTRUCTION_UITGEBREID = (
+    "\n\nMEERDERE SPREKERS:\n"
+    "De transcriptie bevat meerdere sprekers. Structureer het verslag als volgt:\n"
+    "- Geef bij elk punt aan wie wat zei, met de sprekerlabels.\n"
+    "- Structureer per gespreksonderwerp.\n"
+    "- Gebruik de sprekerlabels uit de transcriptie.\n"
+)
+
 SYSTEM_PROMPT = SYSTEM_PROMPTS["samenvatting"]
+
+
+def build_speaker_context(speaker_labels: dict[str, str] | None) -> str:
+    """Build speaker context string for the LLM prompt.
+
+    Args:
+        speaker_labels: Mapping of speaker IDs to custom names, e.g. {"A": "Arts", "B": "Patient"}.
+
+    Returns:
+        Context string to append to the prompt, or empty string if no labels.
+    """
+    if not speaker_labels:
+        return ""
+
+    active = {k: v for k, v in speaker_labels.items() if v}
+    if not active:
+        return ""
+
+    lines = [f"Spreker {k} = {v}" for k, v in sorted(active.items())]
+    return "\nSPREKERLABELS:\n" + "\n".join(lines) + "\n"
 
 
 def _format_few_shot_examples(examples: list[dict]) -> str:
@@ -124,12 +160,17 @@ def _format_few_shot_examples(examples: list[dict]) -> str:
     return formatted
 
 
-def build_polishing_prompt(region: str, report_length: str) -> tuple[str, str]:
-    """Build system prompt with glossary + few-shot examples.
+def build_polishing_prompt(
+    region: str,
+    report_length: str,
+    speaker_labels: dict[str, str] | None = None,
+) -> tuple[str, str]:
+    """Build system prompt with glossary + few-shot examples + speaker context.
 
     Args:
         region: Regional dialect key (e.g., "mestreechs")
         report_length: "samenvatting" or "uitgebreid"
+        speaker_labels: Optional mapping of speaker IDs to custom names.
 
     Returns:
         Tuple of (system_prompt, json_instruction)
@@ -147,6 +188,14 @@ def build_polishing_prompt(region: str, report_length: str) -> tuple[str, str]:
 
     # Replace the generic DIALECT_TRANSLATION_KEY placeholder with region-specific glossary
     system = base.replace(DIALECT_TRANSLATION_KEY, glossary_text)
+
+    # Add speaker instructions if the text contains speaker labels
+    if speaker_labels:
+        if report_length == "uitgebreid":
+            system += SPEAKER_INSTRUCTION_UITGEBREID
+        else:
+            system += SPEAKER_INSTRUCTION_SAMENVATTING
+        system += build_speaker_context(speaker_labels)
 
     # Add few-shot examples (per D-01)
     examples = profile.get("few_shot_examples", [])

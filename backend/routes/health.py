@@ -14,6 +14,7 @@ from config import (
     OLLAMA_MODELS,
     WHISPER_MODEL_PATH,
 )
+from diarization import is_diarization_available
 
 router = APIRouter()
 
@@ -55,6 +56,7 @@ async def health():
             "whisper": WHISPER_MODEL_PATH,
         },
         "ollama_families": OLLAMA_MODEL_FAMILIES,
+        "diarization_available": is_diarization_available(),
     }
 
 
