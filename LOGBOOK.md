@@ -334,3 +334,5 @@
 | 2026-06-08 | 21:29     | 21:37    | .12         | `06e6211`   | feat: audit query en sessie-verwijder endpoints (AVG art. 17, 33-34)                                                            |
 | 2026-06-08 | 21:37     | 21:37    | 0           | `1ebdb9b`   | chore: logbook bijwerken                                                                                                        |
 | 2026-06-08 | 21:37     | 21:41    | .06         | `7650492`   | feat: samenvatting/verslaglegging toggle blijft zichtbaar na genereren                                                          |
+| 2026-06-08 | 21:41     | 21:45    | .07         | `8edc6bc`   | feat: datalekregistratie endpoints (AVG art. 33)                                                                                |
+| 2026-06-08 | 21:45     | 21:47    | .02         | `216b490`   | fix: sprekerlabels worden nu daadwerkelijk gebruikt in verslag                                                                  |
