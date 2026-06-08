@@ -378,8 +378,8 @@
 						nog niet perfect is. Gesproken taal bevat herhalingen, halve zinnen en soms woorden die
 						Whisper verkeerd verstaat. Daarom volgt een tweede stap: een taalmodel leest de ruwe
 						tekst en probeert er leesbaar Nederlands van te maken. Het verwijdert herhalingen,
-						herstelt zinsbouw en polijst eventuele fouten — zodat je een leesbaar verslag overhoudt
-						van wat er gezegd is.
+						herstelt zinsbouw, polijst eventuele fouten en maakt de tekst op als verslag — zodat je
+						een leesbaar resultaat overhoudt van wat er gezegd is.
 					</p>
 				</div>
 
@@ -392,8 +392,8 @@
 							achtergrondlawaai maakt het fouten.
 						</li>
 						<li class="flex items-start gap-2">
-							<span class="text-amber-400/60">!</span> De polijststap kan woorden verkeerd vertalen of
-							betekenis veranderen. Controleer het resultaat altijd.
+							<span class="text-amber-400/60">!</span> De polijs- en opmaakstap kan woorden verkeerd vertalen
+							of betekenis veranderen. Controleer het resultaat altijd.
 						</li>
 						<li class="flex items-start gap-2">
 							<span class="text-amber-400/60">!</span> Korte opnames (&lt;5 seconden) geven onbetrouwbare
@@ -989,8 +989,8 @@
 							model het beste past bij jouw hardware.
 						</p>
 						<p class="mt-1.5 text-xs text-white/40">
-							Ollama is optioneel: als je API-modus kiest, heb je het niet nodig. Dan polijst
-							Mistral AI (op EU-servers) je tekst.
+							Ollama is optioneel: als je API-modus kiest, heb je het niet nodig. Dan polijst en
+							maakt Mistral AI (op EU-servers) je tekst op.
 						</p>
 						<p class="mt-1.5 flex items-center gap-3">
 							<a
@@ -1065,7 +1065,7 @@
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
 							Europees AI-bedrijf gevestigd in Parijs. Alle servers staan in de EU. Wordt gebruikt
-							in API-modus voor het polijsten van dialect.
+							in API-modus voor het polijsten en opmaken van dialect.
 						</p>
 						<p class="mt-1.5 text-xs text-white/30">
 							<a
@@ -1231,9 +1231,9 @@
 						<div>
 							<p class="text-sm font-medium text-white/70">Controleer altijd het resultaat</p>
 							<p class="text-xs text-white/50">
-								BABL toont de ruwe transcriptie naast het gepolijste resultaat. Vergelijk ze — soms
-								vertaalt het model een woord verkeerd of voegt het iets toe. Jij blijft de
-								eindredacteur.
+								BABL toont de ruwe transcriptie naast het gepolijste en opgemaakte resultaat.
+								Vergelijk ze — soms vertaalt het model een woord verkeerd of voegt het iets toe. Jij
+								blijft de eindredacteur.
 							</p>
 						</div>
 					</div>
