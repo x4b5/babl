@@ -266,10 +266,17 @@ async def polish(req: PolishingRequest):
     dialect_config = get_dialect_config(req.region)
     if req.language == "li":
         system_prompt, json_instr = build_polishing_prompt(
-            req.region, req.report_length, speaker_labels=req.speaker_labels
+            req.region, req.report_length, speaker_labels=req.speaker_labels, subject=req.subject
         )
     else:
         system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["samenvatting"])
+        # Add subject context for non-Limburgish too
+        if req.subject:
+            system_prompt += (
+                "\n\nONDERWERP/CONTEXT:\n"
+                f"De opname gaat over: {req.subject}. "
+                "Gebruik deze context om onduidelijke woorden beter te interpreteren.\n"
+            )
         # Add speaker instructions for non-Limburgish too
         if req.speaker_labels:
             from polishing import SPEAKER_INSTRUCTION_SAMENVATTING, SPEAKER_INSTRUCTION_VERSLAGLEGGING, build_speaker_context

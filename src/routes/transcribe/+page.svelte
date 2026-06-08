@@ -69,6 +69,7 @@
 		setReportLength,
 		setTranscribeMode,
 		setApiStreamMode,
+		setSubject,
 		setSavedRecordingId,
 		setSavedRecordingMimeType
 	} from '$lib/stores/transcribe.svelte';
@@ -550,6 +551,13 @@
 								Verslaglegging
 							</button>
 						</div>
+						<input
+							type="text"
+							value={s.subject}
+							oninput={(e) => setSubject(e.currentTarget.value)}
+							placeholder="Onderwerp (optioneel) bijv. huisartsenconsult, vergadering..."
+							class="w-full rounded-xl glass px-4 py-2.5 text-sm text-white/80 placeholder-white/25 outline-none focus:ring-1 focus:ring-neon/30 transition-all duration-200"
+						/>
 						<button
 							onclick={onStartPolishing}
 							class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"

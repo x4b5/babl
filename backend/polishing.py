@@ -159,6 +159,7 @@ def build_polishing_prompt(
     region: str,
     report_length: str,
     speaker_labels: dict[str, str] | None = None,
+    subject: str | None = None,
 ) -> tuple[str, str]:
     """Build system prompt with glossary + few-shot examples + speaker context.
 
@@ -166,6 +167,7 @@ def build_polishing_prompt(
         region: Regional dialect key (e.g., "mestreechs")
         report_length: "samenvatting" or "verslaglegging"
         speaker_labels: Optional mapping of speaker IDs to custom names.
+        subject: Optional topic/context description for the recording.
 
     Returns:
         Tuple of (system_prompt, json_instruction)
@@ -183,6 +185,14 @@ def build_polishing_prompt(
 
     # Replace the generic DIALECT_TRANSLATION_KEY placeholder with region-specific glossary
     system = base.replace(DIALECT_TRANSLATION_KEY, glossary_text)
+
+    # Add subject context if provided
+    if subject:
+        system += (
+            "\n\nONDERWERP/CONTEXT:\n"
+            f"De opname gaat over: {subject}. "
+            "Gebruik deze context om onduidelijke woorden beter te interpreteren.\n"
+        )
 
     # Add speaker instructions if the text contains speaker labels
     if speaker_labels:

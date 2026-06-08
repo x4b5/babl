@@ -98,6 +98,7 @@ let localAvailable = $state(false);
 let ollamaAvailable = $state(false);
 let privacyOpen = $state(false);
 let keepDialect = $state(false);
+let subject = $state('');
 let region = $state<Region>('limburgs');
 let confidenceWords = $state<WordWithConfidence[]>([]);
 let lowConfidenceCount = $state(0);
@@ -247,6 +248,9 @@ export function getTranscribeState() {
 		},
 		get keepDialect() {
 			return keepDialect;
+		},
+		get subject() {
+			return subject;
 		},
 		get region() {
 			return region;
@@ -410,6 +414,9 @@ export function setPrivacyOpen(v: boolean) {
 }
 export function setRegion(v: Region) {
 	region = v;
+}
+export function setSubject(v: string) {
+	subject = v;
 }
 export function setConfidenceWords(v: WordWithConfidence[]) {
 	confidenceWords = v;

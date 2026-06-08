@@ -15,6 +15,7 @@ class PolishingRequest(BaseModel):
     target_lang: str = "nl"
     model_family: str = "qwen3"
     speaker_labels: dict[str, str] | None = None
+    subject: str | None = None
 
 
 class EvaluateRequest(BaseModel):

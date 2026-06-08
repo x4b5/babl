@@ -141,6 +141,9 @@ async function fetchPolishing(
 		model_family: s.modelFamily,
 		region: s.region
 	};
+	if (s.subject.trim()) {
+		body.subject = s.subject.trim();
+	}
 	if (Object.keys(activeSpeakerLabels).length > 0) {
 		body.speaker_labels = activeSpeakerLabels;
 	}

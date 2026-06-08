@@ -345,3 +345,5 @@
 | 2026-06-08 | 22:05     | 22:06    | .02         | `e96d0b3`   | fix: dubbele disclaimer in verslag verwijderd                                                                                   |
 | 2026-06-08 | 22:06     | 22:09    | .04         | `d1bb5d0`   | docs: compliance documenten (DPIA, DPA-status, AI-dossier, incident response)                                                   |
 | 2026-06-08 | 22:09     | 22:10    | .01         | `7bb5b75`   | docs: uitleg waarom korte opnames onbetrouwbaar zijn                                                                            |
+| 2026-06-08 | 22:10     | 22:12    | .02         | `f8e4522`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 22:12     | 22:18    | .10         | `555ee87`   | feat: dark/light mode theming met systeem-voorkeur                                                                              |

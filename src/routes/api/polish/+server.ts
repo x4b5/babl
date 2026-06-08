@@ -119,7 +119,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		temperature = 0.5,
 		report_length = 'samenvatting',
 		region = 'limburgs',
-		speaker_labels
+		speaker_labels,
+		subject
 	} = body as {
 		text?: string;
 		language?: string;
@@ -128,6 +129,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		report_length?: string;
 		region?: string;
 		speaker_labels?: Record<string, string>;
+		subject?: string;
 	};
 
 	if (!text || typeof text !== 'string' || text.trim().length === 0) {
@@ -147,7 +149,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		);
 	}
 
-	let systemPrompt = getSystemPrompt(report_length, speaker_labels);
+	let systemPrompt = getSystemPrompt(report_length, speaker_labels, subject);
 	let jsonInstr = '';
 	if (language === 'li') {
 		const glossaryText = formatGlossary(region);

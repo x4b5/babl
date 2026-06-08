@@ -75,12 +75,19 @@ export function buildSpeakerContext(speakerLabels: Record<string, string>): stri
 	);
 }
 
-/** Get system prompt with optional speaker instructions. */
+/** Get system prompt with optional speaker instructions and subject context. */
 export function getSystemPrompt(
 	reportLength: string,
-	speakerLabels?: Record<string, string>
+	speakerLabels?: Record<string, string>,
+	subject?: string
 ): string {
 	let prompt = SYSTEM_PROMPTS[reportLength] || SYSTEM_PROMPTS['samenvatting'];
+	if (subject) {
+		prompt +=
+			`\n\nONDERWERP/CONTEXT:\n` +
+			`De opname gaat over: ${subject}. ` +
+			`Gebruik deze context om onduidelijke woorden beter te interpreteren.\n`;
+	}
 	if (speakerLabels && Object.values(speakerLabels).some(Boolean)) {
 		prompt +=
 			reportLength === 'verslaglegging'
