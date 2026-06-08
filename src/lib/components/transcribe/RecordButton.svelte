@@ -75,11 +75,11 @@
 				onclick={onToggleRecording}
 				disabled={(status === 'processing' || localUnavailable) && status !== 'recording'}
 				aria-label="Opname starten of stoppen"
-				class="relative z-10 flex h-24 w-24 sm:h-36 sm:w-36 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+				class="relative z-10 flex h-24 w-24 sm:h-44 sm:w-44 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
 					: status === 'idle' || status === 'polishing'
-						? 'hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
+						? 'shadow-[0_0_40px_rgba(16,185,129,0.15)] hover:scale-[1.08] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
 						: ''}"
 			>
 				{#if status === 'preparing'}
@@ -88,7 +88,7 @@
 					</span>
 				{:else if status === 'recording'}
 					<svg
-						class="h-8 w-8 sm:h-12 sm:w-12 text-red-400"
+						class="h-8 w-8 sm:h-14 sm:w-14 text-red-400"
 						fill="currentColor"
 						viewBox="0 0 24 24"
 						aria-hidden="true"
@@ -97,7 +97,7 @@
 					</svg>
 				{:else if status === 'processing'}
 					<svg
-						class="h-8 w-8 sm:h-12 sm:w-12 text-white/60 animate-spin-slow"
+						class="h-8 w-8 sm:h-14 sm:w-14 text-white/60 animate-spin-slow"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -112,7 +112,7 @@
 					</svg>
 				{:else}
 					<svg
-						class="h-8 w-8 sm:h-12 sm:w-12 text-yellow-400"
+						class="h-8 w-8 sm:h-14 sm:w-14 text-yellow-400"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -149,7 +149,7 @@
 	<button
 		onclick={() => fileInput.click()}
 		disabled={(status !== 'idle' && status !== 'polishing') || localUnavailable}
-		class="upload-btn glass rounded-full border border-neon/10 px-5 py-2 text-sm text-neon/50 transition-all duration-200 hover:text-neon/80 hover:border-neon/30 hover:bg-neon/5 disabled:opacity-30 disabled:cursor-not-allowed"
+		class="upload-btn glass rounded-full border border-white/10 px-5 py-2 text-sm text-white/40 transition-all duration-200 hover:text-neon/70 hover:border-neon/20 hover:bg-neon/5 disabled:opacity-30 disabled:cursor-not-allowed"
 	>
 		<span class="flex items-center gap-2">
 			<svg
@@ -172,7 +172,7 @@
 	<input
 		bind:this={fileInput}
 		type="file"
-		accept="audio/*"
+		accept="audio/*,video/webm,.webm,.ogg,.mp4,.wav,.m4a"
 		class="hidden"
 		onchange={onFileUpload}
 	/>
