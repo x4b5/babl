@@ -41,7 +41,7 @@
 
 	const reportLengthOptions: { value: ReportLength; label: string }[] = [
 		{ value: 'samenvatting', label: 'Samenvatting' },
-		{ value: 'uitgebreid', label: 'Uitgebreid' }
+		{ value: 'verslaglegging', label: 'Verslaglegging' }
 	];
 </script>
 

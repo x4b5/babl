@@ -114,11 +114,12 @@
 							2
 						</div>
 						<div>
-							<p class="text-sm font-medium text-white/70">Polijsten</p>
+							<p class="text-sm font-medium text-white/70">Polijsten & opmaken</p>
 							<p class="text-xs text-white/50">
-								De ruwe transcriptie wordt vervolgens gepolijst: Limburgse woorden en zinsbouw
-								worden omgezet naar standaard Nederlands. Je ziet beide versies en kunt het
-								resultaat bewerken.
+								De ruwe transcriptie wordt vervolgens gepolijst en opgemaakt: Limburgse woorden en
+								zinsbouw worden omgezet naar standaard Nederlands, en het resultaat wordt
+								geformateerd als leesbaar verslag. Je ziet beide versies en kunt het resultaat
+								bewerken.
 							</p>
 						</div>
 					</div>
@@ -231,7 +232,7 @@
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 								</svg>
 							</div>
-							<span class="text-xs text-neon/70">Gepolijst</span>
+							<span class="text-xs text-neon/70">Gepolijst & opgemaakt</span>
 						</div>
 					</div>
 					<!-- Mobile: vertical flow -->
@@ -348,7 +349,7 @@
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 								</svg>
 							</div>
-							<span class="text-xs text-neon/70">Gepolijste tekst</span>
+							<span class="text-xs text-neon/70">Gepolijst & opgemaakt</span>
 						</div>
 					</div>
 					<div class="mt-3 flex items-center gap-4 text-xs text-white/30">

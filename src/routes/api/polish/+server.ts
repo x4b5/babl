@@ -206,7 +206,15 @@ export const POST: RequestHandler = async ({ request }) => {
 						}
 					}
 				}
-				send({ type: 'done' });
+				send({
+					type: 'done',
+					ai_metadata: {
+						generated_by_ai: true,
+						provider: 'mistral',
+						model: mistralModel,
+						prompt_version: 'v1.0'
+					}
+				});
 			} catch (e) {
 				const errMsg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
 				console.error('[polish] Mistral error:', errMsg);

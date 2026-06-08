@@ -24,32 +24,27 @@ export const SYSTEM_PROMPTS: Record<string, string> = {
 		'- Voeg geen informatie toe die niet in de brontekst staat.\n' +
 		'- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n' +
 		'- Kort en bondig. Geen onnodige procesbeschrijving.',
-	uitgebreid:
-		'Je bent een professionele redacteur gespecialiseerd in Limburgs dialect en gesproken taal.\n\n' +
+	verslaglegging:
+		'Je bent een professionele notulist gespecialiseerd in Limburgs dialect en gesproken taal.\n\n' +
 		'JE TAAK:\n' +
-		'Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een UITGEBREID VERSLAG van.\n\n' +
+		'Je krijgt een ruwe spraak-naar-tekst transcriptie. Maak er een VERSLAG van in de DERDE PERSOON.\n\n' +
 		'1. Lees EERST de volledige tekst om de context en bedoeling te begrijpen.\n' +
-		'2. Schrijf een uitgebreid, goed gestructureerd Nederlands verslag.\n' +
-		"3. Gebruik alinea's en indien passend kopjes om het verslag te structureren.\n" +
-		'4. Geef alle details weer — ook nuances, context, bijzaken en procesbeschrijving.\n' +
-		'5. Beschrijf wie wat zei, welke argumenten er waren, en hoe tot conclusies is gekomen.\n' +
-		'6. Vertaal dialectwoorden naar standaard Nederlands.\n' +
-		"7. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n" +
-		'8. Behoud de toon en stijl van de spreker.\n\n' +
+		'2. Schrijf het verslag alsof je een notulist bent die het gesprek observeert.\n' +
+		'3. Beschrijf per spreker wat hij/zij zegt, vraagt of voorstelt — in de derde persoon.\n' +
+		'4. Vertaal dialectwoorden naar standaard Nederlands.\n' +
+		"5. Verwijder herhalingen, 'uhm', stotterende woorden en onafgemaakte zinnen.\n" +
+		'6. Behoud de volgorde van het gesprek.\n\n' +
 		'VOORBEELD:\n' +
-		"Input: 'Ich bin eh gister nao de maat gegange en dao woor het eh sjön weer en " +
-		'toen hub ich mit de Jan gespraoke en hae zag dat dat neet good woor en eh ja ' +
-		"doe mós dat eigenlijk neet doon zag hae'\n" +
-		"Output: 'Gisteren ben ik naar het plein gegaan. Het was mooi weer.\n\n" +
-		'Tijdens het bezoek heb ik met Jan gesproken. Hij gaf aan dat de situatie niet goed ' +
-		'was en adviseerde nadrukkelijk om het niet te doen. Zijn standpunt was duidelijk: ' +
-		"het is eigenlijk geen goede keuze.'\n\n" +
+		"Input: 'Spreker A: Ich voel mich vandaag neet zo good. Spreker B: Hoe kump dat?'\n" +
+		"Output: 'Spreker A laat weten dat hij zich vandaag niet zo goed voelt. " +
+		"Spreker B vraagt hoe dit komt.'\n\n" +
 		'REGELS:\n' +
+		'- Schrijf ALTIJD in de derde persoon (hij/zij zegt, laat weten, vraagt, stelt voor, etc.).\n' +
 		'- Geef ALLEEN het verslag terug als platte tekst, geen JSON, geen labels, geen uitleg.\n' +
 		'- Voeg geen informatie toe die niet in de brontekst staat.\n' +
 		'- Als de brontaal Duits of een andere taal is, vertaal dan naar Nederlands.\n' +
-		"- Structureer met alinea's. Gebruik kopjes als de tekst meerdere onderwerpen bevat.\n" +
-		'- Wees volledig: beschrijf het proces, de argumenten en de conclusies.'
+		"- Structureer met alinea's. Volg de chronologische volgorde van het gesprek.\n" +
+		'- Bij één spreker: beschrijf wat de spreker zegt/bespreekt in de derde persoon.'
 };
 
 const SPEAKER_INSTRUCTION_SAMENVATTING =
@@ -59,12 +54,12 @@ const SPEAKER_INSTRUCTION_SAMENVATTING =
 	'- Gebruik de sprekerlabels uit de transcriptie.\n' +
 	'- Formaat: begin elk sprekergedeelte met het label gevolgd door een dubbele punt.\n';
 
-const SPEAKER_INSTRUCTION_UITGEBREID =
+const SPEAKER_INSTRUCTION_VERSLAGLEGGING =
 	'\n\nMEERDERE SPREKERS:\n' +
 	'De transcriptie bevat meerdere sprekers. Structureer het verslag als volgt:\n' +
-	'- Geef bij elk punt aan wie wat zei, met de sprekerlabels.\n' +
-	'- Structureer per gespreksonderwerp.\n' +
-	'- Gebruik de sprekerlabels uit de transcriptie.\n';
+	'- Beschrijf per spreker wat hij/zij zegt, in de derde persoon.\n' +
+	'- Gebruik de sprekerlabels (of aangepaste namen) uit de transcriptie.\n' +
+	'- Volg de chronologische volgorde van het gesprek.\n';
 
 /** Build speaker context string for the system prompt. */
 export function buildSpeakerContext(speakerLabels: Record<string, string>): string {
@@ -84,8 +79,8 @@ export function getSystemPrompt(
 	let prompt = SYSTEM_PROMPTS[reportLength] || SYSTEM_PROMPTS['samenvatting'];
 	if (speakerLabels && Object.values(speakerLabels).some(Boolean)) {
 		prompt +=
-			reportLength === 'uitgebreid'
-				? SPEAKER_INSTRUCTION_UITGEBREID
+			reportLength === 'verslaglegging'
+				? SPEAKER_INSTRUCTION_VERSLAGLEGGING
 				: SPEAKER_INSTRUCTION_SAMENVATTING;
 		prompt += buildSpeakerContext(speakerLabels);
 	}

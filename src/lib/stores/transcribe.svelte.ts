@@ -12,7 +12,7 @@ export type Status = 'idle' | 'preparing' | 'recording' | 'paused' | 'processing
 export type Quality = 'light' | 'medium' | 'heavy';
 export type Lang = 'auto' | 'nl' | 'li' | 'en';
 export type Mode = 'local' | 'api';
-export type ReportLength = 'samenvatting' | 'uitgebreid';
+export type ReportLength = 'samenvatting' | 'verslaglegging';
 export type ApiStreamMode = 'realtime' | 'accurate';
 export type Region = 'limburgs' | 'mestreechs' | 'zittesj' | 'venloos' | 'kirchroeadsj';
 
@@ -20,6 +20,13 @@ export interface WordWithConfidence {
 	text: string;
 	confidence: number;
 	speaker?: string;
+}
+
+export interface AiMetadata {
+	generated_by_ai: boolean;
+	provider: string;
+	model: string;
+	prompt_version: string;
 }
 
 export interface EvalResult {
@@ -57,7 +64,7 @@ const MISTRAL_COST_PER_WORD: Record<string, number> = {
 };
 const REPORT_LENGTH_FACTOR: Record<string, number> = {
 	samenvatting: 0.5,
-	uitgebreid: 1.5
+	verslaglegging: 1.5
 };
 
 // ── Reactive state ────────────────────────────────────────────
@@ -108,6 +115,7 @@ let waveformBars = $state<number[]>(new Array(40).fill(3));
 let savedRecordingId = $state<string | null>(null);
 let savedRecordingMimeType = $state('');
 let speakerLabels = $state<Record<string, string>>({});
+let polishAiMetadata = $state<AiMetadata | null>(null);
 
 // ── Derived values ────────────────────────────────────────────
 
@@ -291,6 +299,9 @@ export function getTranscribeState() {
 		get speakerLabels() {
 			return speakerLabels;
 		},
+		get polishAiMetadata() {
+			return polishAiMetadata;
+		},
 		// Derived
 		get formattedTime() {
 			return formattedTime;
@@ -457,6 +468,9 @@ export function setSpeakerLabel(speaker: string, label: string) {
 export function setSpeakerLabels(v: Record<string, string>) {
 	speakerLabels = v;
 }
+export function setPolishAiMetadata(v: AiMetadata | null) {
+	polishAiMetadata = v;
+}
 
 /** Copy text to clipboard and flash the copied indicator. */
 export async function copyText(text: string, which: 'raw' | 'polished') {
@@ -474,6 +488,7 @@ export async function copyText(text: string, which: 'raw' | 'polished') {
 export function resetForPolishing() {
 	polished = '';
 	polishedExpanded = false;
+	polishAiMetadata = null;
 	error = '';
 	errorType = '';
 	retryCount = 0;

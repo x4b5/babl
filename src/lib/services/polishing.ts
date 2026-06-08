@@ -24,7 +24,8 @@ import {
 	setCountdownSeconds,
 	setRetryCount,
 	appendPolished,
-	resetForPolishing
+	resetForPolishing,
+	setPolishAiMetadata
 } from '$lib/stores/transcribe.svelte';
 
 /** Build disclaimer with current date/time stamp. */
@@ -174,6 +175,17 @@ async function fetchPolishing(
 			onEvent: (event) => {
 				if (event.type === 'token') {
 					appendPolished(event.text as string);
+				} else if (event.type === 'done') {
+					if (event.ai_metadata) {
+						setPolishAiMetadata(
+							event.ai_metadata as {
+								generated_by_ai: boolean;
+								provider: string;
+								model: string;
+								prompt_version: string;
+							}
+						);
+					}
 				} else if (event.type === 'error') {
 					streamError = true;
 					handleErrorEvent(
@@ -183,7 +195,6 @@ async function fetchPolishing(
 					);
 					return 'stop';
 				}
-				// 'done' event — no action needed
 			}
 		});
 

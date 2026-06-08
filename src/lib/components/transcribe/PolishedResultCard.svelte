@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Status, Mode } from '$lib/stores/transcribe.svelte';
+	import type { Status, Mode, AiMetadata } from '$lib/stores/transcribe.svelte';
 	import { copyText } from '$lib/stores/transcribe.svelte';
 
 	interface Props {
@@ -9,9 +9,24 @@
 		expanded: boolean;
 		copiedPolished: boolean;
 		polishMode: Mode;
+		aiMetadata?: AiMetadata | null;
 	}
 
-	let { polished, status, onToggleExpand, expanded, copiedPolished, polishMode }: Props = $props();
+	let {
+		polished,
+		status,
+		onToggleExpand,
+		expanded,
+		copiedPolished,
+		polishMode,
+		aiMetadata = null
+	}: Props = $props();
+
+	let aiLabel = $derived(
+		aiMetadata
+			? `AI-gegenereerd · ${aiMetadata.model} (${aiMetadata.provider === 'mistral' ? 'EU' : 'lokaal'})`
+			: `AI-gegenereerd · ${polishMode === 'local' ? 'Ollama (lokaal)' : 'Mistral AI (EU)'}`
+	);
 </script>
 
 {#if status === 'polishing' && !polished}
@@ -19,7 +34,7 @@
 		<div class="mb-3">
 			<h2 class="text-base sm:text-sm font-semibold text-white/80">Gepolijst Nederlands</h2>
 			<p class="text-[11px] text-white/40 mt-0.5">
-				AI-gegenereerd · {polishMode === 'local' ? 'Ollama (lokaal)' : 'Mistral AI (EU)'}
+				{aiLabel}
 			</p>
 		</div>
 		<div class="flex items-center gap-3">

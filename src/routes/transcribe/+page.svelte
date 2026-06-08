@@ -521,6 +521,7 @@
 					expanded={s.polishedExpanded}
 					copiedPolished={s.copiedPolished}
 					polishMode={s.mode}
+					aiMetadata={s.polishAiMetadata}
 					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
 				/>
 

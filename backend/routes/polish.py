@@ -26,6 +26,7 @@ from config import (
 from polishing import (
     CLEANUP_PROMPT,
     DIALECT_RETENTION_PROMPT,
+    PROMPT_VERSION,
     SYSTEM_PROMPT,
     SYSTEM_PROMPTS,
     PolishingOutput,
@@ -271,9 +272,9 @@ async def polish(req: PolishingRequest):
         system_prompt = SYSTEM_PROMPTS.get(req.report_length, SYSTEM_PROMPTS["samenvatting"])
         # Add speaker instructions for non-Limburgish too
         if req.speaker_labels:
-            from polishing import SPEAKER_INSTRUCTION_SAMENVATTING, SPEAKER_INSTRUCTION_UITGEBREID, build_speaker_context
-            if req.report_length == "uitgebreid":
-                system_prompt += SPEAKER_INSTRUCTION_UITGEBREID
+            from polishing import SPEAKER_INSTRUCTION_SAMENVATTING, SPEAKER_INSTRUCTION_VERSLAGLEGGING, build_speaker_context
+            if req.report_length == "verslaglegging":
+                system_prompt += SPEAKER_INSTRUCTION_VERSLAGLEGGING
             else:
                 system_prompt += SPEAKER_INSTRUCTION_SAMENVATTING
             system_prompt += build_speaker_context(req.speaker_labels)
@@ -375,8 +376,8 @@ async def polish(req: PolishingRequest):
             if req.keep_dialect and req.language == "li":
                 final_system_prompt = DIALECT_RETENTION_PROMPT
                 # Append information about length to the retention prompt if needed
-                if req.report_length == "uitgebreid":
-                    final_system_prompt += "\nMaak er een UITGEBREID VERSLAG van met alinea's en kopjes."
+                if req.report_length == "verslaglegging":
+                    final_system_prompt += "\nMaak er een VERSLAG van in de DERDE PERSOON, alsof je een notulist bent die het gesprek observeert."
 
             # JSON mode: accumulate tokens, parse JSON, emit polished text
             # Disabled for keep_dialect (raw dialect text output)
@@ -429,16 +430,18 @@ async def polish(req: PolishingRequest):
                             validated = parse_polishing_output(accumulated, chunk)
                             yield f"data: {json.dumps({'type': 'token', 'text': validated.polished})}\n\n"
 
+            provider = "mistral" if req.mode == "api" else "ollama"
+            model_used = mistral_model if req.mode == "api" else ollama_model
             log_processing_event(
                 session_id=session_id,
                 mode=req.mode,
                 step="polish",
-                provider="mistral" if req.mode == "api" else "ollama",
+                provider=provider,
                 pii_redaction=False,
                 region=req.region,
                 success=True,
             )
-            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'ai_metadata': {'generated_by_ai': True, 'provider': provider, 'model': model_used, 'prompt_version': PROMPT_VERSION}})}\n\n"
         except Exception as e:
             logger.exception("Polishing streaming failed")
             log_processing_event(
