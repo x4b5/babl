@@ -367,13 +367,14 @@
 							onclick={downloadAsDoc}
 						>
 							<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-								<rect x="3" y="2" width="18" height="20" rx="2" fill="#2B579A" opacity="0.9" />
+								<path d="M6 2h9l5 5v15H6z" fill="#2B579A" opacity="0.9" />
+								<path d="M15 2v5h5" fill="#1E3F6F" opacity="0.7" />
 								<text
 									x="12"
-									y="15"
+									y="16"
 									text-anchor="middle"
 									fill="white"
-									font-size="9"
+									font-size="7"
 									font-weight="bold"
 									font-family="sans-serif">W</text
 								>
@@ -386,13 +387,14 @@
 							onclick={downloadAsPdf}
 						>
 							<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-								<rect x="3" y="2" width="18" height="20" rx="2" fill="#D93025" opacity="0.9" />
+								<path d="M6 2h9l5 5v15H6z" fill="#D93025" opacity="0.9" />
+								<path d="M15 2v5h5" fill="#A52714" opacity="0.7" />
 								<text
 									x="12"
-									y="15"
+									y="16"
 									text-anchor="middle"
 									fill="white"
-									font-size="8"
+									font-size="6"
 									font-weight="bold"
 									font-family="sans-serif">PDF</text
 								>
@@ -405,42 +407,45 @@
 							onclick={downloadAsTxt}
 						>
 							<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-								<rect
-									x="3"
-									y="2"
-									width="18"
-									height="20"
-									rx="2"
+								<path
+									d="M6 2h9l5 5v15H6z"
 									fill="none"
 									stroke="currentColor"
 									stroke-width="1.5"
 									opacity="0.6"
 								/>
-								<line
-									x1="7"
-									y1="8"
-									x2="17"
-									y2="8"
+								<path
+									d="M15 2v5h5"
 									stroke="currentColor"
-									stroke-width="1.2"
+									stroke-width="1.5"
+									opacity="0.4"
+									fill="none"
+								/>
+								<line
+									x1="9"
+									y1="10"
+									x2="17"
+									y2="10"
+									stroke="currentColor"
+									stroke-width="1"
 									opacity="0.5"
 								/>
 								<line
-									x1="7"
-									y1="12"
+									x1="9"
+									y1="13"
 									x2="17"
-									y2="12"
+									y2="13"
 									stroke="currentColor"
-									stroke-width="1.2"
+									stroke-width="1"
 									opacity="0.5"
 								/>
 								<line
-									x1="7"
+									x1="9"
 									y1="16"
-									x2="13"
+									x2="14"
 									y2="16"
 									stroke="currentColor"
-									stroke-width="1.2"
+									stroke-width="1"
 									opacity="0.5"
 								/>
 							</svg>

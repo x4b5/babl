@@ -829,6 +829,19 @@ html.light [class*='text-green-'] {
 	color: #047857 !important;
 }
 
+/* Low-opacity white text — boost contrast for light mode readability */
+html.light [class*='text-white/30'] {
+	color: rgba(0, 0, 0, 0.5) !important;
+}
+
+html.light [class*='text-white/35'] {
+	color: rgba(0, 0, 0, 0.52) !important;
+}
+
+html.light [class*='text-white/45'] {
+	color: rgba(0, 0, 0, 0.58) !important;
+}
+
 /* Shimmer text — darker for light bg */
 html.light .shimmer-text {
 	background: linear-gradient(
