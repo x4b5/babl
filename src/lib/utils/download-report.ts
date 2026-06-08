@@ -1,11 +1,7 @@
 /**
  * Download report in various formats (Word, PDF, plain text).
- * Uses docx for .docx, jspdf for .pdf, and Blob for .txt.
+ * Libraries are dynamically imported to avoid 800KB+ on initial page load.
  */
-
-import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx';
-import { saveAs } from 'file-saver';
-import { jsPDF } from 'jspdf';
 
 /** Generate a timestamped filename without extension. */
 function baseFilename(): string {
@@ -16,13 +12,17 @@ function baseFilename(): string {
 }
 
 /** Download as plain text (.txt). */
-export function downloadTxt(text: string): void {
+export async function downloadTxt(text: string): Promise<void> {
+	const { saveAs } = await import('file-saver');
 	const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
 	saveAs(blob, `${baseFilename()}.txt`);
 }
 
 /** Download as Word document (.docx). */
 export async function downloadDocx(text: string): Promise<void> {
+	const { Document, Packer, Paragraph, TextRun, AlignmentType } = await import('docx');
+	const { saveAs } = await import('file-saver');
+
 	const paragraphs = text.split('\n').map(
 		(line) =>
 			new Paragraph({
@@ -52,7 +52,9 @@ export async function downloadDocx(text: string): Promise<void> {
 }
 
 /** Download as PDF (.pdf). */
-export function downloadPdf(text: string): void {
+export async function downloadPdf(text: string): Promise<void> {
+	const { jsPDF } = await import('jspdf');
+
 	const doc = new jsPDF({
 		orientation: 'portrait',
 		unit: 'mm',

@@ -7,9 +7,9 @@ function fakeResponse(chunks: string[]): Response {
 	const reader: ReadableStreamDefaultReader<Uint8Array> = {
 		read: async () => {
 			if (index >= chunks.length)
-				return { done: true, value: undefined } as ReadableStreamReadDoneResult;
+				return { done: true, value: undefined } as ReadableStreamReadResult<Uint8Array>;
 			const value = new TextEncoder().encode(chunks[index++]);
-			return { done: false, value } as ReadableStreamReadValueResult<Uint8Array>;
+			return { done: false, value } as ReadableStreamReadResult<Uint8Array>;
 		},
 		releaseLock: vi.fn(),
 		cancel: vi.fn(),
