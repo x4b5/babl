@@ -519,7 +519,10 @@
 						</li>
 						<li class="flex items-start gap-2">
 							<span class="text-amber-400/60">!</span> Korte opnames (&lt;5 seconden) geven onbetrouwbare
-							resultaten.
+							resultaten. Spraakherkenning heeft context nodig om woorden goed te interpreteren — bij
+							te weinig audio mist het model de omringende zinnen die helpen om onduidelijke klanken te
+							ontcijferen. Ook kan het model bij korte fragmenten gaan "hallucineren": het vult ontbrekende
+							context zelf in met tekst die niet is uitgesproken.
 						</li>
 						<li class="flex items-start gap-2">
 							<span class="text-amber-400/60">!</span> BABL is experimenteel en geen vervanging voor professionele
@@ -1755,7 +1758,8 @@
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="text-amber-400/60">!</span>
-								Korte opnames (&lt;5 seconden) geven onbetrouwbare resultaten
+								Korte opnames (&lt;5 seconden) geven onbetrouwbare resultaten — het model heeft context
+								nodig en kan bij te weinig audio gaan hallucineren
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="text-amber-400/60">!</span>
