@@ -176,11 +176,4 @@
 		class="hidden"
 		onchange={onFileUpload}
 	/>
-
-	<a
-		href="/logout"
-		class="glass rounded-full border border-white/5 px-4 py-1.5 text-xs font-medium text-white/30 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-200"
-	>
-		Uitloggen
-	</a>
 </div>
