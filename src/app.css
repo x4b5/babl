@@ -779,17 +779,10 @@ html.light [class*='text-amber-2'] {
 	color: #92400e !important;
 }
 
-/* Yellow/amber backgrounds — darken for visibility */
-html.light [class*='bg-yellow-'] {
-	background-color: rgba(161, 98, 7, 0.7) !important;
-}
-
-html.light [class*='bg-amber-500'] {
-	background-color: rgba(146, 64, 14, 0.6) !important;
-}
-
-html.light [class*='bg-amber-400'] {
-	background-color: rgba(146, 64, 14, 0.5) !important;
+/* Yellow/amber backgrounds — only override full-opacity dots/badges, not subtle bg tints */
+html.light .bg-yellow-500,
+html.light .bg-amber-500 {
+	background-color: #92400e !important;
 }
 
 /* Indigo text — too light on light backgrounds */
