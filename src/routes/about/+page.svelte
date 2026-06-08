@@ -65,7 +65,129 @@
 				</p>
 			</section>
 
-			<!-- 2. Hoe werkt het? -->
+			<!-- 2. Wat kun je ermee? (Use cases) -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+						/>
+					</svg>
+					Wat kun je ermee?
+				</h2>
+				<p class="mb-4 text-sm text-white/60">
+					BABL is gebouwd voor iedereen die in dialect spreekt en leesbare tekst nodig heeft. Vier
+					voorbeelden:
+				</p>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-4 w-4 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+									/>
+								</svg>
+							</div>
+							<h3 class="text-sm font-medium text-white/80">Journalist</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Interview in dialect opnemen, omzetten naar leesbaar verslag voor publicatie.
+						</p>
+						<p class="mt-2 text-xs text-white/30">Relevant: sprekersherkenning, verslaglegging</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-4 w-4 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+									/>
+								</svg>
+							</div>
+							<h3 class="text-sm font-medium text-white/80">Mantelzorger</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Gesprek met arts vastleggen, verslag maken om met familie te delen.
+						</p>
+						<p class="mt-2 text-xs text-white/30">Relevant: samenvatting, PII-redactie (API)</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-4 w-4 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+									/>
+								</svg>
+							</div>
+							<h3 class="text-sm font-medium text-white/80">Student</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							College of werkgroep opnemen, samenvatting genereren voor studie.
+						</p>
+						<p class="mt-2 text-xs text-white/30">Relevant: samenvatting, live transcriptie</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neon/10">
+								<svg
+									class="h-4 w-4 text-neon/80"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+									/>
+								</svg>
+							</div>
+							<h3 class="text-sm font-medium text-white/80">Vergadering</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Werkoverleg vastleggen met sprekersherkenning, notulen genereren.
+						</p>
+						<p class="mt-2 text-xs text-white/30">Relevant: speaker labels, verslaglegging</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 3. Hoe werkt het? -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -407,7 +529,203 @@
 				</div>
 			</section>
 
-			<!-- 3. Lokaal vs API -->
+			<!-- 4. Wat kan BABL? (Features) -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+						/>
+					</svg>
+					Wat kan BABL?
+				</h2>
+				<p class="mb-4 text-sm text-white/60">
+					Naast transcriptie en polijsten heeft BABL een reeks extra features die je werkflow
+					verbeteren:
+				</p>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Pauze/hervat</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Opname pauzeren en hervatten zonder opnieuw te beginnen.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Sprekersherkenning</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Automatisch herkennen wie er spreekt (Spreker A, B, C...) met kleuren en aanpasbare
+							namen.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Verslaglegging</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Keuze uit samenvatting (kort) of uitgebreid verslag (derde persoon met
+							sprekerattributie).
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-amber-400/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Lage-zekerheid correctie</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Woorden waar het model onzeker over is worden gemarkeerd. Je kunt ze inline
+							corrigeren.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M13 10V3L4 14h7v7l9-11h-7z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Live transcriptie</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							Tekst verschijnt terwijl je spreekt. API: real-time, lokaal: ~5s vertraging.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-indigo-400/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">PII-redactie</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							In API-modus worden namen, telefoonnummers en medische gegevens automatisch
+							verwijderd.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Dialectkeuze</h3>
+						</div>
+						<p class="text-xs text-white/50">
+							5 Limburgse varianten met eigen woordenlijst en voorbeeldzinnen.
+						</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
+						<div class="flex items-center gap-2 mb-2">
+							<svg
+								class="h-4 w-4 shrink-0 text-neon/70"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+								/>
+							</svg>
+							<h3 class="text-sm font-medium text-white/80">Audio download</h3>
+						</div>
+						<p class="text-xs text-white/50">Opname downloaden als backup voordat je stopt.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 5. Lokaal vs API -->
 			<section id="voor-en-nadelen" class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -566,7 +884,71 @@
 				</div>
 			</section>
 
-			<!-- 4. BABL in gesprekken -->
+			<!-- 6. Kosten -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						/>
+					</svg>
+					Kosten
+				</h2>
+				<div class="space-y-4">
+					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-neon/80">Lokale modus</h3>
+						<p class="text-sm text-white/60">
+							<span class="text-neon/70 font-medium">Gratis</span> — je gebruikt je eigen hardware. Geen
+							abonnement, geen kosten per gebruik.
+						</p>
+					</div>
+					<div class="rounded-xl border border-indigo-500/15 bg-indigo-500/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">API-modus (indicatief)</h3>
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead>
+									<tr class="text-left text-xs text-white/40">
+										<th class="pb-2 pr-4 font-medium">Onderdeel</th>
+										<th class="pb-2 font-medium">Kosten</th>
+									</tr>
+								</thead>
+								<tbody class="text-white/60">
+									<tr class="border-t border-white/5">
+										<td class="py-2 pr-4">Transcriptie (AssemblyAI)</td>
+										<td class="py-2">~&euro;0,16 per uur audio</td>
+									</tr>
+									<tr class="border-t border-white/5">
+										<td class="py-2 pr-4">Polijsten Light/Medium (Mistral Small)</td>
+										<td class="py-2">&lt;&euro;0,01 per verslag</td>
+									</tr>
+									<tr class="border-t border-white/5">
+										<td class="py-2 pr-4">Polijsten Heavy (Mistral Large)</td>
+										<td class="py-2">~&euro;0,05 per verslag</td>
+									</tr>
+									<tr class="border-t border-white/10 font-medium">
+										<td class="py-2 pr-4 text-white/80">Typisch totaal per uur</td>
+										<td class="py-2 text-white/80">~&euro;0,17 – &euro;0,21</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<p class="mt-3 text-xs text-white/30 italic">
+							Prijzen zijn indicatief en gebaseerd op tarieven van juni 2025. BABL toont de
+							geschatte kosten live tijdens opname.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 7. BABL in gesprekken -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -673,7 +1055,7 @@
 				</div>
 			</section>
 
-			<!-- 5. Privacy-bewuste verwerking -->
+			<!-- 8. Privacy-bewuste verwerking -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -754,7 +1136,7 @@
 				</div>
 			</section>
 
-			<!-- 5. Waar blijft je data? -->
+			<!-- 9. Waar blijft je data? -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -932,7 +1314,7 @@
 				</div>
 			</section>
 
-			<!-- 6. Technologie onder de motorkap -->
+			<!-- 10. Technologie onder de motorkap -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -1080,7 +1462,7 @@
 				</div>
 			</section>
 
-			<!-- 7. Ondersteunde dialecten -->
+			<!-- 11. Ondersteunde dialecten -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -1143,7 +1525,7 @@
 				</p>
 			</section>
 
-			<!-- 8. Tips voor het beste resultaat -->
+			<!-- 12. Tips voor het beste resultaat -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -1255,7 +1637,7 @@
 				</div>
 			</section>
 
-			<!-- 9. Toegankelijkheid -->
+			<!-- 13. Toegankelijkheid -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
@@ -1316,7 +1698,106 @@
 				</ul>
 			</section>
 
-			<!-- 10. Open source & contact -->
+			<!-- 14. Roadmap & experimenteel -->
+			<section class="glass-strong rounded-2xl p-6">
+				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
+					<svg
+						class="h-5 w-5 shrink-0 text-neon/70"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+						/>
+					</svg>
+					Roadmap & experimenteel
+				</h2>
+				<p class="mb-4 text-sm text-white/60">
+					BABL is een experimenteel project in actieve ontwikkeling. Sommige dingen werken goed,
+					andere nog niet. Hier een eerlijk overzicht:
+				</p>
+				<div class="space-y-3">
+					<div class="rounded-xl border border-neon/15 bg-neon/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-neon/80">Wat werkt goed</h3>
+						<ul class="space-y-1.5 text-xs text-white/50">
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								Transcriptie van duidelijk gesproken Limburgs naar Nederlands
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								Polijsten en opmaken van ruwe transcripties tot leesbare verslagen
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								Sprekersherkenning bij meerdere gesprekspartners
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								Live transcriptie in API-modus
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
+								Privacy-bewuste verwerking (lokaal of EU-only)
+							</li>
+						</ul>
+					</div>
+					<div class="rounded-xl border border-amber-400/15 bg-amber-400/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-amber-400/80">Bekende beperkingen</h3>
+						<ul class="space-y-1.5 text-xs text-white/50">
+							<li class="flex items-start gap-2">
+								<span class="text-amber-400/60">!</span>
+								Sterk accent of snel spreken leidt tot meer fouten
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="text-amber-400/60">!</span>
+								Korte opnames (&lt;5 seconden) geven onbetrouwbare resultaten
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="text-amber-400/60">!</span>
+								Geen offline API-modus — API vereist internetverbinding
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="text-amber-400/60">!</span>
+								Lokale modus werkt alleen op desktop met voldoende hardware
+							</li>
+						</ul>
+					</div>
+					<div class="rounded-xl border border-indigo-500/15 bg-indigo-500/5 p-4">
+						<h3 class="mb-2 text-sm font-semibold text-indigo-400/80">Wat we willen toevoegen</h3>
+						<ul class="space-y-1.5 text-xs text-white/50">
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								Meer dialecten (Brabants, Zeeuws, Fries)
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								Betere dialectherkenning bij sterk accent
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								Export-opties (PDF, Word, ondertitelingsformaat)
+							</li>
+							<li class="flex items-start gap-2">
+								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+								Batch-verwerking (meerdere bestanden tegelijk)
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
+					<p class="text-sm text-white/60">
+						Mis je iets? Heb je een idee? Laat het ons weten — zie
+						<span class="text-white/80">Open source & contact</span> hieronder.
+					</p>
+				</div>
+			</section>
+
+			<!-- 15. Open source & contact -->
 			<section class="glass-strong rounded-2xl p-6">
 				<h2 class="mb-3 text-lg font-semibold text-white/90 flex items-center gap-2">
 					<svg
