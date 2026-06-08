@@ -338,3 +338,6 @@
 | 2026-06-08 | 21:45     | 21:47    | .02         | `216b490`   | fix: sprekerlabels worden nu daadwerkelijk gebruikt in verslag                                                                  |
 | 2026-06-08 | 21:47     | 21:49    | .02         | `b418e23`   | docs: verwerkingsregister (AVG art. 30)                                                                                         |
 | 2026-06-08 | 21:49     | 21:51    | .03         | `849cf84`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 21:51     | 21:55    | .06         | `a660860`   | feat: verslag downloaden als Word, PDF of platte tekst                                                                          |
+| 2026-06-08 | 21:55     | 21:58    | .05         | `e950687`   | feat: about-pagina uitgebreid met 4 nieuwe secties                                                                              |
+| 2026-06-08 | 21:58     | 22:00    | .03         | `efb85c3`   | feat: live transcriptie toggle in instellingen                                                                                  |

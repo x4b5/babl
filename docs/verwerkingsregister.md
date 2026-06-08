@@ -69,16 +69,16 @@
 
 ### 2.4 Dialectpolijsten — lokale modus
 
-| Veld                             | Waarde                                                              |
-| -------------------------------- | ------------------------------------------------------------------- |
-| **Doel**                         | Vertaling/polijsting van Limburgs dialect naar standaard Nederlands |
-| **Grondslag**                    | Toestemming (art. 6 lid 1 sub a AVG)                                |
-| **Categorieen persoonsgegevens** | Getranscribeerde tekst (input), gepolijste tekst (output)           |
-| **Bewaartermijn**                | Alleen tijdens de sessie                                            |
-| **Verwerker**                    | Geen (verwerking vindt lokaal plaats)                               |
-| **Software**                     | Ollama + Gemma3 (4b/12b) op lokale hardware                         |
-| **Doorgifte buiten EU**          | Nee (volledig lokaal)                                               |
-| **Beveiligingsmaatregelen**      | Geen netwerkverkeer. Verwerking op lokale hardware.                 |
+| Veld                             | Waarde                                                                                                            |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Doel**                         | Vertaling/polijsting van Limburgs dialect naar standaard Nederlands                                               |
+| **Grondslag**                    | Toestemming (art. 6 lid 1 sub a AVG)                                                                              |
+| **Categorieen persoonsgegevens** | Getranscribeerde tekst (input), gepolijste tekst (output)                                                         |
+| **Bewaartermijn**                | Alleen tijdens de sessie                                                                                          |
+| **Verwerker**                    | Geen (verwerking vindt lokaal plaats)                                                                             |
+| **Software**                     | Ollama + Qwen3 (1.7b/4b/14b) op lokale hardware. Model-familie instelbaar (qwen3, gemma3, mistral, phi4, llama3). |
+| **Doorgifte buiten EU**          | Nee (volledig lokaal)                                                                                             |
+| **Beveiligingsmaatregelen**      | Geen netwerkverkeer. Verwerking op lokale hardware.                                                               |
 
 ### 2.5 Dialectpolijsten — API-modus
 
@@ -89,6 +89,7 @@
 | **Categorieen persoonsgegevens** | Getranscribeerde tekst (input), gepolijste tekst (output)                                                                  |
 | **Bewaartermijn**                | Mistral bewaart data maximaal 30 dagen voor abuse monitoring, daarna verwijderd. Gepolijste tekst alleen in browsersessie. |
 | **Verwerker**                    | Mistral AI (Parijs, Frankrijk)                                                                                             |
+| **Model**                        | mistral-large-latest (altijd heavy kwaliteit)                                                                              |
 | **Verwerkersovereenkomst**       | Ja — zie Mistral AI DPA                                                                                                    |
 | **Datacenter**                   | EU (Frankrijk)                                                                                                             |
 | **Doorgifte buiten EU**          | Nee (EU servers)                                                                                                           |

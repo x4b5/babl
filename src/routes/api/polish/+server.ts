@@ -162,7 +162,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		systemPrompt += '\n\n' + jsonInstr;
 	}
 	const useJson = Boolean(jsonInstr);
-	const mistralModel = MISTRAL_MODELS[quality] || MISTRAL_MODELS['light'];
+	const mistralModel = MISTRAL_MODELS['heavy'];
 	const chunks = splitIntoChunks(text, 400);
 	const fullContext = chunks.length > 1 && chunks.length <= 5 ? text : null;
 

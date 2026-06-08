@@ -352,7 +352,7 @@ async def polish(req: PolishingRequest):
                         chunk_tokens = []
                         async with _polishing_semaphore:
                             if req.mode == "api":
-                                mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
+                                mistral_model = MISTRAL_MODELS["heavy"]
                                 async for token in polish_chunk_mistral_stream(
                                     chunk, req.language, mistral_model, None, req.temperature, CLEANUP_PROMPT
                                 ):
@@ -384,7 +384,7 @@ async def polish(req: PolishingRequest):
             use_json = bool(json_instr) and not req.keep_dialect
 
             if req.mode == "api":
-                mistral_model = MISTRAL_MODELS.get(req.quality, MISTRAL_MODELS["light"])
+                mistral_model = MISTRAL_MODELS["heavy"]
                 logger.info("Streaming final pass via Mistral %s", mistral_model)
 
                 for i, chunk in enumerate(final_chunks):
