@@ -321,3 +321,4 @@
 | 2026-06-08 | 19:56     | 20:09    | .20         | `a135e7b`   | feat: AVG/AI Act fase 1 — API consent modal, audit logging, hybrid privacy docs                                                 |
 | 2026-06-08 | 20:09     | 20:10    | .01         | `7368093`   | feat: interface visueel aantrekkelijker — grotere knop, betere hiërarchie                                                       |
 | 2026-06-08 | 20:10     | 20:10    | 0           | `7bcb9be`   | fix: geüploade .webm bestanden kunnen nu getranscribeerd worden                                                                 |
+| 2026-06-08 | 20:10     | 20:38    | .46         | `f203c54`   | feat: sprekerherkenning (diarization) — backend + frontend integratie                                                           |
