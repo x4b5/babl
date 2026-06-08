@@ -802,6 +802,33 @@ html.light [class*='text-neon'] {
 	color: #047857 !important;
 }
 
+/* Red text — darker for readability */
+html.light [class*='text-red-'] {
+	color: #b91c1c !important;
+}
+
+/* Violet/purple text — darker for readability */
+html.light [class*='text-violet-'],
+html.light [class*='text-purple-'] {
+	color: #5b21b6 !important;
+}
+
+/* Sky/cyan text — darker for readability */
+html.light [class*='text-sky-'],
+html.light [class*='text-cyan-'] {
+	color: #0e7490 !important;
+}
+
+/* Orange text — darker for readability */
+html.light [class*='text-orange-'] {
+	color: #c2410c !important;
+}
+
+/* Green text — darker for readability */
+html.light [class*='text-green-'] {
+	color: #047857 !important;
+}
+
 /* Shimmer text — darker for light bg */
 html.light .shimmer-text {
 	background: linear-gradient(
