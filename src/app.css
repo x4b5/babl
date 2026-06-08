@@ -641,7 +641,7 @@ body {
 /* Core Tailwind override: --color-white becomes the foreground color in light mode.
    All text-white/XX utilities automatically pick up this value. */
 html.light {
-	--color-white: #1e293b;
+	--color-white: #000000;
 }
 
 /* Body */
@@ -761,6 +761,35 @@ html.light .gradient-text {
 	-webkit-background-clip: text;
 	background-clip: text;
 	filter: drop-shadow(0 0 12px rgba(4, 120, 87, 0.25)) drop-shadow(0 0 25px rgba(194, 65, 12, 0.15));
+}
+
+/* Record button — lighter in light mode */
+html.light .conic-border button {
+	background: #c8d1cb !important;
+}
+
+/* Yellow/amber text — all too light on light backgrounds */
+html.light [class*='text-yellow-'] {
+	color: #a16207 !important;
+}
+
+html.light [class*='text-amber-4'],
+html.light [class*='text-amber-3'],
+html.light [class*='text-amber-2'] {
+	color: #92400e !important;
+}
+
+/* Yellow/amber backgrounds — darken for visibility */
+html.light [class*='bg-yellow-'] {
+	background-color: rgba(161, 98, 7, 0.7) !important;
+}
+
+html.light [class*='bg-amber-500'] {
+	background-color: rgba(146, 64, 14, 0.6) !important;
+}
+
+html.light [class*='bg-amber-400'] {
+	background-color: rgba(146, 64, 14, 0.5) !important;
 }
 
 /* Shimmer text — darker for light bg */
