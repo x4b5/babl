@@ -312,3 +312,8 @@
 | 2026-06-07 | 23:28     | 23:30    | .03         | `f99b104`   | feat: stappenbalk sticky gemaakt zodat hij meescrollt                                                                           |
 | 2026-06-07 | 23:30     | 23:31    | .01         | `03aaa7e`   | fix: verwijder dubbele Ollama-link boven opnameknop                                                                             |
 | 2026-06-07 | 23:31     | 23:32    | .02         | `4356226`   | fix: stappenbalk sticky — overflow-x i.p.v. overflow op bg-dark-gradient                                                        |
+| 2026-06-07 | 23:32     | 23:33    | 0           | `5835689`   | chore: update LOGBOOK with latest session entry                                                                                 |
+| 2026-06-08 | 23:33     | 18:30    | 4.00        | `6c35bd8`   | feat: one-button auto-flow — opname → transcriptie → verslag automatisch                                                        |
+| 2026-06-08 | 18:30     | 18:37    | .12         | `f94961d`   | fix: favicons toevoegen aan SettingsPanel toggles                                                                               |
+| 2026-06-08 | 18:37     | 19:43    | 1.10        | `4f26d5e`   | fix: verberg stappenbalk in idle status                                                                                         |
+| 2026-06-08 | 19:43     | 19:56    | .21         | `d202742`   | fix: footer opruimen — uitloggen en data-knoppen naar compacte footer                                                           |
