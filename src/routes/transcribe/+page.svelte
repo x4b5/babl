@@ -402,7 +402,9 @@
 			/>
 		</div>
 
-		<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
+		{#if s.status !== 'idle'}
+			<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
+		{/if}
 
 		{#if s.error}
 			<ErrorAlert
