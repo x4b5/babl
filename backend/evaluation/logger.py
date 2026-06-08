@@ -1,6 +1,8 @@
 """JSONL evaluation logger — append-only, no raw text (privacy)."""
 import json
+import os
 import statistics
+import tempfile
 from pathlib import Path
 from datetime import datetime, timezone, date
 
@@ -185,3 +187,118 @@ def read_corrections(
                 if len(entries) >= limit:
                     return entries
     return entries
+
+
+def read_audit_logs(
+    log_dir: Path = DEFAULT_LOG_PATH,
+    limit: int = 100,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    session_id: str | None = None,
+    provider: str | None = None,
+    step: str | None = None,
+    success: bool | None = None,
+) -> list[dict]:
+    """Read audit log entries with optional filters (AVG art. 33-34).
+
+    Args:
+        date_from: ISO date string (inclusive), e.g. "2026-06-01"
+        date_to: ISO date string (inclusive), e.g. "2026-06-08"
+        session_id: Filter by session UUID
+        provider: Filter by provider (whisper, assemblyai, ollama, mistral)
+        step: Filter by step (transcribe, polish)
+        success: Filter by success status
+    """
+    if not log_dir.exists():
+        return []
+
+    entries: list[dict] = []
+    for jsonl_file in sorted(log_dir.glob("audit-*.jsonl"), reverse=True):
+        # Extract date from filename for range filtering
+        file_date = jsonl_file.stem.replace("audit-", "")
+        if date_from and file_date < date_from:
+            continue
+        if date_to and file_date > date_to:
+            continue
+
+        for line in reversed(jsonl_file.read_text(encoding="utf-8").strip().split("\n")):
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            if session_id and entry.get("session_id") != session_id:
+                continue
+            if provider and entry.get("provider") != provider:
+                continue
+            if step and entry.get("step") != step:
+                continue
+            if success is not None and entry.get("success") != success:
+                continue
+            entries.append(entry)
+            if len(entries) >= limit:
+                return entries
+    return entries
+
+
+def delete_session_data(
+    session_id: str,
+    log_dir: Path = DEFAULT_LOG_PATH,
+) -> dict[str, int]:
+    """Delete all log entries for a session_id across all log types (AVG art. 17).
+
+    Rewrites JSONL files without the matching entries. Logs the deletion
+    as an audit event for accountability.
+
+    Returns dict with counts of deleted entries per log type.
+    """
+    if not log_dir.exists():
+        return {"audit": 0, "eval": 0, "corrections": 0}
+
+    deleted: dict[str, int] = {"audit": 0, "eval": 0, "corrections": 0}
+    patterns = {
+        "audit": "audit-*.jsonl",
+        "eval": "eval-*.jsonl",
+        "corrections": "corrections-*.jsonl",
+    }
+
+    for log_type, pattern in patterns.items():
+        for jsonl_file in log_dir.glob(pattern):
+            lines = jsonl_file.read_text(encoding="utf-8").strip().split("\n")
+            kept: list[str] = []
+            removed = 0
+            for line in lines:
+                if not line.strip():
+                    continue
+                entry = json.loads(line)
+                if entry.get("session_id") == session_id:
+                    removed += 1
+                else:
+                    kept.append(line)
+            if removed > 0:
+                deleted[log_type] += removed
+                # Atomic write: write to temp file, then rename
+                fd, tmp_path = tempfile.mkstemp(
+                    dir=str(log_dir), suffix=".jsonl.tmp"
+                )
+                try:
+                    with os.fdopen(fd, "w", encoding="utf-8") as f:
+                        for line in kept:
+                            f.write(line + "\n")
+                    os.replace(tmp_path, str(jsonl_file))
+                except Exception:
+                    os.unlink(tmp_path)
+                    raise
+
+    # Log the deletion itself as an audit event
+    if any(v > 0 for v in deleted.values()):
+        log_processing_event(
+            session_id=session_id,
+            mode="deletion",
+            step="erasure",
+            provider="system",
+            pii_redaction=False,
+            region="",
+            success=True,
+            log_dir=log_dir,
+        )
+
+    return deleted

@@ -526,12 +526,34 @@
 				/>
 
 				{#if s.raw && !s.polished && s.status === 'idle' && !s.error}
-					<button
-						onclick={onStartPolishing}
-						class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
-					>
-						Verslag genereren
-					</button>
+					<div class="flex flex-col items-center gap-3">
+						<div class="glass flex rounded-full p-1">
+							<button
+								onclick={() => setReportLength('samenvatting')}
+								class="rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 {s.reportLength ===
+								'samenvatting'
+									? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20'
+									: 'text-white/40 hover:text-white/70'}"
+							>
+								Samenvatting
+							</button>
+							<button
+								onclick={() => setReportLength('verslaglegging')}
+								class="rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 {s.reportLength ===
+								'verslaglegging'
+									? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20'
+									: 'text-white/40 hover:text-white/70'}"
+							>
+								Verslaglegging
+							</button>
+						</div>
+						<button
+							onclick={onStartPolishing}
+							class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+						>
+							{s.reportLength === 'samenvatting' ? 'Samenvatting genereren' : 'Verslag genereren'}
+						</button>
+					</div>
 				{/if}
 
 				{#if s.polished}

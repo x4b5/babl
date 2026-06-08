@@ -330,3 +330,4 @@
 | 2026-06-08 | 20:53     | 21:20    | .44         | `0f4d8d7`   | feat: opname pauze/hervat met dubbelklik-stop en confidence sortering                                                           |
 | 2026-06-08 | 21:20     | 21:21    | .01         | `5854b64`   | feat: opname pauze/hervat en AI-gegenereerd labels                                                                              |
 | 2026-06-08 | 21:21     | 21:29    | .13         | `6077446`   | feat: AI-metadata in polish SSE-stream en verslaglegging-modus                                                                  |
+| 2026-06-08 | 21:29     | 21:29    | 0           | `13b3241`   | chore: about-pagina tekst aanpassen aan verslaglegging-modus                                                                    |
