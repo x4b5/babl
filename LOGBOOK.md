@@ -341,3 +341,7 @@
 | 2026-06-08 | 21:51     | 21:55    | .06         | `a660860`   | feat: verslag downloaden als Word, PDF of platte tekst                                                                          |
 | 2026-06-08 | 21:55     | 21:58    | .05         | `e950687`   | feat: about-pagina uitgebreid met 4 nieuwe secties                                                                              |
 | 2026-06-08 | 21:58     | 22:00    | .03         | `efb85c3`   | feat: live transcriptie toggle in instellingen                                                                                  |
+| 2026-06-08 | 22:00     | 22:05    | .07         | `90e2ea3`   | feat: API polijsten gebruikt altijd mistral-large-latest (heavy)                                                                |
+| 2026-06-08 | 22:05     | 22:06    | .02         | `e96d0b3`   | fix: dubbele disclaimer in verslag verwijderd                                                                                   |
+| 2026-06-08 | 22:06     | 22:09    | .04         | `d1bb5d0`   | docs: compliance documenten (DPIA, DPA-status, AI-dossier, incident response)                                                   |
+| 2026-06-08 | 22:09     | 22:10    | .01         | `7bb5b75`   | docs: uitleg waarom korte opnames onbetrouwbaar zijn                                                                            |
