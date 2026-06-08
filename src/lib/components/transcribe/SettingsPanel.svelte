@@ -102,7 +102,9 @@
 								: 'text-white/60 hover:text-white/80'}"
 						>
 							<span class="block text-xs">Lokaal</span>
-							<span class="block text-[10px] opacity-70">Whisper</span>
+							<span class="block text-[10px] opacity-70"
+								><img src="/openai.png" alt="" class="inline h-3 w-3 -mt-0.5 rounded-full" /> Whisper</span
+							>
 						</button>
 						<button
 							onclick={() => onTranscribeModeChange('api')}
@@ -113,7 +115,9 @@
 								: 'text-white/60 hover:text-white/80'} disabled:opacity-30 disabled:cursor-not-allowed"
 						>
 							<span class="block text-xs">Internet</span>
-							<span class="block text-[10px] opacity-70">AssemblyAI</span>
+							<span class="block text-[10px] opacity-70"
+								><img src="/assemblyai.png" alt="" class="inline h-3 w-3 -mt-0.5" /> AssemblyAI</span
+							>
 						</button>
 					</div>
 					{#if !localAvailable && onOpenSetupWizard}
@@ -147,7 +151,9 @@
 								: 'text-white/60 hover:text-white/80'}"
 						>
 							<span class="block text-xs">Lokaal</span>
-							<span class="block text-[10px] opacity-70">Ollama</span>
+							<span class="block text-[10px] opacity-70"
+								><img src="/ollama.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Ollama</span
+							>
 						</button>
 						<button
 							onclick={() => onPolishModeChange('api')}
@@ -158,7 +164,9 @@
 								: 'text-white/60 hover:text-white/80'} disabled:opacity-30 disabled:cursor-not-allowed"
 						>
 							<span class="block text-xs">Internet</span>
-							<span class="block text-[10px] opacity-70">Mistral</span>
+							<span class="block text-[10px] opacity-70"
+								><img src="/mistral.png" alt="" class="inline h-3 w-3 -mt-0.5" /> Mistral</span
+							>
 						</button>
 					</div>
 					{#if polishMode === 'local' && !localPolishingAvailable && onOpenOllamaWizard}
