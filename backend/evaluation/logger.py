@@ -98,6 +98,45 @@ def get_wer_summary(
     }
 
 
+def log_processing_event(
+    session_id: str,
+    mode: str,
+    step: str,
+    provider: str,
+    pii_redaction: bool,
+    region: str,
+    success: bool,
+    error_type: str | None = None,
+    log_dir: Path = DEFAULT_LOG_PATH,
+) -> Path:
+    """Append processing audit event to JSONL file (AVG art. 5.2 accountability).
+
+    Logs metadata only — never content. Used to demonstrate GDPR compliance
+    by recording what was processed, how, and by which provider.
+    """
+    log_dir.mkdir(parents=True, exist_ok=True)
+    today = date.today().isoformat()
+    log_file = log_dir / f"audit-{today}.jsonl"
+
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "session_id": session_id,
+        "mode": mode,
+        "step": step,
+        "provider": provider,
+        "pii_redaction": pii_redaction,
+        "region": region,
+        "success": success,
+    }
+    if error_type is not None:
+        entry["error_type"] = error_type
+
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+
+    return log_file
+
+
 def log_correction(
     session_id: str,
     dialect_region: str,

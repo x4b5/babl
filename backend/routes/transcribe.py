@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import tempfile
+import uuid
 
 import mlx_whisper
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -16,6 +17,7 @@ from audio import extract_audio_segment, filter_segments_by_offset, get_audio_du
 from config import MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
 from dialects import get_dialect_config
 from hallucination import process_transcription
+from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
@@ -66,6 +68,8 @@ async def transcribe(
             status_code=413,
             detail=f"File too large ({size_mb:.0f} MB). Maximum is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
         )
+
+    session_id = str(uuid.uuid4())
 
     async def generate():
         loop = asyncio.get_event_loop()
@@ -137,9 +141,28 @@ async def transcribe(
                             os.unlink(chunk_path)
 
                 logger.info("Transcription length: %d words", word_count)
+                log_processing_event(
+                    session_id=session_id,
+                    mode="local",
+                    step="transcribe",
+                    provider="whisper",
+                    pii_redaction=False,
+                    region=region,
+                    success=True,
+                )
                 loop.call_soon_threadsafe(queue.put_nowait, f"data: {json.dumps({'type': 'done'})}\n\n")
             except Exception as e:
                 logger.exception("Transcription worker error")
+                log_processing_event(
+                    session_id=session_id,
+                    mode="local",
+                    step="transcribe",
+                    provider="whisper",
+                    pii_redaction=False,
+                    region=region,
+                    success=False,
+                    error_type=type(e).__name__,
+                )
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",

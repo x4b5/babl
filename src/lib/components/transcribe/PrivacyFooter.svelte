@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { deleteAllLocalData, exportLocalData } from '$lib/utils/data-management';
 	import { resetConsent } from '$lib/stores/consent.svelte';
+	import { revokeApiConsent } from '$lib/stores/api-consent.svelte';
 
 	const version = __APP_VERSION__;
 	const buildDate = __APP_BUILD_DATE__;
@@ -86,6 +87,12 @@
 					class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/10 hover:text-white/60"
 				>
 					Cookies
+				</button>
+				<button
+					onclick={() => revokeApiConsent()}
+					class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/10 hover:text-white/60"
+				>
+					API consent
 				</button>
 			</div>
 		{/if}

@@ -19,6 +19,7 @@
 	import PolishedResultCard from '$lib/components/transcribe/PolishedResultCard.svelte';
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 	import SetupWizard from '$lib/components/transcribe/SetupWizard.svelte';
+	import ApiConsentModal from '$lib/components/transcribe/ApiConsentModal.svelte';
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
@@ -39,6 +40,9 @@
 		requestMicPermission,
 		acquireMicrophone
 	} from '$lib/services/recording';
+
+	// API Consent
+	import { getApiConsentState, loadApiConsent } from '$lib/stores/api-consent.svelte';
 
 	// Store
 	import {
@@ -63,6 +67,27 @@
 	} from '$lib/stores/transcribe.svelte';
 
 	const s = getTranscribeState();
+	const apiConsent = getApiConsentState();
+
+	// ── API Consent modal ────────────────────────────────────────
+	let showApiConsentModal = $state(false);
+	let pendingAction: (() => void) | null = $state(null);
+
+	function needsApiConsent(): boolean {
+		return s.transcribeMode === 'api' && !apiConsent.isGranted;
+	}
+
+	function handleApiConsentGranted() {
+		showApiConsentModal = false;
+		const action = pendingAction;
+		pendingAction = null;
+		action?.();
+	}
+
+	function handleApiConsentDenied() {
+		showApiConsentModal = false;
+		pendingAction = null;
+	}
 
 	// ── Infrastructure refs ───────────────────────────────────────
 	let mediaRecorder: MediaRecorder | undefined;
@@ -215,6 +240,7 @@
 	$effect(() => {
 		checkBackendHealth();
 		pruneRecordings(5).catch(() => {});
+		loadApiConsent();
 	});
 
 	// ── Auto-polish: start polishing automatically after transcription ──
@@ -332,6 +358,11 @@
 		if (s.status === 'recording') {
 			stopRecording();
 		} else if (s.status === 'idle') {
+			if (needsApiConsent()) {
+				pendingAction = () => startRecording();
+				showApiConsentModal = true;
+				return;
+			}
 			startRecording();
 		} else if (s.status === 'preparing') {
 			setStatus('idle');
@@ -340,6 +371,14 @@
 	}
 
 	function onFileUpload(e: Event) {
+		if (needsApiConsent()) {
+			pendingAction = () => {
+				shouldAutoPolish = true;
+				handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
+			};
+			showApiConsentModal = true;
+			return;
+		}
 		shouldAutoPolish = true;
 		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
@@ -470,6 +509,12 @@
 
 		<PrivacyFooter />
 	</div>
+
+	<ApiConsentModal
+		visible={showApiConsentModal}
+		onConsent={handleApiConsentGranted}
+		onDeny={handleApiConsentDenied}
+	/>
 
 	<SetupWizard onClose={() => checkBackendHealth()} />
 </div>

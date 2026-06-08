@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import tempfile
+import uuid
 
 import mlx_whisper
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -16,6 +17,7 @@ from audio import extract_audio_segment
 from config import ASSEMBLYAI_API_KEY, MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
 from dialects import get_dialect_config
 from hallucination import process_transcription
+from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
@@ -56,6 +58,9 @@ async def transcribe_api(
             status_code=413,
             detail=f"File too large ({size_mb:.0f} MB). Maximum is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
         )
+
+    session_id = str(uuid.uuid4())
+    is_hybrid = lang == "li"
 
     async def generate():
         loop = asyncio.get_event_loop()
@@ -185,12 +190,31 @@ async def transcribe_api(
                                 f"data: {json.dumps({'type': 'segment', 'text': text})}\n\n",
                             )
 
+                log_processing_event(
+                    session_id=session_id,
+                    mode="hybrid" if is_hybrid else "api",
+                    step="transcribe",
+                    provider="assemblyai" + ("+whisper" if is_hybrid else ""),
+                    pii_redaction=True,
+                    region=region,
+                    success=True,
+                )
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'done'})}\n\n",
                 )
             except Exception as e:
                 logger.exception("AssemblyAI worker error: %s", e)
+                log_processing_event(
+                    session_id=session_id,
+                    mode="hybrid" if is_hybrid else "api",
+                    step="transcribe",
+                    provider="assemblyai",
+                    pii_redaction=True,
+                    region=region,
+                    success=False,
+                    error_type=type(e).__name__,
+                )
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
                     f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",

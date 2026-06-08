@@ -120,6 +120,36 @@
 						</ul>
 					</div>
 				</div>
+
+				<!-- Hybrid mode uitleg -->
+				<div class="mt-4 rounded-xl border border-purple-500/15 bg-purple-500/5 p-4">
+					<h3 class="mb-2 text-sm font-semibold text-purple-400/80">
+						Limburgse dialecten (hybride verwerking)
+					</h3>
+					<p class="mb-2 text-sm text-white/60">
+						Bij Limburgse dialecten combineert BABL twee systemen voor de beste resultaten:
+					</p>
+					<ul class="space-y-1.5 text-sm text-white/60">
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-purple-400/50"></span>
+							AssemblyAI analyseert audio voor sprekertiming en PII-redactie (Dublin)
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-purple-400/50"></span>
+							De daadwerkelijke transcriptie gebeurt lokaal via Whisper met dialectconfiguratie
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-purple-400/50"></span>
+							Audio-segmenten worden tijdelijk geextraheerd en lokaal verwerkt
+						</li>
+						<li class="flex items-start gap-2">
+							<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-purple-400/50"></span>
+							<span class="font-medium text-purple-400/60">
+								Combinatie van API-privacy (PII-redactie) en lokale nauwkeurigheid (dialect)
+							</span>
+						</li>
+					</ul>
+				</div>
 			</section>
 
 			<!-- 4. Analytics -->

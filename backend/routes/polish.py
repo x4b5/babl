@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import random
+import uuid
 from datetime import datetime, timezone
 
 import httpx
@@ -33,6 +34,7 @@ from polishing import (
 )
 from dialects import get_dialect_config
 from models import PolishingRequest
+from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
@@ -252,6 +254,8 @@ def split_into_chunks(text: str, max_words: int = 400, overlap_words: int = 75) 
 @router.post("/polish")
 async def polish(req: PolishingRequest):
     """Step 2: Dialect polishing via Ollama (local) or Mistral (API) -- streams tokens as SSE."""
+    session_id = str(uuid.uuid4())
+
     if not req.text:
         return {"polished": ""}
 
@@ -415,9 +419,28 @@ async def polish(req: PolishingRequest):
                             validated = parse_polishing_output(accumulated, chunk)
                             yield f"data: {json.dumps({'type': 'token', 'text': validated.polished})}\n\n"
 
+            log_processing_event(
+                session_id=session_id,
+                mode=req.mode,
+                step="polish",
+                provider="mistral" if req.mode == "api" else "ollama",
+                pii_redaction=False,
+                region=req.region,
+                success=True,
+            )
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
             logger.exception("Polishing streaming failed")
+            log_processing_event(
+                session_id=session_id,
+                mode=req.mode,
+                step="polish",
+                provider="mistral" if req.mode == "api" else "ollama",
+                pii_redaction=False,
+                region=req.region,
+                success=False,
+                error_type=type(e).__name__,
+            )
             error_str = str(e)
 
             # Classify error type per EH-01 taxonomy
