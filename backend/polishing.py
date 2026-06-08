@@ -108,15 +108,15 @@ SPEAKER_INSTRUCTION_SAMENVATTING = (
     "\n\nMEERDERE SPREKERS:\n"
     "De transcriptie bevat meerdere sprekers. Behoud de spreker-attributie:\n"
     "- Geef per spreker aan wat zij zeiden.\n"
-    "- Gebruik de sprekerlabels uit de transcriptie.\n"
-    "- Formaat: begin elk sprekergedeelte met het label gevolgd door een dubbele punt.\n"
+    '- Vervang "Spreker A", "Spreker B" etc. door de aangepaste namen uit de SPREKERLABELS hieronder.\n'
+    "- Formaat: begin elk sprekergedeelte met de naam gevolgd door een dubbele punt.\n"
 )
 
 SPEAKER_INSTRUCTION_VERSLAGLEGGING = (
     "\n\nMEERDERE SPREKERS:\n"
     "De transcriptie bevat meerdere sprekers. Structureer het verslag als volgt:\n"
     "- Beschrijf per spreker wat hij/zij zegt, in de derde persoon.\n"
-    "- Gebruik de sprekerlabels (of aangepaste namen) uit de transcriptie.\n"
+    '- Vervang "Spreker A", "Spreker B" etc. door de aangepaste namen uit de SPREKERLABELS hieronder.\n'
     "- Volg de chronologische volgorde van het gesprek.\n"
 )
 
@@ -140,7 +140,7 @@ def build_speaker_context(speaker_labels: dict[str, str] | None) -> str:
         return ""
 
     lines = [f"Spreker {k} = {v}" for k, v in sorted(active.items())]
-    return "\nSPREKERLABELS:\n" + "\n".join(lines) + "\n"
+    return '\nSPREKERLABELS (gebruik ALTIJD deze namen in het verslag, NIET "Spreker A/B/C"):\n' + "\n".join(lines) + "\n"
 
 
 def _format_few_shot_examples(examples: list[dict]) -> str:

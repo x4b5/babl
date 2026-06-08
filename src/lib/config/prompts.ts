@@ -51,14 +51,14 @@ const SPEAKER_INSTRUCTION_SAMENVATTING =
 	'\n\nMEERDERE SPREKERS:\n' +
 	'De transcriptie bevat meerdere sprekers. Behoud de spreker-attributie:\n' +
 	'- Geef per spreker aan wat zij zeiden.\n' +
-	'- Gebruik de sprekerlabels uit de transcriptie.\n' +
-	'- Formaat: begin elk sprekergedeelte met het label gevolgd door een dubbele punt.\n';
+	'- Vervang "Spreker A", "Spreker B" etc. door de aangepaste namen uit de SPREKERLABELS hieronder.\n' +
+	'- Formaat: begin elk sprekergedeelte met de naam gevolgd door een dubbele punt.\n';
 
 const SPEAKER_INSTRUCTION_VERSLAGLEGGING =
 	'\n\nMEERDERE SPREKERS:\n' +
 	'De transcriptie bevat meerdere sprekers. Structureer het verslag als volgt:\n' +
 	'- Beschrijf per spreker wat hij/zij zegt, in de derde persoon.\n' +
-	'- Gebruik de sprekerlabels (of aangepaste namen) uit de transcriptie.\n' +
+	'- Vervang "Spreker A", "Spreker B" etc. door de aangepaste namen uit de SPREKERLABELS hieronder.\n' +
 	'- Volg de chronologische volgorde van het gesprek.\n';
 
 /** Build speaker context string for the system prompt. */
@@ -68,7 +68,11 @@ export function buildSpeakerContext(speakerLabels: Record<string, string>): stri
 	const lines = active
 		.sort(([a], [b]) => a.localeCompare(b))
 		.map(([k, v]) => `Spreker ${k} = ${v}`);
-	return '\nSPREKERLABELS:\n' + lines.join('\n') + '\n';
+	return (
+		'\nSPREKERLABELS (gebruik ALTIJD deze namen in het verslag, NIET "Spreker A/B/C"):\n' +
+		lines.join('\n') +
+		'\n'
+	);
 }
 
 /** Get system prompt with optional speaker instructions. */
