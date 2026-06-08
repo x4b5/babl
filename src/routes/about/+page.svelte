@@ -1910,7 +1910,7 @@
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
-			<div class="flex items-center justify-center gap-4 text-sm text-white/30">
+			<div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/30">
 				<a href="/privacy" class="hover:text-white/60 transition-colors">Privacy</a>
 				<span class="text-white/10">|</span>
 				<a href="/cookies" class="hover:text-white/60 transition-colors">Cookies</a>
@@ -1920,6 +1920,8 @@
 				<a href="/begrippen" class="hover:text-white/60 transition-colors">Begrippen</a>
 				<span class="text-white/10">|</span>
 				<a href="/faq" class="hover:text-white/60 transition-colors">FAQ</a>
+				<span class="text-white/10">|</span>
+				<a href="/tech-talk" class="hover:text-white/60 transition-colors">Tech Talk</a>
 			</div>
 		</footer>
 	</div>

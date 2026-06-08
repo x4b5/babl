@@ -247,7 +247,7 @@
 		</div>
 
 		<footer class="mt-10 text-center animate-fade-in">
-			<div class="flex items-center justify-center gap-4 text-sm text-white/50">
+			<div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/50">
 				<a href="/" class="inline-flex items-center gap-2 hover:text-white/70 transition-colors">
 					<svg
 						class="h-4 w-4"
