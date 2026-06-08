@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Status, Mode, AiMetadata } from '$lib/stores/transcribe.svelte';
 	import { copyText } from '$lib/stores/transcribe.svelte';
+	import { downloadTxt, downloadDocx, downloadPdf } from '$lib/utils/download-report';
 
 	interface Props {
 		polished: string;
@@ -132,5 +133,29 @@
 		>
 			{expanded ? 'Inklappen' : 'Lees meer...'}
 		</button>
+
+		{#if status !== 'polishing'}
+			<div class="mt-4 flex items-center justify-center gap-2 border-t border-white/5 pt-3">
+				<span class="text-xs text-white/30 mr-1">Download:</span>
+				<button
+					onclick={() => downloadDocx(polished)}
+					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+				>
+					Word
+				</button>
+				<button
+					onclick={() => downloadPdf(polished)}
+					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+				>
+					PDF
+				</button>
+				<button
+					onclick={() => downloadTxt(polished)}
+					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+				>
+					Tekst
+				</button>
+			</div>
+		{/if}
 	</div>
 {/if}

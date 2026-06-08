@@ -337,3 +337,4 @@
 | 2026-06-08 | 21:41     | 21:45    | .07         | `8edc6bc`   | feat: datalekregistratie endpoints (AVG art. 33)                                                                                |
 | 2026-06-08 | 21:45     | 21:47    | .02         | `216b490`   | fix: sprekerlabels worden nu daadwerkelijk gebruikt in verslag                                                                  |
 | 2026-06-08 | 21:47     | 21:49    | .02         | `b418e23`   | docs: verwerkingsregister (AVG art. 30)                                                                                         |
+| 2026-06-08 | 21:49     | 21:51    | .03         | `849cf84`   | chore: logbook bijwerken                                                                                                        |
