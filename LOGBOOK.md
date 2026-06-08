@@ -347,3 +347,5 @@
 | 2026-06-08 | 22:09     | 22:10    | .01         | `7bb5b75`   | docs: uitleg waarom korte opnames onbetrouwbaar zijn                                                                            |
 | 2026-06-08 | 22:10     | 22:12    | .02         | `f8e4522`   | chore: logbook bijwerken                                                                                                        |
 | 2026-06-08 | 22:12     | 22:18    | .10         | `555ee87`   | feat: dark/light mode theming met systeem-voorkeur                                                                              |
+| 2026-06-08 | 22:18     | 22:18    | 0           | `14573ec`   | feat: optioneel onderwerp-veld voor meer context bij polijsten                                                                  |
+| 2026-06-08 | 22:18     | 22:23    | .08         | `c1c42c4`   | fix: light mode contrast verbeterd — donkerdere tekst, amber/geel en opnameknop                                                 |
