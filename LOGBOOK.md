@@ -331,3 +331,4 @@
 | 2026-06-08 | 21:20     | 21:21    | .01         | `5854b64`   | feat: opname pauze/hervat en AI-gegenereerd labels                                                                              |
 | 2026-06-08 | 21:21     | 21:29    | .13         | `6077446`   | feat: AI-metadata in polish SSE-stream en verslaglegging-modus                                                                  |
 | 2026-06-08 | 21:29     | 21:29    | 0           | `13b3241`   | chore: about-pagina tekst aanpassen aan verslaglegging-modus                                                                    |
+| 2026-06-08 | 21:29     | 21:37    | .12         | `06e6211`   | feat: audit query en sessie-verwijder endpoints (AVG art. 17, 33-34)                                                            |
