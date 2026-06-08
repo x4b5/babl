@@ -2,14 +2,17 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { loadConsent, getConsentState } from '$lib/stores/consent.svelte';
+	import { getThemeState } from '$lib/stores/theme.svelte';
 	import CookieConsent from '$lib/components/CookieConsent.svelte';
 
 	let { children } = $props();
 
 	const consent = getConsentState();
+	const theme = getThemeState();
 
 	onMount(() => {
 		loadConsent();
+		theme.loadTheme();
 	});
 
 	$effect(() => {

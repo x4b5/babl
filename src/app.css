@@ -633,3 +633,145 @@ body {
 .animate-spin-slow {
 	animation: spin-slow 3s linear infinite;
 }
+
+/* ============================================
+   LIGHT MODE OVERRIDES
+   ============================================ */
+
+/* Core Tailwind override: --color-white becomes the foreground color in light mode.
+   All text-white/XX utilities automatically pick up this value. */
+html.light {
+	--color-white: #1e293b;
+}
+
+/* Body */
+html.light body {
+	background: #e8ede9;
+	color: #1e293b;
+}
+
+/* Neon accent — slightly darker for contrast on light backgrounds */
+html.light {
+	--color-neon: #059669;
+}
+
+/* Background gradient */
+html.light .bg-dark-gradient {
+	background: linear-gradient(
+		135deg,
+		#e8ede9 0%,
+		#dce5de 25%,
+		#e8ede9 50%,
+		#e0e8e2 75%,
+		#e8ede9 100%
+	);
+}
+
+html.light .bg-dark-gradient::after {
+	opacity: 0.02;
+}
+
+/* Floating orbs — much subtler in light mode */
+html.light .orb-violet {
+	background: rgba(139, 92, 246, 0.06);
+}
+
+html.light .orb-indigo {
+	background: rgba(79, 70, 229, 0.05);
+}
+
+html.light .orb-cyan {
+	background: rgba(16, 185, 129, 0.04);
+}
+
+html.light .orb-fuchsia {
+	background: rgba(255, 0, 128, 0.05);
+}
+
+/* Glassmorphism */
+html.light .glass {
+	background: rgba(0, 0, 0, 0.03);
+	border-color: rgba(0, 0, 0, 0.06);
+}
+
+html.light .glass-strong {
+	background: rgba(0, 0, 0, 0.04);
+	border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Gradient border card */
+html.light .gradient-border-card {
+	background: rgba(0, 0, 0, 0.02);
+}
+
+/* Kbd hint */
+html.light .kbd-hint {
+	background: rgba(0, 0, 0, 0.05);
+	border-color: rgba(0, 0, 0, 0.08);
+	color: rgba(0, 0, 0, 0.35);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Glow effects — softer in light mode */
+html.light .glow-violet {
+	box-shadow:
+		0 0 15px rgba(124, 58, 237, 0.15),
+		0 0 40px rgba(124, 58, 237, 0.05);
+}
+
+html.light .glow-red {
+	box-shadow:
+		0 0 15px rgba(239, 68, 68, 0.2),
+		0 0 40px rgba(239, 68, 68, 0.08);
+}
+
+html.light .glow-green {
+	box-shadow: 0 0 10px rgba(34, 197, 94, 0.15);
+}
+
+html.light .animate-pulse-glow {
+	animation: pulse-glow-light 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-light {
+	0%,
+	100% {
+		box-shadow:
+			0 0 15px rgba(239, 68, 68, 0.2),
+			0 0 40px rgba(239, 68, 68, 0.08);
+	}
+	50% {
+		box-shadow:
+			0 0 20px rgba(239, 68, 68, 0.3),
+			0 0 50px rgba(239, 68, 68, 0.12);
+	}
+}
+
+/* Gradient text — darker, more saturated colors for light backgrounds */
+html.light .gradient-text {
+	background: linear-gradient(
+		135deg,
+		#047857 0%,
+		#059669 20%,
+		#a3b518 42%,
+		#c2410c 65%,
+		#b91c1c 85%,
+		#991b1b 100%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	filter: drop-shadow(0 0 12px rgba(4, 120, 87, 0.25)) drop-shadow(0 0 25px rgba(194, 65, 12, 0.15));
+}
+
+/* Shimmer text — darker for light bg */
+html.light .shimmer-text {
+	background: linear-gradient(
+		90deg,
+		rgba(5, 150, 105, 0.6) 0%,
+		rgba(30, 41, 59, 0.9) 50%,
+		rgba(5, 150, 105, 0.6) 100%
+	);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+}

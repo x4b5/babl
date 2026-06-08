@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 </script>
 
 <svelte:head>
@@ -9,6 +10,10 @@
 		rel="stylesheet"
 	/>
 </svelte:head>
+
+<div class="fixed top-4 right-4 z-50">
+	<ThemeToggle />
+</div>
 
 <header class="mb-8 sm:mb-16 text-center animate-fade-in">
 	<h1

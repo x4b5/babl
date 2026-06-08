@@ -1,16 +1,23 @@
+<script lang="ts">
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+</script>
+
 <svelte:head>
 	<title>Over BABL — Privacy, technologie & transparantie</title>
 </svelte:head>
 
-<a
-	href="/"
-	class="fixed top-6 right-6 z-50 glass rounded-full px-4 py-2 text-sm text-white/50 hover:text-white/80 transition-colors inline-flex items-center gap-2"
->
-	<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-		<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-	</svg>
-	Terug
-</a>
+<div class="fixed top-6 right-6 z-50 flex items-center gap-2">
+	<ThemeToggle />
+	<a
+		href="/"
+		class="glass rounded-full px-4 py-2 text-sm text-white/50 hover:text-white/80 transition-colors inline-flex items-center gap-2"
+	>
+		<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+			<path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+		</svg>
+		Terug
+	</a>
+</div>
 
 <div class="bg-dark-gradient relative min-h-screen overflow-hidden">
 	<div class="floating-orb orb-violet"></div>
@@ -929,16 +936,12 @@
 										<td class="py-2">~&euro;0,16 per uur audio</td>
 									</tr>
 									<tr class="border-t border-white/5">
-										<td class="py-2 pr-4">Polijsten Light/Medium (Mistral Small)</td>
-										<td class="py-2">&lt;&euro;0,01 per verslag</td>
-									</tr>
-									<tr class="border-t border-white/5">
-										<td class="py-2 pr-4">Polijsten Heavy (Mistral Large)</td>
+										<td class="py-2 pr-4">Polijsten (Mistral Large)</td>
 										<td class="py-2">~&euro;0,05 per verslag</td>
 									</tr>
 									<tr class="border-t border-white/10 font-medium">
 										<td class="py-2 pr-4 text-white/80">Typisch totaal per uur</td>
-										<td class="py-2 text-white/80">~&euro;0,17 – &euro;0,21</td>
+										<td class="py-2 text-white/80">~&euro;0,21</td>
 									</tr>
 								</tbody>
 							</table>
@@ -1088,7 +1091,8 @@
 						<ul class="space-y-1.5 text-xs text-white/40">
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Geen persoonsgegevens worden opgeslagen of verwerkt
+								Persoonsgegevens (stemgeluid, gesproken inhoud) worden alleen tijdelijk verwerkt en niet
+								permanent opgeslagen
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
@@ -1112,7 +1116,7 @@
 						<ul class="space-y-1.5 text-xs text-white/40">
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								Classificatie: minimaal risico (geen verboden toepassing)
+								Classificatie: beperkt risico — geen autonome besluitvorming, geen hoog-risico toepassing
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
@@ -1158,7 +1162,8 @@
 					Waar blijft je data?
 				</h2>
 				<p class="mb-4 text-sm text-white/60">
-					Korte versie: nergens. BABL slaat niets op op een server.
+					BABL slaat niets op op een server. Audio-opnames worden tijdelijk lokaal bewaard in je
+					browser (maximaal 3, daarna wordt de oudste verwijderd).
 				</p>
 				<div class="space-y-3">
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
@@ -1177,9 +1182,9 @@
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
 						<h3 class="text-sm font-medium text-white/70">Na het sluiten</h3>
 						<p class="mt-1 text-xs leading-relaxed text-white/50">
-							Sluit je de browsertab? Dan is alles definitief verdwenen. Audio, transcriptie,
-							gepolijste tekst — niets blijft bewaard. Er is geen account, geen cloud-opslag, geen
-							manier om het terug te halen.
+							Transcripties en gepolijste tekst verdwijnen als je de tab sluit. Audio-opnames
+							blijven bewaard in IndexedDB (maximaal 3) totdat je ze handmatig verwijdert of je
+							browserdata wist. Er is geen account, geen cloud-opslag, geen server-side backup.
 						</p>
 					</div>
 					<div class="rounded-xl border border-white/10 bg-white/5 p-4">
