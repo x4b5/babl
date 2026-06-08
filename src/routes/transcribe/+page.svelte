@@ -6,18 +6,16 @@
 	} from '$lib/utils/cleanup';
 	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
 	import { checkBackendHealth } from '$lib/utils/health-check';
-	import { isMobile } from '$lib/utils/device';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
 	// Components
 	import AppHeader from '$lib/components/transcribe/AppHeader.svelte';
 	import ProcessSteps from '$lib/components/transcribe/ProcessSteps.svelte';
-	import TranscribeModeToggle from '$lib/components/transcribe/TranscribeModeToggle.svelte';
+	import SettingsPanel from '$lib/components/transcribe/SettingsPanel.svelte';
 	import RecordButton from '$lib/components/transcribe/RecordButton.svelte';
 	import ErrorAlert from '$lib/components/transcribe/ErrorAlert.svelte';
 	import RawTranscriptionCard from '$lib/components/transcribe/RawTranscriptionCard.svelte';
-	import PolishingControls from '$lib/components/transcribe/PolishingControls.svelte';
 	import PolishedResultCard from '$lib/components/transcribe/PolishedResultCard.svelte';
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 	import SetupWizard from '$lib/components/transcribe/SetupWizard.svelte';
@@ -82,6 +80,7 @@
 		analyser: undefined,
 		animationFrameId: undefined
 	};
+	let shouldAutoPolish = false;
 	// ── Service callbacks ─────────────────────────────────────────
 
 	const transcriptionCallbacks = {
@@ -143,6 +142,7 @@
 				: rec.mimeType.includes('ogg')
 					? 'ogg'
 					: 'mp4';
+			shouldAutoPolish = true;
 			await sendAudio(rec.blob, `retry.${ext}`, transcriptionRefs, transcriptionCallbacks);
 		} catch {
 			setError('Opnieuw proberen mislukt. Download de opname en upload het bestand handmatig.');
@@ -215,6 +215,14 @@
 	$effect(() => {
 		checkBackendHealth();
 		pruneRecordings(5).catch(() => {});
+	});
+
+	// ── Auto-polish: start polishing automatically after transcription ──
+	$effect(() => {
+		if (shouldAutoPolish && s.raw && s.status === 'idle' && !s.error) {
+			shouldAutoPolish = false;
+			onStartPolishing();
+		}
 	});
 
 	$effect(() => {
@@ -316,6 +324,7 @@
 		if (mediaRecorder && mediaRecorder.state === 'recording') {
 			mediaRecorder.stop();
 			setStatus('processing');
+			shouldAutoPolish = true;
 		}
 	}
 
@@ -331,6 +340,7 @@
 	}
 
 	function onFileUpload(e: Event) {
+		shouldAutoPolish = true;
 		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
 
@@ -356,16 +366,6 @@
 	<div class="mx-auto max-w-3xl px-4 py-6 sm:py-16">
 		<AppHeader />
 
-		<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
-
-		<TranscribeModeToggle
-			transcribeMode={s.transcribeMode}
-			localAvailable={s.localAvailable}
-			assemblyAvailable={s.assemblyAvailable}
-			onTranscribeModeChange={(v) => setTranscribeMode(v)}
-			onOpenSetupWizard={handleOpenSetupWizard}
-		/>
-
 		<RecordButton
 			status={s.status}
 			countdown={s.countdown}
@@ -384,6 +384,25 @@
 			onToggleRecording={toggleRecording}
 			{onFileUpload}
 		/>
+
+		<div class="mb-6 sm:mb-10">
+			<SettingsPanel
+				transcribeMode={s.transcribeMode}
+				polishMode={s.mode}
+				reportLength={s.reportLength}
+				localAvailable={s.localAvailable}
+				assemblyAvailable={s.assemblyAvailable}
+				ollamaAvailable={s.ollamaAvailable}
+				mistralAvailable={s.mistralAvailable}
+				onTranscribeModeChange={(v) => setTranscribeMode(v)}
+				onPolishModeChange={(v) => setMode(v)}
+				onReportLengthChange={(v) => setReportLength(v)}
+				onOpenSetupWizard={handleOpenSetupWizard}
+				onOpenOllamaWizard={handleOpenOllamaWizard}
+			/>
+		</div>
+
+		<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
 
 		{#if s.error}
 			<ErrorAlert
@@ -406,21 +425,6 @@
 					copiedRaw={s.copiedRaw}
 				/>
 
-				{#if s.status !== 'polishing' && s.status !== 'processing'}
-					<PolishingControls
-						mode={s.mode}
-						reportLength={s.reportLength}
-						localAvailable={s.localAvailable}
-						ollamaAvailable={s.ollamaAvailable}
-						mistralAvailable={s.mistralAvailable}
-						estimatedPolishingCost={s.estimatedPolishingCost}
-						onModeChange={(v) => setMode(v)}
-						onReportLengthChange={(v) => setReportLength(v)}
-						onGenerate={onStartPolishing}
-						onOpenSetupWizard={handleOpenOllamaWizard}
-					/>
-				{/if}
-
 				<PolishedResultCard
 					polished={s.polished}
 					status={s.status}
@@ -428,6 +432,15 @@
 					copiedPolished={s.copiedPolished}
 					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
 				/>
+
+				{#if s.raw && !s.polished && s.status === 'idle' && !s.error}
+					<button
+						onclick={onStartPolishing}
+						class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+					>
+						Verslag genereren
+					</button>
+				{/if}
 
 				{#if s.polished}
 					<FeedbackWidget
