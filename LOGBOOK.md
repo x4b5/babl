@@ -358,3 +358,4 @@
 | 2026-06-08 | 22:40     | 22:49    | .14         | `8538db2`   | feat: tech-talk pagina en mobiele footer-fix                                                                                    |
 | 2026-06-08 | 22:49     | 22:55    | .08         | `956e0e7`   | feat: sprekerslabels bewerken, samenvoegen en verwijderen in transcriptie                                                       |
 | 2026-06-08 | 22:55     | 22:55    | 0           | `66d69ba`   | feat: download knoppen (Word, PDF, Tekst) op tech-talk pagina                                                                   |
+| 2026-06-08 | 22:55     | 22:57    | .03         | `51ec5c1`   | chore: logbook bijwerken en tech-talk footer flex-wrap fix                                                                      |

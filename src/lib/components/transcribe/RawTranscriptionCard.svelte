@@ -28,6 +28,11 @@
 		savedRecordingId = null
 	}: Props = $props();
 
+	/** Focus an input element on mount — replaces `autofocus` to avoid a11y warning. */
+	function focusOnMount(node: HTMLInputElement) {
+		node.focus();
+	}
+
 	let downloading = $state(false);
 
 	async function downloadRecording() {
@@ -502,7 +507,7 @@
 								if (e.key === 'Escape') editingSpeaker = null;
 							}}
 							onblur={() => finishRename(speaker)}
-							autofocus
+							use:focusOnMount
 						/>
 					{:else}
 						<button
