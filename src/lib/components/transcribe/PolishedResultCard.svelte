@@ -139,20 +139,89 @@
 				<span class="text-xs text-white/30 mr-1">Download:</span>
 				<button
 					onclick={() => downloadDocx(polished)}
-					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+					class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
 				>
+					<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+						<path d="M6 2h9l5 5v15H6z" fill="#2B579A" opacity="0.9" />
+						<path d="M15 2v5h5" fill="#1E3F6F" opacity="0.7" />
+						<text
+							x="12"
+							y="16"
+							text-anchor="middle"
+							fill="white"
+							font-size="7"
+							font-weight="bold"
+							font-family="sans-serif">W</text
+						>
+					</svg>
 					Word
 				</button>
 				<button
 					onclick={() => downloadPdf(polished)}
-					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+					class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
 				>
+					<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+						<path d="M6 2h9l5 5v15H6z" fill="#D93025" opacity="0.9" />
+						<path d="M15 2v5h5" fill="#A52714" opacity="0.7" />
+						<text
+							x="12"
+							y="16"
+							text-anchor="middle"
+							fill="white"
+							font-size="6"
+							font-weight="bold"
+							font-family="sans-serif">PDF</text
+						>
+					</svg>
 					PDF
 				</button>
 				<button
 					onclick={() => downloadTxt(polished)}
-					class="rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
+					class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 hover:text-white/80 hover:bg-white/5 transition-all duration-200"
 				>
+					<svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+						<path
+							d="M6 2h9l5 5v15H6z"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							opacity="0.6"
+						/>
+						<path
+							d="M15 2v5h5"
+							stroke="currentColor"
+							stroke-width="1.5"
+							opacity="0.4"
+							fill="none"
+						/>
+						<line
+							x1="9"
+							y1="10"
+							x2="17"
+							y2="10"
+							stroke="currentColor"
+							stroke-width="1"
+							opacity="0.5"
+						/>
+						<line
+							x1="9"
+							y1="13"
+							x2="17"
+							y2="13"
+							stroke="currentColor"
+							stroke-width="1"
+							opacity="0.5"
+						/>
+						<line
+							x1="9"
+							y1="16"
+							x2="14"
+							y2="16"
+							stroke="currentColor"
+							stroke-width="1"
+							opacity="0.5"
+						/>
+					</svg>
 					Tekst
 				</button>
 			</div>

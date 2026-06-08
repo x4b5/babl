@@ -363,3 +363,5 @@
 | 2026-06-08 | 22:57     | 22:58    | .01         | `0ffe611`   | test: SSE reader en error types test coverage (71 → 87 tests)                                                                   |
 | 2026-06-08 | 22:58     | 23:01    | .06         | `0d1b16f`   | fix: light mode contrast voor lage-opacity tekst (text-white/30, /35, /45)                                                      |
 | 2026-06-08 | 23:01     | 23:02    | .01         | `dddc9dd`   | feat: WhatsApp deelknop voor transcriptietekst                                                                                  |
+| 2026-06-08 | 23:02     | 23:03    | 0           | `134ff7e`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 23:03     | 23:03    | 0           | `cd9cd82`   | perf: lazy-load jsPDF en docx — initiële bundle 844KB lichter                                                                   |
