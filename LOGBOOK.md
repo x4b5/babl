@@ -349,3 +349,6 @@
 | 2026-06-08 | 22:12     | 22:18    | .10         | `555ee87`   | feat: dark/light mode theming met systeem-voorkeur                                                                              |
 | 2026-06-08 | 22:18     | 22:18    | 0           | `14573ec`   | feat: optioneel onderwerp-veld voor meer context bij polijsten                                                                  |
 | 2026-06-08 | 22:18     | 22:23    | .08         | `c1c42c4`   | fix: light mode contrast verbeterd — donkerdere tekst, amber/geel en opnameknop                                                 |
+| 2026-06-08 | 22:23     | 22:23    | 0           | `8ef04f3`   | chore: logbook en light mode styling verbeteringen                                                                              |
+| 2026-06-08 | 22:23     | 22:30    | .11         | `f71446a`   | fix: light mode glasskaders meer kleur, iconen en neon-tekst donkerder                                                          |
+| 2026-06-08 | 22:30     | 22:32    | .03         | `2ffb00f`   | fix: amber achtergrond-override beperkt tot volle klassen, subtiele tints behouden                                              |

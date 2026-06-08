@@ -837,8 +837,15 @@
 									<span class="text-neon/60">+</span> Werkt op elk apparaat
 								</li>
 								<li class="flex items-start gap-2">
-									<span class="text-neon/60">+</span> Ingebouwde PII-redactie: namen, telefoonnummers
-									en medische gegevens worden automatisch verwijderd uit de transcriptie
+									<span class="text-neon/60">+</span> Ingebouwde
+									<a
+										href="https://www.assemblyai.com/docs/speech-to-text/pii-redaction"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-neon/60 underline decoration-neon/20 underline-offset-2 hover:text-neon transition-colors"
+										>PII-redactie</a
+									>: namen, telefoonnummers en medische gegevens worden automatisch verwijderd uit
+									de transcriptie
 								</li>
 							</ul>
 						</div>
@@ -882,7 +889,20 @@
 								</li>
 								<li class="flex items-start gap-2">
 									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-									Verwerkersovereenkomsten van toepassing
+									Verwerkersovereenkomsten van toepassing (<a
+										href="https://www.assemblyai.com/legal/data-processing-addendum"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+										>AssemblyAI</a
+									>,
+									<a
+										href="https://mistral.ai/terms/#data-processing-agreement"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+										>Mistral</a
+									>)
 								</li>
 								<li class="flex items-start gap-2">
 									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
@@ -932,11 +952,27 @@
 								</thead>
 								<tbody class="text-white/60">
 									<tr class="border-t border-white/5">
-										<td class="py-2 pr-4">Transcriptie (AssemblyAI)</td>
+										<td class="py-2 pr-4"
+											><a
+												href="https://www.assemblyai.com/pricing"
+												target="_blank"
+												rel="noopener noreferrer"
+												class="underline decoration-white/20 underline-offset-2 hover:text-white/80 transition-colors"
+												>Transcriptie (AssemblyAI)</a
+											></td
+										>
 										<td class="py-2">~&euro;0,16 per uur audio</td>
 									</tr>
 									<tr class="border-t border-white/5">
-										<td class="py-2 pr-4">Polijsten (Mistral Large)</td>
+										<td class="py-2 pr-4"
+											><a
+												href="https://mistral.ai/products/pricing"
+												target="_blank"
+												rel="noopener noreferrer"
+												class="underline decoration-white/20 underline-offset-2 hover:text-white/80 transition-colors"
+												>Polijsten (Mistral Large)</a
+											></td
+										>
 										<td class="py-2">~&euro;0,05 per verslag</td>
 									</tr>
 									<tr class="border-t border-white/10 font-medium">
@@ -1096,11 +1132,20 @@
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Audio wordt na verwerking verwijderd door de dienstverlener (zie AssemblyAI DPA)
+								Audio wordt na verwerking verwijderd door de dienstverlener (<a
+									href="https://www.assemblyai.com/legal/data-processing-addendum"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-neon/60 underline decoration-neon/20 underline-offset-2 hover:text-neon transition-colors"
+									>AssemblyAI DPA</a
+								>)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
-								Geen gebruikersprofielen of tracking
+								Geen gebruikersprofielen of tracking (analytics via PostHog met
+								<code class="text-[10px] bg-white/5 px-1 py-0.5 rounded"
+									>person_profiles:&nbsp;'never'</code
+								>)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neon/50"></span>
@@ -1117,10 +1162,23 @@
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
 								Classificatie: beperkt risico — geen autonome besluitvorming, geen hoog-risico toepassing
+								(<a
+									href="https://eur-lex.europa.eu/legal-content/NL/TXT/?uri=CELEX:32024R1689"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+									>Art.&nbsp;6 &amp; Bijlage&nbsp;III</a
+								>)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
-								Transparantie: AI-gegenereerde output is duidelijk gelabeld
+								Transparantie: AI-gegenereerde output is duidelijk gelabeld (<a
+									href="https://eur-lex.europa.eu/legal-content/NL/TXT/?uri=CELEX:32024R1689"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+									>Art.&nbsp;50</a
+								>)
 							</li>
 							<li class="flex items-start gap-2">
 								<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
@@ -1192,8 +1250,14 @@
 						<p class="mt-1 text-xs leading-relaxed text-white/50">
 							<span class="text-neon/70">Lokale modus:</span> data verlaat je computer niet. Alles
 							wordt verwerkt door programma's die op jouw machine draaien.<br />
-							<span class="text-indigo-400/70">API-modus:</span> audio wordt naar EU-servers gestuurd
-							voor verwerking en direct daarna verwijderd door de aanbieder. Er wordt niets bewaard.
+							<span class="text-indigo-400/70">API-modus:</span> audio wordt naar EU-servers
+							gestuurd voor verwerking en direct daarna verwijderd door de aanbieder (<a
+								href="https://www.assemblyai.com/legal/data-processing-addendum"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="text-indigo-400/60 underline decoration-indigo-400/20 underline-offset-2 hover:text-indigo-400 transition-colors"
+								>DPA</a
+							>). Er wordt niets bewaard.
 						</p>
 					</div>
 
@@ -1454,8 +1518,9 @@
 							>
 						</h3>
 						<p class="mt-1 text-xs text-white/40">
-							Europees AI-bedrijf gevestigd in Parijs. Alle servers staan in de EU. Wordt gebruikt
-							in API-modus voor het polijsten en opmaken van dialect.
+							Europees AI-bedrijf gevestigd in Parijs met SOC 2 Type II en ISO 27001 certificering.
+							Alle servers staan in de EU. Wordt gebruikt in API-modus voor het polijsten en opmaken
+							van dialect.
 						</p>
 						<p class="mt-1.5 text-xs text-white/30">
 							<a
@@ -1464,6 +1529,14 @@
 								rel="noopener noreferrer"
 								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
 								>Privacy & Trust</a
+							>
+							·
+							<a
+								href="https://mistral.ai/terms/#data-processing-agreement"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline decoration-white/20 hover:decoration-white/40 transition-colors"
+								>DPA</a
 							>
 						</p>
 					</div>
