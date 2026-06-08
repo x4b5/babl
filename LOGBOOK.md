@@ -322,3 +322,6 @@
 | 2026-06-08 | 20:09     | 20:10    | .01         | `7368093`   | feat: interface visueel aantrekkelijker — grotere knop, betere hiërarchie                                                       |
 | 2026-06-08 | 20:10     | 20:10    | 0           | `7bcb9be`   | fix: geüploade .webm bestanden kunnen nu getranscribeerd worden                                                                 |
 | 2026-06-08 | 20:10     | 20:38    | .46         | `f203c54`   | feat: sprekerherkenning (diarization) — backend + frontend integratie                                                           |
+| 2026-06-08 | 20:38     | 20:41    | .04         | `f9feace`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 20:41     | 20:46    | .08         | `78597a2`   | feat: audio download knop in ruwe transcriptiekaart                                                                             |
+| 2026-06-08 | 20:46     | 20:50    | .06         | `b1c3148`   | feat: lage-zekerheid woorden pagineren en context tonen                                                                         |
