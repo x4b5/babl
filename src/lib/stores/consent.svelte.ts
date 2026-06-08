@@ -7,7 +7,7 @@
 
 // ── Types ────────────────────────────────────────────────────
 
-export type ConsentStatus = 'pending' | 'granted' | 'denied';
+type ConsentStatus = 'pending' | 'granted' | 'denied';
 
 const STORAGE_KEY = 'babl_consent';
 

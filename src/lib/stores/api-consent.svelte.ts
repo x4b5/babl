@@ -10,7 +10,7 @@
 
 // ── Types ────────────────────────────────────────────────────
 
-export type ApiConsentStatus = 'pending' | 'granted' | 'denied';
+type ApiConsentStatus = 'pending' | 'granted' | 'denied';
 
 const STORAGE_KEY = 'babl_api_consent';
 const TIMESTAMP_KEY = 'babl_api_consent_ts';

@@ -7,13 +7,13 @@ import { LOCAL_BACKEND_URL, setModelFamily, setMode } from '$lib/stores/transcri
 
 // ── Types ────────────────────────────────────────────────────
 
-export interface ModelConfig {
+interface ModelConfig {
 	ollama: Record<string, string>; // quality level -> model name
 	mistral: Record<string, string>;
 	whisper: string;
 }
 
-export interface SetupStatus {
+interface SetupStatus {
 	backendRunning: boolean;
 	ollamaRunning: boolean;
 	ollamaModels: Record<string, boolean>;
@@ -242,10 +242,6 @@ export function closeWizard(): void {
 
 export function setStep(step: number): void {
 	currentStep = step;
-}
-
-export function setSelectedModel(model: string): void {
-	selectedModel = model;
 }
 
 export function setSelectedFamily(family: string): void {

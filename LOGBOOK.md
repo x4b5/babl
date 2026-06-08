@@ -365,3 +365,4 @@
 | 2026-06-08 | 23:01     | 23:02    | .01         | `dddc9dd`   | feat: WhatsApp deelknop voor transcriptietekst                                                                                  |
 | 2026-06-08 | 23:02     | 23:03    | 0           | `134ff7e`   | chore: logbook bijwerken                                                                                                        |
 | 2026-06-08 | 23:03     | 23:03    | 0           | `cd9cd82`   | perf: lazy-load jsPDF en docx — initiële bundle 844KB lichter                                                                   |
+| 2026-06-08 | 23:03     | 23:08    | .07         | `2b47e18`   | refactor: download-iconen naar verslaglegging en opruimen ongebruikte componenten                                               |

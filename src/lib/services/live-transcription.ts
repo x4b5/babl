@@ -16,7 +16,7 @@ import {
 	getTranscribeState
 } from '$lib/stores/transcribe.svelte';
 
-export interface LiveTranscriptionRefs {
+interface LiveTranscriptionRefs {
 	readonly chunks: Blob[];
 	readonly mediaRecorder: MediaRecorder | undefined;
 }
@@ -78,7 +78,7 @@ async function sendLiveChunk(
 	}
 }
 
-export function startLiveTranscription(
+function startLiveTranscription(
 	refs: LiveTranscriptionRefs,
 	callbacks: LiveTranscriptionCallbacks
 ): void {

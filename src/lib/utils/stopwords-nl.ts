@@ -2,7 +2,7 @@
  * Nederlandse stopwoorden — functionele woorden zonder inhoudelijke betekenis.
  * Gebruikt om onbelangrijke woorden te filteren uit confidence-resultaten.
  */
-export const STOPWORDS_NL = new Set([
+const STOPWORDS_NL = new Set([
 	// Lidwoorden
 	'de',
 	'het',

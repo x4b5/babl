@@ -52,8 +52,3 @@ export function recordUsage(type: 'transcription' | 'polishing'): void {
 		counter.polishing += 1;
 	}
 }
-
-export function getUsage(): { date: string; transcriptions: number; polishing: number } {
-	ensureCurrentDay();
-	return { ...counter };
-}
