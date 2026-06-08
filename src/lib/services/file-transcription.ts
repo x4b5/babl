@@ -19,6 +19,13 @@ import {
 } from '$lib/stores/transcribe.svelte';
 import type { TranscriptionCallbacks } from './transcription';
 
+/** Check if a blob is WebM — covers audio/webm, video/webm, and empty type with .webm name. */
+function isWebm(blob: Blob): boolean {
+	if (blob.type.includes('webm')) return true;
+	if (blob instanceof File && blob.name.endsWith('.webm')) return true;
+	return false;
+}
+
 /** Max Vercel body size. */
 const MAX_VERCEL_BODY_BYTES = 4 * 1024 * 1024;
 
@@ -35,7 +42,7 @@ const MAX_WAV_CONVERT_BYTES = 20 * 1024 * 1024;
  */
 async function splitAudioBlob(blob: Blob, maxSize: number): Promise<Blob[]> {
 	if (blob.size <= maxSize) return [blob];
-	if (!blob.type.includes('webm')) return [blob];
+	if (!isWebm(blob)) return [blob];
 
 	const data = new Uint8Array(await blob.arrayBuffer());
 
@@ -211,13 +218,13 @@ export async function sendAudioApiSegmented(
 
 	setApiStatus('Audio voorbereiden...');
 
-	const segments = file.type.includes('webm')
+	const segments = isWebm(file)
 		? await splitAudioBlob(file, MAX_SEGMENT_BYTES)
 		: await splitAsWavChunks(file, MAX_SEGMENT_BYTES);
 
 	if (segments.length <= 1) {
 		const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-		const isNonWebm = !file.type.includes('webm');
+		const isNonWebm = !isWebm(file);
 		setError(
 			isNonWebm
 				? `Bestand te groot (${sizeMB} MB) voor conversie in deze browser. ` +
