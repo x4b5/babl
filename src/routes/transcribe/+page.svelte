@@ -249,7 +249,7 @@
 
 	$effect(() => {
 		checkBackendHealth();
-		pruneRecordings(5).catch(() => {});
+		pruneRecordings(3).catch(() => {});
 		loadApiConsent();
 	});
 
