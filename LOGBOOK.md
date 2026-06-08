@@ -332,3 +332,5 @@
 | 2026-06-08 | 21:21     | 21:29    | .13         | `6077446`   | feat: AI-metadata in polish SSE-stream en verslaglegging-modus                                                                  |
 | 2026-06-08 | 21:29     | 21:29    | 0           | `13b3241`   | chore: about-pagina tekst aanpassen aan verslaglegging-modus                                                                    |
 | 2026-06-08 | 21:29     | 21:37    | .12         | `06e6211`   | feat: audit query en sessie-verwijder endpoints (AVG art. 17, 33-34)                                                            |
+| 2026-06-08 | 21:37     | 21:37    | 0           | `1ebdb9b`   | chore: logbook bijwerken                                                                                                        |
+| 2026-06-08 | 21:37     | 21:41    | .06         | `7650492`   | feat: samenvatting/verslaglegging toggle blijft zichtbaar na genereren                                                          |

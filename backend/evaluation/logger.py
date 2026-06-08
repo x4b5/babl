@@ -3,6 +3,7 @@ import json
 import os
 import statistics
 import tempfile
+import uuid
 from pathlib import Path
 from datetime import datetime, timezone, date
 
@@ -302,3 +303,70 @@ def delete_session_data(
         )
 
     return deleted
+
+
+def log_breach(
+    severity: str,
+    description: str,
+    affected_data: str,
+    remediation: str,
+    reported_by: str = "system",
+    session_ids: list[str] | None = None,
+    log_dir: Path = DEFAULT_LOG_PATH,
+) -> dict:
+    """Log a data breach or security incident (AVG art. 33).
+
+    Args:
+        severity: critical, high, medium, low
+        description: What happened
+        affected_data: What data was affected (e.g. "audit logs", "transcriptions")
+        remediation: Steps taken or planned to resolve
+        reported_by: Who reported the incident
+        session_ids: Optional list of affected session UUIDs
+
+    Returns the logged entry including generated breach_id.
+    """
+    log_dir.mkdir(parents=True, exist_ok=True)
+    today = date.today().isoformat()
+    log_file = log_dir / f"breaches-{today}.jsonl"
+
+    entry = {
+        "breach_id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "severity": severity,
+        "description": description,
+        "affected_data": affected_data,
+        "remediation": remediation,
+        "reported_by": reported_by,
+        "status": "open",
+    }
+    if session_ids:
+        entry["session_ids"] = session_ids
+
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+    return entry
+
+
+def read_breaches(
+    log_dir: Path = DEFAULT_LOG_PATH,
+    limit: int = 100,
+    severity: str | None = None,
+) -> list[dict]:
+    """Read breach/incident entries, newest first."""
+    if not log_dir.exists():
+        return []
+
+    entries: list[dict] = []
+    for jsonl_file in sorted(log_dir.glob("breaches-*.jsonl"), reverse=True):
+        for line in reversed(jsonl_file.read_text(encoding="utf-8").strip().split("\n")):
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            if severity and entry.get("severity") != severity:
+                continue
+            entries.append(entry)
+            if len(entries) >= limit:
+                return entries
+    return entries
