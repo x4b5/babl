@@ -111,7 +111,7 @@
 	let waveformRefs: WaveformRefs = {
 		audioContext: undefined,
 		analyser: undefined,
-		animationFrameId: undefined
+		animationFrameId: { current: undefined }
 	};
 	let shouldAutoPolish = false;
 	let lastClickTime = 0;
@@ -317,7 +317,7 @@
 			stream,
 			audioContext: waveformRefs.audioContext,
 			analyser: { current: waveformRefs.analyser },
-			animationFrameId: { current: waveformRefs.animationFrameId }
+			animationFrameId: waveformRefs.animationFrameId
 		});
 		cleanupTimers({
 			timerInterval,
@@ -332,7 +332,11 @@
 		polishingController = undefined;
 		liveChunkController = undefined;
 		apiPollController = undefined;
-		waveformRefs = { audioContext: undefined, analyser: undefined, animationFrameId: undefined };
+		waveformRefs = {
+			audioContext: undefined,
+			analyser: undefined,
+			animationFrameId: { current: undefined }
+		};
 		mediaRecorder = undefined;
 	}
 
