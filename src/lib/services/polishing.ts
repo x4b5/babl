@@ -88,6 +88,8 @@ function startCountdown(seconds: number, refs: PolishingRefs, callbacks: Polishi
 			setErrorType('');
 			setRetryCount(s.retryCount + 1);
 			if (s.retryCount + 1 <= MAX_AUTO_RETRIES) {
+				// Verse start: eventuele gedeeltelijke output van de mislukte poging wissen
+				setPolished('');
 				fetchPolishing(s.raw, s.lang, s.quality, refs, callbacks);
 			} else {
 				setError(RATE_LIMIT_EXHAUSTED);
@@ -109,6 +111,8 @@ function stripDisclaimer(text: string): string {
 export function startPolishing(refs: PolishingRefs, callbacks: PolishingCallbacks): void {
 	const s = getTranscribeState();
 	if (!s.raw) return;
+	// Guard: voorkom dubbele requests als er al een polijst-actie loopt
+	if (s.status === 'polishing') return;
 	resetForPolishing();
 	if (refs.countdownInterval) {
 		clearInterval(refs.countdownInterval);
@@ -207,7 +211,8 @@ async function fetchPolishing(
 			}
 		});
 
-		if (!s.polished) setPolished(text);
+		// Fallback naar originele tekst alleen bij een succesvolle (maar lege) stream
+		if (!s.polished && !streamError) setPolished(text);
 		if (s.polished && !streamError) {
 			appendPolished(buildPolishingDisclaimer());
 		}
