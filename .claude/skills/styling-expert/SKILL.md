@@ -115,7 +115,7 @@ Alle animaties worden uitgeschakeld via:
 }
 ```
 
-- Altijd `prefersReducedMotion()` uit `$lib/utils/a11y.ts` checken voor JS-animaties
+- CSS-animaties worden globaal uitgezet via bovenstaande media query in `src/app.css`; voor JS-gedreven animaties: check `window.matchMedia('(prefers-reduced-motion: reduce)')`
 
 ### Accordion patroon
 

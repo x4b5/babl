@@ -14,7 +14,7 @@ globs: '**/*.{ts,tsx,js,jsx,svelte}'
 
 - Use Svelte 5 runes only: `$props()`, `$state()`, `$derived()`, `$effect()`.
 - **Never** use `export let`, `$:`, `$$props`, `$$restProps`, or `createEventDispatcher`.
-- State lives in stores (`game.svelte.ts`, `ui.svelte.ts`), not in components.
+- State lives in stores (`transcribe.svelte.ts` is the single source of truth), not in components.
 
 ## Formatting
 

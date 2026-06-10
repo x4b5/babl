@@ -19,7 +19,7 @@ export function trackMyEvent(param1: string, param2: number): void {
 ### 2. Integreer in store of component
 
 - **App-events** (transcriptie gestart, correctie klaar): integreer in `src/routes/transcribe/+page.svelte`
-- **State-events** (fase-wisselingen): integreer in `src/lib/stores/game.svelte.ts`
+- **State-events** (statuswisselingen): integreer in `src/lib/stores/transcribe.svelte.ts`
 - **UI-events** (klik, toggle, kopieer): integreer in het betreffende component
 - Import altijd vanuit `$lib/utils/analytics.ts`
 

@@ -29,8 +29,8 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 
 ## State & Data
 
-- App-state via `getGameState()` uit `$lib/stores/game.svelte.ts`
-- UI-state (modals etc.) via `$lib/stores/ui.svelte.ts`
+- App-state via `getTranscribeState()` uit `$lib/stores/transcribe.svelte`
+- Overige stores: `api-consent`, `consent`, `setup-wizard`, `theme`
 - Nooit state dupliceren in components
 
 ## Analytics
@@ -88,7 +88,7 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 - Slide up: `class="animate-slide-up"`
 - Pulse glow (recording): `class="animate-pulse-glow"`
 - Spinner: `class="animate-spin-slow"`
-- Altijd `prefersReducedMotion()` checken uit `$lib/utils/a11y.ts`
+- `prefers-reduced-motion` wordt globaal afgehandeld in `src/app.css` (alle animaties/transities uit)
 - Accordion: gebruik `grid-template-rows: 0fr/1fr` patroon (zie privacy section)
 
 ### Status indicators

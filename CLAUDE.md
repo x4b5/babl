@@ -19,13 +19,13 @@ BABL is een privacy-first spraak-naar-tekst tool die Limburgs dialect polijst na
 ## Repo Map
 
 ```
-src/lib/engine/          -> Pure functies, geen side effects
-src/lib/stores/          -> game.svelte.ts = enige bron van waarheid (Svelte 5 runes)
-src/lib/stores/ui.svelte.ts -> UI state (modals etc.)
-src/lib/data/            -> Statische data (beschermd, niet wijzigen zonder opdracht)
-src/lib/components/      -> UI-componenten (Svelte 5, geen eigen state voor game-data)
-src/lib/utils/           -> analytics.ts, a11y.ts, helpers
-src/routes/              -> +layout.svelte (analytics), +page.svelte (template phase router)
+src/lib/stores/          -> transcribe.svelte.ts = enige bron van waarheid (Svelte 5 runes)
+                            verder: api-consent, consent, setup-wizard, theme
+src/lib/services/        -> Logica-laag: recording, transcription, polishing,
+                            live-transcription, realtime-stream, waveform, file-transcription
+src/lib/components/      -> UI-componenten (Svelte 5, presentationeel — geen eigen app-state)
+src/lib/utils/           -> analytics.ts, audio.ts, cleanup.ts, error-classifier.ts, helpers
+src/routes/              -> +layout.svelte (analytics), +page.svelte (redirect naar /transcribe)
 src/routes/transcribe/   -> +page.svelte = HOOFD-APP (opname, transcriptie, polijsten)
 backend/                 -> Python FastAPI server (Whisper + Ollama endpoints)
 backend/main.py          -> /health, /transcribe, /transcribe-live, /polish, /ws/transcribe-stream
@@ -90,10 +90,10 @@ Gebruiker kiest per stap (transcriptie en polijsten) tussen lokaal of API:
 
 ## Werkregels
 
-1. **Single source of truth**: Alle app-state leeft in `game.svelte.ts`. Nooit dupliceren in components.
+1. **Single source of truth**: Alle app-state leeft in `transcribe.svelte.ts`. Nooit dupliceren in components.
 2. **Svelte 5 only**: Gebruik `$props()`, `$state()`, `$derived()`, `$effect()`. Nooit `export let` of `$:`.
-3. **Engine = pure functies**: Engine bestanden hebben geen side effects. Lees altijd alle engine files voor je er een wijzigt.
-4. **Data is heilig**: Data bestanden NIET wijzigen zonder expliciete opdracht.
+3. **Services = logica, components = weergave**: Side effects (fetch, MediaRecorder, timers) horen in `src/lib/services/`, niet in components.
+4. **Utils = puur**: Bestanden in `src/lib/utils/` zijn pure functies zonder side effects (uitzondering: analytics-wrapper).
 5. **Analytics via wrapper**: Altijd via `src/lib/utils/analytics.ts`, nooit direct PostHog. Try/catch verplicht.
 6. **Privacy first**: Geen PII loggen. `person_profiles: 'never'`. Lokale modus = geen data naar buiten. API modus = alleen EU-servers (AssemblyAI Dublin, Mistral EU).
 7. **App flow**: idle → recording → processing → polishing → idle. Geen stappen overslaan.

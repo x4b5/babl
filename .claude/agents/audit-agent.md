@@ -17,7 +17,6 @@ You MAY NOT:
 
 - Edit or write any files (report only)
 - Handle security issues (defer to `security-expert.md`)
-- Read or assess files in `src/lib/data/` (protected data)
 - Modify configuration files
 - Run Bash commands that change state
 
@@ -45,8 +44,8 @@ You MAY NOT:
 
 ### Architecture (MEDIUM)
 
-- [ ] State not duplicated outside stores (`game.svelte.ts`, `ui.svelte.ts`)
-- [ ] Engine files (`src/lib/engine/`) contain only pure functions
+- [ ] State not duplicated outside stores (`transcribe.svelte.ts` is the single source of truth)
+- [ ] Service files (`src/lib/services/`) contain the side effects; utils (`src/lib/utils/`) stay pure
 - [ ] Analytics always via `src/lib/utils/analytics.ts` wrapper
 - [ ] Design tokens from `src/app.css` used (no invented colors/values)
 

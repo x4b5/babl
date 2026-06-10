@@ -1,6 +1,6 @@
 /**
  * Transcribe store — single source of truth for all transcription state.
- * Follows the getter-object pattern from game.svelte.ts.
+ * Getter-object pattern: read via getters, mutate via exported setters.
  */
 
 import type { ErrorType } from '$lib/utils/error-types';

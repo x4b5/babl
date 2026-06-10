@@ -34,17 +34,17 @@ npm run dev        # start dev server op localhost:5173
 ## Conventies
 
 - **Svelte 5 runes only** — gebruik `$state()`, `$derived()`, `$props()`, nooit `export let` of `$:`
-- **Engine = pure functies** — geen side effects in `src/lib/engine/`
-- **Single source of truth** — game state leeft alleen in `src/lib/stores/game.svelte.ts`
+- **Services = side effects, utils = puur** — fetch/opname-logica in `src/lib/services/`, pure helpers in `src/lib/utils/`
+- **Single source of truth** — app state leeft alleen in `src/lib/stores/transcribe.svelte.ts`
 - **Analytics via wrapper** — altijd via `src/lib/utils/analytics.ts`, nooit direct PostHog
 
 ## Projectstructuur
 
 ```
-src/lib/engine/      Pure functies, business logic
-src/lib/stores/      State management (Svelte 5 runes)
-src/lib/data/        Statische data (niet wijzigen zonder opdracht)
-src/lib/components/  UI-componenten
-src/lib/utils/       Analytics, a11y, helpers
-src/routes/          Pagina's en layouts
+src/lib/stores/      State management (Svelte 5 runes, transcribe.svelte.ts = bron van waarheid)
+src/lib/services/    Opname, transcriptie, polijsten (side effects)
+src/lib/components/  UI-componenten (presentationeel)
+src/lib/utils/       Analytics wrapper, pure helpers
+src/routes/          Pagina's, layouts en API routes
+backend/             Python FastAPI (Whisper + Ollama)
 ```

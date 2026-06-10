@@ -1,68 +1,89 @@
-# SvelteKit + Agentic Template
+# BABL
 
-Een herbruikbare template voor SvelteKit 5 applicaties met een agentic-friendly repo-architectuur, ontworpen voor samenwerking met AI coding agents.
+Privacy-first spraak-naar-tekst tool die Limburgs dialect polijst naar standaard Nederlands. Neem audio op via de microfoon (of upload een bestand), krijg een ruwe transcriptie en daarna een gepolijste versie. Verwerking kan volledig lokaal (Whisper + Ollama) of via EU-gehoste API's (AssemblyAI + Mistral) — de gebruiker kiest per stap.
 
 ## Quickstart
 
 ```bash
-# 1. Kopieer deze template
-cp -r sveltekit-agentic-template/ my-new-app/
-cd my-new-app
-
-# 2. Pas de naam aan in package.json
-# 3. Installeer dependencies
-npm install
-
-# 4. Start de dev server
-npm run dev
+nvm use              # juiste Node-versie (v24)
+npm install          # dependencies + husky hooks
+npm run dev          # frontend op localhost:5173
 ```
 
-## Wat zit erin?
+Voor de volledige stack (lokale transcriptie + polijsten):
 
-### Techstack
+```bash
+npm run transcribe   # start Ollama + Python backend + frontend
+```
+
+Backend apart starten:
+
+```bash
+cd backend && source .venv/bin/activate && uvicorn main:app --reload --port 8000
+```
+
+## Techstack
 
 - **SvelteKit 5** + **Svelte 5 runes** (`$state`, `$derived`, `$effect`)
 - **TypeScript strict mode**
-- **Tailwind CSS 4** (via Vite plugin)
-- **PostHog analytics** (EU, privacy-first)
-- **Vercel deployment** (adapter-vercel)
-- **Vitest** voor tests
+- **Tailwind CSS 4** (dark theme, glassmorphism)
+- **Python FastAPI backend** — mlx-whisper (Apple Silicon) + Ollama (Gemma3)
+- **API-modus** — AssemblyAI (EU Dublin) + Mistral AI (EU servers)
+- **PostHog analytics** (EU endpoint, `person_profiles: 'never'`)
+- **Vitest** (frontend) + **pytest** (backend)
+- **Vercel deployment** (alleen frontend)
 
-### Agentic Architectuur
+## Hoe het werkt
+
+```
+idle → recording → processing (transcriptie) → polishing (polijsten) → idle
+```
+
+Twee stappen, elk lokaal of via API:
+
+| Stap         | Lokaal                                | API                                 |
+| ------------ | ------------------------------------- | ----------------------------------- |
+| Transcriptie | mlx-whisper (large-v3, Apple Silicon) | AssemblyAI (Universal-2, EU Dublin) |
+| Polijsten    | Ollama/Gemma3                         | Mistral AI (EU servers)             |
+
+## Source Structuur
+
+```
+src/lib/stores/      → transcribe.svelte.ts = enige bron van waarheid (Svelte 5 runes)
+src/lib/services/    → opname, transcriptie, polijsten, waveform (side effects)
+src/lib/components/  → UI-componenten (presentationeel, state via store)
+src/lib/utils/       → analytics wrapper, helpers (pure functies)
+src/routes/          → +layout.svelte (analytics), / redirect → /transcribe
+src/routes/transcribe/ → hoofd-app (opname, transcriptie, polijsten)
+src/routes/api/      → SvelteKit API routes (AssemblyAI, Mistral)
+backend/             → Python FastAPI (Whisper + Ollama endpoints)
+docs/                → architectuur, ADRs, analytics plan
+```
+
+## Agentic Architectuur
 
 ```
 CLAUDE.md                    → Root kompas: doel, techstack, werkregels
-.claude/skills/              → Task-specifieke instructies per taaktype
-.claude/hooks/README.md      → Pre/post-edit hook configuratie
-.claude/settings.local.json  → Permission allowlist
+.claude/skills/              → Build-instructies per domein
+.claude/agents/              → Geïsoleerde specialisten (security, audit)
+.claude/rules/               → Altijd geladen constraints
+.claude/hooks/               → Pre/post-edit hooks
 src/lib/*/CLAUDE.md          → Laag-specifieke regels per directory
-docs/                        → Architectuur, ADRs, analytics plan
 ```
 
-### Source Structuur
+## Privacy
 
-```
-src/lib/engine/     → Pure functies (geen side effects)
-src/lib/stores/     → Single source of truth (Svelte 5 runes)
-src/lib/data/       → Statische data (beschermd)
-src/lib/components/ → UI-componenten
-src/lib/utils/      → Analytics wrapper, a11y helpers
-src/routes/         → Layout + phase router
-```
-
-## Aanpassen
-
-1. Zoek en vervang `[APP_NAME]` en `[APP_DESCRIPTION]` in alle bestanden
-2. Vul `CLAUDE.md` aan met je projectspecifieke regels
-3. Definieer je fase-flow in `src/lib/stores/game.svelte.ts`
-4. Voeg je PostHog key toe in `.env` (kopieer `.env.example`)
-5. Vul `docs/` aan met je architectuur en analytics plan
+- Lokale modus: geen data verlaat de machine
+- API-modus: alleen EU-servers (AssemblyAI Dublin, Mistral EU)
+- Transcriptie-inhoud wordt nooit gelogd of naar analytics gestuurd
+- GDPR en EU AI Act compliant
 
 ## Commando's
 
 ```bash
-npm run dev          # Development server
+npm run dev          # Frontend dev server
 npm run build        # Production build
 npm run check        # TypeScript check
 npm run test:run     # Vitest tests
+npm run transcribe   # Volledige stack (Ollama + backend + frontend)
 ```

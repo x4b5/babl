@@ -10,11 +10,6 @@ description: Security and privacy guardrails — always active
 - **Never** log, print, or expose secret values in output.
 - If a secret is needed, reference `.env.example` for the key name.
 
-## Protected Data
-
-- **Never** modify files in `src/lib/data/` without explicit user instruction.
-- These files contain static game/app data and are considered sacred.
-
 ## Privacy
 
 - **Never** log or transmit PII (personally identifiable information).
