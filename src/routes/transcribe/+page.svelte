@@ -116,6 +116,9 @@
 	let shouldAutoPolish = false;
 	let lastClickTime = 0;
 	const DOUBLE_CLICK_MS = 400;
+	// Ankerpunten voor auto-scroll naar het resultaat
+	let resultsEl: HTMLDivElement | undefined = $state();
+	let polishedEl: HTMLDivElement | undefined = $state();
 	// ── Service callbacks ─────────────────────────────────────────
 
 	const transcriptionCallbacks = {
@@ -275,6 +278,22 @@
 		if (shouldAutoPolish && s.raw && s.status === 'idle' && !s.error) {
 			shouldAutoPolish = false;
 			onStartPolishing();
+		}
+	});
+
+	// ── Auto-scroll naar het resultaat zodra verwerking klaar is ──
+	let prevStatus = s.status;
+	$effect(() => {
+		const status = s.status;
+		const finishedTranscribing = prevStatus === 'processing' && status === 'idle';
+		const finishedPolishing = prevStatus === 'polishing' && status === 'idle';
+		prevStatus = status;
+		if (s.error) return;
+
+		const target = finishedPolishing ? polishedEl : finishedTranscribing ? resultsEl : undefined;
+		if (target) {
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
 		}
 	});
 
@@ -532,7 +551,7 @@
 		{/if}
 
 		{#if s.raw}
-			<div class="animate-slide-up space-y-4">
+			<div class="animate-slide-up space-y-4" bind:this={resultsEl}>
 				<RawTranscriptionCard
 					raw={s.raw}
 					language={s.language}
@@ -542,15 +561,17 @@
 					savedRecordingId={s.savedRecordingId}
 				/>
 
-				<PolishedResultCard
-					polished={s.polished}
-					status={s.status}
-					expanded={s.polishedExpanded}
-					copiedPolished={s.copiedPolished}
-					polishMode={s.mode}
-					aiMetadata={s.polishAiMetadata}
-					onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
-				/>
+				<div bind:this={polishedEl}>
+					<PolishedResultCard
+						polished={s.polished}
+						status={s.status}
+						expanded={s.polishedExpanded}
+						copiedPolished={s.copiedPolished}
+						polishMode={s.mode}
+						aiMetadata={s.polishAiMetadata}
+						onToggleExpand={() => setPolishedExpanded(!s.polishedExpanded)}
+					/>
+				</div>
 
 				{#if s.raw && s.status === 'idle' && !s.error}
 					<div class="flex flex-col items-center gap-3">
