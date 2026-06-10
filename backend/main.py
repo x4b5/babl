@@ -17,6 +17,10 @@ logging.basicConfig(
 )
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
 
 from config import warmup_ollama  # noqa: E402
 from routes.health import router as health_router  # noqa: E402
@@ -37,12 +41,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Rate limiting: 60 verzoeken per minuut per endpoint per IP.
+# headers_enabled zorgt voor een Retry-After header die de frontend al begrijpt.
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"], headers_enabled=True)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 _cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in _cors_origins.split(",")],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type"],
 )
 
 app.include_router(health_router)
