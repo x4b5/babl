@@ -106,7 +106,7 @@ async function sendAudioLocal(
 			signal: controller.signal
 		});
 		if (!resp.ok) {
-			handleHttpError(resp);
+			await handleHttpError(resp);
 			return;
 		}
 		await readSSEStream(resp, {
@@ -278,7 +278,7 @@ async function sendAudioApiViaLocal(
 			signal: controller.signal
 		});
 		if (!resp.ok) {
-			handleHttpError(resp);
+			await handleHttpError(resp);
 			return;
 		}
 		await readSSEStream(resp, {
