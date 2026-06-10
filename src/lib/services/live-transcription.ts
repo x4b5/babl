@@ -78,7 +78,7 @@ async function sendLiveChunk(
 	}
 }
 
-function startLiveTranscription(
+export function startLiveTranscription(
 	refs: LiveTranscriptionRefs,
 	callbacks: LiveTranscriptionCallbacks
 ): void {

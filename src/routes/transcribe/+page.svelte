@@ -23,7 +23,7 @@
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
-	import { stopLiveTranscription } from '$lib/services/live-transcription';
+	import { startLiveTranscription, stopLiveTranscription } from '$lib/services/live-transcription';
 	import { startPolishing, handleErrorEvent } from '$lib/services/polishing';
 	import {
 		startRealtimeStream,
@@ -160,6 +160,22 @@
 		},
 		get apiPollController() {
 			return apiPollController;
+		}
+	};
+
+	// Lazy refs: live-transcriptie leest altijd de actuele recorder en chunks
+	const liveRefs = {
+		get chunks() {
+			return chunks;
+		},
+		get mediaRecorder() {
+			return mediaRecorder;
+		}
+	};
+
+	const liveCallbacks = {
+		setLiveChunkController: (v: AbortController | undefined) => {
+			liveChunkController = v;
 		}
 	};
 
@@ -344,6 +360,7 @@
 			if (stream) stream.getTracks().forEach((t) => t.stop());
 			waveformRefs = stopWaveform(waveformRefs);
 			stopLiveTranscription();
+			liveChunkController?.abort();
 			stopRealtimeStream();
 			await processRecording({
 				chunks,
@@ -360,6 +377,8 @@
 		setStatus('recording');
 		if (useRealtimeStream) {
 			startRealtimeStream();
+		} else if (s.transcribeMode === 'local' && s.localAvailable) {
+			startLiveTranscription(liveRefs, liveCallbacks);
 		}
 	}
 
