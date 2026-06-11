@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 import { checkBudget, recordUsage } from '$lib/server/budget';
+import { ASSEMBLYAI_EU_BASE_URL, PII_REDACTION } from '$lib/server/assemblyai';
 
 export const config = {
 	maxDuration: 60
@@ -43,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const { AssemblyAI } = await import('assemblyai');
-		const client = new AssemblyAI({ apiKey });
+		const client = new AssemblyAI({ apiKey, baseUrl: ASSEMBLYAI_EU_BASE_URL });
 
 		const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -53,6 +54,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			speech_models: ['universal-3-pro', 'universal-2'],
 			speaker_labels: true,
 			language_detection: lang === 'auto',
+			...PII_REDACTION,
 			...(lang !== 'auto' && { language_code: langMap[lang] || 'nl' })
 		});
 

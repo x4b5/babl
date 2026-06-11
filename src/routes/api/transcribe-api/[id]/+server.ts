@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
+import { ASSEMBLYAI_EU_BASE_URL } from '$lib/server/assemblyai';
 
 export const config = {
 	maxDuration: 30
@@ -16,7 +17,7 @@ export const GET: RequestHandler = async ({ params }) => {
 
 	try {
 		const { AssemblyAI } = await import('assemblyai');
-		const client = new AssemblyAI({ apiKey });
+		const client = new AssemblyAI({ apiKey, baseUrl: ASSEMBLYAI_EU_BASE_URL });
 
 		const transcript = await client.transcripts.get(params.id);
 

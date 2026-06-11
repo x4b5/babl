@@ -384,3 +384,4 @@
 | 2026-06-11 | 21:04     | 21:16    | .20         | `284e626`   | docs: audit backend en src/routes afgerond — sectie 4 (8 HOOG, 17 MIDDEL, 19 LAAG) in audit-2026-06.md                          |
 | 2026-06-11 | 21:16     | 21:17    | 0           | `8519655`   | docs: HANDOFF bijgewerkt na backend/routes-audit — alleen definitieve prioritering resteert                                     |
 | 2026-06-11 | 21:17     | 21:21    | .06         | `d650a08`   | docs: definitieve prioritering audit-2026-06 — 108 bevindingen in 34 clusters (P0-P4), WERKVERSIE-status verwijderd             |
+| 2026-06-11 | 21:21     | 21:21    | .01         | `315a7eb`   | docs: HANDOFF op KLAAR — Fase 0.1 codebase-audit volledig afgerond                                                              |

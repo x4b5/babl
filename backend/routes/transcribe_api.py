@@ -14,7 +14,7 @@ from fastapi.responses import StreamingResponse
 logger = logging.getLogger(__name__)
 
 from audio import extract_audio_segment
-from config import ASSEMBLYAI_API_KEY, MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
+from config import ASSEMBLYAI_API_KEY, ASSEMBLYAI_BASE_URL, MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
 from dialects import get_dialect_config
 from hallucination import process_transcription
 from evaluation.logger import log_processing_event
@@ -71,6 +71,7 @@ async def transcribe_api(
                 import assemblyai as aai
 
                 aai.settings.api_key = ASSEMBLYAI_API_KEY
+                aai.settings.base_url = ASSEMBLYAI_BASE_URL
 
                 config_kwargs = {
                     "speaker_labels": True,
