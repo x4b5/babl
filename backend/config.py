@@ -38,6 +38,8 @@ OFFSET_TOLERANCE = 0.5  # seconds: tolerance window for boundary segments
 ASSEMBLYAI_API_KEY = os.environ.get("ASSEMBLYAI_API_KEY", "")
 # EU-endpoint (Dublin) — vereist voor de privacybelofte "data blijft in de EU"
 ASSEMBLYAI_BASE_URL = "https://api.eu.assemblyai.com"
+# EU-datazone voor real-time streaming (v3) — zelfde privacybelofte als hierboven
+ASSEMBLYAI_STREAMING_HOST = "streaming.eu.assemblyai.com"
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_MODELS = {
     "light": "mistral-small-latest",

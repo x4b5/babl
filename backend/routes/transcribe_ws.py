@@ -1,4 +1,4 @@
-"""Real-time WebSocket transcription via AssemblyAI: /ws/transcribe-stream."""
+"""Real-time WebSocket transcription via AssemblyAI streaming v3: /ws/transcribe-stream."""
 
 import asyncio
 import json
@@ -7,16 +7,42 @@ from datetime import datetime
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from config import ASSEMBLYAI_API_KEY, HEARTBEAT_INTERVAL, HEARTBEAT_TIMEOUT
+from config import (
+    ASSEMBLYAI_API_KEY,
+    ASSEMBLYAI_STREAMING_HOST,
+    HEARTBEAT_INTERVAL,
+    HEARTBEAT_TIMEOUT,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Met format_turns=True stuurt AssemblyAI per turn eerst een ongeformatteerde
+# end_of_turn-event en daarna een geformatteerde herhaling. Alleen die laatste
+# mag een "final" worden, anders krijgt de frontend dezelfde turn twee keer.
+FORMAT_TURNS = True
+
+
+def map_turn_event(
+    transcript: str,
+    end_of_turn: bool,
+    turn_is_formatted: bool,
+    format_turns: bool = FORMAT_TURNS,
+) -> dict | None:
+    """Map een AssemblyAI v3 Turn-event naar het frontend-berichtcontract.
+
+    Returns {"type": "partial" | "final", "text": ...} of None bij leeg transcript.
+    """
+    if not transcript:
+        return None
+    is_final = end_of_turn and (turn_is_formatted or not format_turns)
+    return {"type": "final" if is_final else "partial", "text": transcript}
+
 
 @router.websocket("/ws/transcribe-stream")
 async def ws_transcribe_stream(websocket: WebSocket):
-    """Real-time streaming transcription via AssemblyAI WebSocket API."""
+    """Real-time streaming transcription via AssemblyAI streaming v3 (EU-datazone)."""
     await websocket.accept()
 
     if not ASSEMBLYAI_API_KEY:
@@ -24,40 +50,43 @@ async def ws_transcribe_stream(websocket: WebSocket):
         await websocket.close()
         return
 
-    import assemblyai as aai
-
-    aai.settings.api_key = ASSEMBLYAI_API_KEY
+    from assemblyai.streaming.v3 import (
+        Encoding,
+        SpeechModel,
+        StreamingClient,
+        StreamingClientOptions,
+        StreamingEvents,
+        StreamingParameters,
+    )
 
     loop = asyncio.get_event_loop()
     queue: asyncio.Queue[dict | None] = asyncio.Queue()
     last_pong = {"time": datetime.now()}
 
-    def on_data(transcript):
-        is_final = isinstance(transcript, aai.RealtimeFinalTranscript)
-        if transcript.text:
-            loop.call_soon_threadsafe(queue.put_nowait, {
-                "type": "final" if is_final else "partial",
-                "text": transcript.text,
-            })
+    # SDK-handlers draaien op de read-thread van de client, niet op de event loop —
+    # vandaar call_soon_threadsafe naar de asyncio-queue.
+    def on_turn(_client, event):
+        message = map_turn_event(event.transcript, event.end_of_turn, event.turn_is_formatted)
+        if message:
+            loop.call_soon_threadsafe(queue.put_nowait, message)
 
-    def on_error(error):
-        logger.error("AssemblyAI realtime error: %s", error)
+    def on_error(_client, error):
+        logger.error("AssemblyAI streaming error: %s", error)
         loop.call_soon_threadsafe(queue.put_nowait, {
             "type": "error",
             "message": str(error),
         })
 
-    def on_close():
-        logger.info("AssemblyAI realtime connection closed")
+    def on_termination(_client, _event):
+        logger.info("AssemblyAI streaming session terminated")
         loop.call_soon_threadsafe(queue.put_nowait, None)
 
-    transcriber = aai.RealtimeTranscriber(
-        sample_rate=16000,
-        encoding=aai.AudioEncoding.pcm_s16le,
-        on_data=on_data,
-        on_error=on_error,
-        on_close=on_close,
+    client = StreamingClient(
+        StreamingClientOptions(api_host=ASSEMBLYAI_STREAMING_HOST, api_key=ASSEMBLYAI_API_KEY)
     )
+    client.on(StreamingEvents.Turn, on_turn)
+    client.on(StreamingEvents.Error, on_error)
+    client.on(StreamingEvents.Termination, on_termination)
 
     async def heartbeat():
         """Send ping every 15s, close if no pong within 30s."""
@@ -79,15 +108,21 @@ async def ws_transcribe_stream(websocket: WebSocket):
 
     try:
         # First message = config JSON (e.g. {"lang": "nl", "region": "mestreechs"})
+        # whisper-rt detecteert taal zelf — config wordt geaccepteerd maar alleen gelogd.
         config_text = await websocket.receive_text()
-        config = json.loads(config_text)
-        lang = config.get("lang", "li")
-        region = config.get("region", "limburgs")
-        logger.info("AssemblyAI RT config: %s", config_text)
+        json.loads(config_text)
+        logger.info("AssemblyAI RT config (alleen gelogd, whisper-rt detecteert taal): %s", config_text)
 
-        # Connect to AssemblyAI (blocking, run in thread)
-        await asyncio.to_thread(transcriber.connect)
-        logger.info("AssemblyAI realtime connected")
+        # Connect to AssemblyAI (blocking handshake, run in thread).
+        # Een afgewezen handshake komt als Error-event binnen, niet als exception.
+        params = StreamingParameters(
+            sample_rate=16000,
+            encoding=Encoding.pcm_s16le,
+            speech_model=SpeechModel.whisper_rt,
+            format_turns=FORMAT_TURNS,
+        )
+        await asyncio.to_thread(client.connect, params)
+        logger.info("AssemblyAI streaming v3 connected (host=%s)", ASSEMBLYAI_STREAMING_HOST)
 
         async def forward_audio():
             """Read audio chunks from frontend WebSocket, forward to AssemblyAI."""
@@ -97,7 +132,8 @@ async def ws_transcribe_stream(websocket: WebSocket):
                     if msg.get("type") == "websocket.disconnect":
                         break
                     if "bytes" in msg and msg["bytes"]:
-                        await asyncio.to_thread(transcriber.stream, msg["bytes"])
+                        # stream() zet alleen op de interne write-queue — non-blocking
+                        client.stream(msg["bytes"])
                     elif "text" in msg and msg["text"]:
                         data = json.loads(msg["text"])
                         if data.get("type") == "pong":
@@ -126,8 +162,11 @@ async def ws_transcribe_stream(websocket: WebSocket):
         # Wait for audio to stop (client disconnected or stopped recording)
         await audio_task
 
-        # Close AssemblyAI connection (triggers on_close -> queue gets None)
-        await asyncio.to_thread(transcriber.close)
+        # Graceful close: server stuurt Termination (→ None in queue) en disconnect
+        # joint de SDK-threads, dus hierna komen er geen events meer. Extra None als
+        # vangnet voor het geval Termination uitbleef (bv. verbinding al weggevallen).
+        await asyncio.to_thread(client.disconnect, terminate=True)
+        queue.put_nowait(None)
 
         # Wait for remaining events to flush
         await event_task
@@ -149,6 +188,6 @@ async def ws_transcribe_stream(websocket: WebSocket):
             except asyncio.CancelledError:
                 pass
         try:
-            await asyncio.to_thread(transcriber.close)
+            await asyncio.to_thread(client.disconnect, terminate=True)
         except Exception:
             pass
