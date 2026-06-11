@@ -24,6 +24,18 @@ met bevindingen, niet half migreren.
 
 - Stap 1 (onderzoek + migratieplan) — zie "Onderzoeksbevindingen" en "Migratieplan"
   hieronder. Commit: `f7c0927`.
+- Stap 2 (migratie route) — `backend/routes/transcribe_ws.py` gebruikt nu
+  `StreamingClient` uit `assemblyai.streaming.v3` met `speech_model=whisper_rt`
+  op EU-host `streaming.eu.assemblyai.com` (constante `ASSEMBLYAI_STREAMING_HOST`
+  in `backend/config.py`). Berichtcontract ongewijzigd. Commit: `c58f7ea`.
+  - **Afwijking van het plan (bewust)**: met `format_turns=True` komt elke turn
+    twee keer met `end_of_turn=True` binnen (eerst ongeformatteerd, dan
+    geformatteerd). Plan-mapping "end_of_turn → final" zou dubbele finals geven
+    en de frontend verdubbelt dan `liveSegments`. Daarom: final = `end_of_turn`
+    én (`turn_is_formatted` óf formattering uit) — pure functie `map_turn_event`
+    in de route, makkelijk te testen.
+  - Bestaande backend-tests groen (170 passed), import + mapping-sanity-check OK,
+    frontend Definition of Done groen.
 
 ## Onderzoeksbevindingen (stap 1, 2026-06-11)
 
@@ -72,14 +84,17 @@ client.disconnect(terminate=True)` (sync client streamt non-blocking via interne
 
 ## Waar gebleven
 
-- Onderzoek af; nog geen code gewijzigd. Volgende iteratie begint met stap 2 hieronder.
+- Migratie af en gecommit (`c58f7ea`). Nog geen dedicated tests voor de nieuwe
+  route; `map_turn_event` is bewust een pure functie zodat dat zonder live API kan.
 
 ## Volgende stappen
 
-1. Migreer de route naar streaming v3 volgens het migratieplan hierboven; EU-host;
-   berichtcontract met frontend ongewijzigd.
-2. Tests: bestaande backend-tests groen houden, dekking voor de nieuwe route waar dat
-   zonder live API kan (mocken); frontend-check + Definition of Done; afronden.
+1. Tests toevoegen voor de nieuwe route (bv. `backend/tests/test_streaming_v3.py`):
+   `map_turn_event`-gedrag (leeg transcript, partial, ongeformatteerde vs.
+   geformatteerde end_of_turn, `format_turns=False`-pad) en eventueel het
+   berichtcontract (`partial`/`final`/`error`-vorm). Geen live API — mocken.
+   Daarna Definition of Done; als alles groen is: taak afronden en STATUS op
+   KLAAR (op de handmatige natest-punten hieronder na).
 
 ## Openstaande problemen of twijfels
 
@@ -89,4 +104,7 @@ client.disconnect(terminate=True)` (sync client streamt non-blocking via interne
 - **Handmatig natesten (gebruiker)**: (a) of `whisper-rt` daadwerkelijk werkt op de
   EU-host `streaming.eu.assemblyai.com` — niet expliciet in de docs bevestigd;
   (b) transcriptiekwaliteit van whisper-rt op Limburgs/Nederlands; (c) of whisper-rt
-  extra kosten/beta-beperkingen heeft op dit account.
+  extra kosten/beta-beperkingen heeft op dit account; (d) of er bij live gebruik
+  daadwerkelijk geformatteerde turns binnenkomen (`turn_is_formatted=True`) —
+  zo niet, dan komen er nooit finals; oplossing: `FORMAT_TURNS = False` zetten
+  bovenin `backend/routes/transcribe_ws.py`.

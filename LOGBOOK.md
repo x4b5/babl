@@ -390,3 +390,4 @@
 | 2026-06-11 | 21:42     | 21:47    | .09         | `72e3c33`   | docs: HANDOFF klaargezet voor loop-run 2 — migratie WS-route naar streaming v3 (EU)                                             |
 | 2026-06-11 | 21:47     | 21:52    | .08         | `f7c0927`   | docs: onderzoek streaming v3 afgerond — migratieplan WS-route in HANDOFF (whisper-rt, EU-host)                                  |
 | 2026-06-11 | 21:52     | 21:53    | 0           | `c5f1209`   | docs: HANDOFF — commit-hash stap 1 ingevuld                                                                                     |
+| 2026-06-11 | 21:53     | 21:57    | .07         | `c58f7ea`   | fix: WS-route gemigreerd naar AssemblyAI streaming v3 (whisper-rt, EU-host)                                                     |
