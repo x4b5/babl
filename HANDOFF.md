@@ -1,6 +1,6 @@
 # HANDOFF
 
-STATUS: BEZIG
+STATUS: KLAAR
 
 > Overdracht tussen autonome iteraties. Elke iteratie leest dit bestand eerst en werkt het
 > bij na afloop. STATUS is altijd een van: BEZIG | KLAAR | GEBLOKKEERD.
@@ -36,6 +36,12 @@ met bevindingen, niet half migreren.
     in de route, makkelijk te testen.
   - Bestaande backend-tests groen (170 passed), import + mapping-sanity-check OK,
     frontend Definition of Done groen.
+- Stap 3 (tests) — `backend/tests/test_streaming_v3.py` met 13 tests:
+  `map_turn_event` (leeg transcript, partial, ongeformatteerde vs. geformatteerde
+  end_of_turn, `format_turns=False`-pad, default volgt `FORMAT_TURNS`) en het
+  berichtcontract met de frontend (`partial`/`final` exact `{type, text}`,
+  `error` als `{type, message}`, JSON-serialiseerbaar). Geen live API.
+  Backend: 183 passed. Frontend Definition of Done groen. Commit: `82eebdf`.
 
 ## Onderzoeksbevindingen (stap 1, 2026-06-11)
 
@@ -84,17 +90,16 @@ client.disconnect(terminate=True)` (sync client streamt non-blocking via interne
 
 ## Waar gebleven
 
-- Migratie af en gecommit (`c58f7ea`). Nog geen dedicated tests voor de nieuwe
-  route; `map_turn_event` is bewust een pure functie zodat dat zonder live API kan.
+- Taak volledig af: migratie (`c58f7ea`) + tests (`82eebdf`). Alle checks groen
+  (backend 183 passed, frontend check/test/format groen). Wat rest zijn de
+  handmatige natest-punten hieronder — die kunnen niet autonoom.
 
 ## Volgende stappen
 
-1. Tests toevoegen voor de nieuwe route (bv. `backend/tests/test_streaming_v3.py`):
-   `map_turn_event`-gedrag (leeg transcript, partial, ongeformatteerde vs.
-   geformatteerde end_of_turn, `format_turns=False`-pad) en eventueel het
-   berichtcontract (`partial`/`final`/`error`-vorm). Geen live API — mocken.
-   Daarna Definition of Done; als alles groen is: taak afronden en STATUS op
-   KLAAR (op de handmatige natest-punten hieronder na).
+1. (Gebruiker, handmatig) De natest-punten onder "Openstaande problemen of
+   twijfels" live verifiëren met een echte API-key.
+2. Daarna: volgende open taak uit `docs/product-backlog.md` (S13/S14 glossary
+   blijft GEPARKEERD — niet autonoom oppakken).
 
 ## Openstaande problemen of twijfels
 

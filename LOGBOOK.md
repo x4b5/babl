@@ -392,3 +392,4 @@
 | 2026-06-11 | 21:52     | 21:53    | 0           | `c5f1209`   | docs: HANDOFF — commit-hash stap 1 ingevuld                                                                                     |
 | 2026-06-11 | 21:53     | 21:57    | .07         | `c58f7ea`   | fix: WS-route gemigreerd naar AssemblyAI streaming v3 (whisper-rt, EU-host)                                                     |
 | 2026-06-11 | 21:57     | 21:58    | .01         | `8bb643c`   | docs: HANDOFF bijgewerkt — migratie streaming v3 af (c58f7ea), volgende stap tests                                              |
+| 2026-06-11 | 21:58     | 22:00    | .03         | `82eebdf`   | test: tests voor streaming-v3-route — map_turn_event en berichtcontract                                                         |
