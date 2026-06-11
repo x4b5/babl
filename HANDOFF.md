@@ -1,6 +1,6 @@
 # HANDOFF
 
-STATUS: KLAAR
+STATUS: BEZIG
 
 > Overdracht tussen autonome iteraties. Elke iteratie leest dit bestand eerst en werkt het
 > bij na afloop. STATUS is altijd een van: BEZIG | KLAAR | GEBLOKKEERD.
@@ -8,58 +8,38 @@ STATUS: KLAAR
 
 ## Huidige taak
 
-Fase 0.1 uit `docs/product-backlog.md` — Codebase-audit: technische schuld,
-inconsistenties frontend/backend, dode code, ongebruikte imports en afwijkingen van de
-CLAUDE.md-regels in kaart brengen. Resultaat: geprioriteerde lijst in `docs/audit-2026-06.md`.
+Live-streaming-route repareren: `backend/routes/transcribe_ws.py` gebruikt
+`aai.RealtimeTranscriber`, maar die bestaat niet meer in de geïnstalleerde SDK
+(assemblyai 0.64.4) — de route crasht bij gebruik. Migreer naar de streaming-v3-API
+(`assemblyai.streaming.v3`, host `streaming.eu.assemblyai.com` voor EU-dataresidentie,
+in lijn met commit `099cb82`). Het WebSocket-berichtcontract met de frontend
+(`src/lib/services/realtime-stream.ts`) moet intact blijven: types `partial`/`final`/
+`error` en het bestaande ping/pong-gedrag.
+
+**Verifieer vóór het bouwen** of streaming v3 Nederlands ondersteunt (de SDK-code in
+`backend/.venv/.../assemblyai/streaming/v3/` en de docs); zo niet → STATUS GEBLOKKEERD
+met bevindingen, niet half migreren.
 
 ## Wat is af
 
-De hele taak is af:
-
-- Stap 1: audit van `src/lib/` (stores, services, utils, components, config) —
-  secties 1-3 in `docs/audit-2026-06.md`. Commit: `121c29e`.
-- Stap 2: audit van `backend/` en `src/routes/` — sectie 4, met handmatig geverifieerde
-  kruispunten (`keep_dialect`, `temperature`, `region`, PII-redactie, EU-endpoint).
-  Commit: `284e626`.
-- Stap 3: definitieve prioritering — alle 108 genummerde bevindingen (S1-S27, V1-V20,
-  C1-C17, B1-B31, R1-R13) ingedeeld in 34 clusters over vijf niveaus (P0 escalatie,
-  P1 privacy/security, P2 bugs met gebruikersimpact, P3 opruimen, P4 tests); elke
-  bevinding precies één keer ingedeeld (geverifieerd per ID). WERKVERSIE-markering
-  verwijderd, document staat op DEFINITIEF. Commit: `d650a08`.
+- (nog niets — vorige taak Fase 0.1 + B1/R2-fix is afgerond, zie git-log t/m `21970fe`)
 
 ## Waar gebleven
 
-Fase 0.1 is volledig afgerond. `docs/audit-2026-06.md` is het eindresultaat en de bron
-voor vervolgwerk. Geen lopend werk meer onder deze taak.
+- Async-paden gaan al naar het EU-endpoint (commit `099cb82`); alleen de
+  WS-streaming-route is nog stuk en niet-EU.
 
 ## Volgende stappen
 
-(geen — taak af; de loop mag stoppen)
-
-Voor een eventuele volgende taak: de gebruiker beslist eerst over de P0-escalaties
-hieronder; daarna is P1-cluster 3 (R1 + C12, Google Fonts self-hosten) de eerste
-autonoom uitvoerbare kandidaat uit de prioritering, of de volgende open taak uit
-`docs/product-backlog.md`.
+1. Onderzoek: lees `backend/routes/transcribe_ws.py`, `src/lib/services/realtime-stream.ts`
+   en de streaming-v3-module in de geïnstalleerde SDK; check taalondersteuning (nl);
+   noteer het migratieplan in deze HANDOFF.
+2. Migreer de route naar streaming v3 met EU-host; berichtcontract met frontend ongewijzigd.
+3. Tests: bestaande backend-tests groen houden, dekking voor de nieuwe route waar dat
+   zonder live API kan (mocken); frontend-check + Definition of Done; afronden.
 
 ## Openstaande problemen of twijfels
 
-- **P0-escalaties — stand na gebruikersbesluit (2026-06-11):**
-  1. B1 + R2 — **OPGELOST** in commit `099cb82`: gebruiker koos "gedrag fixen".
-     AssemblyAI gaat nu in beide paden naar het EU-endpoint (api.eu.assemblyai.com)
-     en het Vercel-pad doet dezelfde PII-redactie als het lokale pad
-     (gedeelde constante in `src/lib/server/assemblyai.ts`). Nog te doen door de
-     gebruiker: één live test-transcriptie in API-modus ter bevestiging.
-     Cluster 6 (B6 + B13, audittrail) kan nu autonoom worden opgepakt.
-  2. S13 + S14 — glossary: **GEPARKEERD** door de gebruiker ("kom ik op terug").
-     De verdachte items zijn geïnventariseerd (sleutels `die`/`mie`/`us`/`maat` +
-     4 ongrammaticale few-shots); correctie wacht op dialectkennis van de gebruiker.
-     Niet autonoom oppakken.
-- **Nieuwe bevinding (2026-06-11, buiten de audit):** `backend/routes/transcribe_ws.py`
-  gebruikt `aai.RealtimeTranscriber`, maar die bestaat niet meer in de geïnstalleerde
-  SDK (assemblyai 0.64.4) — de live-streaming-route crasht bij gebruik. Migratie naar
-  streaming v3 (`streaming.eu.assemblyai.com`, EU) is een goede volgende autonome taak.
-- Telcorrectie: eerdere HANDOFF-versies noemden "92 bevindingen" (48 + 44); bij natelling
-  per ID bevat het document er 108 (64 in secties 1-3, 44 in sectie 4). De inhoud is
-  ongewijzigd — alleen de telling was eerder onnauwkeurig.
-- R1/C12 (Google Fonts) fixen vereist self-hosten van een font-bestand; raakt
-  vermoedelijk `static/` — geen guardrail-conflict, wel benoemen in de commit.
+- S13 + S14 (glossary) blijft GEPARKEERD — niet autonoom oppakken, wacht op gebruiker.
+- Live verificatie tegen het echte AssemblyAI-endpoint kan niet autonoom (API-key/kosten);
+  noteer expliciet wat de gebruiker handmatig moet natesten.

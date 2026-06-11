@@ -386,3 +386,4 @@
 | 2026-06-11 | 21:17     | 21:21    | .06         | `d650a08`   | docs: definitieve prioritering audit-2026-06 — 108 bevindingen in 34 clusters (P0-P4), WERKVERSIE-status verwijderd             |
 | 2026-06-11 | 21:21     | 21:21    | .01         | `315a7eb`   | docs: HANDOFF op KLAAR — Fase 0.1 codebase-audit volledig afgerond                                                              |
 | 2026-06-11 | 21:21     | 21:32    | .17         | `099cb82`   | fix: AssemblyAI naar EU-endpoint (Dublin) en PII-redactie in Vercel-pad                                                         |
+| 2026-06-11 | 21:32     | 21:42    | .15         | `21970fe`   | docs: HANDOFF bijgewerkt — B1+R2 opgelost, glossary geparkeerd, kapotte WS-route genoteerd                                      |
