@@ -376,3 +376,4 @@
 | 2026-06-10 | 21:24     | 21:28    | .06         | `98c2881`   | test: dekking voor recording service (17 tests)                                                                                 |
 | 2026-06-10 | 21:28     | 21:33    | .08         | `5cca153`   | fix: waveform-animatielus bleef eeuwig doorlopen na stoppen                                                                     |
 | 2026-06-10 | 21:33     | 21:51    | .29         | `2c01538`   | feat: automatisch scrollen naar resultaat na verwerking                                                                         |
+| 2026-06-11 | 21:51     | 20:50    | 4.00        | `004353d`   | docs: logboek en backlog bijgewerkt                                                                                             |
