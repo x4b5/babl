@@ -388,3 +388,4 @@
 | 2026-06-11 | 21:21     | 21:32    | .17         | `099cb82`   | fix: AssemblyAI naar EU-endpoint (Dublin) en PII-redactie in Vercel-pad                                                         |
 | 2026-06-11 | 21:32     | 21:42    | .15         | `21970fe`   | docs: HANDOFF bijgewerkt — B1+R2 opgelost, glossary geparkeerd, kapotte WS-route genoteerd                                      |
 | 2026-06-11 | 21:42     | 21:47    | .09         | `72e3c33`   | docs: HANDOFF klaargezet voor loop-run 2 — migratie WS-route naar streaming v3 (EU)                                             |
+| 2026-06-11 | 21:47     | 21:52    | .08         | `f7c0927`   | docs: onderzoek streaming v3 afgerond — migratieplan WS-route in HANDOFF (whisper-rt, EU-host)                                  |

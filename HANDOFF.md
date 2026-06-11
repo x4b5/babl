@@ -23,7 +23,7 @@ met bevindingen, niet half migreren.
 ## Wat is af
 
 - Stap 1 (onderzoek + migratieplan) — zie "Onderzoeksbevindingen" en "Migratieplan"
-  hieronder. Commit-hash: zie git-log bij deze HANDOFF-wijziging.
+  hieronder. Commit: `f7c0927`.
 
 ## Onderzoeksbevindingen (stap 1, 2026-06-11)
 
