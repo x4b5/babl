@@ -379,3 +379,4 @@
 | 2026-06-11 | 21:51     | 20:50    | 4.00        | `004353d`   | docs: logboek en backlog bijgewerkt                                                                                             |
 | 2026-06-11 | 20:50     | 20:50    | 0           | `9dd5e75`   | docs: urenregistratie bijgewerkt                                                                                                |
 | 2026-06-11 | 20:50     | 20:52    | .02         | `28a1b56`   | chore: autonome loop opgezet — guardrails in CLAUDE.md, HANDOFF.md en loop-script                                               |
+| 2026-06-11 | 20:52     | 21:03    | .19         | `121c29e`   | docs: audit src/lib afgerond — 48 bevindingen in audit-2026-06.md (werkversie)                                                  |
