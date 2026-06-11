@@ -29,4 +29,6 @@ __pycache__
 mp3/
 # Evaluation logs
 backend/eval_logs/
+# Autonomous loop logs
+logs/
 .env*.local

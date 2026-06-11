@@ -37,6 +37,11 @@ docs/                    -> Architectuur, ADRs, analytics-plan
 .claude/rules/           -> Altijd geladen constraints (code-standards, safety)
 .claude/commands/        -> Slash commands (/review, /commit, etc.)
 .claude/hooks/           -> Shell scripts (validate, post-edit-format, session-start)
+docs/product-backlog.md  -> Takenlijst — bron van werk voor (autonome) sessies
+LOGBOOK.md               -> Sessielogboek + urenregistratie (post-commit hook schrijft hier
+                            na elke commit een regel bij — commit die mee met de volgende commit)
+PLANNING.md              -> Globale planning en fasering
+HANDOFF.md               -> Overdracht tussen autonome iteraties (zie Guardrails)
 ```
 
 ## Architectuur
@@ -101,6 +106,26 @@ Gebruiker kiest per stap (transcriptie en polijsten) tussen lokaal of API:
 9. **Twee-staps verwerking**: Altijd eerst Whisper (ruwe transcriptie tonen), dan Ollama (polijsten tonen). Gebruiker ziet progressie.
 10. **Spacebar shortcut**: Spacebar start/stopt opname. Niet conflicteren met andere keyboard handlers.
 
+## Testen
+
+- Tests staan naast de code: `src/lib/utils/*.test.ts` en `src/lib/services/*.test.ts`.
+- Framework: Vitest + jsdom (setup in `vitest.setup.ts`).
+- Conventie: services en utils krijgen tests; componenten niet (presentationeel).
+- Browser-API's (MediaRecorder, AudioContext, fetch) altijd mocken — tests draaien zonder backend.
+
+## Definition of Done
+
+Een taak is pas af als alle drie slagen:
+
+```bash
+npm run check        # TypeScript foutloos
+npm run test:run     # Alle tests groen
+npm run format:check # Prettier akkoord (husky pre-commit checkt dit ook)
+```
+
+> Noot: globale rules (~/.claude/rules) over 80% coverage en verplichte TDD-agents
+> gelden hier als richtlijn, niet als blokkade. Dit projectbestand is leidend.
+
 ## Commando's
 
 ```bash
@@ -113,3 +138,46 @@ npm run transcribe       # Start volledige stack (Ollama + backend + frontend)
 # Backend apart starten:
 cd backend && source .venv/bin/activate && uvicorn main:app --reload --port 8000
 ```
+
+## Guardrails (autonome sessies)
+
+### Scope
+
+- **WEL wijzigen**: `src/`, `backend/` (alleen `main.py` en tests), `docs/`,
+  `LOGBOOK.md`, `HANDOFF.md`, testbestanden.
+- **NIET wijzigen**: `.env*`, `secrets/`, `.claude/`, `package.json`-dependencies,
+  `svelte.config.js`, `vite.config.ts`, `scripts/`, `.github/`, alles buiten deze repo.
+- Nieuwe dependency nodig? → Stoppen en escaleren, niet zelf toevoegen.
+
+### Verboden acties
+
+- Geen `git push --force`, `rm -rf`, `git reset --hard`, `--no-verify`.
+- Geen wijzigingen aan `.env`/secrets; geen secrets in code of logs.
+- Geen merge of push naar `main`. Werken op de `autonomous/*` branch.
+- Geen externe API-calls met PII of transcriptie-inhoud (privacy-regel 6 geldt altijd).
+
+### Commit-discipline
+
+- Eén afgeronde subtaak = één commit, direct erna.
+- Conventional commits in het Nederlands (zoals bestaande historie).
+- Alleen committen als de Definition of Done groen is.
+
+### Stopcriteria
+
+- Taak volledig af + checks groen → stoppen, eindrapport in LOGBOOK.md.
+- 3x dezelfde fout → stoppen en rapporteren, niet blijven proberen.
+- Na maximaal **5** afgeronde subtaken → stoppen en HANDOFF.md schrijven.
+- Signalen van vollopende context (auto-compact, vervagende instructies)
+  → huidige subtaak afronden, committen, HANDOFF.md schrijven, stoppen.
+
+### HANDOFF.md bevat altijd
+
+1. Wat is af (met commit-hashes)
+2. Waar ben je gebleven (bestand + toestand)
+3. Volgende stappen (concreet, in volgorde)
+4. Openstaande problemen of twijfels
+
+### Escalatie
+
+- Bij twijfel of een actie destructief/onomkeerbaar is → stoppen, niet gokken.
+- Architectuurkeuzes die buiten de taak vallen → noteren in HANDOFF.md, niet uitvoeren.
