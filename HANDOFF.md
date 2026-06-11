@@ -43,13 +43,21 @@ autonoom uitvoerbare kandidaat uit de prioritering, of de volgende open taak uit
 
 ## Openstaande problemen of twijfels
 
-- **P0-escalaties voor de gebruiker (niet autonoom oppakken):**
-  1. B1 + R2 — AssemblyAI gaat naar het Amerikaanse endpoint en het Vercel-pad doet
-     geen PII-redactie, terwijl de eigen privacy-/about-pagina's en consent-modal het
-     tegendeel beloven. Keuze gedrag-aanpassen vs. claims-aanpassen is inhoudelijk én
-     mogelijk juridisch. Cluster 6 (B6 + B13, audittrail) hangt van dit besluit af.
-  2. S13 + S14 — glossary: foute vertaalsleutels en ongrammaticale few-shot-voorbeelden
-     in de polish-prompt; correctie vraagt dialectkennis van de gebruiker.
+- **P0-escalaties — stand na gebruikersbesluit (2026-06-11):**
+  1. B1 + R2 — **OPGELOST** in commit `099cb82`: gebruiker koos "gedrag fixen".
+     AssemblyAI gaat nu in beide paden naar het EU-endpoint (api.eu.assemblyai.com)
+     en het Vercel-pad doet dezelfde PII-redactie als het lokale pad
+     (gedeelde constante in `src/lib/server/assemblyai.ts`). Nog te doen door de
+     gebruiker: één live test-transcriptie in API-modus ter bevestiging.
+     Cluster 6 (B6 + B13, audittrail) kan nu autonoom worden opgepakt.
+  2. S13 + S14 — glossary: **GEPARKEERD** door de gebruiker ("kom ik op terug").
+     De verdachte items zijn geïnventariseerd (sleutels `die`/`mie`/`us`/`maat` +
+     4 ongrammaticale few-shots); correctie wacht op dialectkennis van de gebruiker.
+     Niet autonoom oppakken.
+- **Nieuwe bevinding (2026-06-11, buiten de audit):** `backend/routes/transcribe_ws.py`
+  gebruikt `aai.RealtimeTranscriber`, maar die bestaat niet meer in de geïnstalleerde
+  SDK (assemblyai 0.64.4) — de live-streaming-route crasht bij gebruik. Migratie naar
+  streaming v3 (`streaming.eu.assemblyai.com`, EU) is een goede volgende autonome taak.
 - Telcorrectie: eerdere HANDOFF-versies noemden "92 bevindingen" (48 + 44); bij natelling
   per ID bevat het document er 108 (64 in secties 1-3, 44 in sectie 4). De inhoud is
   ongewijzigd — alleen de telling was eerder onnauwkeurig.
