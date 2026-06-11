@@ -381,3 +381,4 @@
 | 2026-06-11 | 20:50     | 20:52    | .02         | `28a1b56`   | chore: autonome loop opgezet — guardrails in CLAUDE.md, HANDOFF.md en loop-script                                               |
 | 2026-06-11 | 20:52     | 21:03    | .19         | `121c29e`   | docs: audit src/lib afgerond — 48 bevindingen in audit-2026-06.md (werkversie)                                                  |
 | 2026-06-11 | 21:03     | 21:04    | 0           | `c884f02`   | docs: HANDOFF bijgewerkt na audit-iteratie src/lib                                                                              |
+| 2026-06-11 | 21:04     | 21:16    | .20         | `284e626`   | docs: audit backend en src/routes afgerond — sectie 4 (8 HOOG, 17 MIDDEL, 19 LAAG) in audit-2026-06.md                          |

@@ -15,32 +15,40 @@ CLAUDE.md-regels in kaart brengen. Resultaat: geprioriteerde lijst in `docs/audi
 ## Wat is af
 
 - Stap 1: audit van `src/lib/` (stores, services, utils, components, config) — afgerond.
-  48 geverifieerde bevindingen (10 HOOG, 25 MIDDEL, 13 LAAG) weggeschreven als werkversie
-  in `docs/audit-2026-06.md`, inclusief voorlopige prioritering. Commit: `121c29e`.
+  48 geverifieerde bevindingen (10 HOOG, 25 MIDDEL, 13 LAAG) als secties 1-3 in
+  `docs/audit-2026-06.md`. Commit: `121c29e`.
+- Stap 2: audit van `backend/` (main, config, models, audio, dialects, diarization,
+  hallucination, polishing, routes/, evaluation/) en `src/routes/` (API-routes, layout,
+  transcribe-page, login/logout, content-pagina's) — afgerond. 44 bevindingen
+  (8 HOOG, 17 MIDDEL, 19 LAAG) als sectie 4. Kruispunten handmatig geverifieerd:
+  `keep_dialect` (B7), `temperature` 0.2/0.5 (B8/R6), `region` (R5), PII-redactie (R2),
+  EU-endpoint (B1). Commit: `284e626`.
 
 ## Waar gebleven
 
-- `docs/audit-2026-06.md` bestaat als WERKVERSIE: secties 1-3 (stores/utils, services,
-  components) zijn af; de backend/routes-sectie ontbreekt nog en de prioritering is
-  voorlopig gemarkeerd.
+- `docs/audit-2026-06.md` is inhoudelijk compleet (secties 1-4, totaal 92 bevindingen),
+  maar staat nog gemarkeerd als WERKVERSIE en de prioritering onderaan is voorlopig en
+  dekt alleen secties 1-3.
 
 ## Volgende stappen
 
-1. Audit van `backend/main.py` (+ overige backend-bestanden zoals `config.py`/routers)
-   en `src/routes/` (API-routes AssemblyAI/Mistral, `+page.svelte`, `+layout.svelte`) —
-   bevindingen toevoegen als sectie 4 in `docs/audit-2026-06.md`. Let op raakvlakken die
-   al gesignaleerd zijn: temperature-default 0.2 vs 0.5 (S5), `region` genegeerd door
-   API-route (V20), `keep_dialect` (S1).
-2. Alle bevindingen definitief prioriteren, de "WERKVERSIE"-markering verwijderen en de
-   voorlopige prioritering omzetten naar een definitieve geprioriteerde lijst. Daarna
-   STATUS op KLAAR.
+1. Alle 92 bevindingen definitief prioriteren: de "Voorlopige prioritering" vervangen
+   door één definitieve geprioriteerde lijst die ook de B- en R-bevindingen meeneemt
+   (kandidaten voor bovenaan: B1 EU-endpoint, R2 PII-redactie-claim, R1 Google Fonts,
+   B2/B3 hallucination-tekstcorruptie, B4 stille lege transcriptie, B5 corrections-log).
+   Daarna de WERKVERSIE-markering verwijderen en STATUS op KLAAR.
 
 ## Openstaande problemen of twijfels
 
-- De prioritering onderaan `docs/audit-2026-06.md` is voorlopig; definitief maken kan pas
-  na de backend/routes-audit (stap 2).
+- **B1 (AssemblyAI US-endpoint) en R2 (PII-redactie ontbreekt op Vercel-pad) weerleggen
+  privacyclaims op de eigen privacy-/about-pagina's.** Dat fixen is inhoudelijk én
+  mogelijk juridisch gevoelig (claims aanpassen vs. gedrag aanpassen) — escalatiepunt
+  voor de gebruiker, niet autonoom oplossen.
 - Bevindingen S13/S14 (glossary: foute vertaalsleutels en ongrammaticale few-shot
-  voorbeelden) raken prompt-inhoud — fixen is inhoudelijk werk dat mogelijk afstemming
-  met de gebruiker vraagt (dialectkennis), niet zomaar autonoom "verbeteren".
-- C12 (Google Fonts remote laden) fixen vereist een font-bestand toevoegen; dat raakt
-  mogelijk `static/` — geen guardrail-conflict, maar noteer het bij de uitvoering.
+  voorbeelden) raken prompt-inhoud — fixen vraagt afstemming met de gebruiker
+  (dialectkennis), niet autonoom "verbeteren".
+- C12/R1 (Google Fonts) fixen vereist self-hosten van een font-bestand; raakt mogelijk
+  `static/` — geen guardrail-conflict, maar noteer het bij de uitvoering.
+- Eén subagent claimde tijdens de audit ten onrechte dat `redact_pii` nergens voorkwam;
+  handmatig geverifieerd: het bestaat wél in `backend/routes/transcribe_api.py:79-88`,
+  alleen niet in het Vercel-pad. Sectie 4 bevat de geverifieerde versie.
