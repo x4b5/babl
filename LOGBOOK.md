@@ -366,3 +366,13 @@
 | 2026-06-08 | 23:02     | 23:03    | 0           | `134ff7e`   | chore: logbook bijwerken                                                                                                        |
 | 2026-06-08 | 23:03     | 23:03    | 0           | `cd9cd82`   | perf: lazy-load jsPDF en docx — initiële bundle 844KB lichter                                                                   |
 | 2026-06-08 | 23:03     | 23:08    | .07         | `2b47e18`   | refactor: download-iconen naar verslaglegging en opruimen ongebruikte componenten                                               |
+| 2026-06-08 | 23:08     | 23:09    | .02         | `5f31cad`   | refactor: ongebruikte exports verwijderen (knip dead code audit)                                                                |
+| 2026-06-10 | 23:09     | 20:42    | 4.00        | `abf0e41`   | fix: polijst-flow — dubbele requests en foutieve fallback bij stream-fouten                                                     |
+| 2026-06-10 | 20:42     | 20:57    | .25         | `8996789`   | fix: backend hardening — CORS inperken, rate limiting, dependencies pinnen                                                      |
+| 2026-06-10 | 20:57     | 21:08    | .18         | `5bb035a`   | docs: game-template restanten verwijderd — README, architectuur en regels kloppen weer met de code                              |
+| 2026-06-10 | 21:08     | 21:12    | .07         | `6878a00`   | feat: live transcriptie tijdens opname in lokale modus                                                                          |
+| 2026-06-10 | 21:12     | 21:24    | .19         | `7b6776d`   | fix: ontbrekende await op handleHttpError — fout verdween in unhandled rejection                                                |
+| 2026-06-10 | 21:24     | 21:24    | 0           | `33ada1f`   | test: dekking voor polishing en transcription services (30 tests)                                                               |
+| 2026-06-10 | 21:24     | 21:28    | .06         | `98c2881`   | test: dekking voor recording service (17 tests)                                                                                 |
+| 2026-06-10 | 21:28     | 21:33    | .08         | `5cca153`   | fix: waveform-animatielus bleef eeuwig doorlopen na stoppen                                                                     |
+| 2026-06-10 | 21:33     | 21:51    | .29         | `2c01538`   | feat: automatisch scrollen naar resultaat na verwerking                                                                         |
