@@ -400,3 +400,5 @@
 | 2026-06-12 | 22:11     | 22:13    | .02         | `f4cb742`   | feat: onzekere woorden inline corrigeren in de tekst zelf                                                                       |
 | 2026-06-12 | 22:13     | 22:14    | .01         | `edb6d70`   | feat: potlood-icoon en placeholder maken sprekers hernoemen vindbaar                                                            |
 | 2026-06-12 | 22:14     | 22:29    | .25         | `f69f94e`   | fix: alle datastromen binnen de EU houden                                                                                       |
+| 2026-06-12 | 22:29     | 22:29    | 0           | `af72601`   | docs: logboek bijwerken met sessies van 11-12 juni                                                                              |
+| 2026-06-12 | 22:29     | 22:31    | .03         | `f17bce7`   | fix: review-punten — leesteken-terugval in replaceNthToken en a11y op woordknoppen                                              |
