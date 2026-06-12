@@ -4,6 +4,7 @@
 		cleanupNetworkResources,
 		cleanupTimers
 	} from '$lib/utils/cleanup';
+	import { onMount } from 'svelte';
 	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
 	import { checkBackendHealth } from '$lib/utils/health-check';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
@@ -266,7 +267,15 @@
 	$effect(() => {
 		checkBackendHealth();
 		pruneRecordings(3).catch(() => {});
+	});
+
+	onMount(() => {
 		loadApiConsent();
+		// Nieuwe gebruiker (nog geen keuze gemaakt) in API-modus:
+		// toon de consent-pop-up direct bij het openen van de app.
+		if (s.transcribeMode === 'api' && apiConsent.isPending) {
+			showApiConsentModal = true;
+		}
 	});
 
 	// ── Auto-scroll naar het resultaat zodra verwerking klaar is ──

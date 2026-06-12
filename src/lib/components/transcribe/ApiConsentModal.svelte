@@ -24,14 +24,14 @@
 	<!-- Backdrop -->
 	<button
 		type="button"
-		class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+		class="fixed inset-0 z-60 bg-black/60 backdrop-blur-sm"
 		onclick={handleDeny}
 		aria-label="Sluit consent modal"
 	></button>
 
 	<!-- Modal panel -->
 	<div
-		class="fixed inset-x-4 bottom-4 top-auto z-50 mx-auto max-w-lg glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2"
+		class="fixed inset-x-4 bottom-4 top-auto z-70 mx-auto max-h-[85svh] max-w-lg overflow-y-auto glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="api-consent-title"

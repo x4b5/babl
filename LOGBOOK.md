@@ -407,3 +407,4 @@
 | 2026-06-12 | 22:50     | 22:56    | .10         | `87ccb1f`   | feat: rustigere interface — vijf versimpelingen                                                                                 |
 | 2026-06-12 | 22:56     | 22:56    | 0           | `68cacee`   | docs: logboek bijwerken                                                                                                         |
 | 2026-06-12 | 22:56     | 23:01    | .09         | `5fe2c29`   | fix: verwerkings-icoon vervangen door boog-spinner                                                                              |
+| 2026-06-12 | 23:01     | 23:05    | .06         | `5718326`   | feat: rustiger lightmode — gedempte achtergrond en zichtbare orb-animatie                                                       |
