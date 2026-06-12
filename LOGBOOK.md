@@ -393,3 +393,10 @@
 | 2026-06-11 | 21:53     | 21:57    | .07         | `c58f7ea`   | fix: WS-route gemigreerd naar AssemblyAI streaming v3 (whisper-rt, EU-host)                                                     |
 | 2026-06-11 | 21:57     | 21:58    | .01         | `8bb643c`   | docs: HANDOFF bijgewerkt — migratie streaming v3 af (c58f7ea), volgende stap tests                                              |
 | 2026-06-11 | 21:58     | 22:00    | .03         | `82eebdf`   | test: tests voor streaming-v3-route — map_turn_event en berichtcontract                                                         |
+| 2026-06-11 | 22:00     | 22:01    | .01         | `0b31d32`   | docs: HANDOFF — taak streaming v3 af (tests 82eebdf), STATUS KLAAR                                                              |
+| 2026-06-12 | 22:01     | 22:02    | 4.00        | `1d65443`   | fix: woordcorrecties uit zekerheid-paneel doorvoeren in ruwe tekst                                                              |
+| 2026-06-12 | 22:02     | 22:08    | .09         | `173215d`   | feat: opname stoppen met één klik, pauze als aparte knop                                                                        |
+| 2026-06-12 | 22:08     | 22:11    | .05         | `db69b2b`   | feat: verslag genereren is een bewuste stap — onderwerpveld telt altijd mee                                                     |
+| 2026-06-12 | 22:11     | 22:13    | .02         | `f4cb742`   | feat: onzekere woorden inline corrigeren in de tekst zelf                                                                       |
+| 2026-06-12 | 22:13     | 22:14    | .01         | `edb6d70`   | feat: potlood-icoon en placeholder maken sprekers hernoemen vindbaar                                                            |
+| 2026-06-12 | 22:14     | 22:29    | .25         | `f69f94e`   | fix: alle datastromen binnen de EU houden                                                                                       |
