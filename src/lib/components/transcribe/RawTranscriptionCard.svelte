@@ -219,12 +219,6 @@
 
 <svelte:window onclick={handleWindowClick} />
 
-{#if language}
-	<div class="text-center text-base sm:text-sm text-white/55">
-		Gedetecteerde taal: <span class="font-medium text-white/80">{language}</span>
-	</div>
-{/if}
-
 <div
 	class="gradient-border-card p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]"
 >
@@ -232,7 +226,9 @@
 		<div>
 			<h2 class="text-base sm:text-sm font-semibold text-white/80">Ruwe transcriptie</h2>
 			<p class="text-[11px] text-white/40 mt-0.5">
-				AI-gegenereerd · {transcribeMode === 'local' ? 'Whisper (lokaal)' : 'AssemblyAI (EU)'}
+				AI-gegenereerd · {transcribeMode === 'local'
+					? 'Whisper (lokaal)'
+					: 'AssemblyAI (EU)'}{language ? ` · ${language}` : ''}
 			</p>
 		</div>
 		<div class="flex items-center gap-1">

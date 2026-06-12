@@ -11,7 +11,6 @@
 
 	// Components
 	import AppHeader from '$lib/components/transcribe/AppHeader.svelte';
-	import ProcessSteps from '$lib/components/transcribe/ProcessSteps.svelte';
 	import SettingsPanel from '$lib/components/transcribe/SettingsPanel.svelte';
 	import RecordButton from '$lib/components/transcribe/RecordButton.svelte';
 	import ErrorAlert from '$lib/components/transcribe/ErrorAlert.svelte';
@@ -115,6 +114,8 @@
 	// Ankerpunten voor auto-scroll naar het resultaat
 	let resultsEl: HTMLDivElement | undefined = $state();
 	let polishedEl: HTMLDivElement | undefined = $state();
+	// Evaluatie & feedback ingeklapt tonen — onderzoeksinfo, geen kern-UI
+	let showEvaluation = $state(false);
 	// ── Service callbacks ─────────────────────────────────────────
 
 	const transcriptionCallbacks = {
@@ -498,7 +499,6 @@
 			<SettingsPanel
 				transcribeMode={s.transcribeMode}
 				polishMode={s.mode}
-				reportLength={s.reportLength}
 				apiStreamMode={s.apiStreamMode}
 				localAvailable={s.localAvailable}
 				assemblyAvailable={s.assemblyAvailable}
@@ -506,16 +506,11 @@
 				mistralAvailable={s.mistralAvailable}
 				onTranscribeModeChange={(v) => setTranscribeMode(v)}
 				onPolishModeChange={(v) => setMode(v)}
-				onReportLengthChange={(v) => setReportLength(v)}
 				onApiStreamModeChange={(v) => setApiStreamMode(v)}
 				onOpenSetupWizard={handleOpenSetupWizard}
 				onOpenOllamaWizard={handleOpenOllamaWizard}
 			/>
 		</div>
-
-		{#if s.status !== 'idle'}
-			<ProcessSteps status={s.status} hasRaw={!!s.raw} hasPolished={!!s.polished} />
-		{/if}
 
 		{#if s.error}
 			<ErrorAlert
@@ -587,25 +582,37 @@
 				{/if}
 
 				{#if s.polished}
-					<FeedbackWidget
-						rawText={s.raw}
-						polishedText={s.polished}
-						dialectRegion="limburgs"
-						lowConfidenceCount={s.lowConfidenceCount}
-						transcribeMode={s.transcribeMode}
-						onevaluated={(result) => setEvalResult(result)}
-					/>
-				{/if}
+					<div class="text-center">
+						<button
+							type="button"
+							onclick={() => (showEvaluation = !showEvaluation)}
+							class="text-xs text-white/30 underline hover:text-white/50 transition-colors"
+						>
+							{showEvaluation ? 'Evaluatie & feedback verbergen' : 'Evaluatie & feedback'}
+						</button>
+					</div>
 
-				{#if s.evalResult}
-					<EvaluationScore
-						wer={s.evalResult.wer}
-						cer={s.evalResult.cer}
-						substitutions={s.evalResult.substitutions}
-						deletions={s.evalResult.deletions}
-						insertions={s.evalResult.insertions}
-						totalWords={s.evalResult.totalWords}
-					/>
+					{#if showEvaluation}
+						<FeedbackWidget
+							rawText={s.raw}
+							polishedText={s.polished}
+							dialectRegion="limburgs"
+							lowConfidenceCount={s.lowConfidenceCount}
+							transcribeMode={s.transcribeMode}
+							onevaluated={(result) => setEvalResult(result)}
+						/>
+
+						{#if s.evalResult}
+							<EvaluationScore
+								wer={s.evalResult.wer}
+								cer={s.evalResult.cer}
+								substitutions={s.evalResult.substitutions}
+								deletions={s.evalResult.deletions}
+								insertions={s.evalResult.insertions}
+								totalWords={s.evalResult.totalWords}
+							/>
+						{/if}
+					{/if}
 				{/if}
 			</div>
 		{/if}

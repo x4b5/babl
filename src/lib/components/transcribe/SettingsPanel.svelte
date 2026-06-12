@@ -1,11 +1,10 @@
 <script lang="ts">
-	import type { Mode, ReportLength, ApiStreamMode } from '$lib/stores/transcribe.svelte';
+	import type { Mode, ApiStreamMode } from '$lib/stores/transcribe.svelte';
 	import { isMobile } from '$lib/utils/device';
 
 	interface Props {
 		transcribeMode: Mode;
 		polishMode: Mode;
-		reportLength: ReportLength;
 		apiStreamMode: ApiStreamMode;
 		localAvailable: boolean;
 		assemblyAvailable: boolean;
@@ -13,7 +12,6 @@
 		mistralAvailable: boolean;
 		onTranscribeModeChange: (mode: Mode) => void;
 		onPolishModeChange: (mode: Mode) => void;
-		onReportLengthChange: (length: ReportLength) => void;
 		onApiStreamModeChange: (mode: ApiStreamMode) => void;
 		onOpenSetupWizard?: () => void;
 		onOpenOllamaWizard?: () => void;
@@ -22,7 +20,6 @@
 	let {
 		transcribeMode,
 		polishMode,
-		reportLength,
 		apiStreamMode,
 		localAvailable,
 		assemblyAvailable,
@@ -30,7 +27,6 @@
 		mistralAvailable,
 		onTranscribeModeChange,
 		onPolishModeChange,
-		onReportLengthChange,
 		onApiStreamModeChange,
 		onOpenSetupWizard,
 		onOpenOllamaWizard
@@ -44,11 +40,6 @@
 	});
 
 	const localPolishingAvailable = $derived(localAvailable && ollamaAvailable);
-
-	const reportLengthOptions: { value: ReportLength; label: string }[] = [
-		{ value: 'samenvatting', label: 'Samenvatting' },
-		{ value: 'verslaglegging', label: 'Verslaglegging' }
-	];
 </script>
 
 <div class="flex flex-col items-center gap-2 animate-fade-in">
@@ -211,24 +202,6 @@
 						</button>
 					{/if}
 				{/if}
-			</div>
-
-			<!-- Rapportlengte -->
-			<div>
-				<h4 class="text-xs uppercase tracking-wider text-white/30 mb-2">Rapportlengte</h4>
-				<div class="glass flex rounded-full p-1">
-					{#each reportLengthOptions as opt}
-						<button
-							onclick={() => onReportLengthChange(opt.value)}
-							class="flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200 {reportLength ===
-							opt.value
-								? 'bg-linear-to-r from-neon to-accent-start text-black shadow-lg shadow-neon/20'
-								: 'text-white/40 hover:text-white/70'}"
-						>
-							{opt.label}
-						</button>
-					{/each}
-				</div>
 			</div>
 
 			<a

@@ -86,9 +86,6 @@
 			{transcribeMode === 'api'
 				? 'AssemblyAI transcribeert je audio'
 				: 'Whisper large-v3 MLX analyseert je audio'}
-			{#if transcribeMode === 'api'}
-				<span class="font-mono text-amber-400/60">— ${estimatedTranscribeCost}</span>
-			{/if}
 		</p>
 	</div>
 {:else}
