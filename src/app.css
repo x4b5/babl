@@ -605,15 +605,6 @@ body {
 	}
 }
 
-@keyframes spin-slow {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
-}
-
 .animate-fade-in {
 	animation: fade-in 0.5s ease-out;
 }
@@ -628,10 +619,6 @@ body {
 
 .animate-pulse-ring {
 	animation: pulse-ring 1.5s ease-out infinite;
-}
-
-.animate-spin-slow {
-	animation: spin-slow 3s linear infinite;
 }
 
 /* ============================================

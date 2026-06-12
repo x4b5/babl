@@ -106,18 +106,19 @@
 						<rect x="6" y="6" width="12" height="12" rx="2" />
 					</svg>
 				{:else if status === 'processing'}
+					<!-- Boog-spinner: kwart cirkel in neon op een vage volledige cirkel -->
 					<svg
-						class="h-8 w-8 sm:h-14 sm:w-14 text-white/60 animate-spin-slow"
+						class="h-8 w-8 sm:h-14 sm:w-14 animate-spin"
 						fill="none"
 						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
 						aria-hidden="true"
 					>
+						<circle cx="12" cy="12" r="9" class="stroke-white/10" stroke-width="2.5" />
 						<path
+							d="M12 3a9 9 0 0 1 9 9"
+							class="stroke-neon"
+							stroke-width="2.5"
 							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
 						/>
 					</svg>
 				{:else}
