@@ -113,7 +113,6 @@
 		analyser: undefined,
 		animationFrameId: { current: undefined }
 	};
-	let shouldAutoPolish = false;
 	// Ankerpunten voor auto-scroll naar het resultaat
 	let resultsEl: HTMLDivElement | undefined = $state();
 	let polishedEl: HTMLDivElement | undefined = $state();
@@ -194,7 +193,6 @@
 				: rec.mimeType.includes('ogg')
 					? 'ogg'
 					: 'mp4';
-			shouldAutoPolish = true;
 			await sendAudio(rec.blob, `retry.${ext}`, transcriptionRefs, transcriptionCallbacks);
 		} catch {
 			setError('Opnieuw proberen mislukt. Download de opname en upload het bestand handmatig.');
@@ -269,14 +267,6 @@
 		checkBackendHealth();
 		pruneRecordings(3).catch(() => {});
 		loadApiConsent();
-	});
-
-	// ── Auto-polish: start polishing automatically after transcription ──
-	$effect(() => {
-		if (shouldAutoPolish && s.raw && s.status === 'idle' && !s.error) {
-			shouldAutoPolish = false;
-			onStartPolishing();
-		}
 	});
 
 	// ── Auto-scroll naar het resultaat zodra verwerking klaar is ──
@@ -410,7 +400,6 @@
 		) {
 			mediaRecorder.stop();
 			setStatus('processing');
-			shouldAutoPolish = true;
 		}
 	}
 
@@ -457,13 +446,11 @@
 	function onFileUpload(e: Event) {
 		if (needsApiConsent()) {
 			pendingAction = () => {
-				shouldAutoPolish = true;
 				handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 			};
 			showApiConsentModal = true;
 			return;
 		}
-		shouldAutoPolish = true;
 		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
 
@@ -588,13 +575,21 @@
 								Verslaglegging
 							</button>
 						</div>
-						<input
-							type="text"
-							value={s.subject}
-							oninput={(e) => setSubject(e.currentTarget.value)}
-							placeholder="Onderwerp (optioneel) bijv. huisartsenconsult, vergadering..."
-							class="w-full rounded-xl glass px-4 py-2.5 text-sm text-white/80 placeholder-white/25 outline-none focus:ring-1 focus:ring-neon/30 transition-all duration-200"
-						/>
+						<div class="w-full">
+							<label for="subject-input" class="mb-1 block text-xs font-medium text-white/60">
+								Onderwerp <span class="text-white/35"
+									>(optioneel — helpt de AI de context te begrijpen)</span
+								>
+							</label>
+							<input
+								id="subject-input"
+								type="text"
+								value={s.subject}
+								oninput={(e) => setSubject(e.currentTarget.value)}
+								placeholder="Bijv. huisartsenconsult, teamvergadering, intakegesprek..."
+								class="w-full rounded-xl glass px-4 py-2.5 text-sm text-white/80 placeholder-white/25 outline-none focus:ring-1 focus:ring-neon/30 transition-all duration-200"
+							/>
+						</div>
 						<button
 							onclick={onStartPolishing}
 							class="w-full rounded-xl bg-linear-to-r from-neon to-accent-start px-6 py-3.5 text-sm font-semibold text-black transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-[0.98]"
