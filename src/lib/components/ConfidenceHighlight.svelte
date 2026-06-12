@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { isStopword } from '$lib/utils/stopwords-nl';
-	import { getTranscribeState } from '$lib/stores/transcribe.svelte';
+	import { replaceNthToken } from '$lib/utils/word-correction';
+	import { getTranscribeState, setRaw } from '$lib/stores/transcribe.svelte';
 
 	interface WordWithConfidence {
 		text: string;
@@ -11,10 +12,9 @@
 	interface Props {
 		words: WordWithConfidence[];
 		threshold?: number;
-		oncorrect?: (correctedText: string) => void;
 	}
 
-	let { words, threshold = 0.7, oncorrect }: Props = $props();
+	let { words, threshold = 0.7 }: Props = $props();
 
 	const ts = getTranscribeState();
 
@@ -118,18 +118,28 @@
 		return groups;
 	});
 
-	// Build the final corrected text whenever corrections change
-	let correctedText = $derived(words.map((w, i) => corrections.get(i) ?? w.text).join(' '));
-
 	function applyCorrection(index: number, value: string) {
+		const trimmed = value.trim();
+		// What currently stands in the raw text for this word (earlier correction or original)
+		const oldToken = corrections.get(index) ?? words[index].text;
+		const newToken = trimmed === '' ? words[index].text : trimmed;
+
+		if (newToken !== oldToken) {
+			// Count which occurrence of oldToken this is, among the words as currently displayed
+			const n = words
+				.slice(0, index + 1)
+				.map((w, i) => corrections.get(i) ?? w.text)
+				.filter((t) => t === oldToken).length;
+			setRaw(replaceNthToken(ts.raw, oldToken, n, newToken));
+		}
+
 		const next = new Map(corrections);
-		if (value.trim() === '' || value.trim() === words[index].text) {
+		if (trimmed === '' || trimmed === words[index].text) {
 			next.delete(index);
 		} else {
-			next.set(index, value.trim());
+			next.set(index, trimmed);
 		}
 		corrections = next;
-		oncorrect?.(correctedText);
 	}
 </script>
 
