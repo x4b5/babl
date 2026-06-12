@@ -147,14 +147,18 @@
 		/>
 	{:else if corrections.has(i)}
 		<button
+			type="button"
 			class="cursor-pointer rounded-sm text-green-300/90 font-medium hover:bg-green-400/10"
 			onclick={() => startEdit(i)}
+			aria-label="Gecorrigeerd woord {corrections.get(i)} aanpassen"
 			title="Gecorrigeerd (was: {word.text}) — klik om aan te passen">{corrections.get(i)}</button
 		>
 	{:else if word.confidence < threshold && !isStopword(word.text)}
 		<button
+			type="button"
 			class="cursor-pointer rounded-sm border-b-2 border-amber-400/50 text-amber-200/90 hover:bg-amber-400/10"
 			onclick={() => startEdit(i)}
+			aria-label="Onzeker woord {word.text} corrigeren"
 			title="Zekerheid: {Math.round(word.confidence * 100)}% — klik om te corrigeren"
 			>{word.text}</button
 		>
