@@ -906,6 +906,11 @@
 								</li>
 								<li class="flex items-start gap-2">
 									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
+									Hosting: Vercel met serververwerking in Frankfurt (EU) — ook de doorgifte van audio
+									en tekst loopt via Europese servers
+								</li>
+								<li class="flex items-start gap-2">
+									<span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-500/50"></span>
 									AI Act: AI-gegenereerde output, transparantie gewaarborgd
 								</li>
 							</ul>

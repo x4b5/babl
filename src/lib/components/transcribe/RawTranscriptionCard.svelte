@@ -265,6 +265,15 @@
 				href="https://wa.me/?text={encodeURIComponent(raw)}"
 				target="_blank"
 				rel="noopener noreferrer"
+				onclick={(e) => {
+					if (
+						!confirm(
+							'Let op: de tekst wordt gedeeld via WhatsApp (Meta, servers buiten de EU). Doorgaan?'
+						)
+					) {
+						e.preventDefault();
+					}
+				}}
 				aria-label="Deel via WhatsApp"
 				class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs transition-all duration-200 text-white/55 hover:text-green-400 hover:bg-green-400/10"
 			>
