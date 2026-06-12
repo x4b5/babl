@@ -405,3 +405,5 @@
 | 2026-06-12 | 22:31     | 22:34    | .05         | `5345cba`   | docs: logboek bijwerken — EU-fixes en reviewronde                                                                               |
 | 2026-06-12 | 22:34     | 22:50    | .25         | `9e5ec22`   | feat: onderwerpveld in transcriptiekaart, progressiebalk verwijderd                                                             |
 | 2026-06-12 | 22:50     | 22:56    | .10         | `87ccb1f`   | feat: rustigere interface — vijf versimpelingen                                                                                 |
+| 2026-06-12 | 22:56     | 22:56    | 0           | `68cacee`   | docs: logboek bijwerken                                                                                                         |
+| 2026-06-12 | 22:56     | 23:01    | .09         | `5fe2c29`   | fix: verwerkings-icoon vervangen door boog-spinner                                                                              |

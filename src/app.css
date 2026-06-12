@@ -633,7 +633,7 @@ html.light {
 
 /* Body */
 html.light body {
-	background: #e8ede9;
+	background: #dee5e0;
 	color: #1e293b;
 }
 
@@ -646,11 +646,11 @@ html.light {
 html.light .bg-dark-gradient {
 	background: linear-gradient(
 		135deg,
-		#e8ede9 0%,
-		#dce5de 25%,
-		#e8ede9 50%,
-		#e0e8e2 75%,
-		#e8ede9 100%
+		#dee5e0 0%,
+		#d2dcd5 25%,
+		#dee5e0 50%,
+		#d6e0d9 75%,
+		#dee5e0 100%
 	);
 }
 
@@ -658,21 +658,21 @@ html.light .bg-dark-gradient::after {
 	opacity: 0.02;
 }
 
-/* Floating orbs — much subtler in light mode */
+/* Floating orbs — zichtbaar maar zacht in light mode */
 html.light .orb-violet {
-	background: rgba(139, 92, 246, 0.06);
+	background: rgba(139, 92, 246, 0.14);
 }
 
 html.light .orb-indigo {
-	background: rgba(79, 70, 229, 0.05);
+	background: rgba(79, 70, 229, 0.12);
 }
 
 html.light .orb-cyan {
-	background: rgba(16, 185, 129, 0.04);
+	background: rgba(16, 185, 129, 0.11);
 }
 
 html.light .orb-fuchsia {
-	background: rgba(255, 0, 128, 0.05);
+	background: rgba(255, 0, 128, 0.09);
 }
 
 /* Glassmorphism */
