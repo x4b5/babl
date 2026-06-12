@@ -402,3 +402,6 @@
 | 2026-06-12 | 22:14     | 22:29    | .25         | `f69f94e`   | fix: alle datastromen binnen de EU houden                                                                                       |
 | 2026-06-12 | 22:29     | 22:29    | 0           | `af72601`   | docs: logboek bijwerken met sessies van 11-12 juni                                                                              |
 | 2026-06-12 | 22:29     | 22:31    | .03         | `f17bce7`   | fix: review-punten — leesteken-terugval in replaceNthToken en a11y op woordknoppen                                              |
+| 2026-06-12 | 22:31     | 22:34    | .05         | `5345cba`   | docs: logboek bijwerken — EU-fixes en reviewronde                                                                               |
+| 2026-06-12 | 22:34     | 22:50    | .25         | `9e5ec22`   | feat: onderwerpveld in transcriptiekaart, progressiebalk verwijderd                                                             |
+| 2026-06-12 | 22:50     | 22:56    | .10         | `87ccb1f`   | feat: rustigere interface — vijf versimpelingen                                                                                 |
