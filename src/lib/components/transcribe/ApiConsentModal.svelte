@@ -31,7 +31,7 @@
 
 	<!-- Modal panel -->
 	<div
-		class="fixed inset-x-4 bottom-4 top-auto z-70 mx-auto max-h-[85svh] max-w-lg overflow-y-auto glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2"
+		class="fixed inset-x-4 top-1/2 z-70 mx-auto max-h-[85svh] max-w-lg -translate-y-1/2 overflow-y-auto glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="api-consent-title"

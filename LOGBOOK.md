@@ -410,3 +410,4 @@
 | 2026-06-12 | 23:01     | 23:05    | .06         | `5718326`   | feat: rustiger lightmode — gedempte achtergrond en zichtbare orb-animatie                                                       |
 | 2026-06-12 | 23:05     | 23:22    | .28         | `41ee816`   | fix: API-consent-pop-up zichtbaar op mobiel en direct getoond aan nieuwe gebruikers                                             |
 | 2026-06-12 | 23:22     | 23:26    | .05         | `2e8ac3e`   | fix: spatiebalk-hint verborgen op touch-apparaten                                                                               |
+| 2026-06-12 | 23:26     | 23:29    | .05         | `bb7c9af`   | feat: instellingenpaneel verborgen op mobiel                                                                                    |
