@@ -69,7 +69,6 @@
 		setReportLength,
 		setTranscribeMode,
 		setApiStreamMode,
-		setSubject,
 		setSavedRecordingId,
 		setSavedRecordingMimeType
 	} from '$lib/stores/transcribe.svelte';
@@ -485,7 +484,6 @@
 			reconnectStatus={s.reconnectStatus}
 			formattedTime={s.formattedTime}
 			formattedProcessingTime={s.formattedProcessingTime}
-			processingProgress={s.processingProgress}
 			recordingWarning={s.recordingWarning}
 			transcribeMode={s.transcribeMode}
 			localAvailable={s.localAvailable}
@@ -574,21 +572,6 @@
 							>
 								Verslaglegging
 							</button>
-						</div>
-						<div class="w-full">
-							<label for="subject-input" class="mb-1 block text-xs font-medium text-white/60">
-								Onderwerp <span class="text-white/35"
-									>(optioneel — helpt de AI de context te begrijpen)</span
-								>
-							</label>
-							<input
-								id="subject-input"
-								type="text"
-								value={s.subject}
-								oninput={(e) => setSubject(e.currentTarget.value)}
-								placeholder="Bijv. huisartsenconsult, teamvergadering, intakegesprek..."
-								class="w-full rounded-xl glass px-4 py-2.5 text-sm text-white/80 placeholder-white/25 outline-none focus:ring-1 focus:ring-neon/30 transition-all duration-200"
-							/>
 						</div>
 						<button
 							onclick={onStartPolishing}

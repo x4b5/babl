@@ -6,7 +6,8 @@
 		getTranscribeState,
 		setRaw,
 		setSpeakerLabel,
-		setSpeakerLabels
+		setSpeakerLabels,
+		setSubject
 	} from '$lib/stores/transcribe.svelte';
 	import { getRecording } from '$lib/utils/recording-db';
 
@@ -324,6 +325,16 @@
 			</button>
 		</div>
 	</div>
+
+	<!-- Onderwerp: geeft de AI context bij het genereren van het verslag -->
+	<input
+		type="text"
+		value={ts.subject}
+		oninput={(e) => setSubject(e.currentTarget.value)}
+		placeholder="Onderwerp (optioneel — helpt de AI de context te begrijpen)"
+		aria-label="Onderwerp"
+		class="mb-2 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 placeholder-white/30 outline-none focus:ring-1 focus:ring-neon/30 transition-all duration-200"
+	/>
 
 	<!-- Speaker rename tags -->
 	{#if hasSpeakers && uniqueSpeakers.length > 0}

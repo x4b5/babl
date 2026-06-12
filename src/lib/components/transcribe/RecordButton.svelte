@@ -12,7 +12,6 @@
 		reconnectStatus: string;
 		formattedTime: string;
 		formattedProcessingTime: string;
-		processingProgress: number;
 		recordingWarning: string;
 		transcribeMode: Mode;
 		localAvailable: boolean;
@@ -32,7 +31,6 @@
 		reconnectStatus,
 		formattedTime,
 		formattedProcessingTime,
-		processingProgress,
 		recordingWarning,
 		transcribeMode,
 		localAvailable,
@@ -183,7 +181,6 @@
 		{status}
 		{formattedTime}
 		{formattedProcessingTime}
-		{processingProgress}
 		{recordingWarning}
 		{transcribeMode}
 		{apiStatus}

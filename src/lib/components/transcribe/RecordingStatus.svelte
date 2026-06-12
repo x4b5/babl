@@ -5,7 +5,6 @@
 		status: Status;
 		formattedTime: string;
 		formattedProcessingTime: string;
-		processingProgress: number;
 		recordingWarning: string;
 		transcribeMode: Mode;
 		apiStatus: string;
@@ -16,7 +15,6 @@
 		status,
 		formattedTime,
 		formattedProcessingTime,
-		processingProgress,
 		recordingWarning,
 		transcribeMode,
 		apiStatus,
@@ -83,13 +81,6 @@
 				>{apiStatus || 'Transcriberen...'}</span
 			>
 			<span class="text-sm text-white/50 font-mono">{formattedProcessingTime}</span>
-		</div>
-		<!-- Progress bar -->
-		<div class="w-48 h-1.5 rounded-full bg-white/10 overflow-hidden">
-			<div
-				class="h-full rounded-full bg-gradient-to-r from-neon to-accent-start transition-all duration-1000 ease-out"
-				style="width: {processingProgress}%"
-			></div>
 		</div>
 		<p class="text-sm text-white/40">
 			{transcribeMode === 'api'
