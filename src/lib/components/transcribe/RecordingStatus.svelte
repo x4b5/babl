@@ -91,7 +91,7 @@
 {:else}
 	<div class="flex flex-col items-center gap-2">
 		<p class="text-base sm:text-sm text-white/50">Druk om op te nemen</p>
-		<kbd class="kbd-hint hidden sm:inline-flex"
+		<kbd class="kbd-hint hidden sm:pointer-fine:inline-flex"
 			><span class="text-white/55">spatie</span> om te starten of te stoppen</kbd
 		>
 	</div>

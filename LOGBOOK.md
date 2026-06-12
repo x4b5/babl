@@ -408,3 +408,4 @@
 | 2026-06-12 | 22:56     | 22:56    | 0           | `68cacee`   | docs: logboek bijwerken                                                                                                         |
 | 2026-06-12 | 22:56     | 23:01    | .09         | `5fe2c29`   | fix: verwerkings-icoon vervangen door boog-spinner                                                                              |
 | 2026-06-12 | 23:01     | 23:05    | .06         | `5718326`   | feat: rustiger lightmode — gedempte achtergrond en zichtbare orb-animatie                                                       |
+| 2026-06-12 | 23:05     | 23:22    | .28         | `41ee816`   | fix: API-consent-pop-up zichtbaar op mobiel en direct getoond aan nieuwe gebruikers                                             |
