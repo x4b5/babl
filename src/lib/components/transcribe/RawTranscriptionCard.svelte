@@ -325,8 +325,9 @@
 					{#if editingSpeaker === speaker}
 						<input
 							type="text"
-							class="rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} focus:outline-none focus:ring-1 focus:ring-white/30 w-28"
+							class="rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 w-36"
 							bind:value={editValue}
+							placeholder="Typ een naam..."
 							onkeydown={(e) => {
 								if (e.key === 'Enter') finishRename(speaker);
 								if (e.key === 'Escape') editingSpeaker = null;
@@ -336,11 +337,26 @@
 						/>
 					{:else}
 						<button
-							class="rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} hover:brightness-125 transition-all cursor-pointer"
+							class="flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium {colors.border} {colors.bg} {colors.text} hover:brightness-125 transition-all cursor-pointer"
 							onclick={() => startRename(speaker)}
-							title="Klik om te hernoemen"
+							title="Geef deze spreker een echte naam"
+							aria-label="Hernoem {getSpeakerDisplayName(speaker)}"
 						>
 							{getSpeakerDisplayName(speaker)}
+							<svg
+								class="h-3 w-3 opacity-60"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="2"
+								aria-hidden="true"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+								/>
+							</svg>
 						</button>
 					{/if}
 
