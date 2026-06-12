@@ -114,8 +114,6 @@
 		animationFrameId: { current: undefined }
 	};
 	let shouldAutoPolish = false;
-	let lastClickTime = 0;
-	const DOUBLE_CLICK_MS = 400;
 	// Ankerpunten voor auto-scroll naar het resultaat
 	let resultsEl: HTMLDivElement | undefined = $state();
 	let polishedEl: HTMLDivElement | undefined = $state();
@@ -433,22 +431,8 @@
 	}
 
 	function toggleRecording() {
-		const now = Date.now();
-		const isDoubleClick = now - lastClickTime < DOUBLE_CLICK_MS;
-		lastClickTime = now;
-
-		if (s.status === 'recording') {
-			if (isDoubleClick) {
-				stopRecording();
-			} else {
-				pauseRecording();
-			}
-		} else if (s.status === 'paused') {
-			if (isDoubleClick) {
-				stopRecording();
-			} else {
-				resumeRecording();
-			}
+		if (s.status === 'recording' || s.status === 'paused') {
+			stopRecording();
 		} else if (s.status === 'idle') {
 			if (needsApiConsent()) {
 				pendingAction = () => startRecording();
@@ -459,6 +443,14 @@
 		} else if (s.status === 'preparing') {
 			setStatus('idle');
 			setCountdown(0);
+		}
+	}
+
+	function pauseResumeRecording() {
+		if (s.status === 'recording') {
+			pauseRecording();
+		} else if (s.status === 'paused') {
+			resumeRecording();
 		}
 	}
 
@@ -513,6 +505,7 @@
 			apiStatus={s.apiStatus}
 			estimatedTranscribeCost={s.estimatedTranscribeCost}
 			onToggleRecording={toggleRecording}
+			onPauseResume={pauseResumeRecording}
 			{onFileUpload}
 		/>
 

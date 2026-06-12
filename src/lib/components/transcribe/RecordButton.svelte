@@ -19,6 +19,7 @@
 		apiStatus: string;
 		estimatedTranscribeCost: string;
 		onToggleRecording: () => void;
+		onPauseResume: () => void;
 		onFileUpload: (e: Event) => void;
 	}
 
@@ -38,6 +39,7 @@
 		apiStatus,
 		estimatedTranscribeCost,
 		onToggleRecording,
+		onPauseResume,
 		onFileUpload
 	}: Props = $props();
 
@@ -78,7 +80,9 @@
 				disabled={(status === 'processing' || localUnavailable) &&
 					status !== 'recording' &&
 					status !== 'paused'}
-				aria-label="Opname starten of stoppen"
+				aria-label={status === 'recording' || status === 'paused'
+					? 'Opname stoppen'
+					: 'Opname starten'}
 				class="relative z-10 flex h-24 w-24 sm:h-44 sm:w-44 items-center justify-center rounded-full bg-[#3e4553] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
 					{status === 'recording'
 					? 'animate-pulse-glow'
@@ -92,24 +96,16 @@
 					<span class="animate-countdown text-3xl sm:text-4xl font-bold text-amber-400">
 						{countdown}
 					</span>
-				{:else if status === 'recording'}
+				{:else if status === 'recording' || status === 'paused'}
 					<svg
-						class="h-8 w-8 sm:h-14 sm:w-14 text-red-400"
+						class="h-8 w-8 sm:h-14 sm:w-14 {status === 'paused'
+							? 'text-yellow-400'
+							: 'text-red-400'}"
 						fill="currentColor"
 						viewBox="0 0 24 24"
 						aria-hidden="true"
 					>
 						<rect x="6" y="6" width="12" height="12" rx="2" />
-					</svg>
-				{:else if status === 'paused'}
-					<svg
-						class="h-8 w-8 sm:h-14 sm:w-14 text-yellow-400"
-						fill="currentColor"
-						viewBox="0 0 24 24"
-						aria-hidden="true"
-					>
-						<rect x="7" y="5" width="4" height="14" rx="1" />
-						<rect x="13" y="5" width="4" height="14" rx="1" />
 					</svg>
 				{:else if status === 'processing'}
 					<svg
@@ -144,6 +140,39 @@
 				{/if}
 			</button>
 		</div>
+
+		<!-- Pauze/hervat-knop naast de hoofdknop -->
+		{#if status === 'recording' || status === 'paused'}
+			<button
+				onclick={onPauseResume}
+				aria-label={status === 'recording' ? 'Opname pauzeren' : 'Opname hervatten'}
+				title={status === 'recording' ? 'Pauzeren' : 'Hervatten'}
+				class="glass absolute top-1/2 left-full ml-3 sm:ml-5 flex h-12 w-12 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 text-yellow-400 transition-all duration-200 hover:scale-105 hover:border-yellow-400/30 hover:bg-yellow-400/10 animate-fade-in"
+			>
+				{#if status === 'recording'}
+					<svg
+						class="h-5 w-5 sm:h-6 sm:w-6"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
+						<rect x="7" y="5" width="4" height="14" rx="1" />
+						<rect x="13" y="5" width="4" height="14" rx="1" />
+					</svg>
+				{:else}
+					<svg
+						class="h-5 w-5 sm:h-6 sm:w-6"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
+						<path
+							d="M8 5.14v13.72a1 1 0 001.5.86l11-6.86a1 1 0 000-1.72l-11-6.86a1 1 0 00-1.5.86z"
+						/>
+					</svg>
+				{/if}
+			</button>
+		{/if}
 	</div>
 
 	{#if status === 'recording' || status === 'paused'}
