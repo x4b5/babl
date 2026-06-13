@@ -412,3 +412,4 @@
 | 2026-06-12 | 23:22     | 23:26    | .05         | `2e8ac3e`   | fix: spatiebalk-hint verborgen op touch-apparaten                                                                               |
 | 2026-06-12 | 23:26     | 23:29    | .05         | `bb7c9af`   | feat: instellingenpaneel verborgen op mobiel                                                                                    |
 | 2026-06-12 | 23:29     | 23:36    | .11         | `e84a24c`   | feat: WhatsApp-knop verplaatst naar verzendrij onder downloads                                                                  |
+| 2026-06-13 | 23:36     | 10:19    | 4.00        | `37a6e09`   | fix: security-hardening frontend (timing-safe token, Sentry-privacyfilter, security-headers)                                    |
