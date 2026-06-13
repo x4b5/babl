@@ -4,13 +4,11 @@
  */
 
 import { encodeWav } from '$lib/utils/audio';
-import { isAbortError, handleCaughtError, getUserMessage } from '$lib/utils/error-classifier';
-import type { ErrorType } from '$lib/utils/error-types';
+import { isAbortError, handleCaughtError } from '$lib/utils/error-classifier';
 import {
 	setRaw,
 	setLanguage,
 	setError,
-	setErrorType,
 	setApiStatus,
 	setStatus,
 	setConfidenceWords,
@@ -18,6 +16,7 @@ import {
 	getTranscribeState
 } from '$lib/stores/transcribe.svelte';
 import type { TranscriptionCallbacks } from './transcription';
+import { MAX_VERCEL_BODY_BYTES, tryParseJson, tryHandleApiError } from './api-error';
 
 /** Check if a blob is WebM — covers audio/webm, video/webm, and empty type with .webm name. */
 function isWebm(blob: Blob): boolean {
@@ -25,9 +24,6 @@ function isWebm(blob: Blob): boolean {
 	if (blob instanceof File && blob.name.endsWith('.webm')) return true;
 	return false;
 }
-
-/** Max Vercel body size. */
-const MAX_VERCEL_BODY_BYTES = 4 * 1024 * 1024;
 
 /** Max segment size: leave room for FormData overhead. */
 const MAX_SEGMENT_BYTES = MAX_VERCEL_BODY_BYTES - 512 * 1024;
@@ -127,32 +123,6 @@ async function splitAsWavChunks(blob: Blob, maxSize: number): Promise<Blob[]> {
 	} catch {
 		return [blob];
 	}
-}
-
-async function tryParseJson(resp: Response): Promise<{ error?: string } | undefined> {
-	try {
-		return await resp.json();
-	} catch {
-		return undefined;
-	}
-}
-
-async function tryHandleApiError(resp: Response): Promise<boolean> {
-	let body: { error?: string; error_type?: string } | undefined;
-	try {
-		body = await resp.json();
-	} catch {
-		return false;
-	}
-	if (body?.error_type) {
-		const detail = body.error ? ` (${body.error})` : '';
-		setErrorType(body.error_type as ErrorType);
-		setError(getUserMessage(body.error_type as ErrorType) + detail);
-		setApiStatus('');
-		setStatus('idle');
-		return true;
-	}
-	return false;
 }
 
 /** Upload a single segment and poll until transcription completes. */

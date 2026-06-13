@@ -22,8 +22,7 @@ import {
 	resetForTranscription
 } from '$lib/stores/transcribe.svelte';
 import { sendAudioApiSegmented } from './file-transcription';
-
-const MAX_VERCEL_BODY_BYTES = 4 * 1024 * 1024;
+import { MAX_VERCEL_BODY_BYTES, tryParseJson, tryHandleApiError } from './api-error';
 
 /** Build disclaimer with current date/time stamp. */
 function buildDisclaimer(type: 'transcript' | 'verslag'): string {
@@ -343,30 +342,4 @@ async function handleHttpError(resp: Response): Promise<void> {
 		return;
 	}
 	throw new Error(body?.error || `Server error ${resp.status}`);
-}
-
-async function tryHandleApiError(resp: Response): Promise<boolean> {
-	let body: { error?: string; error_type?: string } | undefined;
-	try {
-		body = await resp.json();
-	} catch {
-		return false;
-	}
-	if (body?.error_type) {
-		const detail = body.error ? ` (${body.error})` : '';
-		setErrorType(body.error_type as ErrorType);
-		setError(getUserMessage(body.error_type as ErrorType) + detail);
-		setApiStatus('');
-		setStatus('idle');
-		return true;
-	}
-	return false;
-}
-
-async function tryParseJson(resp: Response): Promise<{ error?: string } | undefined> {
-	try {
-		return await resp.json();
-	} catch {
-		return undefined;
-	}
 }
