@@ -418,3 +418,4 @@
 | 2026-06-13 | 10:25     | 10:28    | .05         | `3049731`   | refactor: codeduplicatie opruimen + dode code verwijderen                                                                       |
 | 2026-06-13 | 10:28     | 10:31    | .04         | `cca64fa`   | perf: hotspots wegnemen (Ollama-cache, Whisper-semaphore, IDB-hergebruik, onMount)                                              |
 | 2026-06-13 | 10:31     | 10:34    | .04         | `5a78c58`   | feat: toegankelijkheid + UX verbeteren (focus-visible, aria-live, modal-focus)                                                  |
+| 2026-06-13 | 10:34     | 10:36    | .03         | `57bc99d`   | test: dekking op risicovolle ongeteste logica + parsing extraheren                                                              |
