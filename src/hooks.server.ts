@@ -1,5 +1,5 @@
 import { redirect, type Handle } from '@sveltejs/kit';
-import { createHmac } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { ACCESS_PASSWORD } from '$env/static/private';
 import { env } from '$env/dynamic/private';
 import { isRateLimited } from '$lib/server/rate-limit';
@@ -9,7 +9,19 @@ if (env.SENTRY_DSN) {
 	Sentry.init({
 		dsn: env.SENTRY_DSN,
 		environment: env.VERCEL_ENV || 'development',
-		tracesSampleRate: 0.1
+		tracesSampleRate: 0.1,
+		// Privacy: strip request bodies/cookies — kunnen transcriptie-inhoud bevatten
+		beforeSend(event) {
+			if (event.request) {
+				delete event.request.data;
+				delete event.request.cookies;
+				if (event.request.headers) {
+					delete event.request.headers['cookie'];
+					delete event.request.headers['authorization'];
+				}
+			}
+			return event;
+		}
 	});
 }
 
@@ -17,6 +29,7 @@ export const handleError = Sentry.handleErrorWithSentry();
 
 const COOKIE_NAME = 'babl_session';
 const MAX_AGE = 30 * 24 * 60 * 60; // 30 days
+const MAX_AGE_MS = MAX_AGE * 1000;
 const PUBLIC_PATHS = [
 	'/login',
 	'/privacy',
@@ -36,13 +49,30 @@ export function verifyToken(token: string, password: string): boolean {
 	const parts = token.split('.');
 	if (parts.length !== 2) return false;
 	const [timestamp, signature] = parts;
+
+	// Weiger verlopen tokens (ouder dan MAX_AGE)
+	const issuedAt = Number.parseInt(timestamp, 10);
+	if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > MAX_AGE_MS) return false;
+
 	const expected = createHmac('sha256', password).update(timestamp).digest('hex');
-	return signature === expected;
+	const sigBuf = Buffer.from(signature, 'hex');
+	const expBuf = Buffer.from(expected, 'hex');
+	// Lengtecheck vóór timingSafeEqual (gooit anders bij ongelijke lengte)
+	if (sigBuf.length !== expBuf.length) return false;
+	return timingSafeEqual(sigBuf, expBuf);
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const password = ACCESS_PASSWORD;
 	const path = event.url.pathname;
+
+	// Basale beveiligingsheaders op elke respons
+	event.setHeaders({
+		'X-Content-Type-Options': 'nosniff',
+		'X-Frame-Options': 'DENY',
+		'Referrer-Policy': 'strict-origin-when-cross-origin',
+		'Permissions-Policy': 'microphone=(self), camera=(), geolocation=()'
+	});
 
 	// Allow public paths
 	if (PUBLIC_PATHS.some((p) => path.startsWith(p))) {

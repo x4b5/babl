@@ -15,6 +15,14 @@ export const GET: RequestHandler = async ({ params }) => {
 		});
 	}
 
+	// AssemblyAI transcript-IDs zijn alfanumeriek (met streepjes) — weiger al het andere
+	if (!/^[a-z0-9-]+$/i.test(params.id)) {
+		return new Response(JSON.stringify({ error: 'Ongeldig transcript-ID' }), {
+			status: 400,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
+
 	try {
 		const { AssemblyAI } = await import('assemblyai');
 		const client = new AssemblyAI({ apiKey, baseUrl: ASSEMBLYAI_EU_BASE_URL });
@@ -87,9 +95,14 @@ export const GET: RequestHandler = async ({ params }) => {
 		else if (msg.includes('502') || msg.includes('503')) errorType = 'upstream_disconnect';
 		else if (msg.toLowerCase().includes('timeout')) errorType = 'timeout';
 
-		return new Response(JSON.stringify({ error: msg, error_type: errorType }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' }
-		});
+		// Log detail server-side; stuur alleen een generieke melding naar de client
+		console.error('[transcribe-api/[id]] error:', msg);
+		return new Response(
+			JSON.stringify({ error: 'Ophalen transcriptie mislukt.', error_type: errorType }),
+			{
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			}
+		);
 	}
 };

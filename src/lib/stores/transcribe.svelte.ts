@@ -156,7 +156,9 @@ const estimatedTranscribeCost = $derived.by(() => {
 
 const estimatedPolishingCost = $derived.by(() => {
 	const wordCount = raw ? raw.split(/\s+/).length : 0;
-	const costPerWord = MISTRAL_COST_PER_WORD[quality] ?? MISTRAL_COST_PER_WORD['light'];
+	// De API-polijstroute gebruikt altijd het grote model (mistral-large-latest),
+	// dus de schatting rekent met de 'heavy'-prijs om realistisch te zijn.
+	const costPerWord = MISTRAL_COST_PER_WORD['heavy'];
 	const lengthFactor = REPORT_LENGTH_FACTOR[reportLength] ?? 1;
 	return (wordCount * costPerWord * lengthFactor).toFixed(4);
 });

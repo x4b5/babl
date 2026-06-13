@@ -224,7 +224,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				send({
 					type: 'error',
 					error_type: classified.errorType,
-					message: errMsg,
+					message: 'Polijsten mislukt.',
 					...(classified.retryAfter !== undefined && { retry_after: classified.retryAfter })
 				});
 			} finally {

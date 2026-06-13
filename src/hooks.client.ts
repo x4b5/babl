@@ -7,7 +7,15 @@ if (env.PUBLIC_SENTRY_DSN) {
 		environment: import.meta.env.MODE,
 		tracesSampleRate: 0.1,
 		replaysSessionSampleRate: 0,
-		replaysOnErrorSampleRate: 0
+		replaysOnErrorSampleRate: 0,
+		// Privacy: strip request bodies — kunnen transcriptie-inhoud bevatten
+		beforeSend(event) {
+			if (event.request) {
+				delete event.request.data;
+				delete event.request.cookies;
+			}
+			return event;
+		}
 	});
 }
 
