@@ -411,3 +411,11 @@
 | 2026-06-12 | 23:05     | 23:22    | .28         | `41ee816`   | fix: API-consent-pop-up zichtbaar op mobiel en direct getoond aan nieuwe gebruikers                                             |
 | 2026-06-12 | 23:22     | 23:26    | .05         | `2e8ac3e`   | fix: spatiebalk-hint verborgen op touch-apparaten                                                                               |
 | 2026-06-12 | 23:26     | 23:29    | .05         | `bb7c9af`   | feat: instellingenpaneel verborgen op mobiel                                                                                    |
+| 2026-06-12 | 23:29     | 23:36    | .11         | `e84a24c`   | feat: WhatsApp-knop verplaatst naar verzendrij onder downloads                                                                  |
+| 2026-06-13 | 23:36     | 10:19    | 4.00        | `37a6e09`   | fix: security-hardening frontend (timing-safe token, Sentry-privacyfilter, security-headers)                                    |
+| 2026-06-13 | 10:19     | 10:20    | .01         | `cae89f9`   | chore: npm audit fix — patch kwetsbaarheden binnen versie-ranges                                                                |
+| 2026-06-13 | 10:20     | 10:25    | .08         | `025d1e0`   | fix: backend security-hardening (invoervalidatie + geen foutdetails lekken)                                                     |
+| 2026-06-13 | 10:25     | 10:28    | .05         | `3049731`   | refactor: codeduplicatie opruimen + dode code verwijderen                                                                       |
+| 2026-06-13 | 10:28     | 10:31    | .04         | `cca64fa`   | perf: hotspots wegnemen (Ollama-cache, Whisper-semaphore, IDB-hergebruik, onMount)                                              |
+| 2026-06-13 | 10:31     | 10:34    | .04         | `5a78c58`   | feat: toegankelijkheid + UX verbeteren (focus-visible, aria-live, modal-focus)                                                  |
+| 2026-06-13 | 10:34     | 10:36    | .03         | `57bc99d`   | test: dekking op risicovolle ongeteste logica + parsing extraheren                                                              |

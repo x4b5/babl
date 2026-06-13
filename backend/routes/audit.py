@@ -1,9 +1,13 @@
 """Audit trail endpoints for GDPR compliance (Art. 17, 33-34)."""
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from evaluation.logger import read_audit_logs, delete_session_data, log_breach, read_breaches
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/audit", tags=["audit"])
 
@@ -34,8 +38,9 @@ async def query_audit_logs(
             limit=limit,
         )
         return {"entries": entries, "count": len(entries)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in audit-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.delete("/sessions/{session_id}")
@@ -61,8 +66,9 @@ async def delete_session(session_id: str):
         }
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in audit-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 class BreachReport(BaseModel):
@@ -100,8 +106,9 @@ async def report_breach(req: BreachReport):
             session_ids=req.session_ids,
         )
         return {"status": "logged", "breach": entry}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in audit-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.get("/breaches")
@@ -116,5 +123,6 @@ async def list_breaches(
     try:
         entries = read_breaches(severity=severity, limit=limit)
         return {"entries": entries, "count": len(entries)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in audit-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")

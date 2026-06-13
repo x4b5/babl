@@ -39,6 +39,10 @@ from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
+# Cache van Ollama-modellen die deze serversessie al succesvol geladen zijn.
+# Voorkomt een dure test-inferentie (model laden) bij elk polish-verzoek.
+_validated_ollama_models: set[str] = set()
+
 
 # --- Helper functions ---
 
@@ -319,6 +323,10 @@ async def polish(req: PolishingRequest):
                             for candidate in candidates:
                                 if candidate not in available:
                                     continue
+                                # Al eerder geladen deze sessie? Sla de dure test-inferentie over.
+                                if candidate in _validated_ollama_models:
+                                    chosen = candidate
+                                    break
                                 # Quick generate test to verify model can actually load
                                 try:
                                     test_resp = await check_client.post(
@@ -327,6 +335,7 @@ async def polish(req: PolishingRequest):
                                     )
                                     if test_resp.status_code == 200:
                                         chosen = candidate
+                                        _validated_ollama_models.add(candidate)
                                         break
                                     else:
                                         error_data = test_resp.json() if test_resp.headers.get("content-type", "").startswith("application/json") else {}

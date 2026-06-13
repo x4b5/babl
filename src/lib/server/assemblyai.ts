@@ -19,3 +19,12 @@ export const PII_REDACTION: Pick<
 	],
 	redact_pii_sub: 'entity_name'
 };
+
+/** Mapt een AssemblyAI-foutmelding naar een bekend error_type voor de frontend. */
+export function classifyAssemblyError(msg: string): string {
+	const lower = msg.toLowerCase();
+	if (msg.includes('429') || lower.includes('rate limit')) return 'rate_limit';
+	if (msg.includes('502') || msg.includes('503')) return 'upstream_disconnect';
+	if (lower.includes('timeout')) return 'timeout';
+	return 'server_error';
+}

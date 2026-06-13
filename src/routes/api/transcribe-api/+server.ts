@@ -1,7 +1,11 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 import { checkBudget, recordUsage } from '$lib/server/budget';
-import { ASSEMBLYAI_EU_BASE_URL, PII_REDACTION } from '$lib/server/assemblyai';
+import {
+	ASSEMBLYAI_EU_BASE_URL,
+	PII_REDACTION,
+	classifyAssemblyError
+} from '$lib/server/assemblyai';
 
 export const config = {
 	maxDuration: 60
@@ -64,14 +68,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
-		let errorType = 'server_error';
-		if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) errorType = 'rate_limit';
-		else if (msg.includes('502') || msg.includes('503')) errorType = 'upstream_disconnect';
-		else if (msg.toLowerCase().includes('timeout')) errorType = 'timeout';
-
-		return new Response(JSON.stringify({ error: msg, error_type: errorType }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' }
-		});
+		console.error('[transcribe-api] error:', msg);
+		return new Response(
+			JSON.stringify({
+				error: 'Transcriptie starten mislukt.',
+				error_type: classifyAssemblyError(msg)
+			}),
+			{
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			}
+		);
 	}
 };

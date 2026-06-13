@@ -22,6 +22,19 @@ from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
+# Serialiseert Whisper-transcripties: parallelle mlx-whisper-runs kunnen het
+# GPU-geheugen op Apple Silicon uitputten en crashen.
+_whisper_semaphore = asyncio.Semaphore(1)
+
+# Toegestane audio-extensies — voorkomt dat een gebruiker een willekeurige
+# extensie (bv. .py) op het tijdelijke bestand laat plakken.
+ALLOWED_AUDIO_SUFFIXES = {".webm", ".wav", ".mp3", ".mp4", ".m4a", ".ogg", ".flac", ".aac"}
+
+
+def _safe_suffix(filename: str | None, default: str) -> str:
+    suffix = os.path.splitext(filename or "")[1].lower()
+    return suffix if suffix in ALLOWED_AUDIO_SUFFIXES else default
+
 
 @router.post("/transcribe")
 async def transcribe(
@@ -34,6 +47,10 @@ async def transcribe(
     if lang not in ("auto", "nl", "li", "en"):
         lang = "li"
 
+    # Begrens het aantal sprekers (diarisatie) tot een redelijk bereik
+    if num_speakers is not None:
+        num_speakers = max(1, min(10, num_speakers))
+
     dialect_config = get_dialect_config(region)
 
     # Map frontend lang to Whisper parameters
@@ -44,7 +61,7 @@ async def transcribe(
         "en": {"language": "en", "initial_prompt": None},
     }[lang]
 
-    suffix = os.path.splitext(file.filename or "audio.webm")[1] or ".webm"
+    suffix = _safe_suffix(file.filename, ".webm")
 
     # Stream upload to disk in chunks to avoid loading entire file in RAM
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
@@ -191,18 +208,19 @@ async def transcribe(
                 )
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
-                    f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",
+                    f"data: {json.dumps({'type': 'error', 'message': 'Transcriptie mislukt.'})}\n\n",
                 )
             finally:
                 os.unlink(tmp_path)
                 loop.call_soon_threadsafe(queue.put_nowait, None)
 
-        loop.run_in_executor(None, _transcribe_worker)
-        while True:
-            item = await queue.get()
-            if item is None:
-                break
-            yield item
+        async with _whisper_semaphore:
+            loop.run_in_executor(None, _transcribe_worker)
+            while True:
+                item = await queue.get()
+                if item is None:
+                    break
+                yield item
 
     return StreamingResponse(
         generate(),
@@ -239,7 +257,7 @@ async def transcribe_live(
         "en": {"language": "en", "initial_prompt": None},
     }[lang]
 
-    suffix = os.path.splitext(file.filename or "audio.wav")[1] or ".wav"
+    suffix = _safe_suffix(file.filename, ".wav")
 
     # Stream upload to disk in chunks to avoid loading entire file in RAM
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)

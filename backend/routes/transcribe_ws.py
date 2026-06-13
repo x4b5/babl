@@ -74,7 +74,7 @@ async def ws_transcribe_stream(websocket: WebSocket):
         logger.error("AssemblyAI streaming error: %s", error)
         loop.call_soon_threadsafe(queue.put_nowait, {
             "type": "error",
-            "message": str(error),
+            "message": "Streamingfout bij transcriptie.",
         })
 
     def on_termination(_client, _event):
@@ -176,7 +176,7 @@ async def ws_transcribe_stream(websocket: WebSocket):
     except Exception as e:
         logger.exception("AssemblyAI RT error: %s", e)
         try:
-            await websocket.send_json({"type": "error", "message": str(e)})
+            await websocket.send_json({"type": "error", "message": "Transcriptie mislukt."})
         except Exception:
             pass
     finally:

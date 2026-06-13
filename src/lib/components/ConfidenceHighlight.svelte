@@ -11,10 +11,23 @@
 
 	interface Props {
 		words: WordWithConfidence[];
+		/** Onder deze zekerheid: amber (twijfelachtig). */
 		threshold?: number;
+		/** Onder deze zekerheid: rood (heel onzeker). */
+		strongThreshold?: number;
 	}
 
-	let { words, threshold = 0.7 }: Props = $props();
+	let { words, threshold = 0.7, strongThreshold = 0.5 }: Props = $props();
+
+	type ConfidenceBand = 'none' | 'low' | 'veryLow';
+
+	/** Bepaalt het onzekerheidsniveau van een woord (stopwoorden tellen niet mee). */
+	function bandFor(word: WordWithConfidence): ConfidenceBand {
+		if (isStopword(word.text)) return 'none';
+		if (word.confidence < strongThreshold) return 'veryLow';
+		if (word.confidence < threshold) return 'low';
+		return 'none';
+	}
 
 	const ts = getTranscribeState();
 
@@ -44,9 +57,8 @@
 	let editingIndex = $state<number | null>(null);
 	let editValue = $state('');
 
-	let lowConfidenceCount = $derived(
-		words.filter((w) => w.confidence < threshold && !isStopword(w.text)).length
-	);
+	let veryLowCount = $derived(words.filter((w) => bandFor(w) === 'veryLow').length);
+	let lowCount = $derived(words.filter((w) => bandFor(w) === 'low').length);
 
 	/** Check if any words have speaker labels */
 	let hasSpeakers = $derived(words.some((w) => w.speaker));
@@ -131,10 +143,11 @@
 
 {#snippet wordToken(i: number)}
 	{@const word = words[i]}
+	{@const band = bandFor(word)}
 	{#if editingIndex === i}
 		<input
 			type="text"
-			class="inline-block rounded border border-amber-400/60 bg-black/40 px-1 py-0 text-sm text-white focus:outline-none"
+			class="inline-block rounded border border-amber-400/60 bg-black/40 px-1 py-0 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
 			style="width: {Math.max(editValue.length + 2, 6)}ch"
 			bind:value={editValue}
 			onkeydown={(e) => {
@@ -153,12 +166,14 @@
 			aria-label="Gecorrigeerd woord {corrections.get(i)} aanpassen"
 			title="Gecorrigeerd (was: {word.text}) — klik om aan te passen">{corrections.get(i)}</button
 		>
-	{:else if word.confidence < threshold && !isStopword(word.text)}
+	{:else if band !== 'none'}
 		<button
 			type="button"
-			class="cursor-pointer rounded-sm border-b-2 border-amber-400/50 text-amber-200/90 hover:bg-amber-400/10"
+			class="cursor-pointer rounded-sm border-b-2 {band === 'veryLow'
+				? 'border-red-400/70 text-red-200/90 hover:bg-red-400/10'
+				: 'border-amber-400/50 text-amber-200/90 hover:bg-amber-400/10'}"
 			onclick={() => startEdit(i)}
-			aria-label="Onzeker woord {word.text} corrigeren"
+			aria-label="{band === 'veryLow' ? 'Zeer onzeker' : 'Onzeker'} woord {word.text} corrigeren"
 			title="Zekerheid: {Math.round(word.confidence * 100)}% — klik om te corrigeren"
 			>{word.text}</button
 		>
@@ -168,14 +183,21 @@
 {/snippet}
 
 <div class="space-y-3">
-	{#if lowConfidenceCount > 0}
-		<p class="text-xs text-white/45">
-			<span class="inline-block h-0.5 w-3 rounded bg-amber-400/50 align-middle"></span>
-			{lowConfidenceCount}
-			onzeker{lowConfidenceCount === 1 ? '' : 'e'} woord{lowConfidenceCount === 1
-				? ' is'
-				: 'en zijn'}
-			gemarkeerd — klik op een woord om het te corrigeren.
+	{#if veryLowCount + lowCount > 0}
+		<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/45">
+			{#if veryLowCount > 0}
+				<span class="inline-flex items-center gap-1.5">
+					<span class="inline-block h-0.5 w-3 rounded bg-red-400/70"></span>
+					{veryLowCount} heel onzeker
+				</span>
+			{/if}
+			{#if lowCount > 0}
+				<span class="inline-flex items-center gap-1.5">
+					<span class="inline-block h-0.5 w-3 rounded bg-amber-400/50"></span>
+					{lowCount} twijfelachtig
+				</span>
+			{/if}
+			<span>— klik op een woord om het te corrigeren.</span>
 		</p>
 	{/if}
 

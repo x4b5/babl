@@ -264,12 +264,10 @@
 		};
 	});
 
-	$effect(() => {
+	onMount(() => {
+		// Mount-only werk hoort in onMount, niet in $effect (dat herhaalt bij remount)
 		checkBackendHealth();
 		pruneRecordings(3).catch(() => {});
-	});
-
-	onMount(() => {
 		loadApiConsent();
 		// Nieuwe gebruiker (nog geen keuze gemaakt) in API-modus:
 		// toon de consent-pop-up direct bij het openen van de app.
