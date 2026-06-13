@@ -419,3 +419,4 @@
 | 2026-06-13 | 10:28     | 10:31    | .04         | `cca64fa`   | perf: hotspots wegnemen (Ollama-cache, Whisper-semaphore, IDB-hergebruik, onMount)                                              |
 | 2026-06-13 | 10:31     | 10:34    | .04         | `5a78c58`   | feat: toegankelijkheid + UX verbeteren (focus-visible, aria-live, modal-focus)                                                  |
 | 2026-06-13 | 10:34     | 10:36    | .03         | `57bc99d`   | test: dekking op risicovolle ongeteste logica + parsing extraheren                                                              |
+| 2026-06-13 | 10:36     | 10:39    | .05         | `a79010b`   | chore: logboek bijwerken                                                                                                        |
