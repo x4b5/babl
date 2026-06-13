@@ -57,8 +57,30 @@
 	let editingIndex = $state<number | null>(null);
 	let editValue = $state('');
 
-	let veryLowCount = $derived(words.filter((w) => bandFor(w) === 'veryLow').length);
-	let lowCount = $derived(words.filter((w) => bandFor(w) === 'low').length);
+	// Tel alleen nog níét gecorrigeerde woorden — telt af terwijl je verbetert.
+	let veryLowRemaining = $derived(
+		words.filter((w, i) => bandFor(w) === 'veryLow' && !corrections.has(i)).length
+	);
+	let lowRemaining = $derived(
+		words.filter((w, i) => bandFor(w) === 'low' && !corrections.has(i)).length
+	);
+
+	// Welk woord is via de navigatiebalk geselecteerd (krijgt een ring).
+	let activeIndex = $state<number | null>(null);
+
+	/** Spring naar het eerstvolgende nog niet gecorrigeerde woord van dit niveau. */
+	function jumpToNext(target: ConfidenceBand) {
+		const indices: number[] = [];
+		for (let i = 0; i < words.length; i++) {
+			if (bandFor(words[i]) === target && !corrections.has(i)) indices.push(i);
+		}
+		if (indices.length === 0) return;
+		const next = indices.find((i) => activeIndex === null || i > activeIndex) ?? indices[0];
+		activeIndex = next;
+		const el = document.getElementById(`cw-${next}`);
+		el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		el?.focus();
+	}
 
 	/** Check if any words have speaker labels */
 	let hasSpeakers = $derived(words.some((w) => w.speaker));
@@ -158,47 +180,60 @@
 			use:focusOnMount
 			aria-label="Corrigeer woord {word.text}"
 		/>
-	{:else if corrections.has(i)}
-		<button
-			type="button"
-			class="cursor-pointer rounded-sm text-green-300/90 font-medium hover:bg-green-400/10"
-			onclick={() => startEdit(i)}
-			aria-label="Gecorrigeerd woord {corrections.get(i)} aanpassen"
-			title="Gecorrigeerd (was: {word.text}) — klik om aan te passen">{corrections.get(i)}</button
-		>
-	{:else if band !== 'none'}
-		<button
-			type="button"
-			class="cursor-pointer rounded-sm border-b-2 {band === 'veryLow'
-				? 'border-red-400/70 text-red-200/90 hover:bg-red-400/10'
-				: 'border-amber-400/50 text-amber-200/90 hover:bg-amber-400/10'}"
-			onclick={() => startEdit(i)}
-			aria-label="{band === 'veryLow' ? 'Zeer onzeker' : 'Onzeker'} woord {word.text} corrigeren"
-			title="Zekerheid: {Math.round(word.confidence * 100)}% — klik om te corrigeren"
-			>{word.text}</button
-		>
 	{:else}
-		<span class="text-white/90">{word.text}</span>
+		{@const corrected = corrections.has(i)}
+		{@const colorClass = corrected
+			? 'text-green-300/90 font-medium'
+			: band === 'veryLow'
+				? 'text-red-400 font-medium'
+				: band === 'low'
+					? 'text-amber-300'
+					: 'text-white/90'}
+		<button
+			type="button"
+			id="cw-{i}"
+			class="cursor-pointer rounded-sm px-0.5 hover:bg-white/10 {colorClass} {activeIndex === i
+				? 'bg-white/10 ring-1 ring-white/50'
+				: ''}"
+			onclick={() => startEdit(i)}
+			aria-label="Woord {corrected ? corrections.get(i) : word.text} wijzigen{band === 'veryLow'
+				? ' (heel onzeker)'
+				: band === 'low'
+					? ' (twijfelachtig)'
+					: ''}"
+			title={corrected
+				? `Gecorrigeerd (was: ${word.text}) — klik om te wijzigen`
+				: `Zekerheid: ${Math.round(word.confidence * 100)}% — klik om te wijzigen`}
+			>{corrected ? corrections.get(i) : word.text}</button
+		>
 	{/if}
 {/snippet}
 
 <div class="space-y-3">
-	{#if veryLowCount + lowCount > 0}
-		<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/45">
-			{#if veryLowCount > 0}
-				<span class="inline-flex items-center gap-1.5">
-					<span class="inline-block h-0.5 w-3 rounded bg-red-400/70"></span>
-					{veryLowCount} heel onzeker
-				</span>
+	{#if veryLowRemaining + lowRemaining > 0}
+		<div class="flex flex-wrap items-center gap-2 text-xs">
+			<span class="text-white/45">Spring naar:</span>
+			{#if veryLowRemaining > 0}
+				<button
+					type="button"
+					class="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-2.5 py-1 text-red-300 hover:bg-red-400/10"
+					onclick={() => jumpToNext('veryLow')}
+				>
+					<span class="inline-block h-2 w-2 rounded-full bg-red-400"></span>
+					{veryLowRemaining} heel onzeker →
+				</button>
 			{/if}
-			{#if lowCount > 0}
-				<span class="inline-flex items-center gap-1.5">
-					<span class="inline-block h-0.5 w-3 rounded bg-amber-400/50"></span>
-					{lowCount} twijfelachtig
-				</span>
+			{#if lowRemaining > 0}
+				<button
+					type="button"
+					class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 px-2.5 py-1 text-amber-200 hover:bg-amber-400/10"
+					onclick={() => jumpToNext('low')}
+				>
+					<span class="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
+					{lowRemaining} twijfelachtig →
+				</button>
 			{/if}
-			<span>— klik op een woord om het te corrigeren.</span>
-		</p>
+		</div>
 	{/if}
 
 	{#if hasSpeakers && speakerGroups.length > 1}
