@@ -416,3 +416,4 @@
 | 2026-06-13 | 10:19     | 10:20    | .01         | `cae89f9`   | chore: npm audit fix — patch kwetsbaarheden binnen versie-ranges                                                                |
 | 2026-06-13 | 10:20     | 10:25    | .08         | `025d1e0`   | fix: backend security-hardening (invoervalidatie + geen foutdetails lekken)                                                     |
 | 2026-06-13 | 10:25     | 10:28    | .05         | `3049731`   | refactor: codeduplicatie opruimen + dode code verwijderen                                                                       |
+| 2026-06-13 | 10:28     | 10:31    | .04         | `cca64fa`   | perf: hotspots wegnemen (Ollama-cache, Whisper-semaphore, IDB-hergebruik, onMount)                                              |

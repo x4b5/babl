@@ -9,6 +9,8 @@
 
 	let { visible, onConsent, onDeny }: Props = $props();
 
+	let dialogEl = $state<HTMLDivElement | null>(null);
+
 	function handleGrant() {
 		grantApiConsent();
 		onConsent();
@@ -18,7 +20,39 @@
 		denyApiConsent();
 		onDeny();
 	}
+
+	// Focus de eerste knop zodra de modal verschijnt
+	$effect(() => {
+		if (visible && dialogEl) {
+			const first = dialogEl.querySelector<HTMLElement>('button, a[href]');
+			first?.focus();
+		}
+	});
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (!visible) return;
+		if (e.key === 'Escape') {
+			handleDeny();
+			return;
+		}
+		// Houd focus binnen de modal (Tab-trap)
+		if (e.key === 'Tab' && dialogEl) {
+			const focusable = dialogEl.querySelectorAll<HTMLElement>('button, a[href]');
+			if (focusable.length === 0) return;
+			const firstEl = focusable[0];
+			const lastEl = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === firstEl) {
+				e.preventDefault();
+				lastEl.focus();
+			} else if (!e.shiftKey && document.activeElement === lastEl) {
+				e.preventDefault();
+				firstEl.focus();
+			}
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 {#if visible}
 	<!-- Backdrop -->
@@ -31,6 +65,7 @@
 
 	<!-- Modal panel -->
 	<div
+		bind:this={dialogEl}
 		class="fixed inset-x-4 top-1/2 z-70 mx-auto max-h-[85svh] max-w-lg -translate-y-1/2 overflow-y-auto glass-strong rounded-2xl p-5 animate-slide-up sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2"
 		role="dialog"
 		aria-modal="true"

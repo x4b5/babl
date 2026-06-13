@@ -20,11 +20,15 @@ describe('getUserMessage', () => {
 	});
 
 	it('upstream_disconnect returns Dutch disconnect message', () => {
-		expect(getUserMessage('upstream_disconnect')).toBe('Backend niet bereikbaar.');
+		expect(getUserMessage('upstream_disconnect')).toBe(
+			'De dienst is even niet bereikbaar. Probeer het zo opnieuw.'
+		);
 	});
 
 	it('network_error returns Dutch network message', () => {
-		expect(getUserMessage('network_error')).toBe('Geen internet.');
+		expect(getUserMessage('network_error')).toBe(
+			'Geen internetverbinding. Controleer je verbinding en probeer opnieuw.'
+		);
 	});
 
 	it('server_error returns Dutch server error message', () => {

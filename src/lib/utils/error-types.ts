@@ -11,8 +11,8 @@ export type ErrorType =
 export const ERROR_MESSAGES: Record<ErrorType, string> = {
 	rate_limit: 'Overbelast. Even geduld.',
 	timeout: 'Duurt te lang — probeer een korter fragment.',
-	upstream_disconnect: 'Backend niet bereikbaar.',
-	network_error: 'Geen internet.',
+	upstream_disconnect: 'De dienst is even niet bereikbaar. Probeer het zo opnieuw.',
+	network_error: 'Geen internetverbinding. Controleer je verbinding en probeer opnieuw.',
 	server_error: 'Verwerking niet gelukt — probeer opnieuw.',
 	mic_denied:
 		'Microfoontoegang is geweigerd. Klik op het slotje in je adresbalk en zet "Microfoon" op "Toestaan".',
