@@ -14,8 +14,12 @@ export interface SavedRecording {
 	createdAt: number;
 }
 
+// Hergebruik één verbinding i.p.v. per operatie een nieuwe te openen.
+let dbPromise: Promise<IDBDatabase> | null = null;
+
 function openDb(): Promise<IDBDatabase> {
-	return new Promise((resolve, reject) => {
+	if (dbPromise) return dbPromise;
+	dbPromise = new Promise((resolve, reject) => {
 		const request = indexedDB.open(DB_NAME, DB_VERSION);
 		request.onupgradeneeded = () => {
 			const db = request.result;
@@ -23,9 +27,20 @@ function openDb(): Promise<IDBDatabase> {
 				db.createObjectStore(STORE_NAME, { keyPath: 'id' });
 			}
 		};
-		request.onsuccess = () => resolve(request.result);
-		request.onerror = () => reject(request.error);
+		request.onsuccess = () => {
+			const db = request.result;
+			// Reset de cache als de verbinding sluit, zodat een volgende call opnieuw opent
+			db.onclose = () => {
+				dbPromise = null;
+			};
+			resolve(db);
+		};
+		request.onerror = () => {
+			dbPromise = null;
+			reject(request.error);
+		};
 	});
+	return dbPromise;
 }
 
 export async function saveRecording(blob: Blob, mimeType: string): Promise<string> {

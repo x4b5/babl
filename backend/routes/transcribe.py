@@ -22,6 +22,10 @@ from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
+# Serialiseert Whisper-transcripties: parallelle mlx-whisper-runs kunnen het
+# GPU-geheugen op Apple Silicon uitputten en crashen.
+_whisper_semaphore = asyncio.Semaphore(1)
+
 # Toegestane audio-extensies — voorkomt dat een gebruiker een willekeurige
 # extensie (bv. .py) op het tijdelijke bestand laat plakken.
 ALLOWED_AUDIO_SUFFIXES = {".webm", ".wav", ".mp3", ".mp4", ".m4a", ".ogg", ".flac", ".aac"}
@@ -210,12 +214,13 @@ async def transcribe(
                 os.unlink(tmp_path)
                 loop.call_soon_threadsafe(queue.put_nowait, None)
 
-        loop.run_in_executor(None, _transcribe_worker)
-        while True:
-            item = await queue.get()
-            if item is None:
-                break
-            yield item
+        async with _whisper_semaphore:
+            loop.run_in_executor(None, _transcribe_worker)
+            while True:
+                item = await queue.get()
+                if item is None:
+                    break
+                yield item
 
     return StreamingResponse(
         generate(),
