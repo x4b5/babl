@@ -1,5 +1,7 @@
 """Evaluation and correction feedback endpoints."""
 
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from polishing import get_prompt_version
@@ -8,6 +10,8 @@ from evaluation.metrics import calculate_metrics
 from evaluation.patterns import extract_error_patterns
 from evaluation.suggestions import suggest_glossary_updates
 from models import EvaluateRequest, FeedbackRequest, UserCorrectionRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -33,8 +37,9 @@ async def evaluate(req: EvaluateRequest):
             "total_words": metrics["total_words"],
             "error_details": patterns["details"],
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.post("/evaluate/log")
@@ -55,8 +60,9 @@ async def evaluate_log(req: FeedbackRequest):
             prompt_version=get_prompt_version(),
         )
         return {"status": "logged", "file": str(log_path)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.get("/evaluate/history")
@@ -65,8 +71,9 @@ async def evaluate_history(limit: int = 50):
     try:
         entries = read_evaluations(limit=limit)
         return {"entries": entries, "count": len(entries)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.get("/evaluate/summary")
@@ -76,8 +83,9 @@ async def evaluate_summary(dialect_region: str | None = None, limit: int = 1000)
         summary = get_wer_summary(dialect_region=dialect_region, limit=limit)
         summary["prompt_version"] = get_prompt_version()
         return summary
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.post("/corrections")
@@ -94,8 +102,9 @@ async def submit_correction(req: UserCorrectionRequest):
             user_correction=req.user_correction,
         )
         return {"status": "logged", "file": str(log_path)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.get("/corrections")
@@ -104,8 +113,9 @@ async def list_corrections(dialect_region: str | None = None, limit: int = 50):
     try:
         entries = read_corrections(limit=limit, dialect_region=dialect_region)
         return {"entries": entries, "count": len(entries)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")
 
 
 @router.get("/corrections/suggestions")
@@ -115,5 +125,6 @@ async def correction_suggestions(dialect_region: str = "limburgs", limit: int = 
         corrections = read_corrections(limit=limit, dialect_region=dialect_region)
         suggestions = suggest_glossary_updates(corrections, region=dialect_region)
         return {"suggestions": suggestions, "count": len(suggestions), "based_on": len(corrections)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Onverwachte fout in evaluate-endpoint")
+        raise HTTPException(status_code=500, detail="Interne serverfout.")

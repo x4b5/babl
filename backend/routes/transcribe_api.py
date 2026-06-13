@@ -21,6 +21,9 @@ from evaluation.logger import log_processing_event
 
 router = APIRouter()
 
+# Toegestane audio-extensies — voorkomt willekeurige extensies op tijdelijke bestanden
+ALLOWED_AUDIO_SUFFIXES = {".webm", ".wav", ".mp3", ".mp4", ".m4a", ".ogg", ".flac", ".aac"}
+
 
 @router.post("/transcribe-api")
 async def transcribe_api(
@@ -32,7 +35,8 @@ async def transcribe_api(
     if not ASSEMBLYAI_API_KEY:
         raise HTTPException(status_code=400, detail="AssemblyAI API key not configured")
 
-    suffix = os.path.splitext(file.filename or "audio.webm")[1] or ".webm"
+    _ext = os.path.splitext(file.filename or "")[1].lower()
+    suffix = _ext if _ext in ALLOWED_AUDIO_SUFFIXES else ".webm"
 
     # Stream upload to disk in chunks to avoid loading entire file in RAM
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
@@ -218,7 +222,7 @@ async def transcribe_api(
                 )
                 loop.call_soon_threadsafe(
                     queue.put_nowait,
-                    f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n",
+                    f"data: {json.dumps({'type': 'error', 'message': 'Transcriptie mislukt.'})}\n\n",
                 )
             finally:
                 os.unlink(tmp_path)

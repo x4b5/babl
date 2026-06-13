@@ -1,21 +1,21 @@
 """Pydantic request/response models for API endpoints."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PolishingRequest(BaseModel):
-    text: str
+    text: str = Field(..., max_length=50_000)
     language: str
     region: str = "limburgs"
     quality: str = "light"
     mode: str = "local"
-    temperature: float = 0.5
+    temperature: float = Field(0.5, ge=0.0, le=2.0)
     report_length: str = "samenvatting"
     keep_dialect: bool = False
     target_lang: str = "nl"
     model_family: str = "qwen3"
-    speaker_labels: dict[str, str] | None = None
-    subject: str | None = None
+    speaker_labels: dict[str, str] | None = Field(None, max_length=20)
+    subject: str | None = Field(None, max_length=500)
 
 
 class EvaluateRequest(BaseModel):

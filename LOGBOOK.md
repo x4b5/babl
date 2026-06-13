@@ -413,3 +413,4 @@
 | 2026-06-12 | 23:26     | 23:29    | .05         | `bb7c9af`   | feat: instellingenpaneel verborgen op mobiel                                                                                    |
 | 2026-06-12 | 23:29     | 23:36    | .11         | `e84a24c`   | feat: WhatsApp-knop verplaatst naar verzendrij onder downloads                                                                  |
 | 2026-06-13 | 23:36     | 10:19    | 4.00        | `37a6e09`   | fix: security-hardening frontend (timing-safe token, Sentry-privacyfilter, security-headers)                                    |
+| 2026-06-13 | 10:19     | 10:20    | .01         | `cae89f9`   | chore: npm audit fix — patch kwetsbaarheden binnen versie-ranges                                                                |
