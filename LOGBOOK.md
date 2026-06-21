@@ -425,3 +425,4 @@
 | 2026-06-21 | 10:48     | 11:35    | 4.00        | `346a54f`   | fix: lokale transcriptie mist tekst door harde 30s-knip                                                                         |
 | 2026-06-21 | 11:35     | 19:29    | 4.00        | `5f664c8`   | feat: codebase bouw-doel-bewust maken voor web en desktop                                                                       |
 | 2026-06-21 | 19:29     | 19:35    | .11         | `1b45496`   | feat: statische desktop-build naast web-build (Tauri-voorbereiding)                                                             |
+| 2026-06-21 | 19:35     | 19:38    | .04         | `0fb763a`   | feat: Tauri-scaffold voor desktop-app (src-tauri/)                                                                              |
