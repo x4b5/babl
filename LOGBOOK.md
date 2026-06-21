@@ -429,3 +429,10 @@
 | 2026-06-21 | 19:38     | 20:03    | .42         | `60a1fb0`   | chore: Cargo.lock vastleggen voor reproduceerbare desktop-build                                                                 |
 | 2026-06-21 | 20:03     | 20:08    | .07         | `8ea6aa6`   | feat: eigen BABL-icoon voor desktop-app                                                                                         |
 | 2026-06-21 | 20:08     | 20:16    | .13         | `dbdeaf5`   | feat: desktop-app start de lokale backend zelf mee (Tauri sidecar)                                                              |
+| 2026-06-21 | 20:16     | 20:28    | .19         | `993c63f`   | feat: single-instance voor desktop-app                                                                                          |
+| 2026-06-21 | 20:28     | 20:30    | .03         | `07dd6c5`   | fix: backend staat de desktop-app-origin toe (CORS)                                                                             |
+| 2026-06-21 | 20:30     | 20:39    | .15         | `be5dee5`   | feat: desktop-app kan inloggen op de API (token + CORS)                                                                         |
+| 2026-06-21 | 20:39     | 20:41    | .03         | `91b03ba`   | feat: API-aanroepen sturen op desktop het auth-token mee                                                                        |
+| 2026-06-21 | 20:41     | 20:45    | .05         | `3c221a3`   | feat: inlogscherm voor cloud-modus in desktop-app                                                                               |
+| 2026-06-21 | 20:45     | 20:45    | 0           | `58b90b6`   | chore: desktop-build wijst naar de gedeployde API (VITE_API_BASE_URL)                                                           |
+| 2026-06-21 | 20:45     | 20:52    | .11         | `f6c6fe1`   | fix: security-hardening desktop-auth (review-bevindingen)                                                                       |
