@@ -21,6 +21,8 @@
 	import PrivacyFooter from '$lib/components/transcribe/PrivacyFooter.svelte';
 	import SetupWizard from '$lib/components/transcribe/SetupWizard.svelte';
 	import ApiConsentModal from '$lib/components/transcribe/ApiConsentModal.svelte';
+	import ApiLoginModal from '$lib/components/transcribe/ApiLoginModal.svelte';
+	import { IS_DESKTOP, hasApiAuth } from '$lib/config';
 
 	// Services
 	import { sendAudio } from '$lib/services/transcription';
@@ -94,6 +96,48 @@
 
 	function handleApiConsentDenied() {
 		showApiConsentModal = false;
+		pendingAction = null;
+	}
+
+	// ── API Login modal (alleen desktop — cloud zit achter een wachtwoord) ──
+	let showApiLoginModal = $state(false);
+
+	function needsApiLogin(): boolean {
+		return IS_DESKTOP && !hasApiAuth() && (s.transcribeMode === 'api' || s.mode === 'api');
+	}
+
+	/** Blokkeer een API-actie tot login + consent rond zijn. Geeft true als er een modal opende. */
+	function apiAccessGate(action: () => void): boolean {
+		if (needsApiLogin()) {
+			pendingAction = action;
+			showApiLoginModal = true;
+			return true;
+		}
+		if (needsApiConsent()) {
+			pendingAction = action;
+			showApiConsentModal = true;
+			return true;
+		}
+		return false;
+	}
+
+	function handleApiLoginSuccess() {
+		showApiLoginModal = false;
+		checkBackendHealth(); // API-beschikbaarheid opnieuw ophalen, nu met token
+		const action = pendingAction;
+		pendingAction = null;
+		if (!action) return;
+		// Na login alsnog consent checken voordat de actie draait
+		if (needsApiConsent()) {
+			pendingAction = action;
+			showApiConsentModal = true;
+			return;
+		}
+		action();
+	}
+
+	function handleApiLoginCancel() {
+		showApiLoginModal = false;
 		pendingAction = null;
 	}
 
@@ -437,11 +481,7 @@
 		if (s.status === 'recording' || s.status === 'paused') {
 			stopRecording();
 		} else if (s.status === 'idle') {
-			if (needsApiConsent()) {
-				pendingAction = () => startRecording();
-				showApiConsentModal = true;
-				return;
-			}
+			if (apiAccessGate(() => startRecording())) return;
 			startRecording();
 		} else if (s.status === 'preparing') {
 			setStatus('idle');
@@ -458,17 +498,12 @@
 	}
 
 	function onFileUpload(e: Event) {
-		if (needsApiConsent()) {
-			pendingAction = () => {
-				handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
-			};
-			showApiConsentModal = true;
-			return;
-		}
+		if (apiAccessGate(() => handleFileUpload(e, transcriptionRefs, transcriptionCallbacks))) return;
 		handleFileUpload(e, transcriptionRefs, transcriptionCallbacks);
 	}
 
 	function onStartPolishing() {
+		if (apiAccessGate(() => startPolishing(polishingRefs, polishingCallbacks))) return;
 		startPolishing(polishingRefs, polishingCallbacks);
 	}
 
@@ -638,6 +673,12 @@
 		visible={showApiConsentModal}
 		onConsent={handleApiConsentGranted}
 		onDeny={handleApiConsentDenied}
+	/>
+
+	<ApiLoginModal
+		visible={showApiLoginModal}
+		onSuccess={handleApiLoginSuccess}
+		onCancel={handleApiLoginCancel}
 	/>
 
 	<SetupWizard onClose={() => checkBackendHealth()} />
