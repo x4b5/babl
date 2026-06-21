@@ -428,3 +428,4 @@
 | 2026-06-21 | 19:35     | 19:38    | .04         | `0fb763a`   | feat: Tauri-scaffold voor desktop-app (src-tauri/)                                                                              |
 | 2026-06-21 | 19:38     | 20:03    | .42         | `60a1fb0`   | chore: Cargo.lock vastleggen voor reproduceerbare desktop-build                                                                 |
 | 2026-06-21 | 20:03     | 20:08    | .07         | `8ea6aa6`   | feat: eigen BABL-icoon voor desktop-app                                                                                         |
+| 2026-06-21 | 20:08     | 20:16    | .13         | `dbdeaf5`   | feat: desktop-app start de lokale backend zelf mee (Tauri sidecar)                                                              |

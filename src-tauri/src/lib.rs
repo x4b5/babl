@@ -66,7 +66,22 @@ fn stop_backend(app: &tauri::AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    #[allow(unused_mut)]
+    let mut builder = tauri::Builder::default();
+
+    // Single-instance: een tweede start focust het bestaande venster in plaats
+    // van een tweede (stuurloze) kopie te openen. Moet de eerste plugin zijn.
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            if let Some(w) = app.get_webview_window("main") {
+                let _ = w.unminimize();
+                let _ = w.set_focus();
+            }
+        }));
+    }
+
+    builder
         .manage(BackendProcess(Mutex::new(None)))
         .setup(|app| {
             if cfg!(debug_assertions) {
