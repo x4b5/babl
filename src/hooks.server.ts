@@ -49,7 +49,7 @@ function corsHeaders(origin: string): Record<string, string> {
 		'Access-Control-Allow-Origin': origin,
 		'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
 		'Access-Control-Allow-Headers': 'Content-Type, X-Babl-Token',
-		'Access-Control-Max-Age': '86400'
+		'Access-Control-Max-Age': '3600'
 	};
 }
 
@@ -77,10 +77,11 @@ export function verifyToken(token: string, password: string): boolean {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Desktop-build (Tauri) heeft geen server en geen publieke origin:
-	// de login-poort is daar zinloos. Doorlaten zodat de statische
-	// fallback-pagina gebouwd kan worden (anders 303 → /login).
-	if (process.env.BUILD_TARGET === 'desktop') {
+	// Desktop-build (Tauri) heeft geen server: de login-poort is bij het
+	// genereren van de statische fallback-pagina zinloos (anders 303 → /login).
+	// Extra borg: `!VERCEL` zodat dit nooit op productie de auth kan uitschakelen,
+	// ook niet als BUILD_TARGET daar per ongeluk gezet zou worden.
+	if (process.env.BUILD_TARGET === 'desktop' && !process.env.VERCEL) {
 		return resolve(event);
 	}
 
@@ -110,8 +111,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	// Auth via session-cookie (web) of via header-token (desktop-app).
+	// Het header-token wordt alleen geaccepteerd van een desktop-origin, zodat
+	// een gestolen token niet via een gewone (web)request herbruikt kan worden.
 	const cookieToken = event.cookies.get(COOKIE_NAME);
-	const headerToken = event.request.headers.get('x-babl-token') ?? undefined;
+	const headerToken = fromDesktop
+		? (event.request.headers.get('x-babl-token') ?? undefined)
+		: undefined;
 	const validToken =
 		(!!cookieToken && verifyToken(cookieToken, password)) ||
 		(!!headerToken && verifyToken(headerToken, password));
