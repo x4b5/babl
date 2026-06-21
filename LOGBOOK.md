@@ -423,3 +423,4 @@
 | 2026-06-13 | 10:39     | 10:46    | .10         | `0f2a24d`   | docs: vervolg-verbeterpunten uit codebase-review vastgelegd                                                                     |
 | 2026-06-13 | 10:46     | 10:48    | .04         | `a3071d0`   | feat: woordkleuring + spring-naar-onzeker in ruwe transcriptie                                                                  |
 | 2026-06-21 | 10:48     | 11:35    | 4.00        | `346a54f`   | fix: lokale transcriptie mist tekst door harde 30s-knip                                                                         |
+| 2026-06-21 | 11:35     | 19:29    | 4.00        | `5f664c8`   | feat: codebase bouw-doel-bewust maken voor web en desktop                                                                       |

@@ -63,6 +63,13 @@ export function verifyToken(token: string, password: string): boolean {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// Desktop-build (Tauri) heeft geen server en geen publieke origin:
+	// de login-poort is daar zinloos. Doorlaten zodat de statische
+	// fallback-pagina gebouwd kan worden (anders 303 → /login).
+	if (process.env.BUILD_TARGET === 'desktop') {
+		return resolve(event);
+	}
+
 	const password = ACCESS_PASSWORD;
 	const path = event.url.pathname;
 
