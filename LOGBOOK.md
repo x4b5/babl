@@ -426,3 +426,5 @@
 | 2026-06-21 | 11:35     | 19:29    | 4.00        | `5f664c8`   | feat: codebase bouw-doel-bewust maken voor web en desktop                                                                       |
 | 2026-06-21 | 19:29     | 19:35    | .11         | `1b45496`   | feat: statische desktop-build naast web-build (Tauri-voorbereiding)                                                             |
 | 2026-06-21 | 19:35     | 19:38    | .04         | `0fb763a`   | feat: Tauri-scaffold voor desktop-app (src-tauri/)                                                                              |
+| 2026-06-21 | 19:38     | 20:03    | .42         | `60a1fb0`   | chore: Cargo.lock vastleggen voor reproduceerbare desktop-build                                                                 |
+| 2026-06-21 | 20:03     | 20:08    | .07         | `8ea6aa6`   | feat: eigen BABL-icoon voor desktop-app                                                                                         |

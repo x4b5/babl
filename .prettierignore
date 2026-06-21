@@ -6,6 +6,10 @@ package-lock.json
 .svelte-kit
 build
 
+# Rust / Tauri (gegenereerde bouwartefacten)
+src-tauri/target
+src-tauri/gen
+
 # Generated
 .vercel
 .claude/settings.local.json
