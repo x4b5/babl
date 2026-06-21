@@ -12,7 +12,7 @@ import {
 } from '$lib/utils/error-classifier';
 import type { ErrorType } from '$lib/utils/error-types';
 import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
-import { apiUrl } from '$lib/config';
+import { apiFetch } from '$lib/config';
 import {
 	LOCAL_BACKEND_URL,
 	SSE_STALL_TIMEOUT_MS,
@@ -152,17 +152,22 @@ async function fetchPolishing(
 	if (Object.keys(activeSpeakerLabels).length > 0) {
 		body.speaker_labels = activeSpeakerLabels;
 	}
-	const polishUrl = body.mode === 'api' ? apiUrl('/api/polish') : `${LOCAL_BACKEND_URL}/polish`;
 	const controller = new AbortController();
 	callbacks.setPolishingController(controller);
 
 	try {
-		const resp = await fetch(polishUrl, {
+		const init: RequestInit = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
 			signal: controller.signal
-		});
+		};
+		// API-modus → gedeployde route via apiFetch (stuurt op desktop het token mee);
+		// lokale modus → rechtstreeks naar de lokale backend.
+		const resp =
+			body.mode === 'api'
+				? await apiFetch('/api/polish', init)
+				: await fetch(`${LOCAL_BACKEND_URL}/polish`, init);
 
 		if (resp.redirected || resp.url.includes('/login')) {
 			setError('Sessie verlopen — log opnieuw in.');

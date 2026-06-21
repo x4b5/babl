@@ -4,6 +4,7 @@
  */
 
 import { encodeWav } from '$lib/utils/audio';
+import { apiFetch } from '$lib/config';
 import { isAbortError, handleCaughtError } from '$lib/utils/error-classifier';
 import {
 	setRaw,
@@ -147,7 +148,7 @@ async function pollSegment(
 		}
 		await new Promise((r) => setTimeout(r, POLL_INTERVAL));
 
-		const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`, {
+		const pollResp = await apiFetch(`/api/transcribe-api/${transcriptId}`, {
 			signal: controller.signal
 		});
 
@@ -224,7 +225,7 @@ export async function sendAudioApiSegmented(
 			segFormData.append('file', segments[i], `segment-${i}.${ext}`);
 			segFormData.append('lang', s.lang);
 
-			const submitResp = await fetch('/api/transcribe-api', {
+			const submitResp = await apiFetch('/api/transcribe-api', {
 				method: 'POST',
 				body: segFormData,
 				signal: controller.signal
