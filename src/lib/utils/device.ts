@@ -11,6 +11,18 @@ export function isMobile(): boolean {
 	);
 }
 
+/**
+ * Detect whether the app itself is served from the user's own machine
+ * (localhost), as opposed to the deployed version (Vercel).
+ * Used to default to local processing mode on the local version.
+ */
+export function isLocalHost(): boolean {
+	if (typeof window === 'undefined') return false;
+
+	const host = window.location.hostname;
+	return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+}
+
 export type OS = 'mac' | 'windows' | 'linux';
 
 /**

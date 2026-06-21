@@ -12,6 +12,7 @@ import {
 } from '$lib/utils/error-classifier';
 import type { ErrorType } from '$lib/utils/error-types';
 import { rateLimitMessage, RATE_LIMIT_EXHAUSTED } from '$lib/utils/error-types';
+import { apiUrl } from '$lib/config';
 import {
 	LOCAL_BACKEND_URL,
 	SSE_STALL_TIMEOUT_MS,
@@ -151,7 +152,7 @@ async function fetchPolishing(
 	if (Object.keys(activeSpeakerLabels).length > 0) {
 		body.speaker_labels = activeSpeakerLabels;
 	}
-	const polishUrl = body.mode === 'api' ? '/api/polish' : `${LOCAL_BACKEND_URL}/polish`;
+	const polishUrl = body.mode === 'api' ? apiUrl('/api/polish') : `${LOCAL_BACKEND_URL}/polish`;
 	const controller = new AbortController();
 	callbacks.setPolishingController(controller);
 

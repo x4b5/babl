@@ -5,6 +5,7 @@ import {
 	setLocalAvailable,
 	setOllamaAvailable
 } from '$lib/stores/transcribe.svelte';
+import { apiUrl } from '$lib/config';
 import { isMobile } from './device';
 
 /**
@@ -13,7 +14,7 @@ import { isMobile } from './device';
  * On mobile: skips localhost check (unreachable anyway).
  */
 export function checkBackendHealth(): void {
-	fetch('/api/health')
+	fetch(apiUrl('/api/health'))
 		.then((r) => r.json())
 		.then((data) => {
 			setMistralAvailable(data.mistral_available ?? false);

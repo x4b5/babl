@@ -6,6 +6,7 @@
 import { readSSEStream } from '$lib/utils/sse-reader';
 import { getUserMessage, isAbortError, handleCaughtError } from '$lib/utils/error-classifier';
 import type { ErrorType } from '$lib/utils/error-types';
+import { apiUrl } from '$lib/config';
 import {
 	LOCAL_BACKEND_URL,
 	SSE_STALL_TIMEOUT_MS,
@@ -149,7 +150,7 @@ async function sendAudioApi(
 
 	try {
 		setApiStatus('Uploaden...');
-		const submitResp = await fetch('/api/transcribe-api', {
+		const submitResp = await fetch(apiUrl('/api/transcribe-api'), {
 			method: 'POST',
 			body: formData,
 			signal: controller.signal
@@ -206,7 +207,7 @@ async function pollTranscription(
 			throw new Error('Transcriptie duurde te lang (>60 min).');
 		}
 		await new Promise((r) => setTimeout(r, POLL_INTERVAL));
-		const pollResp = await fetch(`/api/transcribe-api/${transcriptId}`, {
+		const pollResp = await fetch(apiUrl(`/api/transcribe-api/${transcriptId}`), {
 			signal: controller.signal
 		});
 

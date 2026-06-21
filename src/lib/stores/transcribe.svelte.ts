@@ -40,7 +40,8 @@ export interface EvalResult {
 
 // ── Constants ─────────────────────────────────────────────────
 
-export const LOCAL_BACKEND_URL = 'http://localhost:8000';
+// LOCAL_BACKEND_URL leeft nu in $lib/config; her-geëxporteerd zodat bestaande imports werken.
+export { LOCAL_BACKEND_URL } from '$lib/config';
 export const MAX_AUTO_RETRIES = 3;
 export const OVERLAP_CHUNKS = 6; // 3 seconds overlap at 500ms per chunk
 export const CHUNK_INTERVAL_MS = 500; // MediaRecorder timeslice

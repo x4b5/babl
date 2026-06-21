@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { getRecording, deleteRecording, pruneRecordings } from '$lib/utils/recording-db';
 	import { checkBackendHealth } from '$lib/utils/health-check';
+	import { isLocalHost } from '$lib/utils/device';
 	import EvaluationScore from '$lib/components/EvaluationScore.svelte';
 	import FeedbackWidget from '$lib/components/FeedbackWidget.svelte';
 
@@ -266,6 +267,12 @@
 
 	onMount(() => {
 		// Mount-only werk hoort in onMount, niet in $effect (dat herhaalt bij remount)
+		// Lokale versie (pagina draait op localhost) → standaard alles op lokaal.
+		// De Vercel-versie blijft op API (zoals afgesproken).
+		if (isLocalHost()) {
+			setTranscribeMode('local');
+			setMode('local');
+		}
 		checkBackendHealth();
 		pruneRecordings(3).catch(() => {});
 		loadApiConsent();
