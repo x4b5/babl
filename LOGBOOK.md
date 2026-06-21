@@ -420,3 +420,5 @@
 | 2026-06-13 | 10:31     | 10:34    | .04         | `5a78c58`   | feat: toegankelijkheid + UX verbeteren (focus-visible, aria-live, modal-focus)                                                  |
 | 2026-06-13 | 10:34     | 10:36    | .03         | `57bc99d`   | test: dekking op risicovolle ongeteste logica + parsing extraheren                                                              |
 | 2026-06-13 | 10:36     | 10:39    | .05         | `a79010b`   | chore: logboek bijwerken                                                                                                        |
+| 2026-06-13 | 10:39     | 10:46    | .10         | `0f2a24d`   | docs: vervolg-verbeterpunten uit codebase-review vastgelegd                                                                     |
+| 2026-06-13 | 10:46     | 10:48    | .04         | `a3071d0`   | feat: woordkleuring + spring-naar-onzeker in ruwe transcriptie                                                                  |

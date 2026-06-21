@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 
 logger = logging.getLogger(__name__)
 
-from audio import extract_audio_segment, filter_segments_by_offset, get_audio_duration
+from audio import filter_segments_by_offset
 from config import MAX_UPLOAD_BYTES, WHISPER_MODEL_PATH
 from diarization import diarize, merge_transcription_with_diarization, is_diarization_available
 from dialects import get_dialect_config
@@ -96,11 +96,6 @@ async def transcribe(
 
         def _transcribe_worker():
             try:
-                duration = get_audio_duration(tmp_path)
-                segment_duration = 30.0  # seconds
-
-                logger.info("Transcribing %.2fs audio in %.0fs segments...", duration, segment_duration)
-
                 # Run speaker diarization on full audio (if available)
                 diarization_segments = []
                 if is_diarization_available():
@@ -113,75 +108,58 @@ async def transcribe(
                         speaker_count = len(set(s["speaker"] for s in diarization_segments))
                         logger.info("Diarization found %d speakers", speaker_count)
 
-                word_count = 0
-                detected_lang = "nl"
+                # Transcribe the WHOLE recording in one call. mlx-whisper handles
+                # long audio internally with overlapping 30s windows + context, so
+                # we no longer cut hard at 30s (which dropped words on boundaries)
+                # and no longer depend on a duration probe (unreliable for WebM).
+                logger.info("Transcribing full recording...")
+                transcribe_kwargs = {
+                    "path_or_hf_repo": WHISPER_MODEL_PATH,
+                    "temperature": (0.0, 0.2, 0.4),
+                }
+                if lang_config["language"] is not None:
+                    transcribe_kwargs["language"] = lang_config["language"]
+                if lang_config["initial_prompt"] is not None:
+                    transcribe_kwargs["initial_prompt"] = lang_config["initial_prompt"]
 
-                total_chunks = max(1, -(-int(duration) // int(segment_duration)))  # ceil division
-                for start in range(0, int(duration), int(segment_duration)):
-                    chunk_index = start // int(segment_duration)
-                    # Send progress event to keep SSE connection alive during long Whisper processing
-                    loop.call_soon_threadsafe(
-                        queue.put_nowait,
-                        f"data: {json.dumps({'type': 'progress', 'chunk': chunk_index + 1, 'total_chunks': total_chunks})}\n\n",
+                result = mlx_whisper.transcribe(tmp_path, **transcribe_kwargs)
+                detected_lang = result.get("language", "nl")
+                loop.call_soon_threadsafe(
+                    queue.put_nowait,
+                    f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n",
+                )
+
+                # Segments already carry absolute timestamps, so merge with offset 0.
+                raw_segments = result.get("segments", [])
+                if diarization_segments:
+                    merged = merge_transcription_with_diarization(
+                        raw_segments, diarization_segments, time_offset=0.0
                     )
+                else:
+                    merged = raw_segments
 
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as chunk_tmp:
-                        chunk_path = chunk_tmp.name
+                word_count = 0
+                for segment in merged:
+                    text = segment.get("text", "").strip()
+                    if text:
+                        # Apply hallucination detection (TRANS-03)
+                        try:
+                            hallucination_result = process_transcription(text)
+                            if hallucination_result["was_modified"]:
+                                logger.info("Hallucination detected: %d issue(s) in segment, cleaned", len(hallucination_result["hallucinations"]))
+                                text = hallucination_result["cleaned_text"]
+                        except Exception as e:
+                            logger.warning("Hallucination detection failed, using unfiltered text: %s", e)
 
-                    try:
-                        extract_audio_segment(tmp_path, chunk_path, float(start), segment_duration)
-
-                        transcribe_kwargs = {
-                            "path_or_hf_repo": WHISPER_MODEL_PATH,
-                            "temperature": (0.0, 0.2, 0.4),
-                        }
-                        if lang_config["language"] is not None:
-                            transcribe_kwargs["language"] = lang_config["language"]
-                        if lang_config["initial_prompt"] is not None:
-                            transcribe_kwargs["initial_prompt"] = lang_config["initial_prompt"]
-
-                        result = mlx_whisper.transcribe(chunk_path, **transcribe_kwargs)
-                        detected_lang = result.get("language", "nl")
-
-                        if start == 0:
+                        if text:  # Only send if text remains after cleaning
+                            word_count += len(text.split())
+                            event_data = {'type': 'segment', 'text': text}
+                            if 'speaker' in segment:
+                                event_data['speaker'] = segment['speaker']
                             loop.call_soon_threadsafe(
                                 queue.put_nowait,
-                                f"data: {json.dumps({'type': 'info', 'language': detected_lang})}\n\n",
+                                f"data: {json.dumps(event_data)}\n\n",
                             )
-
-                        # Merge Whisper segments with diarization (offset by chunk start)
-                        raw_segments = result.get("segments", [])
-                        if diarization_segments:
-                            merged = merge_transcription_with_diarization(
-                                raw_segments, diarization_segments, time_offset=float(start)
-                            )
-                        else:
-                            merged = raw_segments
-
-                        for segment in merged:
-                            text = segment.get("text", "").strip()
-                            if text:
-                                # Apply hallucination detection (TRANS-03)
-                                try:
-                                    hallucination_result = process_transcription(text)
-                                    if hallucination_result["was_modified"]:
-                                        logger.info("Hallucination detected: %d issue(s) in segment, cleaned", len(hallucination_result["hallucinations"]))
-                                        text = hallucination_result["cleaned_text"]
-                                except Exception as e:
-                                    logger.warning("Hallucination detection failed, using unfiltered text: %s", e)
-
-                                if text:  # Only send if text remains after cleaning
-                                    word_count += len(text.split())
-                                    event_data = {'type': 'segment', 'text': text}
-                                    if 'speaker' in segment:
-                                        event_data['speaker'] = segment['speaker']
-                                    loop.call_soon_threadsafe(
-                                        queue.put_nowait,
-                                        f"data: {json.dumps(event_data)}\n\n",
-                                    )
-                    finally:
-                        if os.path.exists(chunk_path):
-                            os.unlink(chunk_path)
 
                 logger.info("Transcription length: %d words", word_count)
                 log_processing_event(
@@ -217,7 +195,14 @@ async def transcribe(
         async with _whisper_semaphore:
             loop.run_in_executor(None, _transcribe_worker)
             while True:
-                item = await queue.get()
+                # Wait for the next event, but emit a keepalive "progress" ping
+                # every few seconds so the SSE connection survives the long
+                # single transcribe call. The frontend ignores 'progress' events.
+                try:
+                    item = await asyncio.wait_for(queue.get(), timeout=3.0)
+                except asyncio.TimeoutError:
+                    yield f"data: {json.dumps({'type': 'progress', 'message': 'Verwerken...'})}\n\n"
+                    continue
                 if item is None:
                     break
                 yield item
