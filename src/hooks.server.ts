@@ -32,12 +32,26 @@ const MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 const MAX_AGE_MS = MAX_AGE * 1000;
 const PUBLIC_PATHS = [
 	'/login',
+	'/api/desktop-login',
 	'/privacy',
 	'/cookies',
 	'/voorwaarden',
 	'/verwerkingsovereenkomst',
 	'/about'
 ];
+
+// De desktop-app (Tauri) draait onder een eigen origin en authenticeert met een
+// header-token i.p.v. een cookie. Deze origins mogen /api cross-origin aanroepen.
+const DESKTOP_ORIGINS = ['tauri://localhost', 'http://tauri.localhost'];
+
+function corsHeaders(origin: string): Record<string, string> {
+	return {
+		'Access-Control-Allow-Origin': origin,
+		'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+		'Access-Control-Allow-Headers': 'Content-Type, X-Babl-Token',
+		'Access-Control-Max-Age': '86400'
+	};
+}
 
 export function createToken(password: string): string {
 	const timestamp = Date.now().toString();
@@ -72,13 +86,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const password = ACCESS_PASSWORD;
 	const path = event.url.pathname;
+	const origin = event.request.headers.get('origin') ?? '';
+	const isApi = path.startsWith('/api/');
+	const fromDesktop = DESKTOP_ORIGINS.includes(origin);
 
-	// Basale beveiligingsheaders op elke respons
+	// CORS preflight (OPTIONS) van de desktop-app op /api: direct beantwoorden.
+	if (isApi && fromDesktop && event.request.method === 'OPTIONS') {
+		return new Response(null, { status: 204, headers: corsHeaders(origin) });
+	}
+
+	// Basale beveiligingsheaders op elke respons; CORS erbij voor de desktop-app.
 	event.setHeaders({
 		'X-Content-Type-Options': 'nosniff',
 		'X-Frame-Options': 'DENY',
 		'Referrer-Policy': 'strict-origin-when-cross-origin',
-		'Permissions-Policy': 'microphone=(self), camera=(), geolocation=()'
+		'Permissions-Policy': 'microphone=(self), camera=(), geolocation=()',
+		...(isApi && fromDesktop ? corsHeaders(origin) : {})
 	});
 
 	// Allow public paths
@@ -86,34 +109,46 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	// Check session cookie
-	const token = event.cookies.get(COOKIE_NAME);
-	if (token) {
-		const isValid = verifyToken(token, password);
-		if (isValid) {
-			// Rate limit API routes
-			if (path.startsWith('/api/') && path !== '/api/health') {
-				const maxPerMinute = parseInt(env.RATE_LIMIT_PER_MINUTE || '20', 10);
-				const ip = event.getClientAddress();
-				if (isRateLimited(ip, maxPerMinute)) {
-					return new Response(
-						JSON.stringify({
-							error: 'Te veel verzoeken. Wacht even.',
-							error_type: 'rate_limit'
-						}),
-						{
-							status: 429,
-							headers: {
-								'Content-Type': 'application/json',
-								'Retry-After': '60'
-							}
+	// Auth via session-cookie (web) of via header-token (desktop-app).
+	const cookieToken = event.cookies.get(COOKIE_NAME);
+	const headerToken = event.request.headers.get('x-babl-token') ?? undefined;
+	const validToken =
+		(!!cookieToken && verifyToken(cookieToken, password)) ||
+		(!!headerToken && verifyToken(headerToken, password));
+
+	if (validToken) {
+		// Rate limit API routes
+		if (path.startsWith('/api/') && path !== '/api/health') {
+			const maxPerMinute = parseInt(env.RATE_LIMIT_PER_MINUTE || '20', 10);
+			const ip = event.getClientAddress();
+			if (isRateLimited(ip, maxPerMinute)) {
+				return new Response(
+					JSON.stringify({
+						error: 'Te veel verzoeken. Wacht even.',
+						error_type: 'rate_limit'
+					}),
+					{
+						status: 429,
+						headers: {
+							'Content-Type': 'application/json',
+							'Retry-After': '60'
 						}
-					);
-				}
+					}
+				);
 			}
-			return resolve(event);
 		}
+		return resolve(event);
+	}
+	if (cookieToken || headerToken) {
 		console.warn(`[Auth] Invalid token for ${path}`);
+	}
+
+	// Desktop-app verwacht JSON (geen redirect naar het HTML-loginscherm).
+	if (isApi && fromDesktop) {
+		return new Response(JSON.stringify({ error: 'Niet ingelogd.', error_type: 'auth' }), {
+			status: 401,
+			headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) }
+		});
 	}
 
 	// Redirect to login
