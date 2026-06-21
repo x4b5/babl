@@ -49,9 +49,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 _cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
+_allowed_origins = [o.strip() for o in _cors_origins.split(",") if o.strip()]
+# Desktop-app (Tauri) draait onder een eigen origin — altijd toestaan zodat de
+# geïnstalleerde app de lokale backend mag aanroepen (macOS/Linux: tauri://localhost,
+# Windows: http://tauri.localhost).
+_allowed_origins += ["tauri://localhost", "http://tauri.localhost"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in _cors_origins.split(",")],
+    allow_origins=_allowed_origins,
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
